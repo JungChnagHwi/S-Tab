@@ -1,7 +1,9 @@
 package com.ssafy.stab.screens.space
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -23,13 +25,13 @@ fun SpaceRouters() {
         navController.navigate(destination)
     }
 
-    Row {
+    Row(modifier = Modifier.fillMaxSize()) {
         // "personal-note"와 "share-note"가 아닐 때만 SideBar를 렌더링
         if (currentRoute != "personal-note" && currentRoute != "share-note") {
-            SideBar(onNavigate = { navigateTo(it) })
+            SideBar(onNavigate = { navigateTo(it) }, modifier = Modifier.weight(0.25f))
         }
 
-        NavHost(navController = navController, startDestination = "personal-space") {
+        NavHost(navController = navController, startDestination = "personal-space", modifier = Modifier.weight(0.75f)) {
             composable("personal-space") { PersonalSpace() }
             composable("share-space") { ShareSpace() }
             composable("book-mark") { BookMark() }
