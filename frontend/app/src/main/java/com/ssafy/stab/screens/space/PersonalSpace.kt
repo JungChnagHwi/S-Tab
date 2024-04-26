@@ -31,8 +31,8 @@ fun PersonalSpace() {
             .background(Color(0xFFE9ECF5))
             .fillMaxSize()
     ) {
-        Header()
-        TitleBar()
+        MyHeader()
+        MyTitleBar()
         Divider(
             color = Color.Gray, // 선의 색상 설정
             thickness = 1.dp, // 선의 두께 설정
@@ -43,7 +43,7 @@ fun PersonalSpace() {
 }
 
 @Composable
-fun Header() {
+fun MyHeader() {
     val glassImg = painterResource(id = R.drawable.glass)
     val settingsImg = painterResource(id = R.drawable.settings)
     val profileImg = painterResource(id = R.drawable.profile)
@@ -77,7 +77,7 @@ fun Header() {
 }
 
 @Composable
-fun TitleBar() {
+fun MyTitleBar() {
     val myspImg = painterResource(id = R.drawable.mysp)
     val leftImg = painterResource(id = R.drawable.left)
     Row() {
@@ -87,6 +87,8 @@ fun TitleBar() {
                 Image(modifier = Modifier
                     .width(30.dp)
                     .height(30.dp) ,painter = myspImg, contentDescription = null)
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(text = "내 스페이스")
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(text = "> ··· >")
                 Spacer(modifier = Modifier.width(5.dp))
