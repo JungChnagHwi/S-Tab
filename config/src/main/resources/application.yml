@@ -1,0 +1,16 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: server-config
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://lab.ssafy.com/kjm1994/6b-s-tab-config.git
+          username: config-server
+          password: BzxkZxjec8mY9D94MF89
+
+
