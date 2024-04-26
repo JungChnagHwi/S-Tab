@@ -1,10 +1,10 @@
-package sixb.gateway;
+package com.sixb.eureka;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GatewayApplicationTests {
+class EurekaApplicationTests {
 
 	@Test
 	void contextLoads() {

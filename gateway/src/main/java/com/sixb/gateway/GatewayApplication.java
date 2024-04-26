@@ -1,4 +1,4 @@
-package sixb.gateway;
+package com.sixb.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

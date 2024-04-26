@@ -1,10 +1,10 @@
-package sixb.config;
+package com.sixb.gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ConfigApplicationTests {
+class GatewayApplicationTests {
 
 	@Test
 	void contextLoads() {
