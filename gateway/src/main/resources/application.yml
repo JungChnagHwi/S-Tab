@@ -1,0 +1,11 @@
+server:
+  port: 3661
+
+spring:
+  cloud:
+    gateway:
+        routes:
+          - id: gpt
+            uri: http://localhost:8081
+            predicates:
+              - Path=/gpt/**
