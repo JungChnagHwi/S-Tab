@@ -111,10 +111,7 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.width(50.dp))
             Image(painter = sharespImg, contentDescription = null)
             Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "공유 스페이스",
-                modifier = Modifier.clickable { onNavigate("share-space") }
-            )
+            Text(text = "공유 스페이스")
         }
         Spacer(modifier = Modifier.height(7.dp))
         Column {
@@ -127,7 +124,7 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
                 Text(text = "새로 만들기")
             }
             Spacer(modifier = Modifier.height(7.dp))
-            ShareSpaceListScreen(
+            ShareSpaceListScreen({ onNavigate("share-space") },
                 spaceNames = shareSpaceList
             )
         }
@@ -171,7 +168,7 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ShareSpaceListScreen(spaceNames: List<String>){
+fun ShareSpaceListScreen(onNavigate: (String) -> Unit, spaceNames: List<String>){
     val sharespImg = painterResource(id = R.drawable.sharesp)
 
     LazyColumn(modifier = Modifier.fillMaxHeight(0.6f)) {
@@ -179,12 +176,14 @@ fun ShareSpaceListScreen(spaceNames: List<String>){
             spaceName ->
             Row {
                 Spacer(modifier = Modifier.width(70.dp))
-                Image(painter = sharespImg, contentDescription = null)
-                Spacer(modifier = Modifier.width(5.dp))
-                Text(
-                    text=spaceName,
-                    modifier = Modifier.padding(7.dp)
-                )
+                Row(modifier = Modifier.clickable { onNavigate("share-space") }) {
+                    Image(painter = sharespImg, contentDescription = null)
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(
+                        text=spaceName,
+                        modifier = Modifier.padding(7.dp)
+                    )
+                }
             }
         }
     }
