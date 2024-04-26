@@ -13,4 +13,9 @@ spring:
           username: config-server
           password: BzxkZxjec8mY9D94MF89
 
-
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://admin:1234@localhost:8761/eureka
