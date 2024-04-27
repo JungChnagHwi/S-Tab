@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ssafy.stab.screens.auth.KakaoAuthViewModel
 import com.ssafy.stab.screens.auth.Login
 import com.ssafy.stab.screens.auth.SignUp
 import com.ssafy.stab.screens.space.SpaceRouters

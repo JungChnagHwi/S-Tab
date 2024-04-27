@@ -1,7 +1,15 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
 }
+
+val localProperties = Properties()
+rootProject.file("local.properties").inputStream().use {
+    localProperties.load(it)
+}
+val kakaoAppKey = localProperties.getProperty("kakao_native_app_key") ?: "default_key"
 
 android {
     namespace = "com.ssafy.stab"
@@ -18,6 +26,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        buildConfigField("String", "KAKAO_APP_KEY", "\"$kakaoAppKey\"")
+        resValue("string", "kakao_oauth_host", "kakao\"$kakaoAppKey\"")
     }
 
     buildTypes {
@@ -68,4 +78,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("com.kakao.sdk:v2-user:2.20.1") // 카카오 로그인 API 모듈
 }
