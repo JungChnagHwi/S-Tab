@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.ssafy.stab.screens.auth.KakaoAuthViewModel
 import com.ssafy.stab.screens.auth.Login
 import com.ssafy.stab.screens.auth.SignUp
+import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.space.SpaceRouters
 import com.ssafy.stab.ui.theme.STabTheme
 
@@ -47,5 +48,6 @@ fun Routers(){
         composable("login") { Login(onNavigate = { navigateTo(it) }) }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
         composable("space") { SpaceRouters() }
+        composable("personal-note") { PersonalNote(navController = navController)}
     }
 }

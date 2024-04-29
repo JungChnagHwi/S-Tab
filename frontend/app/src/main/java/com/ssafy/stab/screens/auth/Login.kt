@@ -32,6 +32,10 @@ fun Login(onNavigate: (String) -> Unit){
             Button(onClick = { onNavigate("space") }) {
                 Text(text = "개인 스페이스로 가기")
             }
+            Button(onClick = { onNavigate("personal-note") }) {
+                Text(text = "개인 노트로 가기")
+            }
+
         }
     }
 }
