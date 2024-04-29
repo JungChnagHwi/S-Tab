@@ -90,6 +90,17 @@ connections.on("connection", async (socket) => {
     } catch (e) {}
   });
 
+  const removeItems = (items, socketId, type) => {
+    items.forEach((item) => {
+      if (item.socketId === socket.id) {
+        item[type].close();
+      }
+    });
+    items = items.filter((item) => item.socketId !== socket.id);
+
+    return items;
+  };
+
   // 음성 채팅 방 접속
   socket.on("joinRoom", async (roomName, userName, isHost, callback) => {
     socket.join(roomName);
