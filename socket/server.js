@@ -62,10 +62,78 @@ const mediaCodecs = [
   },
 ]
 
+// socket 연결
 connections.on('connection', async socket => {
     socket.emit('connection-success', {
       socketId: socket.id,
     });
+
+    // 음성 채팅 방 종료
+    socket.on('disconnect', () => {
+        // 연결이 끊긴 socket 정리
+        console.log('peer disconnected')
+        consumers = removeItems(consumers, socket.id, 'consumer')
+        producers = removeItems(producers, socket.id, 'producer')
+        transports = removeItems(transports, socket.id, 'transport')
+    
+        try{
+          const { roomName } = peers[socket.id]
+          delete peers[socket.id]
+    
+          //rooms에서 해당 소켓 정보 삭제
+          rooms[roomName] = {
+            router: rooms[roomName].router,
+            peers: rooms[roomName].peers.filter(socketId => socketId !== socket.id)
+          }
+        } catch(e) {}
+      })
+
+      // 음성 채팅 방 접속
+      socket.on('joinRoom', async (roomName, userName, isHost, callback) => {
+        socket.join(roomName);
+        const router1 = await createRoom(roomName, socket.id)
+        peers[socket.id] = {
+          socket,
+          roomName,           // Name for the Router this Peer joined
+          transports: [],
+          producers: [],
+          consumers: [],
+          peerDetails: {
+            name: userName,
+            isAdmin: isHost, 
+          }
+        }
+        console.log(`${userName} just joined the Room `)
+      
+        // Router RTP Capabilities
+        const rtpCapabilities = router1.rtpCapabilities
+    
+        // call callback from the client and send back the rtpCapabilities
+        callback({ rtpCapabilities })
+      })
+
+      // 음성 채팅 방 생성
+      const createRoom = async (roomName, socketId) => {
+        let router1
+        let peers = []
+        if (rooms[roomName]) {
+          router1 = rooms[roomName].router
+          peers = rooms[roomName].peers || []
+        } else {
+          router1 = await worker.createRouter({ mediaCodecs, })
+        }
+        
+        // console.log(`Router ID: ${router1.id}`, peers.length)
+    
+        rooms[roomName] = {
+          router: router1,
+          peers: [...peers, socketId],
+        }
+    
+        return router1
+      }
+
+    // socket connection 추가
 })
 
 let listenip ;
