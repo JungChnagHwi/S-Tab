@@ -470,6 +470,14 @@ const createWebRtcTransport = async (router) => {
         enableUdp: true,
         enableTcp: true,
         preferUdp: true,
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" }, // Google의 공용 STUN 서버
+          {
+            urls: "turn:your.turn.server.ip.address", // TURN 서버 주소
+            username: "your_turn_username", // TURN 서버 유저네임
+            credential: "your_turn_credential", // TURN 서버 패스워드
+          },
+        ],
       };
 
       let transport = await router.createWebRtcTransport(
@@ -479,6 +487,7 @@ const createWebRtcTransport = async (router) => {
 
       transport.on("dtlsstatechange", (dtlsState) => {
         if (dtlsState === "closed") {
+          console.log("DTLS connection closed");
           transport.close();
         }
       });
@@ -489,6 +498,7 @@ const createWebRtcTransport = async (router) => {
 
       resolve(transport);
     } catch (error) {
+      console.error("Failed to create WebRTC transport", error);
       reject(error);
     }
   });
