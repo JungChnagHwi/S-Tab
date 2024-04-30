@@ -34,7 +34,7 @@ let consumers = []; // [ { socketId1, roomName1, consumer, }, ... ]
 const createWorker = async () => {
   worker = await mediasoup.createWorker({
     rtcMinPort: 2000,
-    rtcMaxPort: 2100,
+    rtcMaxPort: 3000,
   });
   console.log(`worker pid ${worker.pid}`);
 
