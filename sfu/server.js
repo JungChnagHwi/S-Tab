@@ -18,38 +18,38 @@ const io = new Server(httpServer, {
   },
 });
 
-const connections = io.of("/rtc-audio");
-
 httpServer.listen(PORT, () => {
   console.log(`listening on port: ${PORT}`);
 });
 
-let worker;
-let rooms = {}; // { roomName1: { Router, rooms: [ sicketId1, ... ] }, ...}
-let peers = {}; // { socketId1: { roomName1, socket, transports = [id1, id2,] }, producers = [id1, id2,] }, consumers = [id1, id2,], peerDetails }, ...}
-let transports = []; // [ { socketId1, roomName1, transport, consumer }, ... ]
-let producers = []; // [ { socketId1, roomName1, producer, }, ... ]
-let consumers = []; // [ { socketId1, roomName1, consumer, }, ... ]
+const audioConnections = io.of("/rtc-audio");
 
-const createWorker = async () => {
-  worker = await mediasoup.createWorker({
+let audioWorker;
+let audioRooms = {}; // { roomName1: { Router, rooms: [ sicketId1, ... ] }, ...}
+let audioPeers = {}; // { socketId1: { roomName1, socket, transports = [id1, id2,] }, producers = [id1, id2,] }, consumers = [id1, id2,], peerDetails }, ...}
+let audioTransports = []; // [ { socketId1, roomName1, transport, consumer }, ... ]
+let audioProducers = []; // [ { socketId1, roomName1, producer, }, ... ]
+let audioConsumers = []; // [ { socketId1, roomName1, consumer, }, ... ]
+
+const createAudioWorker = async () => {
+  audioWorker = await mediasoup.createWorker({
     rtcMinPort: 2000,
     rtcMaxPort: 3000,
   });
-  console.log(`worker pid ${worker.pid}`);
+  console.log(`worker pid ${audioWorker.pid}`);
 
   // mediasoup 내장 함수. worker process 가 예상치 않게 끊겼을 때 'died' 이벤트가 emit된다
-  worker.on("died", (error) => {
+  audioWorker.on("died", (error) => {
     // This implies something serious happened, so kill the application
     console.error("mediasoup worker has died");
     setTimeout(() => process.exit(1), 2000); // exit in 2 seconds
   });
 
-  return worker;
+  return audioWorker;
 };
 
 //! 가장 먼저해야 하는 작업 : worker 생성 :-) worker가 있어야 router도 transport도 생성할 수 있다.
-worker = createWorker();
+audioWorker = createAudioWorker();
 
 const mediaCodecs = [
   {
@@ -61,7 +61,7 @@ const mediaCodecs = [
 ];
 
 // socket 연결
-connections.on("connection", async (socket) => {
+audioConnections.on("connection", async (socket) => {
   socket.emit("connection-success", {
     socketId: socket.id,
   });
@@ -70,18 +70,18 @@ connections.on("connection", async (socket) => {
   socket.on("disconnect", () => {
     // 연결이 끊긴 socket 정리
     console.log("peer disconnected");
-    consumers = removeItems(consumers, socket.id, "consumer");
-    producers = removeItems(producers, socket.id, "producer");
-    transports = removeItems(transports, socket.id, "transport");
+    audioConsumers = removeItems(audioConsumers, socket.id, "consumer");
+    audioProducers = removeItems(audioProducers, socket.id, "producer");
+    audioTransports = removeItems(audioTransports, socket.id, "transport");
 
     try {
-      const { roomName } = peers[socket.id];
-      delete peers[socket.id];
+      const { roomName } = audioPeers[socket.id];
+      delete audioPeers[socket.id];
 
       //rooms에서 해당 소켓 정보 삭제
-      rooms[roomName] = {
-        router: rooms[roomName].router,
-        peers: rooms[roomName].peers.filter(
+      audioRooms[roomName] = {
+        router: audioRooms[roomName].router,
+        peers: audioRooms[roomName].peers.filter(
           (socketId) => socketId !== socket.id
         ),
       };
@@ -103,7 +103,7 @@ connections.on("connection", async (socket) => {
   socket.on("joinRoom", async (roomName, userName, isHost, callback) => {
     socket.join(roomName);
     const router1 = await createRoom(roomName, socket.id);
-    peers[socket.id] = {
+    audioPeers[socket.id] = {
       socket,
       roomName, // Name for the Router this Peer joined
       transports: [],
@@ -127,16 +127,16 @@ connections.on("connection", async (socket) => {
   const createRoom = async (roomName, socketId) => {
     let router1;
     let peers = [];
-    if (rooms[roomName]) {
-      router1 = rooms[roomName].router;
-      peers = rooms[roomName].peers || [];
+    if (audioRooms[roomName]) {
+      router1 = audioRooms[roomName].router;
+      peers = audioRooms[roomName].peers || [];
     } else {
-      router1 = await worker.createRouter({ mediaCodecs });
+      router1 = await audioWorker.createRouter({ mediaCodecs });
     }
 
     // console.log(`Router ID: ${router1.id}`, peers.length)
 
-    rooms[roomName] = {
+    audioRooms[roomName] = {
       router: router1,
       peers: [...peers, socketId],
     };
@@ -152,11 +152,11 @@ connections.on("connection", async (socket) => {
       console.log(socket.name, " consumer로서 createWebRtcTransport 호출");
     }
 
-    const roomName = peers[socket.id].roomName;
-    const router = rooms[roomName].router;
+    const roomName = audioPeers[socket.id].roomName;
+    const router = audioRooms[roomName].router;
 
     // [체크]
-    const [verify] = transports.filter(
+    const [verify] = audioTransports.filter(
       (transport) => transport.socketId === socket.id && !transport.consumer
     );
     // console.log("🔥", verify)
@@ -182,20 +182,20 @@ connections.on("connection", async (socket) => {
   });
 
   const addTransport = async (transport, roomName, consumer) => {
-    transports = [
-      ...transports,
+    audioTransports = [
+      ...audioTransports,
       { socketId: socket.id, transport, roomName, consumer },
     ];
 
-    peers[socket.id] = {
-      ...peers[socket.id],
-      transports: [...peers[socket.id].transports, transport.id],
+    audioPeers[socket.id] = {
+      ...audioPeers[socket.id],
+      transports: [...audioPeers[socket.id].transports, transport.id],
     };
   };
 
   const addProducer = (producer, roomName) => {
-    producers = [
-      ...producers,
+    audioProducers = [
+      ...audioProducers,
       // { socketId: socket.id, producer, roomName, name: peers[socket.id].peerDetails.name}
       {
         socketId: socket.id,
@@ -205,27 +205,30 @@ connections.on("connection", async (socket) => {
         kind: producer.kind,
       },
     ];
-    peers[socket.id] = {
-      ...peers[socket.id],
-      producers: [...peers[socket.id].producers, producer.id],
+    audioPeers[socket.id] = {
+      ...audioPeers[socket.id],
+      producers: [...audioPeers[socket.id].producers, producer.id],
     };
   };
 
   const addConsumer = (consumer, roomName) => {
-    consumers = [...consumers, { socketId: socket.id, consumer, roomName }];
+    audioConsumers = [
+      ...audioConsumers,
+      { socketId: socket.id, consumer, roomName },
+    ];
 
-    peers[socket.id] = {
-      ...peers[socket.id],
-      consumers: [...peers[socket.id].consumers, consumer.id],
+    audioPeers[socket.id] = {
+      ...audioPeers[socket.id],
+      consumers: [...audioPeers[socket.id].consumers, consumer.id],
     };
   };
 
   socket.on("getProducers", (callback) => {
-    const { roomName } = peers[socket.id];
-    const socketName = peers[socket.id].peerDetails.name;
+    const { roomName } = audioPeers[socket.id];
+    const socketName = audioPeers[socket.id].peerDetails.name;
     let producerList = [];
 
-    producers.forEach((producerData) => {
+    audioProducers.forEach((producerData) => {
       if (
         producerData.socketId !== socket.id &&
         producerData.roomName === roomName
@@ -235,9 +238,9 @@ connections.on("connection", async (socket) => {
           ...producerList,
           [
             producerData.producer.id,
-            peers[producerData.socketId].peerDetails.name,
+            audioPeers[producerData.socketId].peerDetails.name,
             producerData.socketId,
-            peers[producerData.socketId].peerDetails.isAdmin,
+            audioPeers[producerData.socketId].peerDetails.isAdmin,
           ],
         ];
       }
@@ -247,15 +250,15 @@ connections.on("connection", async (socket) => {
 
   // 새로운 producer가 생긴 경우 new-producer 를 emit 해서 consume 할 수 있게 알려줌
   const informConsumers = (roomName, socketId, id) => {
-    producers.forEach((producerData) => {
+    audioProducers.forEach((producerData) => {
       if (
         producerData.socketId !== socketId &&
         producerData.roomName === roomName
       ) {
-        const producerSocket = peers[producerData.socketId].socket;
+        const producerSocket = audioPeers[producerData.socketId].socket;
         // use socket to send producer id to producer
-        const socketName = peers[socketId].peerDetails.name;
-        const isNewSocketHost = peers[socketId].peerDetails.isAdmin;
+        const socketName = audioPeers[socketId].peerDetails.name;
+        const isNewSocketHost = audioPeers[socketId].peerDetails.isAdmin;
 
         console.log(
           `new-producer emit! socketName: ${socketName}, producerId: ${id}, kind : ${producerData.kind}`
@@ -274,7 +277,7 @@ connections.on("connection", async (socket) => {
       "getTransport 에서 확인해보는 socketId. 이게 transports 상의 socketId와 같아야해",
       socketId
     );
-    const [producerTransport] = transports.filter(
+    const [producerTransport] = audioTransports.filter(
       (transport) => transport.socketId === socketId && !transport.consumer
     );
     try {
@@ -323,7 +326,7 @@ connections.on("connection", async (socket) => {
         console.log("Producer ID: ", producer.id, producer.kind);
 
         //todo: 아래 부분 callback 아래쪽으로 옮기고 테스트
-        const { roomName } = peers[socket.id];
+        const { roomName } = audioPeers[socket.id];
         addProducer(producer, roomName);
         informConsumers(roomName, socket.id, producer.id);
         producer.on("transportclose", () => {
@@ -332,7 +335,7 @@ connections.on("connection", async (socket) => {
         });
         callback({
           id: producer.id,
-          producersExist: producers.length > 1 ? true : false,
+          producersExist: audioProducers.length > 1 ? true : false,
         });
       }
     }
@@ -341,7 +344,7 @@ connections.on("connection", async (socket) => {
   socket.on(
     "transport-recv-connect",
     async ({ dtlsParameters, serverConsumerTransportId }) => {
-      const consumerTransport = transports.find(
+      const consumerTransport = audioTransports.find(
         (transportData) =>
           transportData.consumer &&
           transportData.transport.id == serverConsumerTransportId
@@ -365,11 +368,11 @@ connections.on("connection", async (socket) => {
       callback
     ) => {
       try {
-        const { roomName } = peers[socket.id];
-        const userName = peers[socket.id].peerDetails.name;
-        const router = rooms[roomName].router;
+        const { roomName } = audioPeers[socket.id];
+        const userName = audioPeers[socket.id].peerDetails.name;
+        const router = audioRooms[roomName].router;
 
-        let consumerTransport = transports.find(
+        let consumerTransport = audioTransports.find(
           (transportData) =>
             transportData.consumer &&
             transportData.transport.id == serverConsumerTransportId
@@ -397,12 +400,12 @@ connections.on("connection", async (socket) => {
             socket.emit("producer-closed", { remoteProducerId });
 
             consumerTransport.close([]);
-            transports = transports.filter(
+            audioTransports = audioTransports.filter(
               (transportData) =>
                 transportData.transport.id !== consumerTransport.id
             );
             consumer.close();
-            consumers = consumers.filter(
+            audioConsumers = audioConsumers.filter(
               (consumerData) => consumerData.consumer.id !== consumer.id
             );
           });
@@ -436,7 +439,7 @@ connections.on("connection", async (socket) => {
 
   socket.on("consumer-resume", async ({ serverConsumerId }) => {
     console.log("consumer resume");
-    const { consumer } = consumers.find(
+    const { consumer } = audioConsumers.find(
       (consumerData) => consumerData.consumer.id === serverConsumerId
     );
     await consumer.resume();
