@@ -48,12 +48,10 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
         "스터디4",
         "스터디5",
         "스터디6",
-        "스터디1",
-        "스터디2",
-        "스터디3",
-        "스터디4",
-        "스터디5",
-        "스터디6",
+        "스터디7",
+        "스터디8",
+        "스터디9",
+        "스터디10"
     )
 
     Column( modifier = modifier
@@ -77,34 +75,34 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
             )
         }
         Spacer(modifier = Modifier.height(30.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row{
             Spacer(modifier = Modifier.width(50.dp))
-            Image(painter = starImg, contentDescription = null)
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "즐겨찾기",
-                modifier = Modifier.clickable { onNavigate("book-mark") }
-            )
+            Row(verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onNavigate("book-mark") }) {
+                Image(painter = starImg, contentDescription = null)
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "즐겨찾기")
+            }
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row{
             Spacer(modifier = Modifier.width(50.dp))
-            Image(painter = trashImg, contentDescription = null)
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "휴지통",
-                modifier = Modifier.clickable { onNavigate("deleted") }
-            )
+            Row(verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onNavigate("deleted") }) {
+                Image(painter = trashImg, contentDescription = null)
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "휴지통")
+            }
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row {
             Spacer(modifier = Modifier.width(50.dp))
-            Image(painter = myspImg, contentDescription = null)
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "내 스페이스",
-                modifier = Modifier.clickable { onNavigate("personal-space") }
-            )
+            Row(verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onNavigate("personal-space") }) {
+                Image(painter = myspImg, contentDescription = null)
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "내 스페이스")
+            }
         }
         Spacer(modifier = Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -170,17 +168,23 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
 @Composable
 fun ShareSpaceListScreen(onNavigate: (String) -> Unit, spaceNames: List<String>){
     val sharespImg = painterResource(id = R.drawable.sharesp)
+    val callingImg = painterResource(id = R.drawable.calling)
 
     LazyColumn(modifier = Modifier.fillMaxHeight(0.6f)) {
-        items(spaceNames) {
-            spaceName ->
+        items(spaceNames) { spaceName ->
             Row {
                 Spacer(modifier = Modifier.width(70.dp))
                 Row(modifier = Modifier.clickable { onNavigate("share-space") }) {
+                    if (spaceName == "스터디1") {
+                        Image(painter = callingImg, contentDescription = null, modifier= Modifier
+                            .height(30.dp)
+                            .width(30.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
+                    }
                     Image(painter = sharespImg, contentDescription = null)
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text=spaceName,
+                        text = spaceName,
                         modifier = Modifier.padding(7.dp)
                     )
                 }

@@ -1,5 +1,3 @@
-// https://stay-present.tistory.com/107
-
 import { Server } from "socket.io";
 import mediasoup from "mediasoup";
 import express from "express";
@@ -20,7 +18,7 @@ const io = new Server(httpServer, {
   },
 });
 
-const connections = io.of("/sock");
+const connections = io.of("/rtc-audio");
 
 httpServer.listen(PORT, () => {
   console.log(`listening on port: ${PORT}`);
@@ -36,7 +34,7 @@ let consumers = []; // [ { socketId1, roomName1, consumer, }, ... ]
 const createWorker = async () => {
   worker = await mediasoup.createWorker({
     rtcMinPort: 2000,
-    rtcMaxPort: 2100,
+    rtcMaxPort: 3000,
   });
   console.log(`worker pid ${worker.pid}`);
 
@@ -447,15 +445,12 @@ connections.on("connection", async (socket) => {
   // socket connection 추가
 });
 
-let listenip;
-let announceip;
-if (process.platform === "linux") {
-  listenip = "0.0.0.0";
-  announceip = "0.0.0.0";
-} else {
-  listenip = "127.0.0.1";
-  announceip = null;
-}
+const listenip = process.env.LISTEN_IP;
+const announceip = process.env.ANNOUNCE_IP;
+const stunip = process.env.STUN_IP;
+const turnip = process.env.TURN_IP;
+const username = process.env.TURN_USERNAME;
+const credential = process.env.TURN_CREDENTIAL;
 
 const createWebRtcTransport = async (router) => {
   return new Promise(async (resolve, reject) => {
@@ -470,6 +465,14 @@ const createWebRtcTransport = async (router) => {
         enableUdp: true,
         enableTcp: true,
         preferUdp: true,
+        iceServers: [
+          { urls: stunip }, // Google의 공용 STUN 서버
+          {
+            urls: turnip, // TURN 서버 주소
+            username: username, // TURN 서버 유저네임
+            credential: credential, // TURN 서버 패스워드
+          },
+        ],
       };
 
       let transport = await router.createWebRtcTransport(
@@ -479,6 +482,7 @@ const createWebRtcTransport = async (router) => {
 
       transport.on("dtlsstatechange", (dtlsState) => {
         if (dtlsState === "closed") {
+          console.log("DTLS connection closed");
           transport.close();
         }
       });
@@ -489,6 +493,7 @@ const createWebRtcTransport = async (router) => {
 
       resolve(transport);
     } catch (error) {
+      console.error("Failed to create WebRTC transport", error);
       reject(error);
     }
   });
