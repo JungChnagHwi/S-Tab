@@ -10,7 +10,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.ssafy.stab.components.SideBar
-import com.ssafy.stab.dialogs.PatchAuth
+import com.ssafy.stab.modals.PatchAuth
 import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.note.ShareNote
 

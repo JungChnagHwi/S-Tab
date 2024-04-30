@@ -23,8 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ssafy.stab.R
 
 @Composable
@@ -73,7 +75,8 @@ fun ShareSpace() {
                         .padding(10.dp)
                         .clickable {
                             // 높이 상태를 토글합니다.
-                            boxHeightState.value = if (boxHeightState.value == 300.dp) 80.dp else 300.dp
+                            boxHeightState.value =
+                                if (boxHeightState.value == 300.dp) 80.dp else 300.dp
                         }
                 )
             }
@@ -91,7 +94,7 @@ fun SpTitleBar() {
     val outImg = painterResource(id = R.drawable.out)
     val peopleImg = painterResource(id = R.drawable.people)
 
-    Row() {
+    Row {
         Spacer(modifier = Modifier.width(30.dp))
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -115,7 +118,8 @@ fun SpTitleBar() {
                     Text(fontSize = 24.sp, text="현재 폴더명")
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                Row(horizontalArrangement = Arrangement.End) {
+                Row(horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = peopleImg,
                         contentDescription = null,
@@ -124,6 +128,8 @@ fun SpTitleBar() {
                             .height(30.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "( 2 / 6 )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(15.dp))
                     Image(
                         painter = callImg,
                         contentDescription = null,
@@ -131,7 +137,7 @@ fun SpTitleBar() {
                             .height(30.dp)
                             .height(30.dp)
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(15.dp))
                     Image(
                         painter = envelopeImg,
                         contentDescription = null,
@@ -139,7 +145,7 @@ fun SpTitleBar() {
                             .height(30.dp)
                             .height(30.dp)
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(15.dp))
                     Image(
                         painter = outImg,
                         contentDescription = null,
