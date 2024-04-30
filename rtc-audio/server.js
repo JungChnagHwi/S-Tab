@@ -18,7 +18,7 @@ const io = new Server(httpServer, {
   },
 });
 
-const connections = io.of("/sock");
+const connections = io.of("/rtc-audio");
 
 httpServer.listen(PORT, () => {
   console.log(`listening on port: ${PORT}`);
