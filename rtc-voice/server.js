@@ -1,5 +1,3 @@
-// https://stay-present.tistory.com/107
-
 import { Server } from "socket.io";
 import mediasoup from "mediasoup";
 import express from "express";
