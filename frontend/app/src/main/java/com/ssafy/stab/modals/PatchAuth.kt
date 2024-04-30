@@ -1,4 +1,4 @@
-package com.ssafy.stab.dialogs
+package com.ssafy.stab.modals
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -21,7 +21,5 @@ fun PatchAuth(onDismiss: () -> Unit) {
                 Text("회원 정보 수정")
             }
         },
-//        title = { Text("인증 필요") },
-//        text = { Text("본인 인증이 필요합니다.") }
     )
 }

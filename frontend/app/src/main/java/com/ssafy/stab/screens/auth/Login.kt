@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.stab.apitest.apiTestOne
 import com.ssafy.stab.apitest.apiTestWhole
+import com.ssafy.stab.modals.UserListModal
 
 
 @Composable
@@ -34,6 +35,7 @@ fun Login(onNavigate: (String) -> Unit){
     val options = List(100) { it + 1 }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        UserListModal()
 
         Button(onClick = { apiTestWhole() }) {
             Text(text = "API TEST LIST BUTTON")

@@ -54,7 +54,7 @@ fun NoteListSpace() {
                             if (!isNameSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
                             shape = RoundedCornerShape(10.dp)
                         )
-                        .padding(horizontal = 10.dp, vertical = 5.dp)
+                        .padding(horizontal = 20.dp, vertical = 5.dp)
                         .align(Alignment.CenterVertically),
                     contentAlignment = Alignment.Center
                 ) {
@@ -71,7 +71,7 @@ fun NoteListSpace() {
                             if (isNameSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
                             shape = RoundedCornerShape(10.dp)
                         )
-                        .padding(horizontal = 10.dp, vertical = 5.dp)
+                        .padding(horizontal = 20.dp, vertical = 5.dp)
                         .align(Alignment.CenterVertically),
                     contentAlignment = Alignment.Center
                 ) {
