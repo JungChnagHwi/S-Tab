@@ -445,15 +445,12 @@ connections.on("connection", async (socket) => {
   // socket connection 추가
 });
 
-let listenip;
-let announceip;
-if (process.platform === "linux") {
-  listenip = "0.0.0.0";
-  announceip = "0.0.0.0";
-} else {
-  listenip = "127.0.0.1";
-  announceip = null;
-}
+const listenip = process.env.LISTEN_IP;
+const announceip = process.env.ANNOUNCE_IP;
+const stunip = process.env.STUN_IP;
+const turnip = process.env.TURN_IP;
+const username = process.env.TURN_USERNAME;
+const credential = process.env.TURN_CREDENTIAL;
 
 const createWebRtcTransport = async (router) => {
   return new Promise(async (resolve, reject) => {
@@ -469,11 +466,11 @@ const createWebRtcTransport = async (router) => {
         enableTcp: true,
         preferUdp: true,
         iceServers: [
-          { urls: "stun:stun.l.google.com:19302" }, // Google의 공용 STUN 서버
+          { urls: stunip }, // Google의 공용 STUN 서버
           {
-            urls: "turn:your.turn.server.ip.address", // TURN 서버 주소
-            username: "your_turn_username", // TURN 서버 유저네임
-            credential: "your_turn_credential", // TURN 서버 패스워드
+            urls: turnip, // TURN 서버 주소
+            username: username, // TURN 서버 유저네임
+            credential: credential, // TURN 서버 패스워드
           },
         ],
       };
