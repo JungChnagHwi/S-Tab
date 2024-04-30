@@ -143,7 +143,7 @@ dataConnections.on("connection", async (socket) => {
       router1 = dataRooms[roomName].router;
       peers = dataRooms[roomName].peers || [];
     } else {
-      router1 = await dataWorker.createRouter();
+      router1 = await dataWorker.createRouter({});
     }
 
     // console.log(`Router ID: ${router1.id}`, peers.length)
