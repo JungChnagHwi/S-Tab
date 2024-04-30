@@ -10,6 +10,7 @@ const httpServer = http.createServer(app);
 const PORT = 4000;
 
 const io = new Server(httpServer, {
+  path: "/rtc-audio",
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
@@ -18,7 +19,7 @@ const io = new Server(httpServer, {
   },
 });
 
-const connections = io.of("/rtc-audio");
+const connections = io.of("/sock");
 
 httpServer.listen(PORT, () => {
   console.log(`listening on port: ${PORT}`);
