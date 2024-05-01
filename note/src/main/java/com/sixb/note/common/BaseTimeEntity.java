@@ -1,30 +1,27 @@
 package com.sixb.note.common;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+//import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @NoArgsConstructor
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
+//@EnableJpaAuditing
 public abstract class BaseTimeEntity {
 
     @CreatedDate
-    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
-    @Column(columnDefinition = "TINYINT DEFAULT 0")
     private int isDelete;
     public void setIsDelete(int isDelete) {
         this.isDelete = isDelete;
