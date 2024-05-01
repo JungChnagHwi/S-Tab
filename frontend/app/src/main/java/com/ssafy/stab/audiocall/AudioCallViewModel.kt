@@ -46,13 +46,9 @@ class AudioCallViewModel : ViewModel() {
                 Log.d("AudioCallViewModel", "Response from server: ${args[0]}")
                 // { rtpCapabilities } 형태로 오므로 JSONObject로 처리한다.
                 val rtpCapabilities = args[0] as JSONObject
+                // 서버로부터 객체를 받았다면 방에 접속 성공했다는 메세지 알림!
+                Log.d("AudioCallViewModel", "Successfully joined room: $roomName with RTP Capabilities: $rtpCapabilities")
 
-                // 서버로부터 객체를 받았다면 방에 접속 성공!
-                if (rtpCapabilities != null) {
-                    Log.d("AudioCallViewModel", "Successfully joined room: $roomName with RTP Capabilities: $rtpCapabilities")
-                } else {
-                    Log.e("AudioCallViewModel", "Failed to join room: $roomName. RTP Capabilities missing.")
-                }
             } else {
                 Log.e("AudioCallViewModel", "Unexpected response format from server")
             }
