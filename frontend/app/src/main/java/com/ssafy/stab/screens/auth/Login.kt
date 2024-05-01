@@ -1,27 +1,72 @@
 package com.ssafy.stab.screens.auth
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ssafy.stab.apitest.apiTestOne
+import com.ssafy.stab.apitest.apiTestWhole
+import com.ssafy.stab.modals.UserListModal
 
 
 @Composable
 fun Login(onNavigate: (String) -> Unit){
     val kakaoAuthViewModel : KakaoAuthViewModel = viewModel()
+    var chooseId by remember { mutableStateOf(1) }
+    var expanded by remember { mutableStateOf(false) }
+    val options = List(100) { it + 1 }
 
-    Column {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        UserListModal()
+
+        Button(onClick = { apiTestWhole() }) {
+            Text(text = "API TEST LIST BUTTON")
+        }
+
+        // DropdownMenu를 통한 숫자 선택
+        Box {
+            Button(onClick = { expanded = true }) {
+                Text("Choose ID: $chooseId")
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                options.forEach { index ->
+                    DropdownMenuItem(
+                        text = { Text(index.toString()) }, // Text 컴포저블은 여기에 정확히 위치
+                        onClick = {
+                            chooseId = index
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Button(onClick = {
+            apiTestOne(chooseId) // 선택된 ID로 함수 호출
+        }) {
+            Text(text = "API TEST DETAIL BUTTON")
+        }
 
         KakaoLoginView(kakaoAuthViewModel)
 
@@ -32,6 +77,10 @@ fun Login(onNavigate: (String) -> Unit){
             Button(onClick = { onNavigate("space") }) {
                 Text(text = "개인 스페이스로 가기")
             }
+            Button(onClick = { onNavigate("personal-note") }) {
+                Text(text = "개인 노트로 가기")
+            }
+
         }
     }
 }
