@@ -6,10 +6,13 @@ import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
 import org.json.JSONObject
+//import org.mediasoup.droid.Device
 import java.net.URISyntaxException
 
+// 연결 상태 확인 로그 추후 삭제 요망
 class AudioCallViewModel : ViewModel() {
-    private var socket: Socket? = null // 클라이언트 소켓 인스턴스 생성
+    private var socket: Socket? = null // 클라이언트 소켓 인스턴스 생성 - socket 통신
+//    private var device: Device? = null // 클라이언트 단말 기기 미디어 설정을 위한 디바이스 - webRTC 통신
 
     // 소켓 서버 초기화
     init {
@@ -46,13 +49,30 @@ class AudioCallViewModel : ViewModel() {
                 Log.d("AudioCallViewModel", "Response from server: ${args[0]}")
                 // { rtpCapabilities } 형태로 오므로 JSONObject로 처리한다.
                 val rtpCapabilities = args[0] as JSONObject
-                // 서버로부터 객체를 받았다면 방에 접속 성공했다는 메세지 알림!
+                // 서버에서 받은 rtpCapabilities를 이용하여 Device 설정
+//                initializeDevice(rtpCapabilities)
+
                 Log.d("AudioCallViewModel", "Successfully joined room: $roomName with RTP Capabilities: $rtpCapabilities")
 
             } else {
                 Log.e("AudioCallViewModel", "Unexpected response format from server")
             }
         })
+    }
+
+//    private fun initializeDevice(rtpCapabilities: JSONObject) {
+//        device = Device()
+//        try {
+//            // p2p 연결이 아닌 sfu 구조를 사용해 peerConnectionOptions 가 필요 없다, webRTC 기본 설정 사용(==null)
+//            device?.load(rtpCapabilities.toString(), null)
+//            createTransports()
+//        } catch (e: Exception) {
+//            Log.e("AudioCallViewModel", "Error loading device: ${e.message}")
+//        }
+//    }
+
+    private fun createTransports() {
+        // transport 생성
     }
 
     // 소켓 서버와의 연결 끊기
