@@ -44,7 +44,7 @@ const createDataWorker = async () => {
     rtcMinPort: 10001,
     rtcMaxPort: 20000,
   });
-  console.log(`data worker pid ${audioWorker.pid}`);
+  console.log(`data worker pid ${dataWorker.pid}`);
 
   dataWorker.on("died", (error) => {
     console.error("mediasoup data worker has died");
