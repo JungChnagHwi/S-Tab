@@ -80,6 +80,9 @@ fun Login(onNavigate: (String) -> Unit){
             Button(onClick = { onNavigate("personal-note") }) {
                 Text(text = "개인 노트로 가기")
             }
+            Button(onClick = { onNavigate("audio-call") }) {
+                Text(text = "음성 통화로 가기")
+            }
 
         }
     }
