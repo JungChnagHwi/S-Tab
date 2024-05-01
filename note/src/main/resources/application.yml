@@ -5,6 +5,13 @@ spring:
   application:
     name: note
 
+#창휘 로컬 네오4제이 테스트용
+  neo4j:
+    authentication:
+      username: neo4j
+      password: admin1234
+    uri: bolt://localhost:7687
+
 eureka:
   client:
     register-with-eureka: true
