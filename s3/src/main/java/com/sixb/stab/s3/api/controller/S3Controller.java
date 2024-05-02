@@ -19,8 +19,8 @@ public class S3Controller {
 
 	@GetMapping
 	public ResponseEntity<String> getPresignedUrl(@RequestParam String nickname,
-												  @RequestParam String fileName) {
-		String mimeType = URLConnection.guessContentTypeFromName(fileName);
+												  @RequestParam String filename) {
+		String mimeType = URLConnection.guessContentTypeFromName(filename);
 		String type;
 
 		if (mimeType.split("/")[0].equals("image")) {
@@ -31,7 +31,7 @@ public class S3Controller {
 			return ResponseEntity.badRequest().body("잘못된 파일 타입입니다.");
 		}
 
-		String presignedUrl = s3Service.getPresignedUrl(nickname, mimeType, type, fileName);
+		String presignedUrl = s3Service.getPresignedUrl(nickname, mimeType, type, filename);
 		return ResponseEntity.ok(presignedUrl);
 	}
 
