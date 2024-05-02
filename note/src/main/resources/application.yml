@@ -12,20 +12,6 @@ spring:
       password: admin1234
     uri: bolt://localhost:7687
 
-
-jwt:
-  token:
-    secret-key: ${TOKEN_SECRET_KEY}
-  access-token:
-    expire-length: ${ACCESS_TOKEN_EXPIRE_LENGTH}
-  refresh-token:
-    expire-length: ${REFRESH_TOKEN_EXPIRE_LENGTH}
-  redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
-    password: ${REDIS_PW}
-
-
 eureka:
   client:
     register-with-eureka: true
