@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface SpaceRepository extends Neo4jRepository<Space, UUID> {
+    Space findSpaceById(UUID spaceId);
 }
