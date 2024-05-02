@@ -37,13 +37,13 @@ fun ControlsBar(
             if (undoAvailable.value) R.drawable.undo_abled else R.drawable.undo_disabled,
             "undo",
             ) {
-//                if (unDoAvailable.value) noteController.unDo()
+                if (undoAvailable.value) noteController.undo()
             }
         EditIcons(
             if (redoAvailable.value) R.drawable.redo_abled else R.drawable.redo_disabled,
             "redo"
             ) {
-//                if (reDoAvailable.value) noteController.reDo()
+                if (redoAvailable.value) noteController.redo()
             }
         EditIcons(
             if (penType.value == "pen") R.drawable.pen_abled else R.drawable.pen_disabled,

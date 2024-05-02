@@ -9,13 +9,31 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class NoteController internal constructor(val trackHistory: (undoCount: Int, redoCount: Int) -> Unit = { _, _ -> }) {
 
     private val undoPathList = mutableStateListOf<PathInfo>()
+    private val redoPathList = mutableStateListOf<PathInfo>()
     internal val pathList: SnapshotStateList<PathInfo> = undoPathList
 
-    var bgColor by mutableStateOf(Color.Black)
+    private val historyTracking = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    private val historyTracker = historyTracking.asSharedFlow()
+
+    fun trackHistory(
+        scope: CoroutineScope,
+        trackHistory: (undoCount: Int, redoCount: Int) -> Unit
+    ) {
+        historyTracker
+            .onEach { trackHistory(undoPathList.size, redoPathList.size) }
+            .launchIn(scope)
+    }
+
+    var bgColor by mutableStateOf(Color.White)
         private set
 
     var strokeWidth by mutableFloatStateOf(10f)
@@ -43,11 +61,33 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
             color = color
         )
         undoPathList.add(pathInfo)
+        redoPathList.clear()
+        historyTracking.tryEmit("insert path")
     }
 
     fun updateLatestPath(newCoordinate: Coordinate) {
         val index = undoPathList.lastIndex
         undoPathList[index].coordinates.add(newCoordinate)
+    }
+
+    fun undo() {
+        if (undoPathList.isNotEmpty()) {
+            val last = undoPathList.last()
+            redoPathList.add(last)
+            undoPathList.remove(last)
+            trackHistory(undoPathList.size, redoPathList.size)
+            historyTracking.tryEmit("undo")
+        }
+    }
+
+    fun redo() {
+        if (redoPathList.isNotEmpty()) {
+            val last = redoPathList.last()
+            undoPathList.add(last)
+            redoPathList.remove(last)
+            trackHistory(undoPathList.size, redoPathList.size)
+            historyTracking.tryEmit("redo")
+        }
     }
 
 }

@@ -41,7 +41,7 @@ fun PersonalNote(navController: NavController){
         ) {
             undoCount, redoCount ->
             undoAvailable.value = undoCount != 0
-            redoAvailable.value = undoCount != 0
+            redoAvailable.value = redoCount != 0
         }
     }
 
