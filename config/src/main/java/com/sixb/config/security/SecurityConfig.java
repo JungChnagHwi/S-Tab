@@ -1,4 +1,4 @@
-package com.sixb.eureka.security;
+package com.sixb.config.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,32 +18,33 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${spring.security.username}")
-    private String username;
+	@Value("${spring.security.username}")
+	private String username;
 
-    @Value("${spring.security.password}")
-    private String password;
+	@Value("${spring.security.password}")
+	private String password;
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public BCryptPasswordEncoder bCryptPasswordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
-        http.authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
-        http.httpBasic(Customizer.withDefaults());
-        return http.build();
-    }
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.csrf(AbstractHttpConfigurer::disable);
+		http.authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
+		http.httpBasic(Customizer.withDefaults());
+		return http.build();
+	}
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-                .username(username)
-                .password(bCryptPasswordEncoder().encode(password))
-                .roles("ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(user);
-    }
+	@Bean
+	public UserDetailsService userDetailsService() {
+		UserDetails user = User.builder()
+				.username(username)
+				.password(bCryptPasswordEncoder().encode(password))
+				.roles("ADMIN")
+				.build();
+		return new InMemoryUserDetailsManager(user);
+	}
+
 }
