@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: s3
+  profiles:
+    activate: prod
+  config:
+    import: optional:configserver:http://admin:1234@localhost:8888
 
 eureka:
   client:
