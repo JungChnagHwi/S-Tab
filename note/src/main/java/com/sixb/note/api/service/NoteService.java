@@ -2,6 +2,7 @@ package com.sixb.note.api.service;
 
 import com.sixb.note.dto.note.CreateNoteRequestDto;
 import com.sixb.note.dto.note.CreateNoteResponseDto;
+import com.sixb.note.dto.note.UpdateNoteTitleRequestDto;
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Space;
 import com.sixb.note.repository.FolderRepository;
@@ -95,5 +96,17 @@ public class NoteService {
         response.setPage(pageDto);
 
         return response;
+    }
+
+    //노트 이름 변경
+    public boolean updateNoteTitle(UUID noteId, String newTitle) {
+        Optional<Note> optionalNote = noteRepository.findById(noteId);
+        if (optionalNote.isPresent()) {
+            Note note = optionalNote.get();
+            note.setTitle(newTitle);
+            noteRepository.save(note);
+            return true;
+        }
+        return false;
     }
 }
