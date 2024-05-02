@@ -35,39 +35,6 @@ fun Login(onNavigate: (String) -> Unit){
     val options = List(100) { it + 1 }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        UserListModal()
-
-        Button(onClick = { apiTestWhole() }) {
-            Text(text = "API TEST LIST BUTTON")
-        }
-
-        // DropdownMenu를 통한 숫자 선택
-        Box {
-            Button(onClick = { expanded = true }) {
-                Text("Choose ID: $chooseId")
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { index ->
-                    DropdownMenuItem(
-                        text = { Text(index.toString()) }, // Text 컴포저블은 여기에 정확히 위치
-                        onClick = {
-                            chooseId = index
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
-
-        Button(onClick = {
-            apiTestOne(chooseId) // 선택된 ID로 함수 호출
-        }) {
-            Text(text = "API TEST DETAIL BUTTON")
-        }
-
         KakaoLoginView(kakaoAuthViewModel)
 
         Row {
@@ -79,6 +46,9 @@ fun Login(onNavigate: (String) -> Unit){
             }
             Button(onClick = { onNavigate("personal-note") }) {
                 Text(text = "개인 노트로 가기")
+            }
+            Button(onClick = { onNavigate("audio-call") }) {
+                Text(text = "음성 통화로 가기")
             }
 
         }
