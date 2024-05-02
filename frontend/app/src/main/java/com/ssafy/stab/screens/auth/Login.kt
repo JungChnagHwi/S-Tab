@@ -37,7 +37,9 @@ fun Login(onNavigate: (String) -> Unit){
             Button(onClick = { onNavigate("audio-call") }) {
                 Text(text = "음성 통화로 가기")
             }
-
+            Button(onClick = { onNavigate("create-note") }) {
+                Text(text = "노트 생성으로 가기")
+            }
         }
     }
 }
