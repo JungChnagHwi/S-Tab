@@ -18,7 +18,7 @@ public class Folder extends BaseTimeEntity {
     private UUID id;
 
     @Property("spaceId")
-    private String spaceId;
+    private UUID spaceId;
 
     @Property("title")
     private String title;
