@@ -1,5 +1,6 @@
 package com.ssafy.stab.components.note
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,13 +25,13 @@ import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
 import com.ssafy.stab.ui.theme.Background
 import com.ssafy.stab.util.note.NoteController
+import com.ssafy.stab.util.note.data.PenType
 
 @Composable
 fun ControlsBar(
     noteController: NoteController,
     undoAvailable: MutableState<Boolean>,
     redoAvailable: MutableState<Boolean>,
-    penType: MutableState<String>
 ) {
     Row(modifier = Modifier.padding(10.dp).background(Background), verticalAlignment = Alignment.CenterVertically) {
         EditIcons(
@@ -46,28 +47,28 @@ fun ControlsBar(
                 if (redoAvailable.value) noteController.redo()
             }
         EditIcons(
-            if (penType.value == "pen") R.drawable.pen_abled else R.drawable.pen_disabled,
+            if (noteController.penType == PenType.Pen) R.drawable.pen_abled else R.drawable.pen_disabled,
             "pen"
         ) {
-
+            noteController.changePenType(PenType.Pen)
         }
         EditIcons(
-            if (penType.value == "highliter") R.drawable.highliter_abled else R.drawable.highliter_disabled,
+            if (noteController.penType == PenType.Highlighter) R.drawable.highliter_abled else R.drawable.highliter_disabled,
             "highliter"
         ) {
-
+            noteController.changePenType(PenType.Highlighter)
         }
         EditIcons(
-            if (penType.value == "eraser") R.drawable.eraser_abled else R.drawable.eraser_disabled,
+            if (noteController.penType == PenType.Eraser) R.drawable.eraser_abled else R.drawable.eraser_disabled,
             "eraser"
         ) {
-
+            noteController.changePenType(PenType.Eraser)
         }
         EditIcons(
-            if (penType.value == "lasso") R.drawable.lasso_abled else R.drawable.lasso_disabled,
+            if (noteController.penType == PenType.Lasso) R.drawable.lasso_abled else R.drawable.lasso_disabled,
             "lasso"
         ) {
-
+            noteController.changePenType(PenType.Lasso)
         }
         EditIcons(
             R.drawable.image_abled,

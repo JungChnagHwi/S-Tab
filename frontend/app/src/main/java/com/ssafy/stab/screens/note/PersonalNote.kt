@@ -1,6 +1,5 @@
 package com.ssafy.stab.screens.note
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
@@ -13,6 +12,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ssafy.stab.components.note.ControlsBar
 import com.ssafy.stab.util.note.NoteArea
+import com.ssafy.stab.util.note.data.PenType
 import com.ssafy.stab.util.note.rememberNoteController
 
 @Composable
@@ -20,7 +20,6 @@ fun PersonalNote(navController: NavController){
     val noteController = rememberNoteController()
     val undoAvailable = remember { mutableStateOf(false) }
     val redoAvailable = remember { mutableStateOf(false) }
-    val penType = remember { mutableStateOf("pen") }
 
     Column {
         Row {
@@ -29,11 +28,11 @@ fun PersonalNote(navController: NavController){
             }
         }
 
+
         ControlsBar(
             noteController = noteController,
             undoAvailable = undoAvailable,
             redoAvailable = redoAvailable,
-            penType = penType
         )
 
         NoteArea(
@@ -43,6 +42,7 @@ fun PersonalNote(navController: NavController){
             undoAvailable.value = undoCount != 0
             redoAvailable.value = redoCount != 0
         }
+
     }
 
 }

@@ -1,5 +1,6 @@
 package com.ssafy.stab.util.note
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -9,6 +10,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
+import com.ssafy.stab.util.note.data.Coordinate
+import com.ssafy.stab.util.note.data.PathInfo
+import com.ssafy.stab.util.note.data.PenType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -36,19 +40,27 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
     var bgColor by mutableStateOf(Color.White)
         private set
 
-    var strokeWidth by mutableFloatStateOf(10f)
-        private set
-
-    var color by mutableStateOf("000000")
-        private set
-
     fun changeBgColor(value: Color) {
         bgColor = value
     }
 
+    var penType by mutableStateOf(PenType.Pen)
+        private set
+
+    fun changePenType(value: PenType) {
+        penType = value
+        Log.d("type", "$penType")
+    }
+
+    var strokeWidth by mutableFloatStateOf(10f)
+        private set
+
     fun changeStrokeWidth(value: Float) {
         strokeWidth = value
     }
+
+    var color by mutableStateOf("000000")
+        private set
 
     fun changeColor(value: String) {
         color = value
@@ -56,8 +68,9 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
 
     fun insertNewPathInfo(newCoordinate: Coordinate) {
         val pathInfo = PathInfo(
+            penType = penType,
             coordinates = mutableStateListOf(newCoordinate),
-            thickness = strokeWidth,
+            strokeWidth = strokeWidth,
             color = color
         )
         undoPathList.add(pathInfo)
