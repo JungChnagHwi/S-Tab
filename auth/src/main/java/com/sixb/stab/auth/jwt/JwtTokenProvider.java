@@ -1,6 +1,5 @@
 package com.sixb.stab.auth.jwt;
 
-import com.sixb.stab.auth.entity.BlackList;
 import com.sixb.stab.auth.repository.BlackListRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

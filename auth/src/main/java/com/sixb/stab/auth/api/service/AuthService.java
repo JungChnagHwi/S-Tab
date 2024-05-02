@@ -8,6 +8,7 @@ import com.sixb.stab.auth.dto.request.LogoutRequestDto;
 import com.sixb.stab.auth.dto.response.TokenResponseDto;
 import com.sixb.stab.auth.entity.BlackList;
 import com.sixb.stab.auth.entity.RefreshToken;
+import com.sixb.stab.auth.exception.InvalidTokenException;
 import com.sixb.stab.auth.jwt.JwtTokenProvider;
 import com.sixb.stab.auth.repository.BlackListRepository;
 import com.sixb.stab.auth.repository.RefreshTokenRepository;
@@ -97,6 +98,28 @@ public class AuthService {
 					.build();
 			blackListRepository.save(refresh);
 		}
+	}
+
+	public TokenResponseDto reissue(String refreshToken) throws InvalidTokenException {
+		RefreshToken token = refreshTokenRepository.findById(refreshToken)
+				.orElseThrow(() -> new InvalidTokenException("유효하지 않은 토큰입니다."));
+
+		if (!jwtTokenProvider.isValid(token.getRefreshToken())) {
+			throw new InvalidTokenException("유효하지 않은 토큰입니다.");
+		}
+
+		long userId  = token.getUserId();
+
+		refreshTokenRepository.deleteById(refreshToken);
+
+		BlackList blackList = BlackList.builder()
+				.token(refreshToken)
+				.expiration(jwtTokenProvider.getExpiration(refreshToken))
+				.build();
+
+		blackListRepository.save(blackList);
+
+		return createToken(userId);
 	}
 
 }
