@@ -115,4 +115,14 @@ public class FolderService {
         return response;
     }
 
+    //폴더 이름 수정
+    public boolean updateFolderTitle(UUID folderId, String newTitle) {
+        Folder folder = folderRepository.findById(folderId).orElse(null);
+        if (folder != null) {
+            folder.setTitle(newTitle);
+            folderRepository.save(folder);
+            return true;
+        }
+        return false;
+    }
 }
