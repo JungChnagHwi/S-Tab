@@ -1,14 +1,46 @@
 server:
-  port: 3661
+  port: 8000
 
 spring:
   cloud:
     gateway:
-        routes:
-          - id: gpt
-            uri: http://localhost:8081
-            predicates:
-              - Path=/gpt/**
+      routes:
+        - id: note
+          uri: lb://NOTE
+          predicates:
+            - name: Path
+              args:
+                pattern: /api/note/**
+        - id: auth
+          uri: lb://AUTH
+          predicates:
+            - name: Path
+              args:
+                pattern: /api/auth/**
+        - id: gpt
+          uri: lb://GPT
+          predicates:
+            - name: Path
+              args:
+                pattern: /api/gpt/**
+        - id: s3
+          uri: lb://S3
+          predicates:
+            - name: Path
+              args:
+                pattern: /api/s3/**
+        - id: ocr
+          uri: lb://OCR
+          predicates:
+            - name: Path
+              args:
+                pattern: /api/ocr/**
+        - id: sfu
+          uri: lb://SFU
+          predicates:
+            - name: Path
+              args:
+                pattern: /socket.io/**
 
 eureka:
   client:
