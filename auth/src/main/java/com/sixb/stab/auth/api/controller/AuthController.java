@@ -30,4 +30,10 @@ public class AuthController {
 		}
 	}
 
+	@PostMapping("/logout")
+	public ResponseEntity<?> logout(@RequestBody LogoutRequestDto request) {
+		authService.logout(request);
+		return ResponseEntity.ok("로그아웃 완료했습니다.");
+	}
+
 }

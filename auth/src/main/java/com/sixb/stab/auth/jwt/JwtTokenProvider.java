@@ -1,12 +1,11 @@
 package com.sixb.stab.auth.jwt;
 
+import com.sixb.stab.auth.entity.BlackList;
 import com.sixb.stab.auth.repository.BlackListRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,14 +20,19 @@ public class JwtTokenProvider {
 	private final long accessTokenValidity;
 	private final long refreshTokenValidity;
 
+	private final BlackListRepository blackListRepository;
+
+	@Autowired
 	public JwtTokenProvider(
 			@Value("${jwt.token.secret-key}") String secretKey,
 			@Value("${jwt.access-token.expire-length}") long accessTokenValidity,
-			@Value("${jwt.refresh-token.expire-length}") long refreshTokenValidity) {
+			@Value("${jwt.refresh-token.expire-length}") long refreshTokenValidity,
+			BlackListRepository blackListRepository) {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 		this.accessTokenValidity = accessTokenValidity;
 		this.refreshTokenValidity = refreshTokenValidity;
+		this.blackListRepository = blackListRepository;
 	}
 
 	public String createAccessToken(String payload) {
@@ -61,6 +65,22 @@ public class JwtTokenProvider {
 				.parseClaimsJws(token);
 		Date expiration = claimsJws.getBody().getExpiration();
 		return (expiration.getTime() - new Date().getTime()) / 1000L;
+	}
+
+	public boolean isValid(String token) {
+		if (blackListRepository.findById(token).isPresent()) {
+			return false;
+		}
+
+		try {
+			Jws<Claims> claimsJws = Jwts.parserBuilder()
+					.setSigningKey(key)
+					.build()
+					.parseClaimsJws(token);
+			return !claimsJws.getBody().getExpiration().before(new Date());
+		} catch (JwtException | IllegalArgumentException exception) {
+			return false;
+		}
 	}
 
 }

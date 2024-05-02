@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixb.stab.auth.dto.PayloadDto;
 import com.sixb.stab.auth.dto.request.LoginRequestDto;
+import com.sixb.stab.auth.dto.request.LogoutRequestDto;
 import com.sixb.stab.auth.dto.response.TokenResponseDto;
 import com.sixb.stab.auth.entity.BlackList;
 import com.sixb.stab.auth.entity.RefreshToken;
@@ -73,6 +74,29 @@ public class AuthService {
 		String payload = new String(decoder.decode(base64EncodedPayload));
 		PayloadDto payloadDto = new ObjectMapper().readValue(payload, PayloadDto.class);
 		return payloadDto.getSub();
+	}
+
+	public void logout(LogoutRequestDto request) {
+		String accessToken = request.getAccessToken();
+		String refreshToken = request.getRefreshToken();
+
+		refreshTokenRepository.deleteById(refreshToken);
+
+		if (jwtTokenProvider.isValid(accessToken)) {
+			BlackList access = BlackList.builder()
+					.token(accessToken)
+					.expiration(jwtTokenProvider.getExpiration(accessToken))
+					.build();
+			blackListRepository.save(access);
+		}
+
+		if (jwtTokenProvider.isValid(refreshToken)) {
+			BlackList refresh = BlackList.builder()
+					.token(refreshToken)
+					.expiration(jwtTokenProvider.getExpiration(refreshToken))
+					.build();
+			blackListRepository.save(refresh);
+		}
 	}
 
 }
