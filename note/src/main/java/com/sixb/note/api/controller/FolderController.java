@@ -39,4 +39,14 @@ public class FolderController {
             return ResponseEntity.badRequest().body("폴더 이름 수정 실패");
         }
     }
+
+    @DeleteMapping("/{folderId}")
+    public ResponseEntity<String> deleteFolder(@PathVariable("folderId") UUID folderId) {
+        boolean isDeleted = folderService.deleteFolder(folderId);
+        if (isDeleted) {
+            return ResponseEntity.ok("폴더 삭제 완료");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

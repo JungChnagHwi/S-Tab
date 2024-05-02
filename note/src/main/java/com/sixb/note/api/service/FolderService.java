@@ -125,4 +125,13 @@ public class FolderService {
         }
         return false;
     }
+
+    //폴더 삭제
+    public boolean deleteFolder(UUID folderId) {
+        if (folderRepository.existsById(folderId)) {
+            folderRepository.deleteById(folderId);
+            return true;
+        }
+        return false;
+    }
 }
