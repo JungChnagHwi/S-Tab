@@ -5,7 +5,7 @@ spring:
   application:
     name: s3
   profiles:
-    activate: prod
+    active: prod
   config:
     import: optional:configserver:http://admin:1234@localhost:8888
 
