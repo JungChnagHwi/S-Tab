@@ -2,6 +2,7 @@ package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.UserService;
 import com.sixb.note.dto.request.UserInfoRequestDto;
+import com.sixb.note.dto.response.NicknameResponseDto;
 import com.sixb.note.dto.response.UserInfoResponseDto;
 import com.sixb.note.exception.InvalidTokenException;
 import com.sixb.note.exception.UserNotFoundException;
@@ -51,6 +52,12 @@ public class UserController {
 		} catch (UserNotFoundException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
+	}
+
+	@GetMapping("/{nickname}")
+	public ResponseEntity<NicknameResponseDto> checkNickname(@PathVariable String nickname) {
+		NicknameResponseDto response = userService.checkNickname(nickname);
+		return ResponseEntity.ok(response);
 	}
 
 }

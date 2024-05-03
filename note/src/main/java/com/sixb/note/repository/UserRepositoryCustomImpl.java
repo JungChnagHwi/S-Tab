@@ -1,6 +1,7 @@
 package com.sixb.note.repository;
 
 import com.sixb.note.dto.request.UserInfoRequestDto;
+import com.sixb.note.dto.response.NicknameResponseDto;
 import com.sixb.note.dto.response.UserInfoResponseDto;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
@@ -163,6 +164,30 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 		}
 
 		return Optional.ofNullable(response);
+	}
+
+	@Override
+	public NicknameResponseDto findNicknameCount(String nickname) {
+		Node user = node("User").named("u")
+				.withProperties("nickname", literalOf(nickname));
+
+		Statement statement = match(user)
+				.returning(count(user).as("result"))
+				.build();
+
+		NicknameResponseDto response = null;
+
+		try (Session session = driver.session()) {
+			Result result = session.run(statement.getCypher());
+			if (result.hasNext()) {
+				Record record = result.next();
+				response = NicknameResponseDto.builder()
+						.result(record.get("result").asInt())
+						.build();
+			}
+		}
+
+		return response;
 	}
 
 }
