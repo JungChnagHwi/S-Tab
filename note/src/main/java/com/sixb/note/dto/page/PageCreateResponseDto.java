@@ -9,7 +9,7 @@ import java.util.UUID;
 @Builder
 public class PageCreateResponseDto {
     private UUID pageId;
-    private String  template;
+    private String template;
     private String color;
     private int direction;
 }
