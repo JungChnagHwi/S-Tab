@@ -21,7 +21,7 @@ public class Space extends BaseTimeEntity {
     private String title;
 
     @Property("isPublic")
-    private boolean isPublic;
+    private Boolean isPublic;
 
     @Relationship(type = "HAS_Hierarchy")
     private List<Folder> folders;
