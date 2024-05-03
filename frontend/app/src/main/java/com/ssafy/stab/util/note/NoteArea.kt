@@ -28,6 +28,7 @@ fun NoteArea(
         ComposeView(it).apply {
             setContent {
                 LaunchedEffect(noteController) {
+                    noteController.trackHistory(this, trackHistory)
                 }
                 Canvas(modifier = modifier
                     .background(backgroundColor)

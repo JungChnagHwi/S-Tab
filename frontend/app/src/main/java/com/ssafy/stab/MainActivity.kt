@@ -11,7 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.ssafy.stab.screens.auth.KakaoAuthViewModel
+import com.ssafy.stab.audiocall.AudioCallScreen
+import com.ssafy.stab.modals.CreateNoteModal
 import com.ssafy.stab.screens.auth.Login
 import com.ssafy.stab.screens.auth.SignUp
 import com.ssafy.stab.screens.note.PersonalNote
@@ -49,5 +50,7 @@ fun Routers(){
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
         composable("space") { SpaceRouters() }
         composable("personal-note") { PersonalNote(navController = navController)}
+        composable("audio-call") { AudioCallScreen() }
+        composable("create-note") { CreateNoteModal() }
     }
 }

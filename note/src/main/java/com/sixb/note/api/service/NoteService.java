@@ -1,5 +1,6 @@
 package com.sixb.note.api.service;
 
+
 import com.sixb.note.dto.note.CreateNoteRequestDto;
 import com.sixb.note.dto.note.CreateNoteResponseDto;
 import com.sixb.note.dto.note.UpdateNoteTitleRequestDto;

@@ -8,6 +8,7 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import com.ssafy.stab.screens.auth.token.socialLogin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
@@ -15,7 +16,7 @@ import kotlin.coroutines.suspendCoroutine
 
 class KakaoAuthViewModel(application: Application): AndroidViewModel(application) {
 
-    companion object {
+        companion object {
         const val TAG = "KakaoAuthViewModel"
     }
 
@@ -62,8 +63,9 @@ class KakaoAuthViewModel(application: Application): AndroidViewModel(application
                 Log.e(TAG, "카카오계정으로 로그인 실패", error)
                 continuation.resume(false)
             } else if (token != null) {
-                Log.i(TAG, "카카오계정으로 로그인 성공 ${token.accessToken}")
+                Log.i(TAG, "카카오계정으로 로그인 성공 ${token.idToken}")
                 continuation.resume(true)
+                socialLogin(token.idToken.toString())
             }
         }
 
@@ -83,14 +85,13 @@ class KakaoAuthViewModel(application: Application): AndroidViewModel(application
                     // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인 시도
                     UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
                 } else if (token != null) {
-                    Log.i(TAG, "카카오톡으로 로그인 성공 ${token.accessToken}")
+                    Log.i(TAG, "카카오톡으로 로그인 성공 ${token.idToken}")
                     continuation.resume(true)
+                    socialLogin(token.idToken.toString())
                 }
             }
         } else {
             UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
         }
     }
-
-
 }

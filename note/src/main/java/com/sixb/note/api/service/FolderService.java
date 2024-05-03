@@ -1,5 +1,6 @@
 package com.sixb.note.api.service;
 
+
 import com.sixb.note.dto.folder.CreateFolderRequestDto;
 import com.sixb.note.dto.folder.CreateFolderResponseDto;
 import com.sixb.note.dto.folder.FolderResponseDto;

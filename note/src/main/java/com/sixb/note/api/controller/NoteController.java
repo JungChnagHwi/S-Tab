@@ -1,5 +1,6 @@
 package com.sixb.note.api.controller;
 
+
 import com.sixb.note.api.service.NoteService;
 import com.sixb.note.dto.note.CreateNoteRequestDto;
 import com.sixb.note.dto.note.CreateNoteResponseDto;
@@ -11,9 +12,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+
 @RestController
 @RequestMapping("/api/note")
 public class NoteController {
+
     @Autowired
     private NoteService noteService;
 
