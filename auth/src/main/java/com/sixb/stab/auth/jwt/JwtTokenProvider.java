@@ -24,8 +24,8 @@ public class JwtTokenProvider {
 	@Autowired
 	public JwtTokenProvider(
 			@Value("${jwt.token.secret-key}") String secretKey,
-			@Value("${jwt.access-token.expire-length}") long accessTokenValidity,
-			@Value("${jwt.refresh-token.expire-length}") long refreshTokenValidity,
+			@Value("${jwt.token.access-token.expire-length}") long accessTokenValidity,
+			@Value("${jwt.token.refresh-token.expire-length}") long refreshTokenValidity,
 			BlackListRepository blackListRepository) {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		this.key = Keys.hmacShaKeyFor(keyBytes);
