@@ -35,4 +35,14 @@ public class NoteController {
             return ResponseEntity.badRequest().body("노트 이름 수정 실패");
         }
     }
+
+    @PatchMapping("/{noteId}")
+    public ResponseEntity<String> deleteFolder(@PathVariable("noteId") UUID noteId) {
+        boolean isUpdated = noteService.deleteNote(noteId);
+        if (isUpdated) {
+            return ResponseEntity.ok("노트 삭제 완료");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

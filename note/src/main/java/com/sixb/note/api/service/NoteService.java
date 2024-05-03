@@ -112,4 +112,15 @@ public class NoteService {
         }
         return false;
     }
+
+    //노트 삭제
+    public boolean deleteNote(UUID noteId) {
+        Note note = noteRepository.findById(noteId).orElse(null);
+        if (note != null) {
+            note.setIsDelete(1);
+            noteRepository.save(note);
+            return true;
+        }
+        return false;
+    }
 }
