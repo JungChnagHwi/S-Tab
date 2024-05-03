@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import com.ssafy.stab.R
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.window.Dialog
+import com.ssafy.stab.modals.CreateNoteModal
 
 @Composable
 fun NoteListSpace() {
@@ -100,6 +102,7 @@ fun NoteListSpace() {
 
 @Composable
 fun ListGridScreen() {
+    val showModal = remember { mutableStateOf(false) }
     val originalList = (1..72).toList()
     val specialItemsIndices = setOf(0)
 
@@ -118,6 +121,19 @@ fun ListGridScreen() {
     val modiImg = painterResource(id = R.drawable.modi)
     val staronImg = painterResource(id = R.drawable.eachstaron)
     val staroffImg = painterResource(id = R.drawable.eachstaroff)
+
+    if (showModal.value) {
+        Dialog(onDismissRequest = { showModal.value = false }) {
+            Box(
+                modifier = Modifier
+                    .width(1000.dp)
+                    .height(800.dp)
+                    .background(Color.White, shape = RoundedCornerShape(10.dp))
+            ) {
+                CreateNoteModal()
+            }
+        }
+    }
 
     LazyColumn {
         items(listWithSpecialItems.chunked(5)) { rowItems ->
@@ -165,11 +181,15 @@ fun ListGridScreen() {
                                 Column(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Image(painter = createnoteImg, contentDescription = "새 노트 만들기",
+                                    Image(
+                                        painter = createnoteImg,
+                                        contentDescription = "새 노트 만들기",
                                         modifier = Modifier
                                             .width(120.dp)
                                             .height(160.dp)
-                                            .clip(RoundedCornerShape(20)))
+                                            .clip(RoundedCornerShape(20))
+                                            .clickable { showModal.value = true }
+                                    )
                                     Text(text = "새로 만들기")
                                     }
                                 }
