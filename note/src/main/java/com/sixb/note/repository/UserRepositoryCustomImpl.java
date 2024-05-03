@@ -12,6 +12,7 @@ import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -51,7 +52,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
-						.rootFolderId(record.get("id").asBoolean())
+						.rootFolderId(record.get("id").asString())
 						.build();
 			}
 		}
@@ -60,6 +61,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 	}
 
 	@Override
+	@Transactional
 	public UserInfoResponseDto signup(long userId, UserInfoRequestDto request) {
 		LocalDateTime now = LocalDateTime.now();
 
@@ -67,28 +69,31 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 		String folderId = IdCreator.create("f");
 
 		Node user = node("User").named("u")
-				.withProperties("id", literalOf(userId))
-				.withProperties("nickname", literalOf(request.getNickname()))
-				.withProperties("profileImg", literalOf(request.getProfileImg()))
-				.withProperties("createdAt", literalOf(now))
-				.withProperties("updatedAt", literalOf(now))
-				.withProperties("isDeleted", literalOf(false));
+				.withProperties(
+						"id", literalOf(userId),
+						"nickname", literalOf(request.getNickname()),
+						"profileImg", literalOf(request.getProfileImg()),
+						"createdAt", literalOf(now),
+						"updatedAt", literalOf(now),
+						"isDeleted", literalOf(false));
 
 		Node space = node("Space").named("s")
-				.withProperties("id", literalOf(spaceId))
-				.withProperties("title", literalOf(request.getNickname() + "의 스페이스"))
-				.withProperties("public", literalOf(false))
-				.withProperties("createdAt", literalOf(now))
-				.withProperties("updatedAt", literalOf(now))
-				.withProperties("isDeleted", literalOf(false));
+				.withProperties(
+						"id", literalOf(spaceId),
+						"title", literalOf(request.getNickname() + "의 스페이스"),
+						"public", literalOf(false),
+						"createdAt", literalOf(now),
+						"updatedAt", literalOf(now),
+						"isDeleted", literalOf(false));
 
 		Node folder = node("Folder").named("f")
-				.withProperties("id", literalOf(folderId))
-				.withProperties("spaceId", literalOf(spaceId))
-				.withProperties("title", literalOf("root"))
-				.withProperties("createdAt", literalOf(now))
-				.withProperties("updatedAt", literalOf(now))
-				.withProperties("isDeleted", literalOf(false));
+				.withProperties(
+						"id", literalOf(folderId),
+						"spaceId", literalOf(spaceId),
+						"title", literalOf("root"),
+						"createdAt", literalOf(now),
+						"updatedAt", literalOf(now),
+						"isDeleted", literalOf(false));
 
 		Relationship join = user.relationshipTo(space, "Join");
 		Relationship hierarchy = space.relationshipTo(folder, "Hierarchy");
@@ -98,7 +103,8 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.create(folder)
 				.create(join)
 				.create(hierarchy)
-				.returning(user.property("nickname"),
+				.returning(
+						user.property("nickname"),
 						user.property("profileImg"),
 						folder.property("id"))
 				.build();
@@ -112,7 +118,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
-						.rootFolderId(record.get("id").asBoolean())
+						.rootFolderId(record.get("id").asString())
 						.build();
 			}
 		}
@@ -150,7 +156,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
-						.rootFolderId(record.get("id").asBoolean())
+						.rootFolderId(record.get("id").asString())
 						.build();
 			}
 		}
