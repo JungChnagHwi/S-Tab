@@ -1,6 +1,7 @@
 package com.ssafy.stab
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,9 +19,14 @@ import com.ssafy.stab.screens.auth.SignUp
 import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.space.SpaceRouters
 import com.ssafy.stab.ui.theme.STabTheme
+import com.kakao.sdk.common.util.Utility
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        var keyHash = Utility.getKeyHash(this)
+        Log.d("Key Hash", "$keyHash")
+
         super.onCreate(savedInstanceState)
         setContent {
             STabTheme {

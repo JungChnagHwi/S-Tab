@@ -19,9 +19,9 @@ interface ApiService {
     @POST("api/auth/login")
     fun getTokens(@Body idToken: IdTokenRequest): Call<TokenResponse>
 
-    @GET("api/user/login")
+    @GET("api/user")
     fun getInfoIfUser(@Header("Authorization") authorization: String): Call<AuthResponse>
 
-    @POST("api/user/signup")
+    @POST("api/user")
     fun getInfoNewUser(@Header("Authorization") authorization: String, @Body signupRequest: UserSignupRequest): Call<AuthResponse>
 }
