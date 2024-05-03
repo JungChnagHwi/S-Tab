@@ -5,7 +5,6 @@ import com.sixb.note.dto.response.NicknameResponseDto;
 import com.sixb.note.dto.response.UserInfoResponseDto;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
-import org.neo4j.cypherdsl.core.Cypher;
 import org.neo4j.cypherdsl.core.Node;
 import org.neo4j.cypherdsl.core.Relationship;
 import org.neo4j.cypherdsl.core.Statement;
