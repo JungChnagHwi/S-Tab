@@ -20,6 +20,7 @@ import java.util.*;
 import static org.neo4j.cypherdsl.core.Cypher.*;
 
 @Repository
+@Transactional
 @RequiredArgsConstructor
 public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
@@ -36,7 +37,8 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 		Node folder = node("Folder").named("f");
 
 		Statement statement = match(user)
-				.where(user.relationshipTo(space, "Join").relationshipTo(folder, "Hierarchy"))
+				.where(user.relationshipTo(space, "Join")
+						.relationshipTo(folder, "Hierarchy"))
 				.returning(
 						user.property("nickname"),
 						user.property("profileImg"),
@@ -61,7 +63,6 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 	}
 
 	@Override
-	@Transactional
 	public UserInfoResponseDto signup(long userId, UserInfoRequestDto request) {
 		LocalDateTime now = LocalDateTime.now();
 
@@ -139,8 +140,10 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 		Statement statement = match(user)
 				.where(user.relationshipTo(space, "Join")
 						.relationshipTo(folder, "Hierarchy"))
-				.set(user.property("nickname").to(literalOf(request.getNickname())))
-				.set(user.property("profileImg").to(literalOf(request.getProfileImg())))
+				.set(
+						user.property("nickname").to(literalOf(request.getNickname())),
+						user.property("profileImg").to(literalOf(request.getProfileImg())),
+						user.property("updatedAt").to(literalOf(LocalDateTime.now())))
 				.returning(
 						user.property("nickname"),
 						user.property("profileImg"),
