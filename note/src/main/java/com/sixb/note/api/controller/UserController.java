@@ -29,7 +29,7 @@ public class UserController {
 		}
     }
 
-	@PostMapping
+	@PatchMapping
 	public ResponseEntity<?> updateUserInfo(@RequestHeader("Authorization") String token,
 											@RequestBody UserInfoRequestDto request) {
 		try {
