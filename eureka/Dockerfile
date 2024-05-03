@@ -2,8 +2,8 @@ FROM openjdk:17
 
 ARG JAR_FILE=build/libs/*.jar
 
-COPY ${JAR_FILE} app.jar
+COPY ${JAR_FILE} eureka.jar
 
 EXPOSE 8761
 
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/eureka.jar"]
