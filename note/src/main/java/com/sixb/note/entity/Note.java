@@ -17,7 +17,7 @@ public class Note extends BaseTimeEntity {
     private UUID id;
 
     @Property("spaceId")
-    private String spaceId;
+    private UUID spaceId;
 
     @Property("title")
     private String title;
@@ -25,6 +25,6 @@ public class Note extends BaseTimeEntity {
     @Property("totalPageCnt")
     private int totalPageCnt;
 
-    @Relationship(type = "HAS_Hierarchy")
+    @Relationship(type = "HAS_Page", direction = Relationship.Direction.OUTGOING)
     private List<Page> pages;
 }
