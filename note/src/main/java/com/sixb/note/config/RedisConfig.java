@@ -1,5 +1,6 @@
-package com.sixb.stab.auth.redis;
+package com.sixb.note.config;
 
+import com.sixb.note.util.RedisInfo;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.cluster.ClusterClientOptions;

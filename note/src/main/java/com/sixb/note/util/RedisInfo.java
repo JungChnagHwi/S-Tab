@@ -1,4 +1,4 @@
-package com.sixb.stab.auth.redis;
+package com.sixb.note.util;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

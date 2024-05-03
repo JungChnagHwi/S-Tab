@@ -1,6 +1,7 @@
 package com.sixb.note.repository;
 
 import com.sixb.note.dto.request.UserInfoRequestDto;
+import com.sixb.note.dto.response.NicknameResponseDto;
 import com.sixb.note.dto.response.UserInfoResponseDto;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,6 @@ import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -35,12 +35,13 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
 		Node folder = node("Folder").named("f");
 
-		Statement statement = match(user)
-				.where(user.relationshipTo(space, "Join").relationshipTo(folder, "Hierarchy"))
+		Statement statement = match(user, space, folder)
+				.where(user.relationshipTo(space, "Join")
+						.relationshipTo(folder, "Hierarchy"))
 				.returning(
-						user.property("nickname"),
-						user.property("profileImg"),
-						folder.property("id"))
+						user.property("nickname").as("nickname"),
+						user.property("profileImg").as("profileImg"),
+						folder.property("id").as("rootFolderId"))
 				.build();
 
 		UserInfoResponseDto response = null;
@@ -52,7 +53,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
-						.rootFolderId(record.get("id").asString())
+						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
 		}
@@ -61,7 +62,6 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 	}
 
 	@Override
-	@Transactional
 	public UserInfoResponseDto signup(long userId, UserInfoRequestDto request) {
 		LocalDateTime now = LocalDateTime.now();
 
@@ -104,9 +104,9 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.create(join)
 				.create(hierarchy)
 				.returning(
-						user.property("nickname"),
-						user.property("profileImg"),
-						folder.property("id"))
+						user.property("nickname").as("nickname"),
+						user.property("profileImg").as("profileImg"),
+						folder.property("id").as("rootFolderId"))
 				.build();
 
 		UserInfoResponseDto response = null;
@@ -118,7 +118,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
-						.rootFolderId(record.get("id").asString())
+						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
 		}
@@ -136,15 +136,17 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
 		Node folder = node("Folder").named("f");
 
-		Statement statement = match(user)
+		Statement statement = match(user, space, folder)
 				.where(user.relationshipTo(space, "Join")
 						.relationshipTo(folder, "Hierarchy"))
-				.set(user.property("nickname").to(literalOf(request.getNickname())))
-				.set(user.property("profileImg").to(literalOf(request.getProfileImg())))
+				.set(
+						user.property("nickname").to(literalOf(request.getNickname())),
+						user.property("profileImg").to(literalOf(request.getProfileImg())),
+						user.property("updatedAt").to(literalOf(LocalDateTime.now())))
 				.returning(
-						user.property("nickname"),
-						user.property("profileImg"),
-						folder.property("id"))
+						user.property("nickname").as("nickname"),
+						user.property("profileImg").as("profileImg"),
+						folder.property("id").as("rootFolderId"))
 				.build();
 
 		UserInfoResponseDto response = null;
@@ -156,12 +158,36 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
-						.rootFolderId(record.get("id").asString())
+						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
 		}
 
 		return Optional.ofNullable(response);
+	}
+
+	@Override
+	public NicknameResponseDto findNicknameCount(String nickname) {
+		Node user = node("User").named("u");
+
+		Statement statement = match(user)
+				.where(user.property("nickname").isEqualTo(literalOf(nickname)))
+				.returning(count(user).as("result"))
+				.build();
+
+		NicknameResponseDto response = null;
+
+		try (Session session = driver.session()) {
+			Result result = session.run(statement.getCypher());
+			if (result.hasNext()) {
+				Record record = result.next();
+				response = NicknameResponseDto.builder()
+						.result(record.get("result").asInt())
+						.build();
+			}
+		}
+
+		return response;
 	}
 
 }
