@@ -12,7 +12,6 @@ import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -20,7 +19,6 @@ import java.util.*;
 import static org.neo4j.cypherdsl.core.Cypher.*;
 
 @Repository
-@Transactional
 @RequiredArgsConstructor
 public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
@@ -36,13 +34,13 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
 		Node folder = node("Folder").named("f");
 
-		Statement statement = match(user)
+		Statement statement = match(user, space, folder)
 				.where(user.relationshipTo(space, "Join")
 						.relationshipTo(folder, "Hierarchy"))
 				.returning(
-						user.property("nickname"),
-						user.property("profileImg"),
-						folder.property("id"))
+						user.property("nickname").as("nickname"),
+						user.property("profileImg").as("profileImg"),
+						folder.property("id").as("rootFolderId"))
 				.build();
 
 		UserInfoResponseDto response = null;
@@ -54,7 +52,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
-						.rootFolderId(record.get("id").asString())
+						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
 		}
@@ -105,9 +103,9 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.create(join)
 				.create(hierarchy)
 				.returning(
-						user.property("nickname"),
-						user.property("profileImg"),
-						folder.property("id"))
+						user.property("nickname").as("nickname"),
+						user.property("profileImg").as("profileImg"),
+						folder.property("id").as("rootFolderId"))
 				.build();
 
 		UserInfoResponseDto response = null;
@@ -119,7 +117,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
-						.rootFolderId(record.get("id").asString())
+						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
 		}
@@ -137,7 +135,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
 		Node folder = node("Folder").named("f");
 
-		Statement statement = match(user)
+		Statement statement = match(user, space, folder)
 				.where(user.relationshipTo(space, "Join")
 						.relationshipTo(folder, "Hierarchy"))
 				.set(
@@ -145,9 +143,9 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 						user.property("profileImg").to(literalOf(request.getProfileImg())),
 						user.property("updatedAt").to(literalOf(LocalDateTime.now())))
 				.returning(
-						user.property("nickname"),
-						user.property("profileImg"),
-						folder.property("id"))
+						user.property("nickname").as("nickname"),
+						user.property("profileImg").as("profileImg"),
+						folder.property("id").as("rootFolderId"))
 				.build();
 
 		UserInfoResponseDto response = null;
@@ -159,7 +157,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
-						.rootFolderId(record.get("id").asString())
+						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
 		}

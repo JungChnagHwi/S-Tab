@@ -25,7 +25,7 @@ public class UserController {
 		} catch (InvalidTokenException e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
 		} catch (UserNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
 		}
     }
 
