@@ -21,12 +21,10 @@ spring:
 #            - name: gpt
 #              args:
 #                pattern: /api/gpt/**
-#        - id: s3
-#          uri: lb://S3
-#          predicates:
-#            - name: s3
-#              args:
-#                pattern: /api/s3/**
+        - id: s3
+          uri: lb://S3
+          predicates:
+            - Path=/api/s3
 #        - id: ocr
 #          uri: lb://OCR
 #          predicates:
