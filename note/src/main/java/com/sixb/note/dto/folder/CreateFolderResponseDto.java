@@ -14,4 +14,5 @@ public class CreateFolderResponseDto {
     private Boolean isLiked;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
+    private int isDelete;
 }

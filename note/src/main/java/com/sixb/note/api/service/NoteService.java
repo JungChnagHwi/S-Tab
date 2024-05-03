@@ -83,6 +83,7 @@ public class NoteService {
         response.setLiked(false);
         response.setCreateAt(LocalDateTime.now());
         response.setUpdateAt(null);
+        response.setIsDelete(0);
 
         // 페이지 DTO 설정
         CreateNoteResponseDto.PageDto pageDto = new CreateNoteResponseDto.PageDto();
@@ -93,6 +94,7 @@ public class NoteService {
         pageDto.setBookmarked(false);
         pageDto.setCreateAt(LocalDateTime.now());
         pageDto.setUpdateAt(null);
+        pageDto.setIsDelete(0);
 
         response.setPage(pageDto);
 

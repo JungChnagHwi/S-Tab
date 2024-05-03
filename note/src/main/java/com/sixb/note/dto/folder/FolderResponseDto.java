@@ -21,6 +21,7 @@ public class FolderResponseDto {
         private Boolean isLiked;
         private LocalDateTime createAt;
         private LocalDateTime updateAt;
+        private int isDelete;
     }
 
     @Getter
@@ -32,6 +33,7 @@ public class FolderResponseDto {
         private Boolean isLiked;
         private LocalDateTime createAt;
         private LocalDateTime updateAt;
+        private int isDelete;
     }
 }
 

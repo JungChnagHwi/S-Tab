@@ -42,6 +42,7 @@ public class FolderService {
             info.setTitle(folder.getTitle());
             info.setCreateAt(folder.getCreatedAt());
             info.setUpdateAt(folder.getModifiedAt());
+            info.setIsDelete(folder.getIsDelete());
             info.setIsLiked(false);
             return info;
         }).collect(Collectors.toList());
@@ -53,6 +54,7 @@ public class FolderService {
             info.setTotalPageCnt(note.getTotalPageCnt());
             info.setCreateAt(note.getCreatedAt());
             info.setUpdateAt(note.getModifiedAt());
+            info.setIsDelete(note.getIsDelete());
             info.setIsLiked(false);
             return info;
         }).collect(Collectors.toList());
@@ -112,6 +114,7 @@ public class FolderService {
         response.setTitle(newFolder.getTitle());
         response.setCreateAt(now);
         response.setUpdateAt(null);
+        response.setIsDelete(0);
         response.setIsLiked(false);
         return response;
     }

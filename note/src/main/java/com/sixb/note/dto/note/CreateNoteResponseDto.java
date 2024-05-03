@@ -16,6 +16,7 @@ public class CreateNoteResponseDto {
     private PageDto page;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
+    private int isDelete;
 
     @Getter
     @Setter
@@ -27,5 +28,6 @@ public class CreateNoteResponseDto {
         private boolean isBookmarked;
         private LocalDateTime createAt;
         private LocalDateTime updateAt;
+        private int isDelete;
     }
 }
