@@ -1,5 +1,6 @@
 package com.sixb.note.api.service;
 
+import com.sixb.note.dto.request.UserInfoRequestDto;
 import com.sixb.note.dto.response.UserInfoResponseDto;
 import com.sixb.note.exception.InvalidTokenException;
 import com.sixb.note.exception.UserNotFoundException;
@@ -28,4 +29,11 @@ public class UserService {
     public List<User> findUsersBySpaceId(UUID spaceId) {
         return userRepository.findUsersBySpaceId(spaceId);
     }
+
+    public UserInfoResponseDto updateUserInfo(String token, UserInfoRequestDto request) throws InvalidTokenException, UserNotFoundException {
+        long userId = jwtTokenProvider.getUserId(token);
+        return userRepository.updateUserInfo(userId, request)
+                .orElseThrow(() -> new UserNotFoundException("잘못된 유저입니다."));
+    }
+
 }
