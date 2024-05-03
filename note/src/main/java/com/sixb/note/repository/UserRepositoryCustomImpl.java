@@ -5,6 +5,7 @@ import com.sixb.note.dto.response.NicknameResponseDto;
 import com.sixb.note.dto.response.UserInfoResponseDto;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
+import org.neo4j.cypherdsl.core.Cypher;
 import org.neo4j.cypherdsl.core.Node;
 import org.neo4j.cypherdsl.core.Relationship;
 import org.neo4j.cypherdsl.core.Statement;
@@ -168,10 +169,10 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
 	@Override
 	public NicknameResponseDto findNicknameCount(String nickname) {
-		Node user = node("User").named("u")
-				.withProperties("nickname", literalOf(nickname));
+		Node user = node("User").named("u");
 
 		Statement statement = match(user)
+				.where(user.property("nickname").isEqualTo(literalOf(nickname)))
 				.returning(count(user).as("result"))
 				.build();
 
