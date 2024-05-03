@@ -40,10 +40,10 @@ public class FolderController {
         }
     }
 
-    @DeleteMapping("/{folderId}")
+    @PatchMapping("/{folderId}")
     public ResponseEntity<String> deleteFolder(@PathVariable("folderId") UUID folderId) {
-        boolean isDeleted = folderService.deleteFolder(folderId);
-        if (isDeleted) {
+        boolean isUpdated = folderService.deleteFolder(folderId);
+        if (isUpdated) {
             return ResponseEntity.ok("폴더 삭제 완료");
         } else {
             return ResponseEntity.notFound().build();

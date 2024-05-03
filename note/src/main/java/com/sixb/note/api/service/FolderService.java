@@ -132,8 +132,10 @@ public class FolderService {
 
     //폴더 삭제
     public boolean deleteFolder(UUID folderId) {
-        if (folderRepository.existsById(folderId)) {
-            folderRepository.deleteById(folderId);
+        Folder folder = folderRepository.findById(folderId).orElse(null);
+        if (folder != null) {
+            folder.setIsDelete(1);
+            folderRepository.save(folder);
             return true;
         }
         return false;
