@@ -22,8 +22,6 @@ public abstract class BaseTimeEntity {
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
-    private int isDelete;
-    public void setIsDelete(int isDelete) {
-        this.isDelete = isDelete;
-    }
+	private int isDelete;
+
 }
