@@ -9,6 +9,8 @@ public interface UserRepositoryCustom {
 
 	Optional<UserInfoResponseDto> getUserInfo(long userId);
 
+	UserInfoResponseDto signup(long userId, UserInfoRequestDto request);
+
 	Optional<UserInfoResponseDto> updateUserInfo(long userId, UserInfoRequestDto request);
 
 }

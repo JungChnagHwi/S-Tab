@@ -29,6 +29,17 @@ public class UserController {
 		}
     }
 
+	@PostMapping
+	public ResponseEntity<?> signup(@RequestHeader("Authorization") String token,
+									@RequestBody UserInfoRequestDto request) {
+		try {
+			UserInfoResponseDto response = userService.signup(token, request);
+			return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		} catch (InvalidTokenException e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+		}
+	}
+
 	@PatchMapping
 	public ResponseEntity<?> updateUserInfo(@RequestHeader("Authorization") String token,
 											@RequestBody UserInfoRequestDto request) {

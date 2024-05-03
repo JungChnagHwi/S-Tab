@@ -26,14 +26,19 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("회원가입이 필요합니다."));
     }
 
-    public List<User> findUsersBySpaceId(UUID spaceId) {
-        return userRepository.findUsersBySpaceId(spaceId);
+    public UserInfoResponseDto signup(String token, UserInfoRequestDto request) throws InvalidTokenException {
+        long userId = jwtTokenProvider.getUserId(token);
+        return userRepository.signup(userId, request);
     }
 
     public UserInfoResponseDto updateUserInfo(String token, UserInfoRequestDto request) throws InvalidTokenException, UserNotFoundException {
         long userId = jwtTokenProvider.getUserId(token);
         return userRepository.updateUserInfo(userId, request)
                 .orElseThrow(() -> new UserNotFoundException("잘못된 유저입니다."));
+    }
+
+    public List<User> findUsersBySpaceId(UUID spaceId) {
+        return userRepository.findUsersBySpaceId(spaceId);
     }
 
 }
