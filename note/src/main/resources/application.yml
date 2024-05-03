@@ -6,7 +6,7 @@ spring:
   application:
     name: note
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE}
   config:
     import: ${SPRING_CONFIG_IMPORT}
 
