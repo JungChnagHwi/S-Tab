@@ -13,7 +13,6 @@ public class RedisInfo {
 
 	private int maxRedirects;
 	private String password;
-	private String connectIp;
 	private List<String> nodes;
 
 }

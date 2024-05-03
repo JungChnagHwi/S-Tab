@@ -42,19 +42,10 @@ public class RedisConfig {
 				.topologyRefreshOptions(clusterTopologyRefreshOptions)
 				.build();
 
-		MappingSocketAddressResolver resolver = MappingSocketAddressResolver.create(
-				DnsResolvers.UNRESOLVED,
-				hostAndPort -> HostAndPort.of(redisInfo.getConnectIp(), hostAndPort.getPort()));
-
-		ClientResources clientResources = ClientResources.builder()
-				.socketAddressResolver(resolver)
-				.build();
-
 		LettuceClientConfiguration clientConfiguration =
 				LettuceClientConfiguration.builder()
 						.commandTimeout(Duration.of(10, ChronoUnit.SECONDS))
 						.clientOptions(clientOptions)
-						.clientResources(clientResources)
 						.readFrom(ReadFrom.REPLICA_PREFERRED)
 						.build();
 
