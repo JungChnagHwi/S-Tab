@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/space")
@@ -27,5 +28,15 @@ public class SpaceController {
     public ResponseEntity<SpaceResponseDto> createSpace(@RequestBody SpaceRequestDto requestDto) {
         SpaceResponseDto createdSpace = spaceService.createSpace(requestDto);
         return new ResponseEntity<>(createdSpace, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{spaceId}")
+    public ResponseEntity<String> deleteSpace(@PathVariable UUID spaceId) {
+        boolean isUpdated = spaceService.deleteSpace(spaceId);
+        if (isUpdated) {
+            return ResponseEntity.ok("Space 삭제 완료");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

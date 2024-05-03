@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -74,5 +75,14 @@ public class SpaceService {
         responseDto.setUsers(new ArrayList<>());
 
         return responseDto;
+    }
+
+    //스페이스 삭제
+    public boolean deleteSpace(UUID spaceId) {
+        if (spaceRepository.existsById(spaceId)) {
+            spaceRepository.deleteById(spaceId);
+            return true;
+        }
+        return false;
     }
 }
