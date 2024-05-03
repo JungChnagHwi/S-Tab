@@ -5,15 +5,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-//import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@NoArgsConstructor
-//@EnableJpaAuditing
 public abstract class BaseTimeEntity {
 
     @CreatedDate
@@ -22,8 +19,5 @@ public abstract class BaseTimeEntity {
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
-    private int isDelete;
-    public void setIsDelete(int isDelete) {
-        this.isDelete = isDelete;
-    }
+    private int isDelete=0;
 }
