@@ -2,6 +2,7 @@ package com.ssafy.stab.modals
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -130,6 +132,14 @@ fun CreateNoteModal() {
                             .height(192.dp))
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(text = "격자 노트")
+                }
+            }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Button(onClick = { /*TODO*/ }) {
+                    Text(text = "취소")
+                }
+                Button(onClick = { /*TODO*/ }) {
+                    Text(text = "생성")
                 }
             }
         }
