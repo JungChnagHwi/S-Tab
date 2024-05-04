@@ -11,6 +11,8 @@ spring:
     import: ${SPRING_CONFIG_IMPORT}
 
 eureka:
+  instance:
+    instance-id: note
   client:
     register-with-eureka: true
     fetch-registry: true

@@ -5,12 +5,8 @@ server:
 spring:
   application:
     name: eureka
-  security:
-    username: ${SPRING_SECURITY_USERNAME}
-    password: ${SPRING_SECURITY_PASSWORD}
 
 eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
-  renewalPercentThreshold: 0.85
