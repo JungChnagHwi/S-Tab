@@ -10,7 +10,7 @@ spring:
         - id: note
           uri: lb://NOTE
           predicates:
-            - Path=/api/user/**,/api/note/**
+            - Path=/api/**
         - id: auth
           uri: lb://AUTH
           predicates:
