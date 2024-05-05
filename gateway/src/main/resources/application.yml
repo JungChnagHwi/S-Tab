@@ -6,6 +6,8 @@ spring:
     name: gateway
   profiles:
     active: prod
+  config:
+    import: ${SPRING_CONFIG_IMPORT}
   cloud:
     gateway:
       routes:
