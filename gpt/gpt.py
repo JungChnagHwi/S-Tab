@@ -6,6 +6,7 @@ from langchain.schema.runnable import RunnablePassthrough
 from py_eureka_client import eureka_client
 from dotenv import load_dotenv
 import os
+import asyncio
 
 app = FastAPI()
 
@@ -20,6 +21,8 @@ llm = ChatOpenAI(
     openai_api_key=openai_api_key,
     temperature=0.1
 )
+
+asyncio.set_event_loop(asyncio.new_event_loop())
 
 eureka_client.init(eureka_server=eureka_server_url,
                    app_name=app_name,
