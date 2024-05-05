@@ -9,13 +9,14 @@ import os
 
 app = FastAPI()
 
+app_name = "gpt"
+port = 8003
+
 @app.on_event("startup")
 def startup_event():
     load_dotenv()
     openai_api_key = os.getenv("OPENAI_API_KEY")
     eureka_server_url = os.getenv("EUREKA_SERVER_URL")
-    app_name = "gpt"
-    instance_port = 8003
 
     global llm
     llm = ChatOpenAI(
@@ -26,7 +27,7 @@ def startup_event():
     eureka_client.init(eureka_server=eureka_server_url,
                        app_name=app_name,
                        instance_id=app_name,
-                       instance_port=instance_port
+                       instance_port=port
     )
 
 @app.get("/api/gpt")
@@ -59,4 +60,6 @@ async def chat(q: str, user_id: int):
 
     return {"question": q, "answer": result.content}
 
-
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app="gpt:app", host='0.0.0.0', port=port)

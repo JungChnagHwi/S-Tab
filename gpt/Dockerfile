@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 EXPOSE 8003
 
-ENTRYPOINT ["uvicorn", "gpt:app" "--port", "8003"]
+ENTRYPOINT ["python3", "gpt.py"]
