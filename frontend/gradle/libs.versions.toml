@@ -34,16 +34,10 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 socket-io-client = { group = "io.socket", name = "socket.io-client", version.ref = "socketIoClient" }
-<<<<<<< PATCH SET (536648 chore: mediasoup client application 관련 build 설정 제거)
-=======
 mediasoup-client = { group = "io.github.haiyangwu", name = "mediasoup-client", version.ref = "mediasoupClient" }
-<<<<<<< HEAD
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coilCompose" }
-=======
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
->>>>>>> 5f3147f1f6e6d8147b56ada7744fb17e8b7eb5bb
->>>>>>> BASE      (1ad9d4 fix: gpt 서버 유저별 대화내역 관리)
 
 
 [plugins]
