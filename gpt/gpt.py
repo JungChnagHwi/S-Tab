@@ -5,8 +5,9 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.runnable import RunnablePassthrough
 from py_eureka_client import eureka_client
 from dotenv import load_dotenv
+from contextlib import asynccontextmanager
+
 import os
-import asyncio
 
 app = FastAPI()
 
@@ -22,14 +23,14 @@ llm = ChatOpenAI(
     temperature=0.1
 )
 
-loop = asyncio.get_event_loop()
-
-eureka_client.init(eureka_server=eureka_server_url,
-                   app_name=app_name,
-                   instance_id=app_name,
-                   instance_port=port,
-                   loop=loop
-)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await eureka_client.init_async(
+        eureka_server=eureka_server_url,
+        app_name=app_name,
+        instance_id=app_name,
+        instance_port=port
+    )
 
 @app.get("/api/gpt")
 async def chat(q: str, user_id: int):
@@ -63,4 +64,4 @@ async def chat(q: str, user_id: int):
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app="gpt:app", host='0.0.0.0', port=port, loop=loop)
+    uvicorn.run(app="gpt:app", host='0.0.0.0', port=port)
