@@ -22,12 +22,13 @@ llm = ChatOpenAI(
     temperature=0.1
 )
 
-asyncio.set_event_loop(asyncio.new_event_loop())
+loop = asyncio.get_event_loop()
 
 eureka_client.init(eureka_server=eureka_server_url,
                    app_name=app_name,
                    instance_id=app_name,
-                   instance_port=port
+                   instance_port=port,
+                   loop=loop
 )
 
 @app.get("/api/gpt")
@@ -62,4 +63,4 @@ async def chat(q: str, user_id: int):
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app="gpt:app", host='0.0.0.0', port=port)
+    uvicorn.run(app="gpt:app", host='0.0.0.0', port=port, loop=loop)
