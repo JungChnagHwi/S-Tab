@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 EXPOSE 8003
 
-CMD ["uvicorn", "gpt:app" "--port", "8003"]
+CMD ["python3", "-m", "uvicorn", "gpt:app" "--port", "8003"]
