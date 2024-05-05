@@ -24,13 +24,13 @@ spring:
         - id: gpt
           uri: lb://GPT
           predicates:
-            - Path=/api/gpt
+            - Path=/api/gpt/**
           filters:
             - name: TokenValidationCheckFilter
         - id: s3
           uri: lb://S3
           predicates:
-            - Path=/api/s3
+            - Path=/api/s3/**
           filters:
             - name: TokenValidationCheckFilter
 #        - id: ocr
