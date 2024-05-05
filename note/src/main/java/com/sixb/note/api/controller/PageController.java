@@ -16,10 +16,9 @@ public class PageController {
     private PageService pageService;
 
     @PostMapping()
-    public ResponseEntity<?> createPage(@RequestParam("userId") long userId,
-                                        @RequestBody PageCreateRequestDto request) {
+    public ResponseEntity<?> createPage(@RequestBody PageCreateRequestDto request) {
         try {
-            PageCreateResponseDto response = pageService.createPage(userId, request);
+            PageCreateResponseDto response = pageService.createPage(request);
             return ResponseEntity.ok(response);
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
