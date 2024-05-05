@@ -13,7 +13,7 @@ import java.util.UUID;
 public class Page extends BaseTimeEntity {
 
     @Id @GeneratedValue
-    private UUID id;
+    private String id;
 
     @Property("template")
     private String template;

@@ -15,10 +15,10 @@ public class Folder extends BaseTimeEntity {
 
     @Id
     @GeneratedValue
-    private UUID id;
+    private String id;
 
     @Property("spaceId")
-    private UUID spaceId;
+    private String spaceId;
 
     @Property("title")
     private String title;
