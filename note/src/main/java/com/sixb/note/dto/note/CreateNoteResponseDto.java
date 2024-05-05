@@ -9,7 +9,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class CreateNoteResponseDto {
-    private UUID noteId;
+    private String noteId;
     private String title;
     private int totalPageCnt;
     private boolean isLiked;
@@ -21,7 +21,7 @@ public class CreateNoteResponseDto {
     @Getter
     @Setter
     public static class PageDto {
-        private UUID pageId;
+        private String pageId;
         private int color;
         private int template;
         private int direction;

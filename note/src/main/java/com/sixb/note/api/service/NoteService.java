@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 public class NoteService {
@@ -48,7 +48,7 @@ public class NoteService {
         note.setPages(new ArrayList<>());
         note.getPages().add(page);
 
-        UUID parentFolderId = request.getParentFolderId();
+        String parentFolderId = request.getParentFolderId();
 
         if (parentFolderId != null) {
             // 부모 폴더 ID가 주어진 경우
@@ -60,7 +60,7 @@ public class NoteService {
                 folderRepository.save(parentFolder);
             } else {
                 // 부모 폴더를 찾지 못한 경우에 대한 처리
-                UUID spaceId = parentFolderId;
+                String spaceId = parentFolderId;
                 if (spaceId != null) {
                     // spaceId로 스페이스를 찾아서 노트를 연결
                     Optional<Space> optionalSpace = spaceRepository.findById(spaceId);
@@ -102,7 +102,7 @@ public class NoteService {
     }
 
     //노트 이름 변경
-    public boolean updateNoteTitle(UUID noteId, String newTitle) {
+    public boolean updateNoteTitle(String noteId, String newTitle) {
         Optional<Note> optionalNote = noteRepository.findById(noteId);
         if (optionalNote.isPresent()) {
             Note note = optionalNote.get();
@@ -114,7 +114,7 @@ public class NoteService {
     }
 
     //노트 삭제
-    public boolean deleteNote(UUID noteId) {
+    public boolean deleteNote(String noteId) {
         Note note = noteRepository.findById(noteId).orElse(null);
         if (note != null) {
             note.setIsDelete(1);

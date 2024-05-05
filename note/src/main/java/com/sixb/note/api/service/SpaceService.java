@@ -78,7 +78,7 @@ public class SpaceService {
     }
 
     //스페이스 삭제
-    public boolean deleteSpace(UUID spaceId) {
+    public boolean deleteSpace(String spaceId) {
         if (spaceRepository.existsById(spaceId)) {
             spaceRepository.deleteById(spaceId);
             return true;

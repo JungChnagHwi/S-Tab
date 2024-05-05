@@ -42,7 +42,7 @@ public class UserService {
         return userRepository.findNicknameCount(nickname);
     }
 
-    public List<User> findUsersBySpaceId(UUID spaceId) {
+    public List<User> findUsersBySpaceId(String spaceId) {
         return userRepository.findUsersBySpaceId(spaceId);
     }
 

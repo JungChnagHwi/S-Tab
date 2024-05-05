@@ -31,7 +31,7 @@ public class SpaceController {
     }
 
     @DeleteMapping("/{spaceId}")
-    public ResponseEntity<String> deleteSpace(@PathVariable UUID spaceId) {
+    public ResponseEntity<String> deleteSpace(@PathVariable String spaceId) {
         boolean isUpdated = spaceService.deleteSpace(spaceId);
         if (isUpdated) {
             return ResponseEntity.ok("Space 삭제 완료");

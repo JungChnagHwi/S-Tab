@@ -37,7 +37,7 @@ public class NoteController {
     }
 
     @PatchMapping("/{noteId}")
-    public ResponseEntity<String> deleteFolder(@PathVariable("noteId") UUID noteId) {
+    public ResponseEntity<String> deleteFolder(@PathVariable("noteId") String noteId) {
         boolean isUpdated = noteService.deleteNote(noteId);
         if (isUpdated) {
             return ResponseEntity.ok("노트 삭제 완료");

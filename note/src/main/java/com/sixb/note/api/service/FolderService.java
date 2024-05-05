@@ -32,7 +32,7 @@ public class FolderService {
     private UserService userService;
 
     // 폴더 조회
-    public FolderResponseDto getFolderDetail(UUID folderId) {
+    public FolderResponseDto getFolderDetail(String folderId) {
         List<Folder> folders = folderRepository.findSubFoldersByFolderId(folderId);
         List<Note> notes = noteRepository.findNotesByFolderId(folderId);
 
@@ -120,7 +120,7 @@ public class FolderService {
     }
 
     //폴더 이름 수정
-    public boolean updateFolderTitle(UUID folderId, String newTitle) {
+    public boolean updateFolderTitle(String folderId, String newTitle) {
         Folder folder = folderRepository.findById(folderId).orElse(null);
         if (folder != null) {
             folder.setTitle(newTitle);
@@ -131,7 +131,7 @@ public class FolderService {
     }
 
     //폴더 삭제
-    public boolean deleteFolder(UUID folderId) {
+    public boolean deleteFolder(String folderId) {
         Folder folder = folderRepository.findById(folderId).orElse(null);
         if (folder != null) {
             folder.setIsDelete(1);

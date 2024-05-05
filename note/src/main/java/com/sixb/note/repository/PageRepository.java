@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface PageRepository extends Neo4jRepository<Page, UUID> {
+public interface PageRepository extends Neo4jRepository<Page, String> {
 }

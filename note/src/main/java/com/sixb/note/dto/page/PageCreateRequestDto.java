@@ -8,5 +8,5 @@ import java.util.UUID;
 @Data
 @Builder
 public class PageCreateRequestDto {
-    private UUID beforePageId;
+    private String beforePageId;
 }

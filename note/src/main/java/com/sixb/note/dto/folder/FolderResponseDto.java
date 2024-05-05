@@ -16,7 +16,7 @@ public class FolderResponseDto {
     @Getter
     @Setter
     public static class FolderInfo {
-        private UUID folderId;
+        private String folderId;
         private String title;
         private Boolean isLiked;
         private LocalDateTime createAt;
@@ -27,7 +27,7 @@ public class FolderResponseDto {
     @Getter
     @Setter
     public static class NoteInfo {
-        private UUID noteId;
+        private String noteId;
         private String title;
         private int totalPageCnt;
         private Boolean isLiked;

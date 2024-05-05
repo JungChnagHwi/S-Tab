@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface SpaceRepository extends Neo4jRepository<Space, UUID> {
-    Space findSpaceById(UUID spaceId);
+public interface SpaceRepository extends Neo4jRepository<Space, String> {
+    Space findSpaceById(String spaceId);
 }
