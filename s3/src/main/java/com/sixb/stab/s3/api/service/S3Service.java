@@ -20,8 +20,8 @@ public class S3Service {
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
-	public String getPresignedUrl(String nickname, String mimeType, String type, String filename) {
-		return amazonS3.generatePresignedUrl(getGeneratePresignedUrlRequest(bucket, mimeType, createPath(nickname, type, filename))).toString();
+	public String getPresignedUrl(long userId, String mimeType, String type, String filename) {
+		return amazonS3.generatePresignedUrl(getGeneratePresignedUrlRequest(bucket, mimeType, createPath(userId, type, filename))).toString();
 	}
 
 	private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String bucket, String mimeType, String filename) {
@@ -43,10 +43,10 @@ public class S3Service {
 		return UUID.randomUUID().toString();
 	}
 
-	private String createPath(String nickname, String type, String filename) {
+	private String createPath(long userId, String type, String filename) {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
 		String now = format.format(new Date());
-		return type + "/" + now + "/" + nickname + "/" + createFileId() + "_" + filename;
+		return type + "/" + now + "/" + userId + "/" + createFileId() + "_" + filename;
 	}
 
 }
