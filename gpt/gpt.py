@@ -12,26 +12,20 @@ app = FastAPI()
 app_name = "gpt"
 port = 8003
 
-async def startup_event():
-    load_dotenv()
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    eureka_server_url = os.getenv("EUREKA_SERVER_URL")
+load_dotenv()
+openai_api_key = os.getenv("OPENAI_API_KEY")
+eureka_server_url = os.getenv("EUREKA_SERVER_URL")
 
-    global llm
-    llm = ChatOpenAI(
-        openai_api_key=openai_api_key,
-        temperature=0.1
-    )
+llm = ChatOpenAI(
+    openai_api_key=openai_api_key,
+    temperature=0.1
+)
 
-    eureka_client.init(eureka_server=eureka_server_url,
-                       app_name=app_name,
-                       instance_id=app_name,
-                       instance_port=port
-    )
-
-@app.on_event("startup")
-async def startup_event_wrapper():
-    await startup_event()
+eureka_client.init(eureka_server=eureka_server_url,
+                   app_name=app_name,
+                   instance_id=app_name,
+                   instance_port=port
+)
 
 @app.get("/api/gpt")
 async def chat(q: str, user_id: int):
