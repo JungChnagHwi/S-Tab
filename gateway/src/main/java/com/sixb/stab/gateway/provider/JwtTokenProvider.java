@@ -1,7 +1,7 @@
-package com.sixb.note.jwt;
+package com.sixb.stab.gateway.provider;
 
-import com.sixb.note.exception.InvalidTokenException;
-import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.*;
 
 @Component
 public class JwtTokenProvider {
@@ -21,21 +22,25 @@ public class JwtTokenProvider {
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 	}
 
-	public long getUserId(String token) throws InvalidTokenException {
+	public boolean validateToken(String token) {
 		try {
-			token = token.substring(7);
-			String subject =  Jwts.parserBuilder()
+			Jws<Claims> claimsJws = Jwts.parserBuilder()
 					.setSigningKey(key)
 					.build()
-					.parseClaimsJws(token)
-					.getBody()
-					.getSubject();
-			return Long.parseLong(subject);
-		} catch (ExpiredJwtException e) {
-			throw new InvalidTokenException("만료된 토큰입니다.");
-		} catch (JwtException e) {
-			throw new InvalidTokenException("유효하지 않은 토큰 입니다");
+					.parseClaimsJws(token);
+			return !claimsJws.getBody().getExpiration().before(new Date());
+		} catch (JwtException | IllegalArgumentException exception) {
+			return false;
 		}
+	}
+
+	public String getUserId(String token) {
+		return  Jwts.parserBuilder()
+				.setSigningKey(key)
+				.build()
+				.parseClaimsJws(token)
+				.getBody()
+				.getSubject();
 	}
 
 }

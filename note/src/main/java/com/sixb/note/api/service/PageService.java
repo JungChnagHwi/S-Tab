@@ -3,7 +3,6 @@ package com.sixb.note.api.service;
 import com.sixb.note.dto.page.PageCreateRequestDto;
 import com.sixb.note.dto.page.PageCreateResponseDto;
 import com.sixb.note.entity.Page;
-import com.sixb.note.exception.InvalidTokenException;
 import com.sixb.note.exception.PageNotFoundException;
 import com.sixb.note.repository.PageRepository;
 import com.sixb.note.util.IdCreator;
@@ -23,7 +22,7 @@ public class PageService {
     @Autowired
     private PageRepository pageRepository;
 
-    public PageCreateResponseDto createPage(String token, PageCreateRequestDto request) throws InvalidTokenException, PageNotFoundException {
+    public PageCreateResponseDto createPage(long userId, PageCreateRequestDto request) throws PageNotFoundException {
         UUID beforeNoteId = request.getBeforePageId();
 
         // id로 이전 페이지 정보를 찾아
