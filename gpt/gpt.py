@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationSummaryBufferMemory
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.runnable import RunnablePassthrough
 from py_eureka_client import eureka_client
 from dotenv import load_dotenv
@@ -43,15 +43,16 @@ async def chat(q: str, user_id: int):
         return_messages=True
     )
 
-    chat_history = memory.load_memory_variables({})[memory_key]
+    def load_memory(_):
+        return memory.load_memory_variables({})[memory_key]
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", "당신은 학생들의 질문을 아주 친절하고 자세하게 답변할 수 있는 AI 챗봇이다."),
-        MessagesPlaceholder(variable_name=memory_key),
-        ("user", "{question}")
+        MessagesPlaceholder(variable_name="chat_history"),
+        ("human", "{question}")
     ])
 
-    chain = RunnablePassthrough.assign(chat_history=chat_history) | prompt | llm
+    chain = RunnablePassthrough.assign(chat_history=load_memory) | prompt | llm
 
     result = chain.invoke({"question": q})
 
@@ -59,6 +60,8 @@ async def chat(q: str, user_id: int):
         {"input": q},
         {"output": result.content}
     )
+
+    print(memory.chat_memory)
 
     return {"question": q, "answer": result.content}
 
