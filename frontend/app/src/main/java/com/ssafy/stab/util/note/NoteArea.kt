@@ -1,11 +1,9 @@
 package com.ssafy.stab.util.note
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -23,10 +21,9 @@ import com.ssafy.stab.util.note.data.PenType
 @Composable
 fun NoteArea(
     noteController: NoteController,
-    modifier: Modifier = Modifier.fillMaxSize(),
     trackHistory: (undoCount: Int, redoCount: Int) -> Unit = { _, _ -> }
 ) = AndroidView(
-    modifier = modifier,
+    modifier = Modifier.fillMaxSize(),
     factory = {
         ComposeView(it).apply {
             setContent {
@@ -34,8 +31,7 @@ fun NoteArea(
                     noteController.trackHistory(this, trackHistory)
                 }
 
-                val canvasModifier = modifier
-                    .background(Color.White)
+                val canvasModifier = Modifier
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = { offset ->
@@ -65,7 +61,8 @@ fun NoteArea(
                         }
                     }
 
-                Canvas(modifier = canvasModifier
+                Canvas(
+                    modifier = canvasModifier
                 ) {
                     with(drawContext.canvas.nativeCanvas) {
                         val checkPoint = saveLayer(null, null)
@@ -109,5 +106,5 @@ fun NoteArea(
                 }
             }
         }
-    },
+    }
 )
