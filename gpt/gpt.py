@@ -9,8 +9,6 @@ from contextlib import asynccontextmanager
 
 import os
 
-app = FastAPI()
-
 app_name = "gpt"
 port = 8003
 
@@ -24,13 +22,16 @@ llm = ChatOpenAI(
 )
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(fastapi: FastAPI):
     await eureka_client.init_async(
         eureka_server=eureka_server_url,
         app_name=app_name,
         instance_id=app_name,
         instance_port=port
     )
+
+    global app
+    app = fastapi
 
 @app.get("/api/gpt")
 async def chat(q: str, user_id: int):
