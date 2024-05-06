@@ -4,10 +4,16 @@ server:
 spring:
   application:
     name: s3
+  profiles:
+    active: prod
+  config:
+    import: ${SPRING_CONFIG_IMPORT}
 
 eureka:
+  instance:
+    instance-id: s3
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://admin:1234@localhost:8761/eureka
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}

@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class SpaceResponseDto {
-    private UUID spaceId;
+    private String spaceId;
     private String title;
     private Boolean isPublic;
     private String rootFolderId;

@@ -3,19 +3,24 @@ server:
 
 spring:
   application:
-    name: server-config
-
+    name: config
   cloud:
     config:
       server:
         git:
-          uri: https://lab.ssafy.com/kjm1994/6b-s-tab-config.git
-          username: config-server
-          password: BzxkZxjec8mY9D94MF89
+          default-label: master
+          uri: ${SPRING_CLOUD_CONFIG_SERVER_GIT_URI}
+          username: ${SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME}
+          password: ${SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD}
+  security:
+    username: ${SPRING_SECURITY_USERNAME}
+    password: ${SPRING_SECURITY_PASSWORD}
 
 eureka:
+  instance:
+    instance-id: config
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://admin:1234@localhost:8761/eureka
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}

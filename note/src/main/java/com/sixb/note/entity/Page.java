@@ -3,10 +3,7 @@ package com.sixb.note.entity;
 import com.sixb.note.common.BaseTimeEntity;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
-import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.*;
 
 import java.util.UUID;
 
@@ -16,7 +13,7 @@ import java.util.UUID;
 public class Page extends BaseTimeEntity {
 
     @Id @GeneratedValue
-    private UUID id;
+    private String id;
 
     @Property("template")
     private String template;
@@ -32,4 +29,7 @@ public class Page extends BaseTimeEntity {
 
     @Property("pdfPage")
     private Integer pdfPage;
+
+    @Relationship(type = "link")
+    private Page previousPage;
 }

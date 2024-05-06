@@ -15,7 +15,7 @@ import java.util.UUID;
 public class Space extends BaseTimeEntity {
 
     @Id @GeneratedValue
-    private UUID id;
+    private String id;
 
     @Property("title")
     private String title;

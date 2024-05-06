@@ -1,0 +1,19 @@
+server:
+  port: 8002
+
+spring:
+  application:
+    name: auth
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
+  config:
+    import: ${SPRING_CONFIG_IMPORT}
+
+eureka:
+  instance:
+    instance-id: auth
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}

@@ -1,6 +1,10 @@
-#spring.application.name=eureka
+
 server:
   port: 8761
+
+spring:
+  application:
+    name: eureka
 
 eureka:
   client:
