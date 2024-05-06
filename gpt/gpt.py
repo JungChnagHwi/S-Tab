@@ -5,6 +5,7 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.runnable import RunnablePassthrough
 from py_eureka_client import eureka_client
 from dotenv import load_dotenv
+from contextlib import asynccontextmanager
 
 import os
 
@@ -15,12 +16,14 @@ load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 eureka_server_url = os.getenv("EUREKA_SERVER_URL")
 
-eureka_client.init_async(
-    eureka_server=eureka_server_url,
-    app_name=app_name,
-    instance_id=app_name,
-    instance_port=port
-)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await eureka_client.init(
+        eureka_server=eureka_server_url,
+        app_name=app_name,
+        instance_id=app_name,
+        instance_port=port
+    )
 
 app = FastAPI()
 
