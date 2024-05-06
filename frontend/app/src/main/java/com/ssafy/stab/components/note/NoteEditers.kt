@@ -1,17 +1,19 @@
 package com.ssafy.stab.components.note
 
-import android.util.Log
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -19,7 +21,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -113,17 +117,35 @@ fun OptionsBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ColorIcons(colorTint = "000000") {
-            noteController.changeColor("000000")
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            ColorIcons(colorTint = "000000") {
+                noteController.changeColor("000000")
+            }
+            ColorIcons(colorTint = "FF0000") {
+                noteController.changeColor("FF0000")
+            }
+            ColorIcons(colorTint = "0000FF") {
+                noteController.changeColor("0000FF")
+            }
+            ColorIcons(colorTint = "00FF00") {
+                noteController.changeColor("00FF00")
+            }
         }
-        ColorIcons(colorTint = "FF0000") {
-            noteController.changeColor("FF0000")
-        }
-        ColorIcons(colorTint = "0000FF") {
-            noteController.changeColor("0000FF")
-        }
-        ColorIcons(colorTint = "00FF00") {
-            noteController.changeColor("00FF00")
+        Spacer(modifier = Modifier.width(16.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            StrokeWidthIcons(strokeWidth  = 10f) {
+                noteController.changeStrokeWidth(10f)
+            }
+            StrokeWidthIcons(strokeWidth  = 20f) {
+                noteController.changeStrokeWidth(20f)
+            }
+            StrokeWidthIcons(strokeWidth  = 30f) {
+                noteController.changeStrokeWidth(30f)
+            }
         }
     }
 }
@@ -141,5 +163,31 @@ fun RowScope.ColorIcons(
                 .clip(CircleShape)
                 .background(Color(color = "FF$colorTint".toLong(16)))
         )
+    }
+}
+
+@Composable
+fun RowScope.StrokeWidthIcons(
+    strokeWidth : Float,
+    onClick: () -> Unit
+) {
+    val modifier = Modifier
+        .width(60.dp)
+        .height(40.dp)
+    IconButton(onClick = onClick, modifier = modifier) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            drawLine(
+                color = Color.Black,
+                start = Offset(0f, size.height / 2),
+                end = Offset(size.width, size.height / 2),
+                strokeWidth = strokeWidth,
+                cap = StrokeCap.Round,
+
+                )
+        }
     }
 }

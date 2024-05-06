@@ -4,9 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +23,6 @@ import com.ssafy.stab.components.note.ControlsBar
 import com.ssafy.stab.components.note.OptionsBar
 import com.ssafy.stab.ui.theme.Background
 import com.ssafy.stab.util.note.NoteArea
-import com.ssafy.stab.util.note.data.PenType
 import com.ssafy.stab.util.note.rememberNoteController
 
 @Composable
@@ -53,6 +53,7 @@ fun PersonalNote(navController: NavController){
                 undoAvailable = undoAvailable,
                 redoAvailable = redoAvailable,
             )
+            Spacer(modifier = Modifier.width(16.dp))
             OptionsBar(noteController = noteController)
         }
 
