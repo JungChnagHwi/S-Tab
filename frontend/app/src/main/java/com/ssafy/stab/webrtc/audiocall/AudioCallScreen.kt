@@ -29,7 +29,7 @@ fun AudioCallScreen(viewModel: AudioCallViewModel) {
     val context = LocalContext.current
     val sessionId by viewModel.sessionId
     val participantName by viewModel.participantName
-    val serverUrl by viewModel.serverUrl
+//    val serverUrl by viewModel.serverUrl
     val isConnected by viewModel.isConnected.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
@@ -74,12 +74,12 @@ fun AudioCallScreen(viewModel: AudioCallViewModel) {
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(16.dp))
-        OutlinedTextField(
-            value = serverUrl,
-            onValueChange = { viewModel.serverUrl.value = it },
-            label = { Text("Server URL") },
-            modifier = Modifier.fillMaxWidth()
-        )
+//        OutlinedTextField(
+//            value = serverUrl,
+//            onValueChange = { viewModel.serverUrl.value = it },
+//            label = { Text("Server URL") },
+//            modifier = Modifier.fillMaxWidth()
+//        )
         Spacer(Modifier.height(16.dp))
         Button(
             onClick = { viewModel.buttonPressed(context) },
