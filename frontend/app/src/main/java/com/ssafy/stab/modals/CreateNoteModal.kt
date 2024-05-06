@@ -77,7 +77,9 @@ fun CreateNoteModal() {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(30.dp))
-        Row(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)),
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp)),
             horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
             Text(text = "취소", fontSize = 20.sp)
             Text(text = "새 노트북", fontSize = 24.sp, fontWeight = FontWeight.Bold)
@@ -86,7 +88,8 @@ fun CreateNoteModal() {
         Spacer(modifier = Modifier.height(40.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             Column(
-                Modifier.clip(RoundedCornerShape(10.dp))
+                Modifier
+                    .clip(RoundedCornerShape(10.dp))
                     .background(Color(0xFFD9D9D9))
                     .fillMaxWidth(0.3f)
                     .height(240.dp),
@@ -96,20 +99,23 @@ fun CreateNoteModal() {
                 Image(
                     painter = imageResource,
                     contentDescription = null,
-                    modifier = Modifier.padding(10.dp)
+                    modifier = Modifier
+                        .padding(10.dp)
                         .height(if (selectedOrientation == "h") 160.dp else 120.dp)
                         .width(if (selectedOrientation == "h") 120.dp else 160.dp)
                 )
             }
             Spacer(modifier = Modifier.width(20.dp))
             Column(
-                Modifier.clip(RoundedCornerShape(10.dp))
+                Modifier
+                    .clip(RoundedCornerShape(10.dp))
                     .background(Color(0xFFD9D9D9))
                     .fillMaxWidth(0.8f)
                     .height(240.dp)
             ) {
+                Text(text = "크기  :  A4", fontSize = 16.sp, modifier = Modifier.padding(10.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "색상:", fontSize = 16.sp, modifier = Modifier.padding(10.dp))
+                    Text(text = "색상  :", fontSize = 16.sp, modifier = Modifier.padding(10.dp))
                     listOf("하얀색" to "w", "노란색" to "y").forEach { (label, color) ->
                         Image(
                             painter = if (selectedColor == color) selectedImg else notselectedImg,
@@ -117,11 +123,11 @@ fun CreateNoteModal() {
                             modifier = Modifier.clickable { selectedColor = color }
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = label, modifier = Modifier.clickable { selectedColor = color })
+                        Text(text = label, modifier = Modifier.clickable { selectedColor = color }.padding(10.dp, 0.dp))
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "방향:", fontSize = 16.sp, modifier = Modifier.padding(10.dp))
+                    Text(text = "방향  :", fontSize = 16.sp, modifier = Modifier.padding(10.dp))
                     listOf("가로" to "w", "세로" to "h").forEach { (label, orientation) ->
                         Image(
                             painter = if (selectedOrientation == orientation) selectedImg else notselectedImg,
@@ -129,7 +135,7 @@ fun CreateNoteModal() {
                             modifier = Modifier.clickable { selectedOrientation = orientation }
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = label, modifier = Modifier.clickable { selectedOrientation = orientation })
+                        Text(text = label, modifier = Modifier.clickable { selectedOrientation = orientation }.padding(10.dp, 0.dp))
                     }
                 }
             }
