@@ -14,7 +14,11 @@ spring:
         - id: note
           uri: lb://NOTE
           predicates:
-            - Path=/api/**
+            - Path=/api/user/**
+            - Path=/api/space/**
+            - Path=/api/page/**
+            - Path=/api/note/**
+            - Path=/api/folder/**
           filters:
             - name: TokenValidationCheckFilter
         - id: auth
