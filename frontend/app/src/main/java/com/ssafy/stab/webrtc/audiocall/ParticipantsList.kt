@@ -1,5 +1,6 @@
 package com.ssafy.stab.webrtc.audiocall
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,8 @@ import com.ssafy.stab.R
 fun ParticipantList(participants: List<String>) {
 //    val onlineUsers = listOf("참가자1", "참가자2")
 //    val offlineUsers = listOf("참가자3", "참가자4", "참가자5", "참가자6")
+    Log.d("ParticipantList", "Current participants: $participants")  // 디버그 로그 추가
+
 
     val profileImg = painterResource(id = R.drawable.profile)
     val muteImg = painterResource(id = R.drawable.soundoff)

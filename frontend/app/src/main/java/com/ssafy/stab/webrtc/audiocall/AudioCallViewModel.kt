@@ -2,6 +2,7 @@ package com.ssafy.stab.webrtc.audiocall
 
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -92,8 +93,11 @@ class AudioCallViewModel : ViewModel(), CustomWebSocket.WebSocketCallback, Sessi
     // 토큰으로 입장 성공
     private fun getTokenSuccess(token: String, sessionId: String) {
         _isConnected.value = true
+        // 현재 참가자 추가
+        participants.value = participants.value + participantName.value
         // WebSocket 연결 초기화
         startWebSocket()
+
     }
 
     // callback 구현
@@ -110,15 +114,18 @@ class AudioCallViewModel : ViewModel(), CustomWebSocket.WebSocketCallback, Sessi
         _errorMessage.value = "WebSocket Disconnected"
     }
 
+    // socket 이벤트로 실시간으로 참여자 정보 갱신하는 코드 -> 백엔드 서버에서도 정의 필요
     override fun onParticipantJoined(participant: String?) {
         participant?.let {
             participants.value += it
+            Log.d("AudioCallViewModel", "Participant joined: $it")
         }
     }
 
     override fun onParticipantLeft(participant: String?) {
         participant?.let {
             participants.value -= it
+            Log.d("AudioCallViewModel", "Participant left: $it")
         }
     }
 
@@ -150,6 +157,8 @@ class AudioCallViewModel : ViewModel(), CustomWebSocket.WebSocketCallback, Sessi
     fun leaveSession() {
         if (session != null) {
             session!!.leaveSession()
+            // 참가자 제거
+            participants.value = participants.value - participantName.value
         }
         if (httpClient != null) {
             httpClient!!.dispose()
