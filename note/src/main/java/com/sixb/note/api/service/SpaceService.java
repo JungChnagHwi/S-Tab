@@ -5,6 +5,7 @@ import com.sixb.note.dto.space.SpaceResponseDto;
 import com.sixb.note.entity.Space;
 import com.sixb.note.entity.User;
 import com.sixb.note.repository.SpaceRepository;
+import com.sixb.note.util.IdCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,18 +25,17 @@ public class SpaceService {
     private UserService userService;
 
     public List<SpaceResponseDto> findAllSpaceDetails() {
-        return spaceRepository.findAll().stream().map(space -> {
-            log.info("Processing space: {}", space.getId());
+        return spaceRepository.findSpaces().stream().map(space -> {
             SpaceResponseDto dto = new SpaceResponseDto();
             dto.setSpaceId(space.getId());
             dto.setTitle(space.getTitle());
             dto.setIsPublic(space.getIsPublic());
+            dto.setRootFolderId(null);
             dto.setCreateAt(space.getCreatedAt());
             dto.setUpdateAt(space.getModifiedAt());
 
             List<User> usersInSpace = userService.findUsersBySpaceId(space.getId());
             List<SpaceResponseDto.UserResponse> userResponses = usersInSpace.stream().map(user -> {
-                log.info("Adding user: {}", user.getNickname());
                 SpaceResponseDto.UserResponse userResponse = new SpaceResponseDto.UserResponse();
                 userResponse.setNickname(user.getNickname());
                 userResponse.setProfileImg(user.getProfileImg());
@@ -52,6 +52,11 @@ public class SpaceService {
     public SpaceResponseDto createSpace(SpaceRequestDto requestDto) {
         Space newSpace = new Space();
         newSpace.setTitle(requestDto.getTitle());
+
+        String formattedId = IdCreator.create("s");
+//        UUID formattedId = UUID.randomUUID();
+        newSpace.setId(formattedId);
+
         newSpace.setIsPublic(true);
         LocalDateTime now = LocalDateTime.now();
         newSpace.setCreatedAt(now);
@@ -71,7 +76,7 @@ public class SpaceService {
         responseDto.setIsPublic(true);
         responseDto.setRootFolderId(null);
         responseDto.setCreateAt(LocalDateTime.now());
-        responseDto.setUpdateAt(null);
+        responseDto.setUpdateAt(LocalDateTime.now());
         responseDto.setUsers(new ArrayList<>());
 
         return responseDto;

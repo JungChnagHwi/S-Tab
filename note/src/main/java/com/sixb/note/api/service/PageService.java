@@ -64,4 +64,19 @@ public class PageService {
         }
 
     }
+
+    public void deletePage(String pageId) throws PageNotFoundException {
+        Optional<Page> optionalPage = pageRepository.findById(pageId);
+        if (optionalPage.isPresent()) {
+            Page page = optionalPage.get();
+            int deleteStatus = page.getIsDelete();
+            if (deleteStatus == 0) {
+                page.setIsDelete(1);
+            } else {
+                throw new PageNotFoundException("이미 삭제된 페이지입니다.");
+            }
+        } else {
+            throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
+        }
+    }
 }

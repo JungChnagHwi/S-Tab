@@ -10,6 +10,8 @@ import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
 import com.sixb.note.repository.PageRepository;
 import com.sixb.note.repository.SpaceRepository;
+import com.sixb.note.util.IdCreator;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sixb.note.entity.Note;
@@ -38,11 +40,20 @@ public class NoteService {
         note.setTitle(request.getTitle());
         note.setTotalPageCnt(1);// 초기 페이지 수는 1으로 설정
 
+        String formattedNoteId = IdCreator.create("n");
+//        UUID formattedNoteId = UUID.randomUUID();
+        note.setId(formattedNoteId);
         // 새로운 페이지 생성
         Page page = new Page();
         page.setTemplate(String.valueOf(request.getTemplate()));
         page.setColor(String.valueOf(request.getColor()));
         page.setDirection(request.getDirection());
+
+        LocalDateTime now = LocalDateTime.now();
+        page.setCreatedAt(now);
+        page.setModifiedAt(now);
+        note.setCreatedAt(now);
+        note.setModifiedAt(now);
 
         // 노트와 페이지 연결
         note.setPages(new ArrayList<>());
@@ -52,10 +63,10 @@ public class NoteService {
 
         if (parentFolderId != null) {
             // 부모 폴더 ID가 주어진 경우
-            Optional<Folder> optionalFolder = folderRepository.findById(parentFolderId);
-            if (optionalFolder.isPresent()) {
+            Folder optionalFolder = folderRepository.findFolderById(parentFolderId);
+            if (optionalFolder!=null) {
                 // 부모 폴더가 있는 경우 노트를 해당 폴더에 연결
-                Folder parentFolder = optionalFolder.get();
+                Folder parentFolder = optionalFolder;
                 parentFolder.getNotes().add(note);
                 folderRepository.save(parentFolder);
             } else {
@@ -63,11 +74,11 @@ public class NoteService {
                 String spaceId = parentFolderId;
                 if (spaceId != null) {
                     // spaceId로 스페이스를 찾아서 노트를 연결
-                    Optional<Space> optionalSpace = spaceRepository.findById(spaceId);
-                    optionalSpace.ifPresent(space -> {
-                        space.getNotes().add(note);
-                        spaceRepository.save(space);
-                    });
+                    Space optionalSpace = spaceRepository.findSpaceById(spaceId);
+                    if (optionalSpace != null) {
+                        optionalSpace.getNotes().add(note);
+                        spaceRepository.save(optionalSpace);
+                    }
                 }
             }
         }
@@ -82,7 +93,7 @@ public class NoteService {
         response.setTotalPageCnt(note.getTotalPageCnt());
         response.setLiked(false);
         response.setCreateAt(LocalDateTime.now());
-        response.setUpdateAt(null);
+        response.setUpdateAt(LocalDateTime.now());
         response.setIsDelete(0);
 
         // 페이지 DTO 설정
@@ -93,7 +104,7 @@ public class NoteService {
         pageDto.setDirection(request.getDirection());
         pageDto.setBookmarked(false);
         pageDto.setCreateAt(LocalDateTime.now());
-        pageDto.setUpdateAt(null);
+        pageDto.setUpdateAt(LocalDateTime.now());
         pageDto.setIsDelete(0);
 
         response.setPage(pageDto);
@@ -103,9 +114,8 @@ public class NoteService {
 
     //노트 이름 변경
     public boolean updateNoteTitle(String noteId, String newTitle) {
-        Optional<Note> optionalNote = noteRepository.findById(noteId);
-        if (optionalNote.isPresent()) {
-            Note note = optionalNote.get();
+        Note note = noteRepository.findNoteById(noteId);
+        if (note != null) {
             note.setTitle(newTitle);
             noteRepository.save(note);
             return true;
@@ -115,7 +125,7 @@ public class NoteService {
 
     //노트 삭제
     public boolean deleteNote(String noteId) {
-        Note note = noteRepository.findById(noteId).orElse(null);
+        Note note = noteRepository.findNoteById(noteId);
         if (note != null) {
             note.setIsDelete(1);
             noteRepository.save(note);
