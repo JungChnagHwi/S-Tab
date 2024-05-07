@@ -8,7 +8,7 @@ import java.util.UUID;
 @Data
 @Builder
 public class PageCreateResponseDto {
-    private UUID pageId;
+    private String pageId;
     private String template;
     private String color;
     private int direction;

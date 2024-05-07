@@ -14,7 +14,6 @@ import java.util.UUID;
 public class Folder extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue
     private String id;
 
     @Property("spaceId")

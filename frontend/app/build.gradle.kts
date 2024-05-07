@@ -14,6 +14,7 @@ val kakaoAppKey = localProperties.getProperty("kakao_native_app_key") ?: "defaul
 android {
     namespace = "com.ssafy.stab"
     compileSdk = 34
+    ndkVersion = "27.0.11718014"
 
     defaultConfig {
         applicationId = "com.ssafy.stab"
@@ -57,14 +58,14 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
 }
+
 
 dependencies {
 
     implementation(libs.gson)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.socket.io.client)
-    implementation(libs.mediasoup.client)
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
@@ -87,4 +88,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation("com.kakao.sdk:v2-user:2.20.1") // 카카오 로그인 API 모듈
+    // openvidu 관련 설정
+    implementation("io.github.webrtc-sdk:android:114.5735.10")
+    implementation("com.neovisionaries:nv-websocket-client:2.9")
+
 }
