@@ -66,6 +66,8 @@ dependencies {
     implementation(libs.socket.io.client)
     implementation(libs.mediasoup.client)
     implementation(libs.coil.compose)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation(libs.androidx.core.ktx)

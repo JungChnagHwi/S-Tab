@@ -15,7 +15,9 @@ fun socialLogin(idToken: String) {
             Log.i("APIResponse", "$response")
             if (response.isSuccessful && response.body() != null) {
                 val authResponse = response.body()
-                Log.i("APIResponse", "Successful response: $authResponse")
+                Log.i("APIResponse", "Successful response: ${authResponse?.accessToken}")
+                val accessToken = authResponse?.accessToken
+                tryLogin(accessToken.toString())
             } else {
                 Log.e("APIResponse", "API Call failed!")
             }
@@ -30,7 +32,9 @@ fun socialLogin(idToken: String) {
 
 fun tryLogin(authorization: String) {
     val apiService = RetrofitAuth.getToken().create(ApiService::class.java)
-    val call = apiService.getInfoIfUser(authorization)
+    val accessToken = authorization
+    val authorizationHeader = "Bearer $accessToken"
+    val call = apiService.getInfoIfUser(authorizationHeader)
 
     call.enqueue(object : retrofit2.Callback<AuthResponse> {
         override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
@@ -39,6 +43,10 @@ fun tryLogin(authorization: String) {
                     val userInfo = response.body()
                     if (userInfo != null) {
                         Log.i("APIResponse", "User info received: $userInfo")
+                        val nickname = userInfo.nickname
+                        val profileImg = userInfo.profileImg
+                        val rootFolderId = userInfo.rootFolderId
+
                     } else {
                         Log.e("APIResponse", "Response was successful but no user info found")
                     }

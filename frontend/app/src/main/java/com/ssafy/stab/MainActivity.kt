@@ -20,14 +20,15 @@ import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.space.SpaceRouters
 import com.ssafy.stab.ui.theme.STabTheme
 import com.kakao.sdk.common.util.Utility
+import com.ssafy.stab.data.PreferencesUtil
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         var keyHash = Utility.getKeyHash(this)
         Log.d("Key Hash", "$keyHash")
-
         super.onCreate(savedInstanceState)
+        PreferencesUtil.init(this)
         setContent {
             STabTheme {
                 // A surface container using the 'background' color from the theme
