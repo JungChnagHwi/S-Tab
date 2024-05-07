@@ -3,7 +3,6 @@ package com.sixb.note.api.controller;
 import com.sixb.note.api.service.PageService;
 import com.sixb.note.dto.page.PageCreateRequestDto;
 import com.sixb.note.dto.page.PageCreateResponseDto;
-import com.sixb.note.exception.InvalidTokenException;
 import com.sixb.note.exception.PageNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,13 +16,10 @@ public class PageController {
     private PageService pageService;
 
     @PostMapping()
-    public ResponseEntity<?> createPage(@RequestHeader("Authorization") String token,
-                                        @RequestBody PageCreateRequestDto request) {
+    public ResponseEntity<?> createPage(@RequestBody PageCreateRequestDto request) {
         try {
-            PageCreateResponseDto response = pageService.createPage(token, request);
+            PageCreateResponseDto response = pageService.createPage(request);
             return ResponseEntity.ok(response);
-        } catch (InvalidTokenException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

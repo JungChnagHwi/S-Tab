@@ -4,33 +4,41 @@ server:
 spring:
   application:
     name: gateway
+  profiles:
+    active: prod
+  config:
+    import: ${SPRING_CONFIG_IMPORT}
   cloud:
     gateway:
       routes:
         - id: note
           uri: lb://NOTE
           predicates:
-            - Path=/api/**
+            - Path=/api/user/**,/api/space/**,/api/page/**,/api/note/**,/api/folder/**
+          filters:
+            - name: TokenValidationCheckFilter
         - id: auth
           uri: lb://AUTH
           predicates:
             - Path=/api/auth/**
-#        - id: gpt
-#          uri: lb://GPT
-#          predicates:
-#            - name: gpt
-#              args:
-#                pattern: /api/gpt/**
+        - id: gpt
+          uri: lb://GPT
+          predicates:
+            - Path=/api/gpt/**
+          filters:
+            - name: TokenValidationCheckFilter
         - id: s3
           uri: lb://S3
           predicates:
-            - Path=/api/s3
+            - Path=/api/s3/**
+          filters:
+            - name: TokenValidationCheckFilter
 #        - id: ocr
 #          uri: lb://OCR
 #          predicates:
-#            - name: ocr
-#              args:
-#                pattern: /api/ocr/**
+#            - Path=/api/ocr/**
+#          filters:
+#            - name: TokenValidationCheckFilter
 #        - id: sfu
 #          uri: lb://SFU
 #          predicates:

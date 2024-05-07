@@ -11,3 +11,5 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val Background = Color(0xFFE9ECF5)
+val NoteAreaBackground = Color(0xFFF6F6F6)
+val YellowNote = Color(0xFFF6F2CD)

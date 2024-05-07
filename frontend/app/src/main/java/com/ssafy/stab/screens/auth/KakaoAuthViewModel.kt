@@ -1,5 +1,6 @@
 package com.ssafy.stab.screens.auth
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+@SuppressLint("StaticFieldLeak")
 class KakaoAuthViewModel(application: Application): AndroidViewModel(application) {
 
         companion object {
@@ -22,7 +24,7 @@ class KakaoAuthViewModel(application: Application): AndroidViewModel(application
 
     private val context = application.applicationContext
 
-    val isLoggedIn = MutableStateFlow<Boolean>(false)
+    val isLoggedIn = MutableStateFlow(false)
 
     fun kakaoLogin(){
         viewModelScope.launch {
@@ -53,7 +55,7 @@ class KakaoAuthViewModel(application: Application): AndroidViewModel(application
         }
 
     private suspend fun handleKakaoLogin() : Boolean =
-        suspendCoroutine<Boolean> { continuation ->
+        suspendCoroutine { continuation ->
         // 로그인 조합 예제
 
         // 카카오계정으로 로그인 공통 callback 구성

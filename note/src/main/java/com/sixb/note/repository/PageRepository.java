@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface PageRepository extends Neo4jRepository<Page, String> {
+
     @Query("MATCH (p) WHERE p.isDelete = 1 RETURN p")
     List<Page> findDeletedPages();
 

@@ -3,7 +3,6 @@ package com.sixb.note.api.service;
 import com.sixb.note.dto.page.PageCreateRequestDto;
 import com.sixb.note.dto.page.PageCreateResponseDto;
 import com.sixb.note.entity.Page;
-import com.sixb.note.exception.InvalidTokenException;
 import com.sixb.note.exception.PageNotFoundException;
 import com.sixb.note.repository.PageRepository;
 import com.sixb.note.util.IdCreator;
@@ -13,8 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
-
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +20,8 @@ public class PageService {
     @Autowired
     private PageRepository pageRepository;
 
-    public PageCreateResponseDto createPage(String token, PageCreateRequestDto request) throws InvalidTokenException, PageNotFoundException {
-        UUID beforeNoteId = request.getBeforePageId();
+    public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
+        String beforeNoteId = request.getBeforePageId();
 
         // id로 이전 페이지 정보를 찾아
         Optional<Page> beforePageOptional = pageRepository.findById(beforeNoteId);
@@ -37,7 +34,7 @@ public class PageService {
 
             // 이전페이지 정보로 새로운 page만들기
             String pageId = IdCreator.create("p");
-            newPage.setId(UUID.fromString(pageId));
+            newPage.setId(pageId);
             newPage.setCreatedAt(now);
             newPage.setColor(beforePage.getColor());
             newPage.setDirection(beforePage.getDirection());
