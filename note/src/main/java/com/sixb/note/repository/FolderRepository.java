@@ -22,5 +22,13 @@ public interface FolderRepository extends Neo4jRepository<Folder, String> {
 
     @Query("MATCH (f:Folder) WHERE f.id = $folderId RETURN f")
     Folder findFolderById(@Param("folderId") String folderId);
+
+    @Query("MATCH (u:User {id: $userId})-[:HAS_Like]->(f:Folder) RETURN f")
+    List<Folder> findAllLikedFoldersByUserId(@Param("userId") String userId);
+
+    @Query("MATCH (u:User {id: $userId})-[r:HAS_Like]->(f:Folder {id: $itemId}) DELETE r")
+    void deleteLikeFolder(@Param("userId") String userId, @Param("itemId") String itemId);
+
+
 }
 

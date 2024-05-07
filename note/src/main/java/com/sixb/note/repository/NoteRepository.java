@@ -18,4 +18,10 @@ public interface NoteRepository extends Neo4jRepository<Note, String> {
     Note findNoteById(@Param("noteId") String noteId);
     @Query("MATCH (n:Note) WHERE n.isDelete = 1 RETURN n")
     List<Note> findDeletedNotes();
+
+    @Query("MATCH (u:User {id: $userId})-[:HAS_Like]->(n:Note) RETURN n")
+    List<Note> findAllLikedNotesByUserId(@Param("userId") String userId);
+
+    @Query("MATCH (u:User {id: $userId})-[r:HAS_Like]->(n:Note {id: $itemId}) DELETE r")
+    void deleteLikeNote(@Param("userId") String userId, @Param("itemId") String itemId);
 }
