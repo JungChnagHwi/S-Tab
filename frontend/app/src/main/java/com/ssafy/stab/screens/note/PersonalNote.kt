@@ -20,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,11 +35,16 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.ssafy.stab.components.note.ControlsBar
 import com.ssafy.stab.components.note.OptionsBar
+import com.ssafy.stab.components.note.Template
+import com.ssafy.stab.data.note.BackgroundColor
+import com.ssafy.stab.data.note.Direction
 import com.ssafy.stab.data.note.PagesResponse
+import com.ssafy.stab.data.note.TemplateType
 import com.ssafy.stab.ui.theme.Background
 import com.ssafy.stab.ui.theme.NoteAreaBackground
 import com.ssafy.stab.ui.theme.YellowNote
 import com.ssafy.stab.util.note.NoteArea
+import com.ssafy.stab.util.note.getTemplate
 import com.ssafy.stab.util.note.rememberNoteController
 import kotlinx.coroutines.launch
 
@@ -53,17 +59,13 @@ fun PersonalNote(navController: NavController){
     val undoAvailable = remember { mutableStateOf(false) }
     val redoAvailable = remember { mutableStateOf(false) }
 
-    val template = remember { mutableStateOf<String?>(null) }
     val isLandscape = remember { mutableStateOf(true) }
     val pages = remember { mutableStateOf<PagesResponse?>(null) }
 
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(template) {
+    LaunchedEffect(coroutineScope) {
         coroutineScope.launch {
-            val url = fetchData()
-            template.value = url
-
             val fetchedData = mutableListOf(1, 2, 3)
             val response = PagesResponse(data = fetchedData)
             pages.value = response
@@ -126,24 +128,14 @@ fun PersonalNote(navController: NavController){
                 Box(
                     modifier = modifier.aspectRatio(aspectRatio)
                 ) {
-                    if (template.value != null) {
-                        val painter = rememberAsyncImagePainter(model = template.value)
 
-                        // 템플릿
-                        Image(
-                            painter = painter,
-                            contentDescription = null,
-                            modifier = Modifier.matchParentSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        // 무지
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .background(YellowNote)
-                        )
-                    }
+
+                    val templateType = TemplateType.Grid
+                    val backgroundColor = BackgroundColor.White
+                    val direction = Direction.Landscape
+                    val templateResId = getTemplate(templateType, backgroundColor, direction)
+
+                    Template(resId = templateResId, modifier = Modifier.matchParentSize())
 
                     NoteArea(
                         noteController = noteController,
