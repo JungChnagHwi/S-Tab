@@ -23,8 +23,8 @@ public class AuthController {
 		try {
 			TokenResponseDto response = authService.login(request);
 			return ResponseEntity.ok(response);
-		} catch (JsonProcessingException e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("잘못된 ID토큰입니다");
+		} catch (InvalidTokenException e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
 		}
 	}
 
