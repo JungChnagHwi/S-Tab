@@ -1,8 +1,6 @@
 package com.sixb.note.api.service;
 
-import com.sixb.note.dto.page.PageCreateRequestDto;
-import com.sixb.note.dto.page.PageCreateResponseDto;
-import com.sixb.note.dto.page.SaveDataRequestDto;
+import com.sixb.note.dto.page.*;
 import com.sixb.note.entity.Page;
 import com.sixb.note.entity.PageData;
 import com.sixb.note.exception.PageNotFoundException;
@@ -11,8 +9,6 @@ import com.sixb.note.repository.PageRepository;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -116,5 +112,30 @@ public class PageService {
             throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
         }
 
+    }
+
+    public PageUpdateDto updatePage(PageUpdateDto request) throws PageNotFoundException {
+        String pageId = request.getPageId();
+        Optional<Page> optionalPage = pageRepository.findById(pageId);
+        if (optionalPage.isPresent()) {
+            Page page = optionalPage.get();
+            int deleteStatus = page.getIsDelete();
+            if (deleteStatus == 0) {
+                // 필기데이터가 있는지 확인 후
+                Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
+                // 양식 정보 수정
+                page.setTemplate(request.getTemplate());
+                page.setColor(request.getColor());
+                page.setDirection(request.getDirection());
+
+                pageRepository.save(page);
+
+                return request;
+            } else {
+                throw new PageNotFoundException("이미 삭제된 페이지입니다.");
+            }
+        } else {
+            throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
+        }
     }
 }
