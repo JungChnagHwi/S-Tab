@@ -3,6 +3,7 @@ package com.sixb.note.api.controller;
 import com.sixb.note.api.service.PageService;
 import com.sixb.note.dto.page.PageCreateRequestDto;
 import com.sixb.note.dto.page.PageCreateResponseDto;
+import com.sixb.note.dto.page.SaveDataRequestDto;
 import com.sixb.note.exception.PageNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/page")
 @RequiredArgsConstructor
 public class PageController {
-    private PageService pageService;
+
+    private final PageService pageService;
 
     @PostMapping("")
     public ResponseEntity<?> createPage(@RequestBody PageCreateRequestDto request) {
@@ -30,6 +32,17 @@ public class PageController {
         try {
             pageService.deletePage(pageId);
             return ResponseEntity.ok("페이지 삭제 완료");
+        } catch (PageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    // 필기데이터 저장
+    @PutMapping("")
+    public ResponseEntity<?> saveDate(@RequestBody SaveDataRequestDto request) {
+        try {
+            pageService.saveData(request);
+            return ResponseEntity.ok("데이터 저장완료");
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
