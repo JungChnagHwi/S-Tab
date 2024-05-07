@@ -46,13 +46,10 @@ public class LocalParticipant extends Participant {
         AudioSource audioSource = peerConnectionFactory.createAudioSource(new MediaConstraints());
         this.audioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
 
-<<<<<<< PATCH SET (56a786 feat: openvidu 음성통화만 되도록 커스텀한 코드 추가)
-        surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", this.session.getRootEglBase()
-                .getEglBaseContext());
-=======
+
 //        surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", this.session.getRootEglBase()
 //                .getEglBaseContext());
->>>>>>> BASE      (1c4238 feat: 음성 통화방 참가자 목록 ui에 현재 세션 참가자가 표시되는 기능 구현)
+
 
         // Create VideoCapturer
         VideoCapturer videoCapturer = createCameraCapturer();

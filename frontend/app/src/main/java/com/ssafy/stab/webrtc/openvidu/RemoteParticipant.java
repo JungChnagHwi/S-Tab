@@ -5,10 +5,7 @@ import android.widget.TextView;
 
 import org.webrtc.SurfaceViewRenderer;
 
-<<<<<<< PATCH SET (56a786 feat: openvidu 음성통화만 되도록 커스텀한 코드 추가)
-=======
 
->>>>>>> BASE      (1c4238 feat: 음성 통화방 참가자 목록 ui에 현재 세션 참가자가 표시되는 기능 구현)
 public class RemoteParticipant extends Participant {
 
     private View view;
