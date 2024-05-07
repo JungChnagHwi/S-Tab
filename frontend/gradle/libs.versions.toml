@@ -14,6 +14,9 @@ socketIoClient = "2.1.0"
 mediasoupClient = "3.4.0"
 kotlinxCoroutinesCore = "1.8.1-Beta"
 kotlinxCoroutinesAndroid = "1.8.1-Beta"
+awsAndroidSdkS3 = "2.75.0"
+awsAndroidSdkCore = "2.75.0"
+converterScalars = "2.11.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +39,9 @@ socket-io-client = { group = "io.socket", name = "socket.io-client", version.ref
 mediasoup-client = { group = "io.github.haiyangwu", name = "mediasoup-client", version.ref = "mediasoupClient" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+aws-android-sdk-s3 = { group = "com.amazonaws", name = "aws-android-sdk-s3", version.ref = "awsAndroidSdkS3" }
+aws-android-sdk-core = { group = "com.amazonaws", name = "aws-android-sdk-core", version.ref = "awsAndroidSdkCore" }
+converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "converterScalars" }
 
 
 [plugins]

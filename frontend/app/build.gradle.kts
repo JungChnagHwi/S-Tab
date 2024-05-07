@@ -65,8 +65,10 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.socket.io.client)
     implementation(libs.mediasoup.client)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.aws.android.sdk.s3)
+    implementation(libs.aws.android.sdk.core)
+    implementation(libs.converter.scalars)
+
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation(libs.androidx.core.ktx)

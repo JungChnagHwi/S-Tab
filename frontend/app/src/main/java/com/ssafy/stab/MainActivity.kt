@@ -21,6 +21,7 @@ import com.ssafy.stab.screens.space.SpaceRouters
 import com.ssafy.stab.ui.theme.STabTheme
 import com.kakao.sdk.common.util.Utility
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.screens.space.PersonalSpace
 
 
 class MainActivity : ComponentActivity() {
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
         Log.d("Key Hash", "$keyHash")
         super.onCreate(savedInstanceState)
         PreferencesUtil.init(this)
+        val loginDetails = PreferencesUtil.getLoginDetails()
         setContent {
             STabTheme {
                 // A surface container using the 'background' color from the theme
@@ -53,9 +55,9 @@ fun Routers(){
     }
 
     NavHost(navController = navController, startDestination = "login") {
-        composable("login") { Login(onNavigate = { navigateTo(it) }) }
+        composable("login") { Login(navController = navController) }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
-        composable("space") { SpaceRouters() }
+        composable("space") { SpaceRouters(homeNavController = navController) }
         composable("personal-note") { PersonalNote(navController = navController)}
         composable("audio-call") { AudioCallScreen() }
         composable("create-note") { CreateNoteModal() }

@@ -35,7 +35,6 @@ fun Deleted(){
             .background(Color(0xFFE9ECF5))
             .fillMaxSize()
     ) {
-        MyHeader()
         DeletedTitleBar()
         Divider(
             color = Color.Gray, // 선의 색상 설정

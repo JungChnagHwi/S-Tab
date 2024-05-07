@@ -26,7 +26,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.ssafy.stab.R
 
 @Composable
@@ -44,7 +43,6 @@ fun ShareSpace() {
             .background(Color(0xFFE9ECF5))
             .fillMaxSize()
     ) {
-        MyHeader()
         SpTitleBar()
         Divider(
             color = Color.Gray,

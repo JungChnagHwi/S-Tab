@@ -1,5 +1,6 @@
 package com.ssafy.stab.screens.auth
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,37 +16,41 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.ssafy.stab.data.PreferencesUtil
 
 
 @Composable
-fun Login(onNavigate: (String) -> Unit){
-    val kakaoAuthViewModel : KakaoAuthViewModel = viewModel()
+fun Login(navController: NavController){
+    val loginDetails =  PreferencesUtil.getLoginDetails()
+    if (loginDetails.isLoggedIn){
+        navController.navigate("space")
+    } else {
+        val kakaoAuthViewModel : KakaoAuthViewModel = viewModel()
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        KakaoLoginView(kakaoAuthViewModel)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            KakaoLoginView(kakaoAuthViewModel, navController = navController)
 
-        Row {
-            Button(onClick = { onNavigate("sign-up") }) {
-                Text(text = "회원가입 페이지로 가기")
-            }
-            Button(onClick = { onNavigate("space") }) {
-                Text(text = "개인 스페이스로 가기")
-            }
-            Button(onClick = { onNavigate("personal-note") }) {
-                Text(text = "개인 노트로 가기")
-            }
-            Button(onClick = { onNavigate("audio-call") }) {
-                Text(text = "음성 통화로 가기")
-            }
-            Button(onClick = { onNavigate("create-note") }) {
-                Text(text = "노트 생성으로 가기")
+            Row {
+                Button(onClick = { navController.navigate("sign-up") }) {
+                    Text(text = "회원가입 페이지로 가기")
+                }
+                Button(onClick = { navController.navigate("space") }) {
+                    Text(text = "개인 스페이스로 가기")
+                }
+                Button(onClick = { navController.navigate("personal-note") }) {
+                    Text(text = "개인 노트로 가기")
+                }
+                Button(onClick = { navController.navigate("audio-call") }) {
+                    Text(text = "음성 통화로 가기")
+                }
             }
         }
     }
 }
 
 @Composable
-fun KakaoLoginView(viewModel: KakaoAuthViewModel) {
+fun KakaoLoginView(viewModel: KakaoAuthViewModel, navController: NavController) {
 
     val isLoggedIn = viewModel.isLoggedIn.collectAsState()
 
@@ -57,7 +62,7 @@ fun KakaoLoginView(viewModel: KakaoAuthViewModel) {
         ) {
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            viewModel.kakaoLogin()
+            viewModel.kakaoLogin(navController = navController)
         }) {
             Text(text = "로그인 하기")
         }

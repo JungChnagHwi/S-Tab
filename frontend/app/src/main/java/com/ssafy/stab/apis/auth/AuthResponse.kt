@@ -1,4 +1,4 @@
-package com.ssafy.stab.screens.auth.token
+package com.ssafy.stab.apis.auth
 
 import com.google.gson.annotations.SerializedName
 
