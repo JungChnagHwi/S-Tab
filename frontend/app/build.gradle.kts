@@ -67,7 +67,6 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.socket.io.client)
-    implementation(libs.mediasoup.client)
     implementation(libs.aws.android.sdk.s3)
     implementation(libs.aws.android.sdk.core)
     implementation(libs.converter.scalars)
