@@ -39,4 +39,9 @@ public class UserService {
         return userRepository.findUsersBySpaceId(spaceId);
     }
 
+
+    public User getUserDetails(String userId) {
+        return userRepository.findUserById(userId);
+    }
+
 }

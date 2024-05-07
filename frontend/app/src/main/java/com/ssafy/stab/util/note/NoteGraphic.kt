@@ -1,20 +1,9 @@
 package com.ssafy.stab.util.note
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
+import com.ssafy.stab.util.note.data.Coordinate
 
-data class PathInfo(
-    val penType: String = "pen",
-    val thickness: Float,
-    val color: String,
-    var coordinates: SnapshotStateList<Coordinate>,
-)
-
-data class Coordinate(
-    val x: Float,
-    val y: Float
-)
 
 fun offsetToCoordinate(offset: Offset): Coordinate {
     return Coordinate(x = offset.x, y = offset.y)
