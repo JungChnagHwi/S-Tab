@@ -4,7 +4,6 @@ import com.sixb.note.dto.page.PageCreateRequestDto;
 import com.sixb.note.dto.page.PageCreateResponseDto;
 import com.sixb.note.entity.Page;
 import com.sixb.note.exception.PageNotFoundException;
-import com.sixb.note.jwt.JwtTokenProvider;
 import com.sixb.note.repository.PageRepository;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +20,7 @@ public class PageService {
     @Autowired
     private PageRepository pageRepository;
 
-    private final JwtTokenProvider jwtTokenProvider;
-
-    public PageCreateResponseDto createPage(String token, PageCreateRequestDto request) throws InvalidTokenException, PageNotFoundException {
-        long userId = jwtTokenProvider.getUserId(token);
-        // token 으로 유효성 검사하는 부분 나중에 추가하기
-        
+    public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
         String beforeNoteId = request.getBeforePageId();
 
         // id로 이전 페이지 정보를 찾아
@@ -71,10 +65,7 @@ public class PageService {
 
     }
 
-    public void deletePage(String token, String pageId) throws InvalidTokenException, PageNotFoundException {
-        long userId = jwtTokenProvider.getUserId(token);
-        // 유효성 검사하는 부분 나중에 추가하기
-
+    public void deletePage(String pageId) throws PageNotFoundException {
         Optional<Page> optionalPage = pageRepository.findById(pageId);
         if (optionalPage.isPresent()) {
             Page page = optionalPage.get();

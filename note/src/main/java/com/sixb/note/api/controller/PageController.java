@@ -16,8 +16,7 @@ public class PageController {
     private PageService pageService;
 
     @PostMapping("")
-    public ResponseEntity<?> createPage(@RequestHeader("Authorization") String token,
-                                        @RequestBody PageCreateRequestDto request) {
+    public ResponseEntity<?> createPage(@RequestBody PageCreateRequestDto request) {
         try {
             PageCreateResponseDto response = pageService.createPage(request);
             return ResponseEntity.ok(response);
@@ -27,13 +26,10 @@ public class PageController {
     }
 
     @DeleteMapping("/{page-id}")
-    public ResponseEntity<?> deletePage(@RequestHeader("Authorization") String token,
-                                        @PathVariable("page-id") String pageId) {
+    public ResponseEntity<?> deletePage(@PathVariable("page-id") String pageId) {
         try {
-            pageService.deletePage(token, pageId);
+            pageService.deletePage(pageId);
             return ResponseEntity.ok("페이지 삭제 완료");
-        } catch (InvalidTokenException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
