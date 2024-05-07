@@ -33,12 +33,12 @@ spring:
             - Path=/api/s3/**
           filters:
             - name: TokenValidationCheckFilter
-#        - id: ocr
-#          uri: lb://OCR
-#          predicates:
-#            - Path=/api/ocr/**
-#          filters:
-#            - name: TokenValidationCheckFilter
+        - id: ocr
+          uri: lb://OCR
+          predicates:
+            - Path=/api/ocr/**
+          filters:
+            - name: TokenValidationCheckFilter
 #        - id: sfu
 #          uri: lb://SFU
 #          predicates:
