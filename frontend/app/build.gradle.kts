@@ -59,9 +59,6 @@ android {
         }
     }
 
-    viewBinding {
-        enable = true
-    }
 }
 
 
@@ -69,14 +66,9 @@ dependencies {
 
     implementation(libs.gson)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.socket.io.client)
-<<<<<<< PATCH SET (536648 chore: mediasoup client application 관련 build 설정 제거)
-=======
-    implementation(libs.mediasoup.client)
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
->>>>>>> BASE      (1ad9d4 fix: gpt 서버 유저별 대화내역 관리)
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation(libs.androidx.core.ktx)
@@ -96,17 +88,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation("com.kakao.sdk:v2-user:2.20.1") // 카카오 로그인 API 모듈
-<<<<<<< PATCH SET (56a786 feat: openvidu 음성통화만 되도록 커스텀한 코드 추가)
-<<<<<<< PATCH SET (9b6a78 feat: openvidu 음성통화만 되도록 커스텀한 코드 추가)
-
     // openvidu 관련 설정
     implementation("io.github.webrtc-sdk:android:114.5735.10")
     implementation("com.neovisionaries:nv-websocket-client:2.9")
 
-=======
->>>>>>> BASE      (1ad9d4 fix: gpt 서버 유저별 대화내역 관리)
-=======
-    implementation(files("libs/mediasoup-client-debug.aar")) // aar 파일
-
->>>>>>> BASE      (1c4238 feat: 음성 통화방 참가자 목록 ui에 현재 세션 참가자가 표시되는 기능 구현)
 }
