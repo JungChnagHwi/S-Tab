@@ -10,9 +10,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
-import com.ssafy.stab.util.note.data.Coordinate
-import com.ssafy.stab.util.note.data.PathInfo
-import com.ssafy.stab.util.note.data.PenType
+import com.ssafy.stab.data.note.Coordinate
+import com.ssafy.stab.data.note.PathData
+import com.ssafy.stab.data.note.PathInfo
+import com.ssafy.stab.data.note.PenType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.onEach
 
 class NoteController internal constructor(val trackHistory: (undoCount: Int, redoCount: Int) -> Unit = { _, _ -> }) {
 
+    private val importPathList = mutableListOf<PathInfo>()
     private val undoPathList = mutableStateListOf<PathInfo>()
     private val redoPathList = mutableStateListOf<PathInfo>()
     internal val pathList: SnapshotStateList<PathInfo> = undoPathList
@@ -101,6 +103,27 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
             trackHistory(undoPathList.size, redoPathList.size)
             historyTracking.tryEmit("redo")
         }
+    }
+
+    fun reset() {
+        importPathList.clear()
+        redoPathList.clear()
+        undoPathList.clear()
+        historyTracking.tryEmit("reset")
+    }
+
+    fun importPath(pathData: PathData) {
+        reset()
+        importPathList.addAll(pathData.paths)
+    }
+
+    fun exportPath(): PathData {
+        val combinedPath = mutableListOf<PathInfo>().apply {
+            addAll(importPathList)
+            addAll(pathList)
+        }
+
+        return PathData(combinedPath.toList())
     }
 
 }

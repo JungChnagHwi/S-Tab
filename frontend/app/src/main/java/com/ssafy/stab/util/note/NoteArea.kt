@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.viewinterop.AndroidView
-import com.ssafy.stab.util.note.data.PenType
+import com.ssafy.stab.data.note.PenType
 
 @Composable
 fun NoteArea(

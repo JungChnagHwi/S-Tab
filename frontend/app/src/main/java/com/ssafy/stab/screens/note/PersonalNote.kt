@@ -1,5 +1,6 @@
 package com.ssafy.stab.screens.note
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.ssafy.stab.components.note.ControlsBar
 import com.ssafy.stab.components.note.OptionsBar
+import com.ssafy.stab.data.note.PagesResponse
 import com.ssafy.stab.ui.theme.Background
 import com.ssafy.stab.ui.theme.NoteAreaBackground
 import com.ssafy.stab.ui.theme.YellowNote
@@ -42,19 +46,27 @@ suspend fun fetchData(): String? {
     return null
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PersonalNote(navController: NavController){
     val noteController = rememberNoteController()
     val undoAvailable = remember { mutableStateOf(false) }
     val redoAvailable = remember { mutableStateOf(false) }
+
     val template = remember { mutableStateOf<String?>(null) }
     val isLandscape = remember { mutableStateOf(true) }
+    val pages = remember { mutableStateOf<PagesResponse?>(null) }
+
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(template) {
         coroutineScope.launch {
             val url = fetchData()
             template.value = url
+
+            val fetchedData = mutableListOf(1, 2, 3)
+            val response = PagesResponse(data = fetchedData)
+            pages.value = response
         }
     }
 
@@ -84,52 +96,61 @@ fun PersonalNote(navController: NavController){
             OptionsBar(noteController = noteController)
         }
 
-        // 필기 공간
-        BoxWithConstraints(
-            modifier = Modifier.fillMaxSize().background(NoteAreaBackground),
-            contentAlignment = Alignment.Center
+        val pageCount = pages.value?.data?.size ?: 0
+        val state = rememberPagerState { pageCount }
+
+        HorizontalPager(
+            state = state
         ) {
-            val aspectRatio = if (isLandscape.value) 297f / 210f else 210f / 297f
-            val density = LocalDensity.current
-        
-            val maxWidth = with(density) { constraints.maxWidth.toDp() }
-            val maxHeight = with(density) { constraints.maxHeight.toDp() }
-            val calculatedWidth = maxHeight * (1 / aspectRatio)
-
-            val modifier = if (calculatedWidth > maxWidth) {
-                Modifier.fillMaxWidth()
-            } else {
-                Modifier.fillMaxHeight()
-            }
-
-            // 비율을 맞춘 노트
-            Box(
-                modifier = modifier.aspectRatio(aspectRatio)
+            // 필기 공간
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(NoteAreaBackground),
+                contentAlignment = Alignment.Center
             ) {
-                if (template.value != null) {
-                    val painter = rememberAsyncImagePainter(model = template.value)
+                val aspectRatio = if (isLandscape.value) 297f / 210f else 210f / 297f
+                val density = LocalDensity.current
 
-                    // 템플릿
-                    Image(
-                        painter = painter,
-                        contentDescription = null,
-                        modifier = Modifier.matchParentSize(),
-                        contentScale = ContentScale.Crop
-                    )
+                val maxWidth = with(density) { constraints.maxWidth.toDp() }
+                val maxHeight = with(density) { constraints.maxHeight.toDp() }
+                val calculatedWidth = maxHeight * (1 / aspectRatio)
+
+                val modifier = if (calculatedWidth > maxWidth) {
+                    Modifier.fillMaxWidth()
                 } else {
-                    // 무지
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(YellowNote)
-                    )
+                    Modifier.fillMaxHeight()
                 }
 
-                NoteArea(
-                    noteController = noteController,
-                ) { undoCount, redoCount ->
-                    undoAvailable.value = undoCount != 0
-                    redoAvailable.value = redoCount != 0
+                // 비율을 맞춘 노트
+                Box(
+                    modifier = modifier.aspectRatio(aspectRatio)
+                ) {
+                    if (template.value != null) {
+                        val painter = rememberAsyncImagePainter(model = template.value)
+
+                        // 템플릿
+                        Image(
+                            painter = painter,
+                            contentDescription = null,
+                            modifier = Modifier.matchParentSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        // 무지
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .background(YellowNote)
+                        )
+                    }
+
+                    NoteArea(
+                        noteController = noteController,
+                    ) { undoCount, redoCount ->
+                        undoAvailable.value = undoCount != 0
+                        redoAvailable.value = redoCount != 0
+                    }
                 }
             }
         }

@@ -2,7 +2,7 @@ package com.ssafy.stab.util.note
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
-import com.ssafy.stab.util.note.data.Coordinate
+import com.ssafy.stab.data.note.Coordinate
 
 
 fun offsetToCoordinate(offset: Offset): Coordinate {

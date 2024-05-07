@@ -1,4 +1,4 @@
-package com.ssafy.stab.util.note.data
+package com.ssafy.stab.data.note
 
 enum class PenType {
     Pen,
