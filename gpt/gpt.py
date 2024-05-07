@@ -6,6 +6,7 @@ from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from py_eureka_client import eureka_client
 from dotenv import load_dotenv
+from urllib import parse
 
 import os
 
@@ -56,12 +57,14 @@ with_message_history = (
 
 @app.get("/api/gpt")
 async def chat(q: str = Query(...), user_id: int = Query(..., alias="userId")):
+    question = parse.unquote(q)
+
     result = with_message_history.invoke(
-        {"question": q},
+        {"question": question},
          config={"configurable": {"session_id": user_id}}
     )
 
-    return {"question": q, "answer": result.content}
+    return {"question": question, "answer": result.content}
 
 if __name__ == "__main__":
     import uvicorn
