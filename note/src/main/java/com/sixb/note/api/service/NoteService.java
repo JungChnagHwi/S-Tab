@@ -45,6 +45,8 @@ public class NoteService {
         note.setId(formattedNoteId);
         // 새로운 페이지 생성
         Page page = new Page();
+        String formattedPageId = IdCreator.create("p");
+        page.setId(formattedPageId);
         page.setTemplate(String.valueOf(request.getTemplate()));
         page.setColor(String.valueOf(request.getColor()));
         page.setDirection(request.getDirection());
