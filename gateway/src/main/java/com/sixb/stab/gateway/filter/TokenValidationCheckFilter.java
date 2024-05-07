@@ -42,7 +42,7 @@ public class TokenValidationCheckFilter extends AbstractGatewayFilterFactory<Tok
 
 				token = token.substring(7);
 
-				if (!jwtTokenProvider.validateToken(token)) {
+				if (!jwtTokenProvider.isValid(token)) {
 					response.setStatusCode(HttpStatus.UNAUTHORIZED);
 					DataBuffer buffer = response.bufferFactory().wrap("토큰이 유효하지 않습니다.".getBytes(StandardCharsets.UTF_8));
 					return response.writeWith(Mono.just(buffer));
