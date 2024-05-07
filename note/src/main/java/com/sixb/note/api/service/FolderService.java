@@ -10,6 +10,7 @@ import com.sixb.note.entity.Space;
 import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
 import com.sixb.note.repository.SpaceRepository;
+import com.sixb.note.util.IdCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ public class FolderService {
     private UserService userService;
 
     // 폴더 조회
-    public FolderResponseDto getFolderDetail(UUID folderId) {
+    public FolderResponseDto getFolderDetail(String folderId) {
         List<Folder> folders = folderRepository.findSubFoldersByFolderId(folderId);
         List<Note> notes = noteRepository.findNotesByFolderId(folderId);
 
@@ -71,17 +72,16 @@ public class FolderService {
         Folder newFolder = new Folder();
         newFolder.setTitle(request.getTitle());
 
-        Folder parentFolder = null;
+        String formattedFolderId = IdCreator.create("f");
+//        UUID formattedFolderId = UUID.randomUUID();
+        newFolder.setId(formattedFolderId);
+
+        // 부모 폴더 또는 스페이스 ID로 조회
+        Folder parentFolder = folderRepository.findFolderById(request.getParentFolderId());
         Space space = null;
-
-        // 부모 폴더 ID가 주어진 경우 부모 폴더 조회
-        if (request.getParentFolderId() != null) {
-            parentFolder = folderRepository.findById(request.getParentFolderId()).orElse(null);
-        }
-
-        // 부모 폴더가 없는 경우 스페이스에 폴더를 추가
         if (parentFolder == null) {
-            space = spaceRepository.findById(request.getParentFolderId()).orElse(null);
+            // 폴더가 아니면 스페이스 조회
+            space = spaceRepository.findSpaceById(request.getParentFolderId());
             if (space == null) {
                 throw new IllegalStateException("Neither parent folder nor space found for given ID");
             }
@@ -96,32 +96,30 @@ public class FolderService {
             subFolders.add(newFolder);
             parentFolder.setSubFolders(subFolders);
         }
+        LocalDateTime now = LocalDateTime.now();
+        newFolder.setCreatedAt(now);
+        newFolder.setModifiedAt(now);
 
-        // 폴더 저장
         folderRepository.save(newFolder);
-
         if (parentFolder != null) {
             folderRepository.save(parentFolder);
         } else if (space != null) {
             spaceRepository.save(space);
         }
-        LocalDateTime now = LocalDateTime.now();
-        newFolder.setCreatedAt(now);
-        newFolder.setModifiedAt(now);
 
         CreateFolderResponseDto response = new CreateFolderResponseDto();
         response.setFolderId(newFolder.getId());
         response.setTitle(newFolder.getTitle());
-        response.setCreateAt(now);
-        response.setUpdateAt(null);
+        response.setCreateAt(LocalDateTime.now());
+        response.setUpdateAt(LocalDateTime.now());
         response.setIsDelete(0);
         response.setIsLiked(false);
         return response;
     }
 
     //폴더 이름 수정
-    public boolean updateFolderTitle(UUID folderId, String newTitle) {
-        Folder folder = folderRepository.findById(folderId).orElse(null);
+    public boolean updateFolderTitle(String folderId, String newTitle) {
+        Folder folder = folderRepository.findFolderById(folderId);
         if (folder != null) {
             folder.setTitle(newTitle);
             folderRepository.save(folder);
@@ -131,8 +129,8 @@ public class FolderService {
     }
 
     //폴더 삭제
-    public boolean deleteFolder(UUID folderId) {
-        Folder folder = folderRepository.findById(folderId).orElse(null);
+    public boolean deleteFolder(String folderId) {
+        Folder folder = folderRepository.findFolderById(folderId);
         if (folder != null) {
             folder.setIsDelete(1);
             folderRepository.save(folder);

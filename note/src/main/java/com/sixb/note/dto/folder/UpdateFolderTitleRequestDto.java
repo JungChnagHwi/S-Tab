@@ -8,6 +8,6 @@ import java.util.UUID;
 @Getter
 @Setter
 public class UpdateFolderTitleRequestDto {
-    private UUID folderId;
+    private String folderId;
     private String newTitle;
 }

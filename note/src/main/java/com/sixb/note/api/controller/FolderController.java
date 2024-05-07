@@ -19,7 +19,7 @@ public class FolderController {
     private FolderService folderService;
 
     @GetMapping("/{folderId}")
-    public ResponseEntity<FolderResponseDto> getFolderById(@PathVariable("folderId") UUID folderId) {
+    public ResponseEntity<FolderResponseDto> getFolderById(@PathVariable("folderId") String folderId) {
         FolderResponseDto folderInfo = folderService.getFolderDetail(folderId);
         return ResponseEntity.ok(folderInfo);
     }
@@ -41,7 +41,7 @@ public class FolderController {
     }
 
     @PatchMapping("/{folderId}")
-    public ResponseEntity<String> deleteFolder(@PathVariable("folderId") UUID folderId) {
+    public ResponseEntity<String> deleteFolder(@PathVariable("folderId") String folderId) {
         boolean isUpdated = folderService.deleteFolder(folderId);
         if (isUpdated) {
             return ResponseEntity.ok("폴더 삭제 완료");

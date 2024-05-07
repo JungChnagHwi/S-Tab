@@ -8,7 +8,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class CreateNoteRequestDto {
-    private UUID parentFolderId;
+    private String parentFolderId;
     private String title;
     private int color;
     private int template;

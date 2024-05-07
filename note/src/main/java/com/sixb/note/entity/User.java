@@ -4,13 +4,14 @@ import lombok.Data;
 import org.springframework.data.neo4j.core.schema.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Node("User")
 public class User {
 
     @Id
-    private long id;
+    private String id;
 
     @Property("nickname")
     private String nickname;
@@ -26,4 +27,7 @@ public class User {
 
     @Relationship(type = "HAS_Like")
     private List<Note> notes;
+
+    @Relationship(type = "HAS_Like")
+    private List<Page> pages;
 }

@@ -7,6 +7,6 @@ import java.util.UUID;
 @Getter
 @Setter
 public class UpdateNoteTitleRequestDto {
-    private UUID noteId;
+    private String noteId;
     private String newTitle;
 }

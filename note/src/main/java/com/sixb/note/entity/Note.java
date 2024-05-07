@@ -13,11 +13,11 @@ import java.util.UUID;
 @Node("Note")
 public class Note extends BaseTimeEntity {
 
-    @Id @GeneratedValue
-    private UUID id;
+    @Id
+    private String id;
 
     @Property("spaceId")
-    private UUID spaceId;
+    private String spaceId;
 
     @Property("title")
     private String title;
@@ -25,6 +25,6 @@ public class Note extends BaseTimeEntity {
     @Property("totalPageCnt")
     private int totalPageCnt;
 
-    @Relationship(type = "HAS_Page", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "HAS_Page")
     private List<Page> pages;
 }

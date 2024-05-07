@@ -9,7 +9,7 @@ import java.util.UUID;
 @Setter
 public class CreateFolderRequestDto {
 
-    private UUID parentFolderId;
+    private String parentFolderId;
     private String title;
 
 }

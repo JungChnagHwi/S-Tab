@@ -4,12 +4,16 @@ import com.sixb.note.api.service.UserService;
 import com.sixb.note.dto.request.UserInfoRequestDto;
 import com.sixb.note.dto.response.NicknameResponseDto;
 import com.sixb.note.dto.response.UserInfoResponseDto;
+import com.sixb.note.entity.User;
 import com.sixb.note.exception.InvalidTokenException;
 import com.sixb.note.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -58,6 +62,16 @@ public class UserController {
 	public ResponseEntity<NicknameResponseDto> checkNickname(@PathVariable String nickname) {
 		NicknameResponseDto response = userService.checkNickname(nickname);
 		return ResponseEntity.ok(response);
+	}
+
+
+	@GetMapping("/test/{userId}")
+	public ResponseEntity<User> getUserDetails(@PathVariable String userId) {
+		User user = userService.getUserDetails(userId);
+		if (user == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(user);
 	}
 
 }

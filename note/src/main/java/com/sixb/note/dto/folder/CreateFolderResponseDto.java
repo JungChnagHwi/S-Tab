@@ -9,7 +9,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class CreateFolderResponseDto {
-    private UUID folderId;
+    private String folderId;
     private String title;
     private Boolean isLiked;
     private LocalDateTime createAt;
