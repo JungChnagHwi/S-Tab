@@ -17,6 +17,9 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = java.net.URI("https://devrepo.kakao.com/nexus/content/groups/public/") }
+        flatDir {
+            dirs("libs")  // .aar 파일이 위치한 폴더
+        }
     }
 }
 
