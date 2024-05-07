@@ -1,5 +1,6 @@
 package com.sixb.stab.gateway.provider;
 
+import com.sixb.stab.gateway.repository.BlackListRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -17,12 +18,20 @@ public class JwtTokenProvider {
 
 	private final Key key;
 
-	public JwtTokenProvider(@Value("${jwt.token.secret-key}") String secretKey) {
+	private final BlackListRepository blackListRepository;
+
+	public JwtTokenProvider(@Value("${jwt.token.secret-key}") String secretKey,
+							BlackListRepository blackListRepository) {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		this.key = Keys.hmacShaKeyFor(keyBytes);
+		this.blackListRepository = blackListRepository;
 	}
 
-	public boolean validateToken(String token) {
+	public boolean isValid(String token) {
+		if (blackListRepository.findById(token).isPresent()) {
+			return false;
+		}
+		
 		try {
 			Jws<Claims> claimsJws = Jwts.parserBuilder()
 					.setSigningKey(key)
