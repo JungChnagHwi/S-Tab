@@ -13,3 +13,19 @@ enum class MotionEvent {
     Move,
     Up
 }
+
+enum class TemplateType {
+    Plain,
+    Lined,
+    Grid
+}
+
+enum class BackgroundColor {
+    White,
+    Yellow
+}
+
+enum class Direction {
+    Portrait,
+    Landscape
+}
