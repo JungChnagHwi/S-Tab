@@ -1,12 +1,15 @@
 package com.ssafy.stab.webrtc.audiocall
 
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import android.view.View
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ssafy.stab.webrtc.openvidu.LocalParticipant
 import com.ssafy.stab.webrtc.openvidu.RemoteParticipant
 import com.ssafy.stab.webrtc.openvidu.Session
 import com.ssafy.stab.webrtc.utils.CustomHttpClient
@@ -22,7 +25,8 @@ import org.webrtc.MediaStream
 import java.io.IOException
 
 // session 접속 데이터를 다루는 viewmodel
-class AudioCallViewModel : ViewModel(), CustomWebSocket.WebSocketCallback, Session.StreamObserver {
+class AudioCallViewModel(application: Application) : AndroidViewModel(application), CustomWebSocket.WebSocketCallback, Session.StreamObserver {
+
     var sessionId = mutableStateOf("")
     var participantName = mutableStateOf("")
     private val serverUrl = "https://demos.openvidu.io"
@@ -95,6 +99,16 @@ class AudioCallViewModel : ViewModel(), CustomWebSocket.WebSocketCallback, Sessi
         _isConnected.value = true
         // 현재 참가자 추가
         participants.value = participants.value + participantName.value
+
+        // 세션 초기화 및 로컬 참가자 오디오 시작
+        val context = getApplication<Application>().applicationContext
+        session = Session(sessionId, token, context) // context는 ViewModel이 아니므로 적절한 Context를 전달해야 합니다.
+        session?.let {
+            it.localParticipant = LocalParticipant(participantName.value, it, context) // LocalParticipant를 생성하고 세션에 설정
+            it.localParticipant?.startAudio() // 오디오 시작
+            it.setStreamObserver(this)
+        }
+
         // WebSocket 연결 초기화
         startWebSocket()
 
@@ -154,11 +168,11 @@ class AudioCallViewModel : ViewModel(), CustomWebSocket.WebSocketCallback, Sessi
     }
 
     // 세션 떠나기
-    fun leaveSession() {
+    private fun leaveSession() {
         if (session != null) {
             session!!.leaveSession()
             // 참가자 제거
-            participants.value = participants.value - participantName.value
+            participants.value -= participantName.value
         }
         if (httpClient != null) {
             httpClient!!.dispose()

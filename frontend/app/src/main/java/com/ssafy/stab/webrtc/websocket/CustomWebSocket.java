@@ -238,7 +238,7 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
         Map<String, String> publishVideoParams = new HashMap<>();
         publishVideoParams.put("audioActive", "true");
         publishVideoParams.put("videoActive", "false"); // 비디오 스트림 비활성화
-//        publishVideoParams.put("doLoopback", "false");
+        publishVideoParams.put("doLoopback", "false");
 //        publishVideoParams.put("frameRate", "30");
         publishVideoParams.put("hasAudio", "true");
         publishVideoParams.put("hasVideo", "false"); // 비디오 스트림 비활성화
