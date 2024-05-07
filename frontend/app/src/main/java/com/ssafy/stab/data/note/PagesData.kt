@@ -1,7 +1,6 @@
-package com.ssafy.stab.data
+package com.ssafy.stab.data.note
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.ssafy.stab.util.note.data.PathInfo
+import com.ssafy.stab.data.note.PathInfo
 import java.time.LocalDateTime
 
 data class Page(

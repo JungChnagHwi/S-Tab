@@ -34,7 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.ssafy.stab.components.note.ControlsBar
 import com.ssafy.stab.components.note.OptionsBar
-import com.ssafy.stab.data.PagesResponse
+import com.ssafy.stab.data.note.PagesResponse
 import com.ssafy.stab.ui.theme.Background
 import com.ssafy.stab.ui.theme.NoteAreaBackground
 import com.ssafy.stab.ui.theme.YellowNote

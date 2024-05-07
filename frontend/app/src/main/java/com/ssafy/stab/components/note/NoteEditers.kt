@@ -29,7 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
 import com.ssafy.stab.util.note.NoteController
-import com.ssafy.stab.util.note.data.PenType
+import com.ssafy.stab.data.note.PenType
 
 @Composable
 fun ControlsBar(
