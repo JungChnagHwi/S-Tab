@@ -2,6 +2,7 @@ package com.sixb.note.api.service;
 
 import com.sixb.note.dto.space.SpaceRequestDto;
 import com.sixb.note.dto.space.SpaceResponseDto;
+import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Space;
 import com.sixb.note.entity.User;
 import com.sixb.note.repository.SpaceRepository;
@@ -80,6 +81,17 @@ public class SpaceService {
         responseDto.setUsers(new ArrayList<>());
 
         return responseDto;
+    }
+
+    //스페이스 이름 변경
+    public boolean updateSpaceTitle(String spaceId, String newTitle) {
+        Space space = spaceRepository.findSpaceById(spaceId);
+        if (space != null) {
+            space.setTitle(newTitle);
+            spaceRepository.save(space);
+            return true;
+        }
+        return false;
     }
 
     //스페이스 삭제
