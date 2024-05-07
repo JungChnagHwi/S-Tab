@@ -1,9 +1,12 @@
 package com.ssafy.stab.apis.auth
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.navigation.NavController
 import com.ssafy.stab.apis.RetrofitClient
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.screens.auth.uploadFile
 import retrofit2.Call
 import retrofit2.Response
 
@@ -103,19 +106,19 @@ fun signUp(authorization: String, signupRequest: UserSignupRequest) {
     })
 }
 
-fun s3uri(filename: String) {
+fun s3uri(context: Context, imageUri: Uri) {
     val apiService = RetrofitClient.instance.create(ApiService::class.java)
     val accessToken = PreferencesUtil.getLoginDetails().accessToken
     val authorizationHeader = "Bearer $accessToken"
-    val fullfilename = "$filename.jpg"
-    val call = apiService.getS3URI(authorizationHeader, fullfilename)
-    Log.d("a", fullfilename)
+    val call = apiService.getS3URI(authorizationHeader, imageUri.toString())  // 예제에서는 imageUri를 직접 사용하고 있으나, 실제 파일 이름이 필요합니다.
+
     call.enqueue(object : retrofit2.Callback<String> {
         override fun onResponse(call: Call<String>, response: Response<String>) {
-            Log.i("APIResponse", "$response")
             if (response.isSuccessful) {
-                val uriResponse = response.body().toString()
-                Log.i("APIResponse", "URI: $uriResponse")
+                val presignedUrl = response.body().toString()
+                Log.i("APIResponse", "Presigned URL: $presignedUrl")
+                // Presigned URL을 받았으니, 이제 이미지를 업로드합니다.
+                uploadFile(context, presignedUrl, imageUri)
             } else {
                 Log.e("APIResponse", "Failed to fetch URI: ${response.errorBody()?.string()}")
             }

@@ -25,7 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.apis.auth.s3uri
-
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import android.content.Context
+import android.net.Uri
+import okhttp3.MediaType.Companion.toMediaType
+import java.io.IOException
 @Composable
 fun SignUp(onNavigate: (String) -> Unit) {
     var nickname by remember { mutableStateOf("") }
@@ -63,7 +69,9 @@ fun SignUp(onNavigate: (String) -> Unit) {
             Log.d("Selected Img", it)
         }
         Button(onClick = {
-            s3uri(imageUri.toString())
+            if (imageUri != null) {
+                s3uri(context, Uri.parse(imageUri))
+            }
         }) {
             Text(text = "S3 URI 줘봐")
         }
@@ -77,5 +85,42 @@ fun SignUp(onNavigate: (String) -> Unit) {
                 Text(text = "개인 스페이스로 가기")
             }
         }
+    }
+}
+
+
+
+fun uploadFile(context: Context, url: String, imageUri: Uri) {
+    val client = OkHttpClient()
+    val inputStream = context.contentResolver.openInputStream(imageUri)
+    val mediaType = "image/jpeg".toMediaType()
+
+    val body = inputStream?.use { stream ->
+        // inputStream에서 바이트 배열을 읽고 RequestBody를 생성
+        RequestBody.create(mediaType, stream.readBytes())
+    }
+
+    if (body != null) {  // Body가 null이 아니면 요청 실행
+        val request = Request.Builder()
+            .url(url)
+            .put(body)  // HTTP PUT 요청을 사용
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) {
+                Log.e("Upload", "Upload failed", e)
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                if (response.isSuccessful) {
+                    Log.d("Upload", "Upload was successful")
+                } else {
+                    Log.e("Upload", "Upload failed: ${response.message}")
+                }
+                response.close()  // 응답 리소스 해제
+            }
+        })
+    } else {
+        Log.e("UploadError", "Failed to create request body from the input stream.")
     }
 }
