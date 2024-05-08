@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.webrtc.openvidu.LocalParticipant
 import com.ssafy.stab.webrtc.openvidu.RemoteParticipant
 import com.ssafy.stab.webrtc.openvidu.Session
@@ -23,13 +24,14 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.webrtc.MediaStream
 import java.io.IOException
+import java.util.Base64
 
 // session 접속 데이터를 다루는 viewmodel
 class AudioCallViewModel(application: Application) : AndroidViewModel(application), CustomWebSocket.WebSocketCallback, Session.StreamObserver {
 
     var sessionId = mutableStateOf("")
     var participantName = mutableStateOf("")
-    private val serverUrl = "https://demos.openvidu.io"
+    private val serverUrl = BuildConfig.OPENVIDU_URL
     var participants = mutableStateOf(listOf<String>())
     private val _isConnected = MutableStateFlow(false)
     val isConnected = _isConnected.asStateFlow()
@@ -59,37 +61,41 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
 
     // 세션 생성 및 연결 토큰 얻기
     private fun getToken(sessionId: String) {
+        // 헤더 설정
+        val credentials = BuildConfig.OPENVIDU_SECRET
+        val authorization = "Basic " + Base64.getEncoder().encodeToString(credentials.toByteArray())
         // 첫 번째 단계: 세션 생성 요청
         val sessionUrl = "/api/sessions"
         val sessionBody = "{\"customSessionId\": \"$sessionId\"}".toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        httpClient?.httpCall(sessionUrl, "POST", "application/json", sessionBody, object : Callback {
+        httpClient?.httpCall(sessionUrl, "POST", "application/json", sessionBody, authorization, object : Callback {
             override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
+                if (response.isSuccessful || response.code == 409) {
                     // 세션 생성 성공, 연결 토큰 요청 시작
-                    val tokenUrl = "/api/sessions/$sessionId/connections"
+                    val tokenUrl = "/api/sessions/$sessionId/connection"
                     val tokenBody = "{}".toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-                    httpClient?.httpCall(tokenUrl, "POST", "application/json", tokenBody, object : Callback {
+                    httpClient?.httpCall(tokenUrl, "POST", "application/json", tokenBody, authorization, object : Callback {
                         override fun onResponse(call: Call, response: Response) {
                             response.use {
                                 val responseBody = response.body?.string()
                                 if (response.isSuccessful && responseBody != null) {
+
                                     getTokenSuccess(responseBody, sessionId)
                                 } else {
-                                    onError("서버 에러: ${response.message}")
+                                    onError("서버 에러: ${response}")
                                 }
                             }
                         }
                         override fun onFailure(call: Call, e: IOException) {
-                            onError("네트워크 에러: ${e.message}")
+                            onError("네트워크 에러: ${e}")
                         }
                     })
                 } else {
                     // 세션 생성 실패
-                    onError("세션 생성 실패: ${response.message}")
+                    onError("세션 생성 실패: ${response}")
                 }
             }
             override fun onFailure(call: Call, e: IOException) {
-                onError("네트워크 에러: ${e.message}")
+                onError("네트워크 에러: ${e}")
             }
         })
     }

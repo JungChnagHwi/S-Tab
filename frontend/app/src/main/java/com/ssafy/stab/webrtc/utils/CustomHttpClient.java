@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -85,6 +86,21 @@ public class CustomHttpClient {
                 .header("Content-Type", contentType)
                 .method(method, body)
                 .build();
+        Log.d("HTTP Call", "Requesting: " + request.toString() + " with body " + body.contentType());
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+
+    public void httpCall(String url, String method, String contentType, RequestBody body, String authorization, Callback callback) throws IOException {
+        url = url.startsWith("/") ? url.substring(1) : url;
+        Request.Builder builder = new Request.Builder()
+                .url(this.baseUrl + url)
+                .header("Content-Type", contentType)
+                .header("Authorization", authorization)
+                .method(method, body);
+
+
+        Request request = builder.build();
         Log.d("HTTP Call", "Requesting: " + request.toString() + " with body " + body.contentType());
         Call call = client.newCall(request);
         call.enqueue(callback);
