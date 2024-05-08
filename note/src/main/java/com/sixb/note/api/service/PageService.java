@@ -28,7 +28,7 @@ public class PageService {
         String beforeNoteId = request.getBeforePageId();
 
         // id로 이전 페이지 정보를 찾아
-        Optional<Page> beforePageOptional = pageRepository.findById(beforeNoteId);
+        Optional<Page> beforePageOptional = Optional.ofNullable(pageRepository.findPageById(beforeNoteId));
 
         // 이전 페이지 정보가 있다면
         if (beforePageOptional.isPresent()) {
@@ -50,10 +50,14 @@ public class PageService {
                 newPage.setTemplate("basic");
             }
             // 앞 페이지 링크하기
-            newPage.setPreviousPage(beforePage);
+            if (beforePage.getNextPage() != null) {
+                newPage.setNextPage(beforePage.getNextPage());
+            }
+            beforePage.setNextPage(newPage);
 
             // responsedto에 넣기
             PageCreateResponseDto responseDto = PageCreateResponseDto.builder()
+                    .pageId(pageId)
                     .color(beforePage.getColor())
                     .template(beforePage.getTemplate())
                     .direction(beforePage.getDirection())
