@@ -62,6 +62,31 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 	}
 
 	@Override
+	public boolean isSignedUpUser(long userId) {
+		Node user = node("User").named("u");
+
+		Statement statement = match(user)
+				.where(user.property("id").isEqualTo(literalOf(userId)))
+				.returning(count(user).as("result"))
+				.build();
+
+		boolean ret = false;
+
+		try (Session session = driver.session()) {
+			Result result = session.run(statement.getCypher());
+			if (result.hasNext()) {
+				Record record = result.next();
+				int cnt = record.get("result").asInt();
+
+				if (cnt == 1) {
+					ret = true;
+				}
+			}
+		}
+		return ret;
+	}
+
+	@Override
 	public UserInfoResponseDto signup(long userId, UserInfoRequestDto request) {
 		LocalDateTime now = LocalDateTime.now();
 

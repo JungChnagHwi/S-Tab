@@ -10,6 +10,8 @@ public interface UserRepositoryCustom {
 
 	Optional<UserInfoResponseDto> getUserInfo(long userId);
 
+	boolean isSignedUpUser(long userId);
+
 	UserInfoResponseDto signup(long userId, UserInfoRequestDto request);
 
 	Optional<UserInfoResponseDto> updateUserInfo(long userId, UserInfoRequestDto request);
