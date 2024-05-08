@@ -7,13 +7,11 @@ import http from "http";
 
 const app = express();
 const httpServer = http.createServer(app);
-const PORT = 4000;
+const PORT = 5442;
 
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
     credentials: true,
   },
 });
