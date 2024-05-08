@@ -226,7 +226,11 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
         joinRoomParams.put("session", this.session.getId());
         joinRoomParams.put("platform", "Android " + android.os.Build.VERSION.SDK_INT);
         joinRoomParams.put("token", this.session.getToken());
+        Log.d("session", this.session.toString());
+        Log.d("token", this.session.getToken());
         joinRoomParams.put("sdkVersion", "2.29.0");
+
+
         this.ID_JOINROOM.set(this.sendJson(JsonConstants.JOINROOM_METHOD, joinRoomParams));
     }
 
@@ -632,6 +636,8 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
 
     private String getWebSocketAddress() {
         String wsUri;
+        Log.d("token?", this.session.toString());
+        Log.d("token", this.session.getToken().toString());
         try {
             URI url = new URI(this.session.getToken());
             if (url.getPort() > -1) {
@@ -639,6 +645,7 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
             } else {
                 wsUri = url.getScheme() + "://" + url.getHost() + "/openvidu";
             }
+            Log.d("Uri 확인", wsUri);
             return wsUri;
         } catch (URISyntaxException e) {
             Log.e(TAG, "Wrong URL", e);

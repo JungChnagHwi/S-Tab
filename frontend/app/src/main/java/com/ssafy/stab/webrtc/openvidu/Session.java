@@ -6,6 +6,9 @@ import android.util.Log;
 import com.ssafy.stab.webrtc.observers.CustomPeerConnectionObserver;
 import com.ssafy.stab.webrtc.observers.CustomSdpObserver;
 import com.ssafy.stab.webrtc.websocket.CustomWebSocket;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
@@ -207,7 +210,13 @@ public class Session {
     }
 
     public String getToken() {
-        return this.token;
+        try {
+            JSONObject jsonObject = new JSONObject(this.token); // this.token은 JSON 문자열을 포함하고 있다고 가정
+            return jsonObject.getString("token"); // 'token' 키에 해당하는 값을 추출
+        } catch (JSONException e) {
+            Log.e("getToken 에러", "JSON parsing error", e);
+            return "";
+        }
     }
 
     public void setIceServers(List<IceServer> iceServers) {
