@@ -23,12 +23,12 @@ public class Space extends BaseTimeEntity {
     @Property("isPublic")
     private Boolean isPublic;
 
-    @Relationship(type = "HAS_Hierarchy")
+    @Relationship(type = "Hierarchy")
     private List<Folder> folders;
 
-    @Relationship(type = "HAS_Hierarchy")
+    @Relationship(type = "Hierarchy")
     private List<Note> notes;
 
-    @Relationship(type = "HAS_SPACE", direction = Relationship.Direction.INCOMING)
+    @Relationship(type = "Join", direction = Relationship.Direction.INCOMING)
     private List<User> users;
 }

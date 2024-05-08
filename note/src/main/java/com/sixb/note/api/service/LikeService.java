@@ -13,6 +13,7 @@ import com.sixb.note.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -63,43 +64,36 @@ public class LikeService {
     //즐겨찾기 조회
     //public LikeResponseDto getFavorites(UUID userId)
     public LikeResponseDto getLikes() {
+//        List<Folder> likedFolders = folderRepository.findAllLikedFoldersByUserId(userId);
+//        List<Note> likedNotes = noteRepository.findAllLikedNotesByUserId(userId);
+//        List<Page> likedPages = pageRepository.findAllLikedPagesByUserId(userId);
         String testUserId = "34840adb-99bc-4d78-a90a-c6d491b0bd62";
-        User user = userRepository.findUserById(testUserId);
-        return new LikeResponseDto(user.getFolders(), user.getNotes(), user.getPages());
+        List<Folder> likedFolders = folderRepository.findAllLikedFoldersByUserId(testUserId);
+        List<Note> likedNotes = noteRepository.findAllLikedNotesByUserId(testUserId);
+        List<Page> likedPages = pageRepository.findAllLikedPagesByUserId(testUserId);
+
+//        User user = userRepository.findUserById(testUserId);
+        return new LikeResponseDto(likedFolders, likedNotes, likedPages);
     }
 
     //즐겨찾기 삭제
-    //public boolean removeLike(UUID userId, UUID itemId, String itemType)
+    //public boolean removeLike(UUID userId, UUID itemId)
     public boolean removeLike(String itemId) {
         String testUserId = "34840adb-99bc-4d78-a90a-c6d491b0bd62";
         User user = userRepository.findUserById(testUserId);
 
-        boolean removed = false;
-
-        Folder folder = folderRepository.findFolderById(itemId);
-        if (folder != null) {
-            removed = user.getFolders().removeIf(f -> f.getId().equals(itemId));
-        }
-
-        if (!removed) {
-            Note note = noteRepository.findNoteById(itemId);
-            if (note != null) {
-                removed = user.getNotes().removeIf(n -> n.getId().equals(itemId));
+            if (folderRepository.findFolderById(itemId) != null) {
+                folderRepository.deleteLikeFolder(testUserId, itemId);
+                return true;
+            } else if (noteRepository.findNoteById(itemId) != null) {
+                noteRepository.deleteLikeNote(testUserId, itemId);
+                return true;
+            } else if (pageRepository.findPageById(itemId) != null) {
+                pageRepository.deleteLikePage(testUserId, itemId);
+                return true;
             }
-        }
 
-        if (!removed) {
-            Page page = pageRepository.findPageById(itemId);
-            if (page != null) {
-                removed = user.getPages().removeIf(p -> p.getId().equals(itemId));
-            }
-        }
-
-        if (removed) {
-            userRepository.save(user);
-        }
-
-        return removed;
+        return false;
     }
 
 }
