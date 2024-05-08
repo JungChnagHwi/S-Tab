@@ -33,7 +33,7 @@ const eurekaClient = new Eureka({
   eureka: {
     host: eurekaURL,
     port: 8761,
-    servicePath: "/eureka/apps/",
+    servicePath: "/eureka/",
     fetchRegistry: true,
     registerWithEureka: true,
   },
@@ -61,7 +61,7 @@ httpServer.listen(PORT, () => {
 const socketRoom = {};
 
 // 소켓 connection
-io.on("connection", async (socket) => {
+io.on("connection", (socket) => {
   console.log("User connected: ", socket.id);
 
   socket.emit("connection-success", {
