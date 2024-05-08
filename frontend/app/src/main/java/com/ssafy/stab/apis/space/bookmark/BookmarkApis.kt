@@ -23,3 +23,39 @@ fun getBookMarkList() {
         }
     })
 }
+
+fun addBookMark(id: String) {
+    val apiService = RetrofitClient.instance.create(ApiService::class.java)
+    val accessToken = PreferencesUtil.getLoginDetails().accessToken
+    val authorizationHeader = "Bearer $accessToken"
+    val addBookmarkRequest = AddBookmarkRequest(id)
+    val call = apiService.addBookmark(authorizationHeader, addBookmarkRequest)
+
+    call.enqueue(object: Callback<Void> {
+        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+            Log.d("APIResponse", "요청 성공")
+        }
+
+        override fun onFailure(call: Call<Void>, t: Throwable) {
+            Log.d("APIResponse", "요청 실패")
+        }
+    })
+
+}
+
+fun deleteBookMark(fileId: String) {
+    val apiService = RetrofitClient.instance.create(ApiService::class.java)
+    val accessToken = PreferencesUtil.getLoginDetails().accessToken
+    val authorizationHeader = "Bearer $accessToken"
+    val call = apiService.deleteBookmark(authorizationHeader, fileId)
+
+    call.enqueue(object: Callback<Void> {
+        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+            Log.d("APIResponse", "요청 성공")
+        }
+
+        override fun onFailure(call: Call<Void>, t: Throwable) {
+            Log.d("APIResponse", "요청 실패")
+        }
+    })
+}
