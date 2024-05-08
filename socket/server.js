@@ -2,17 +2,17 @@ import { Server } from "socket.io";
 import express from "express";
 import dotenv from "dotenv";
 import { Eureka } from "eureka-js-client";
-import http from "http";
 
 dotenv.config();
 
 const app = express();
-const httpServer = http.createServer(app);
 const PORT = 5442;
 
 const eurekaURL = process.env.EUREKA_SERVICE_URL;
-const ipAddr = process.env.IP_ADDR;
 const hostName = process.env.HOST_NAME;
+const ipAddr = process.env.IP_ADDR;
+const vipAddress = process.env.VIP_ADDR;
+const port = process.env.PORT;
 
 const eurekaClient = new Eureka({
   instance: {
@@ -21,10 +21,10 @@ const eurekaClient = new Eureka({
     hostName: hostName,
     ipAddr: ipAddr,
     port: {
-      $: 5442,
+      $: port,
       "@enabled": true,
     },
-    vipAddress: "socket",
+    vipAddress: vipAddress,
     dataCenterInfo: {
       "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
       name: "MyOwn",
@@ -39,14 +39,7 @@ const eurekaClient = new Eureka({
   },
 });
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*",
-    credentials: true,
-  },
-});
-
-httpServer.listen(PORT, () => {
+const httpServer = app.listen(PORT, () => {
   console.log(`listening on port: ${PORT}`);
 
   eurekaClient.start((error) => {
@@ -58,20 +51,26 @@ httpServer.listen(PORT, () => {
   });
 });
 
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    credentials: true,
+  },
+});
+
 const socketRoom = {};
 
 // 소켓 connection
-io.on("connection", async (socket) => {
-  console.log("User connected: ", socket.id);
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
 
   socket.emit("connection-success", {
     socketId: socket.id,
   });
 
   // 소켓 종료
-  socket.on("disconnect", (e) => {
-    console.log(e);
-    console.log("peer disconnected: ", socket.id);
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
   });
 
   // 소켓 접속
@@ -99,7 +98,7 @@ io.on("connection", async (socket) => {
 
   socket.on("leaveRoom", (spaceId, nickname) => {
     try {
-      console.log("socket room leave: ", spaceId, nickname);
+      console.log("socket room leave:", spaceId, nickname);
 
       // 유저 정보 삭제
       delete socketRoom[spaceId][nickname];
