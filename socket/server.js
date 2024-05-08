@@ -64,16 +64,15 @@ const socketRoom = {};
 
 // 소켓 connection
 io.on("connection", (socket) => {
-  console.log("User connected: ", socket.id);
+  console.log("User connected:", socket.id);
 
   socket.emit("connection-success", {
     socketId: socket.id,
   });
 
   // 소켓 종료
-  socket.on("disconnect", (e) => {
-    console.log(e);
-    console.log("peer disconnected: ", socket.id);
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
   });
 
   // 소켓 접속
@@ -101,7 +100,7 @@ io.on("connection", (socket) => {
 
   socket.on("leaveRoom", (spaceId, nickname) => {
     try {
-      console.log("socket room leave: ", spaceId, nickname);
+      console.log("socket room leave:", spaceId, nickname);
 
       // 유저 정보 삭제
       delete socketRoom[spaceId][nickname];
