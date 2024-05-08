@@ -13,7 +13,7 @@ import java.util.*;
 @Repository
 public interface UserRepository extends Neo4jRepository<User, String>, UserRepositoryCustom {
 
-    @Query("MATCH (u:User)-[:HAS_SPACE]->(s:Space {id: $spaceId}) RETURN u")
+    @Query("MATCH (u:User)-[:Join]->(s:Space {id: $spaceId}) RETURN u")
     List<User> findUsersBySpaceId(String spaceId);
 
     @Query("MATCH (u:User) WHERE u.id = $userId RETURN u")

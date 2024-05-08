@@ -19,15 +19,15 @@ public class User {
     @Property("profileImg")
     private String profileImg;
 
-    @Relationship(type = "HAS_SPACE")
+    @Relationship(type = "Join")
     private List<Space> spaces;
 
-    @Relationship(type = "HAS_Like")
+    @Relationship(type = "Like")
     private List<Folder> folders;
 
-    @Relationship(type = "HAS_Like")
+    @Relationship(type = "Like")
     private List<Note> notes;
 
-    @Relationship(type = "HAS_Like")
+    @Relationship(type = "Like")
     private List<Page> pages;
 }
