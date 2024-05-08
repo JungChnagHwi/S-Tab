@@ -41,7 +41,7 @@ fun PersonalSpace() {
             Button(onClick = {
                 Log.d("A", PreferencesUtil.getLoginDetails().accessToken.toString())
                 Log.d("A", PreferencesUtil.getLoginDetails().rootFolderId.toString())
-                createFolder(folderId.toString(), "제목")
+                createFolder(folderId.toString(), "두번째 폴더")
             }) {
                 Text(text = "폴더 생성")
             }
@@ -86,14 +86,3 @@ fun MyTitleBar() {
         
     }
 }
-
-//fun logout(navController: NavController) {
-//    PreferencesUtil.saveLoginDetails(
-//        isLoggedIn = false,
-//        accessToken = "",
-//        userName = "",
-//        profileImg = "",
-//        rootFolderId = ""
-//    )
-//    navController.navigate("login")
-//}
