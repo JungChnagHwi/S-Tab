@@ -1,9 +1,10 @@
 package com.sixb.note.api.service;
 
-import com.sixb.note.dto.page.PageCreateRequestDto;
-import com.sixb.note.dto.page.PageCreateResponseDto;
+import com.sixb.note.dto.page.*;
 import com.sixb.note.entity.Page;
+import com.sixb.note.entity.PageData;
 import com.sixb.note.exception.PageNotFoundException;
+import com.sixb.note.repository.PageDataRepository;
 import com.sixb.note.repository.PageRepository;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,9 @@ public class PageService {
 
     @Autowired
     private PageRepository pageRepository;
+
+    @Autowired
+    private PageDataRepository pageDataRepository;
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
         String beforeNoteId = request.getBeforePageId();
@@ -72,6 +76,61 @@ public class PageService {
             int deleteStatus = page.getIsDelete();
             if (deleteStatus == 0) {
                 page.setIsDelete(1);
+            } else {
+                throw new PageNotFoundException("이미 삭제된 페이지입니다.");
+            }
+        } else {
+            throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
+        }
+    }
+
+    // 데이터 저장
+    public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
+        String pageId = request.getPageId();
+        Optional<Page> optionalPage = pageRepository.findById(pageId);
+        if (optionalPage.isPresent()) {
+            Page page = optionalPage.get();
+            int deleteStatus = page.getIsDelete();
+            if (deleteStatus == 0) {
+                // 필기데이터가 있는지 확인 후 있으면 삭제
+                Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
+                optionalPageData.ifPresent(pageData -> pageDataRepository.delete(pageData));
+                // 필기 데이터 저장
+                PageData pageData = PageData.builder()
+                        .id(pageId)
+                        .figures(request.getFigures())
+                        .paths(request.getPaths())
+                        .images(request.getImages())
+                        .textBoxes(request.getTextBoxes())
+                        .build();
+
+                pageDataRepository.save(pageData);
+            } else {
+                throw new PageNotFoundException("이미 삭제된 페이지입니다.");
+            }
+        } else {
+            throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
+        }
+
+    }
+
+    public PageUpdateDto updatePage(PageUpdateDto request) throws PageNotFoundException {
+        String pageId = request.getPageId();
+        Optional<Page> optionalPage = pageRepository.findById(pageId);
+        if (optionalPage.isPresent()) {
+            Page page = optionalPage.get();
+            int deleteStatus = page.getIsDelete();
+            if (deleteStatus == 0) {
+                // 필기데이터가 있는지 확인 후
+                Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
+                // 양식 정보 수정
+                page.setTemplate(request.getTemplate());
+                page.setColor(request.getColor());
+                page.setDirection(request.getDirection());
+
+                pageRepository.save(page);
+
+                return request;
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }

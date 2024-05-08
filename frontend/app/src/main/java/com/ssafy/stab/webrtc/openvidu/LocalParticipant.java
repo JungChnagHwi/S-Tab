@@ -30,15 +30,14 @@ public class LocalParticipant extends Participant {
     private Collection<IceCandidate> localIceCandidates;
     private SessionDescription localSessionDescription;
 
-    public LocalParticipant(String participantName, Session session, Context context, SurfaceViewRenderer localVideoView) {
+    public LocalParticipant(String participantName, Session session, Context context) {
         super(participantName, session);
-        this.localVideoView = localVideoView;
         this.context = context;
         this.localIceCandidates = new ArrayList<>();
         session.setLocalParticipant(this);
     }
 
-    public void startCamera() {
+    public void startAudio() {
 
         PeerConnectionFactory peerConnectionFactory = this.session.getPeerConnectionFactory();
 
@@ -46,22 +45,10 @@ public class LocalParticipant extends Participant {
         AudioSource audioSource = peerConnectionFactory.createAudioSource(new MediaConstraints());
         this.audioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
 
-
-//        surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", this.session.getRootEglBase()
-//                .getEglBaseContext());
-
-
-        // Create VideoCapturer
-        VideoCapturer videoCapturer = createCameraCapturer();
-        VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
-        videoCapturer.initialize(surfaceTextureHelper, context, videoSource.getCapturerObserver());
-        videoCapturer.startCapture(480, 640, 30);
-
-        // Create VideoTrack
-        this.videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
-
-        // Display in localView
-        this.videoTrack.addSink(localVideoView);
+        // Add the audio track to the peer connection
+        if (this.peerConnection != null) {
+            this.peerConnection.addTrack(this.audioTrack);
+        }
     }
 
     private VideoCapturer createCameraCapturer() {

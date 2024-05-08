@@ -22,9 +22,9 @@ public class Folder extends BaseTimeEntity {
     @Property("title")
     private String title;
 
-    @Relationship(type = "HAS_Hierarchy")
+    @Relationship(type = "Hierarchy")
     private List<Folder> subFolders;
 
-    @Relationship(type = "HAS_Hierarchy")
+    @Relationship(type = "Hierarchy")
     private List<Note> notes;
 }

@@ -8,7 +8,7 @@ import lombok.Setter;
 public class CreateNoteRequestDto {
     private String parentFolderId;
     private String title;
-    private int color;
-    private int template;
+    private String color;
+    private String template;
     private int direction;
 }

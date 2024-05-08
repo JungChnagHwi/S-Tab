@@ -22,8 +22,8 @@ public class CreateNoteResponseDto {
     @Setter
     public static class PageDto {
         private String pageId;
-        private int color;
-        private int template;
+        private String color;
+        private String template;
         private int direction;
         private boolean isBookmarked;
         private LocalDateTime createAt;
