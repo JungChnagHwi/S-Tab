@@ -2,12 +2,10 @@ import { Server } from "socket.io";
 import express from "express";
 import dotenv from "dotenv";
 import { Eureka } from "eureka-js-client";
-import http from "http";
 
 dotenv.config();
 
 const app = express();
-const httpServer = http.createServer(app);
 const PORT = 5442;
 
 const eurekaURL = process.env.EUREKA_SERVICE_URL;
@@ -41,14 +39,7 @@ const eurekaClient = new Eureka({
   },
 });
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*",
-    credentials: true,
-  },
-});
-
-httpServer.listen(PORT, () => {
+const httpServer = app.listen(PORT, () => {
   console.log(`listening on port: ${PORT}`);
 
   eurekaClient.start((error) => {
@@ -58,6 +49,13 @@ httpServer.listen(PORT, () => {
       console.log("Eureka registration failed: ", error);
     }
   });
+});
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    credentials: true,
+  },
 });
 
 const socketRoom = {};
