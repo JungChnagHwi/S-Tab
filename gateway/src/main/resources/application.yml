@@ -39,12 +39,10 @@ spring:
             - Path=/api/ocr/**
           filters:
             - name: TokenValidationCheckFilter
-#        - id: sfu
-#          uri: lb://SFU
-#          predicates:
-#            - name: sfu
-#              args:
-#                pattern: /socket.io/**
+        - id: socket
+          uri: lb://SOCKET
+          predicates:
+            - Path=/socket.io/**
 
 eureka:
   instance:
