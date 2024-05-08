@@ -42,7 +42,7 @@ spring:
         - id: socket
           uri: lb:ws://SOCKET
           predicates:
-            - Path=/socket.io/**
+            - Path=/socket.io/
 
 eureka:
   instance:
