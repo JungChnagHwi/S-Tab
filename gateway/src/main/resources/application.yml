@@ -40,7 +40,7 @@ spring:
           filters:
             - name: TokenValidationCheckFilter
         - id: socket
-          uri: lb://SOCKET
+          uri: lb:ws://SOCKET
           predicates:
             - Path=/socket.io/**
 
