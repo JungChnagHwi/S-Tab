@@ -11,8 +11,9 @@ const httpServer = http.createServer(app);
 const PORT = 5442;
 
 const eurekaURL = process.env.EUREKA_SERVICE_URL;
-const ipAddr = process.env.IP_ADDR;
 const hostName = process.env.HOST_NAME;
+const ipAddr = process.env.IP_ADDR;
+const vipAddress = process.env.VIP_ADDR;
 
 const eurekaClient = new Eureka({
   instance: {
@@ -24,7 +25,7 @@ const eurekaClient = new Eureka({
       $: 5442,
       "@enabled": true,
     },
-    vipAddress: "socket",
+    vipAddress: vipAddress,
     dataCenterInfo: {
       "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
       name: "MyOwn",
@@ -33,7 +34,7 @@ const eurekaClient = new Eureka({
   eureka: {
     host: eurekaURL,
     port: 8761,
-    servicePath: "/eureka/",
+    servicePath: "/eureka/apps/",
     fetchRegistry: true,
     registerWithEureka: true,
   },
