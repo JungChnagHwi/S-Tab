@@ -8,12 +8,6 @@ data class AuthResponse(
     @SerializedName("rootFolderId") val rootFolderId: String
 )
 
-
-data class UserSignupRequest(
-    @SerializedName("nickname") val nickname: String,
-    @SerializedName("profileImg") val profileImg: String
-)
-
 data class TokenResponse(
     @SerializedName("accessToken") val accessToken: String,
     @SerializedName("refreshToken") val refreshToken: String,
@@ -21,4 +15,14 @@ data class TokenResponse(
 
 data class NickNameResponse(
     @SerializedName("result") val result: Int
+)
+
+data class IdTokenRequest(
+    @SerializedName("idToken")
+    val idToken: String
+)
+
+data class UserSignupRequest(
+    @SerializedName("nickname") val nickname: String,
+    @SerializedName("profileImg") val profileImg: String
 )
