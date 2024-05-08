@@ -30,6 +30,6 @@ public class Page extends BaseTimeEntity {
     @Property("pdfPage")
     private Integer pdfPage;
 
-    @Relationship(type = "link")
+    @Relationship(type = "NextPage")
     private Page previousPage;
 }

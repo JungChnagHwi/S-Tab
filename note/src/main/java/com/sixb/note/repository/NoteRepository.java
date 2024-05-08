@@ -12,16 +12,16 @@ import java.util.UUID;
 
 @Repository
 public interface NoteRepository extends Neo4jRepository<Note, String> {
-    @Query("MATCH (f:Folder)-[:HAS_Hierarchy]->(n:Note) WHERE f.id = $folderId RETURN n")
+    @Query("MATCH (f:Folder)-[:Hierarchy]->(n:Note) WHERE f.id = $folderId RETURN n")
     List<Note> findNotesByFolderId(@Param("folderId") String folderId);
     @Query("MATCH (n:Note) WHERE n.id = $noteId RETURN n")
     Note findNoteById(@Param("noteId") String noteId);
     @Query("MATCH (n:Note) WHERE n.isDelete = 1 RETURN n")
     List<Note> findDeletedNotes();
 
-    @Query("MATCH (u:User {id: $userId})-[:HAS_Like]->(n:Note) RETURN n")
+    @Query("MATCH (u:User {id: $userId})-[:Like]->(n:Note) RETURN n")
     List<Note> findAllLikedNotesByUserId(@Param("userId") String userId);
 
-    @Query("MATCH (u:User {id: $userId})-[r:HAS_Like]->(n:Note {id: $itemId}) DELETE r")
+    @Query("MATCH (u:User {id: $userId})-[r:Like]->(n:Note {id: $itemId}) DELETE r")
     void deleteLikeNote(@Param("userId") String userId, @Param("itemId") String itemId);
 }
