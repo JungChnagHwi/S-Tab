@@ -23,6 +23,7 @@ import com.ssafy.stab.data.PreferencesUtil
 @Composable
 fun Login(navController: NavController){
     val loginDetails =  PreferencesUtil.getLoginDetails()
+
     if (loginDetails.isLoggedIn){
         navController.navigate("space")
     } else {
@@ -43,6 +44,11 @@ fun Login(navController: NavController){
                 }
                 Button(onClick = { navController.navigate("audio-call") }) {
                     Text(text = "음성 통화로 가기")
+                }
+                Button(onClick = {
+                    Log.d("a", PreferencesUtil.getLoginDetails().accessToken.toString())
+                }) {
+                    Text(text = "액세스 토큰")
                 }
             }
         }

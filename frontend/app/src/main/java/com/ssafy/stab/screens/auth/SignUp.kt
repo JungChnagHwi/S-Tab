@@ -30,20 +30,25 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import android.content.Context
 import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.rememberImagePainter
+import com.ssafy.stab.apis.auth.checkNickName
+import com.ssafy.stab.apis.auth.signUp
 import okhttp3.MediaType.Companion.toMediaType
 import java.io.IOException
 @Composable
 fun SignUp(onNavigate: (String) -> Unit) {
     var nickname by remember { mutableStateOf("") }
-    var imageUri by remember { mutableStateOf<String?>(null) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var nickNameAvailable by remember { mutableStateOf(false) }  // 닉네임 사용 가능 여부를 저장하는 상태
     val context = LocalContext.current
 
-    // 이미지 선택을 위한 ActivityResultLauncher
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            imageUri = result.data?.data.toString()  // URI를 문자열로 저장
+            imageUri = result.data?.data  // Uri 객체로 저장
         }
     }
 
@@ -57,70 +62,103 @@ fun SignUp(onNavigate: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            pickImageLauncher.launch(intent)
-        }) {
-            Text("프로필 사진 선택")
-        }
-        imageUri?.let {
-            Text("선택된 이미지 URI: $it")
-            Log.d("Selected Img", it)
-        }
-        Button(onClick = {
-            if (imageUri != null) {
-                s3uri(context, Uri.parse(imageUri))
+        Row {
+            Button(onClick = {
+                val intent = Intent(Intent.ACTION_PICK)
+                intent.type = "image/*"
+                pickImageLauncher.launch(intent)
+            }) {
+                Text("프로필 사진 선택")
             }
-        }) {
-            Text(text = "S3 URI 줘봐")
+            Spacer(modifier = Modifier.width(16.dp))
+            Button(onClick = {
+                // 닉네임 중복 검사를 위한 API 호출
+                checkNickName(nickname) { available ->
+                    nickNameAvailable = available
+                }
+            }) {
+                Text("닉네임 중복 확인")
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        ImagePreview(imageUri = imageUri)
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {
+                s3uri(context, Uri.parse(imageUri.toString()), nickname)
+                onNavigate("space")
+        }, enabled = nickNameAvailable) {
+            Text(text = "회원가입 완료")
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row {
             Button(onClick = { onNavigate("login") }) {
                 Text(text = "로그인 페이지로 가기")
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { onNavigate("space") }) {
-                Text(text = "개인 스페이스로 가기")
-            }
         }
     }
 }
 
-
-
-fun uploadFile(context: Context, url: String, imageUri: Uri) {
+fun uploadFile(context: Context, url: String, imageUri: Uri, nickname: String) {
     val client = OkHttpClient()
-    val inputStream = context.contentResolver.openInputStream(imageUri)
-    val mediaType = "image/jpeg".toMediaType()
+    Log.d("a", imageUri.toString())
+    if (imageUri.toString() != "null") {
+        val inputStream = context.contentResolver.openInputStream(imageUri)
+        val mediaType = "image/jpeg".toMediaType()
 
-    val body = inputStream?.use { stream ->
-        // inputStream에서 바이트 배열을 읽고 RequestBody를 생성
-        RequestBody.create(mediaType, stream.readBytes())
-    }
+        val body = inputStream?.use { stream ->
+            // inputStream에서 바이트 배열을 읽고 RequestBody를 생성
+            RequestBody.create(mediaType, stream.readBytes())
+        }
 
-    if (body != null) {  // Body가 null이 아니면 요청 실행
-        val request = Request.Builder()
-            .url(url)
-            .put(body)  // HTTP PUT 요청을 사용
-            .build()
+        if (body != null) {  // Body가 null이 아니면 요청 실행
+            val request = Request.Builder()
+                .url(url)
+                .put(body)  // HTTP PUT 요청을 사용
+                .build()
 
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                Log.e("Upload", "Upload failed", e)
-            }
-
-            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                if (response.isSuccessful) {
-                    Log.d("Upload", "Upload was successful")
-                } else {
-                    Log.e("Upload", "Upload failed: ${response.message}")
+            client.newCall(request).enqueue(object : okhttp3.Callback {
+                override fun onFailure(call: okhttp3.Call, e: IOException) {
+                    Log.e("Upload", "Upload failed", e)
                 }
-                response.close()  // 응답 리소스 해제
-            }
-        })
+
+                override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                    if (response.isSuccessful) {
+                        val fullUrl = response.request.url.toString()
+                        val baseUrl = fullUrl.split("?").first()
+                        Log.d("Upload", "Base URL: $baseUrl")
+                        Log.d("Upload", "Upload was successful")
+                        signUp(nickname, baseUrl)
+                    } else {
+                        Log.e("Upload", "Upload failed: ${response.message}")
+                    }
+                    response.close()  // 응답 리소스 해제
+                }
+            })
+        } else {
+            Log.e("UploadError", "Failed to create request body from the input stream.")
+        }
     } else {
-        Log.e("UploadError", "Failed to create request body from the input stream.")
+        val baseImage = "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/08/3454673260/profileImage.png"
+        signUp(nickname, baseImage)
+    }
+}
+
+@Composable
+fun ImagePreview(imageUri: Uri?) {
+    imageUri?.let {
+        val painter = rememberImagePainter(
+            data = it,
+            builder = {
+                crossfade(true)
+            }
+        )
+        Image(
+            painter = painter,
+            contentDescription = null,  // 이미지에 대한 설명이 필요 없으므로 null을 할당
+            modifier = Modifier
+                .width(200.dp)
+                .height(300.dp),  // 이미지 높이 설정
+            contentScale = ContentScale.Crop
+        )
     }
 }

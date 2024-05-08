@@ -87,15 +87,25 @@ fun tryLogin(authorization: String, navController: NavController) {
     })
 }
 
-fun signUp(authorization: String, signupRequest: UserSignupRequest) {
+fun signUp(nickname: String, profileImg: String) {
     val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val call = apiService.getInfoNewUser(authorization, signupRequest)
+    val accessToken = PreferencesUtil.getLoginDetails().accessToken
+    val authorizationHeader = "Bearer $accessToken"
+    val userSignupRequest = ApiService.UserSignupRequest(nickname, profileImg)
+    val call = apiService.getInfoNewUser(authorizationHeader, userSignupRequest)
 
     call.enqueue(object : retrofit2.Callback<AuthResponse> {
         override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
             if (response.isSuccessful && response.body() != null) {
                 val authResponse = response.body()
                 Log.i("APIResponse", "Successful response: $authResponse")
+                PreferencesUtil.saveLoginDetails(
+                    isLoggedIn = true,
+                    accessToken = accessToken!!,
+                    userName = authResponse!!.nickname,
+                    profileImg = authResponse.profileImg,
+                    rootFolderId = authResponse.rootFolderId
+                )
             } else {
                 Log.e("APIResponse", "API Call failed!")
             }
@@ -106,11 +116,12 @@ fun signUp(authorization: String, signupRequest: UserSignupRequest) {
     })
 }
 
-fun s3uri(context: Context, imageUri: Uri) {
+fun s3uri(context: Context, imageUri: Uri, nickname: String) {
     val apiService = RetrofitClient.instance.create(ApiService::class.java)
     val accessToken = PreferencesUtil.getLoginDetails().accessToken
     val authorizationHeader = "Bearer $accessToken"
-    val call = apiService.getS3URI(authorizationHeader, imageUri.toString())  // 예제에서는 imageUri를 직접 사용하고 있으나, 실제 파일 이름이 필요합니다.
+    val imgUri = "$imageUri.jpeg"
+    val call = apiService.getS3URI(authorizationHeader, imgUri)
 
     call.enqueue(object : retrofit2.Callback<String> {
         override fun onResponse(call: Call<String>, response: Response<String>) {
@@ -118,7 +129,7 @@ fun s3uri(context: Context, imageUri: Uri) {
                 val presignedUrl = response.body().toString()
                 Log.i("APIResponse", "Presigned URL: $presignedUrl")
                 // Presigned URL을 받았으니, 이제 이미지를 업로드합니다.
-                uploadFile(context, presignedUrl, imageUri)
+                uploadFile(context, presignedUrl, imageUri, nickname)
             } else {
                 Log.e("APIResponse", "Failed to fetch URI: ${response.errorBody()?.string()}")
             }
@@ -127,6 +138,30 @@ fun s3uri(context: Context, imageUri: Uri) {
         override fun onFailure(call: Call<String>, t: Throwable) {
             Log.e("APIError", "Failed to connect to the server: ${t.localizedMessage}")
             t.printStackTrace()
+        }
+    })
+}
+
+fun checkNickName(nickname: String, onResult: (Boolean) -> Unit) {
+    val apiService = RetrofitClient.instance.create(ApiService::class.java)
+    val accessToken = PreferencesUtil.getLoginDetails().accessToken
+    val authorizationHeader = "Bearer $accessToken"
+    val call = apiService.checkNickname(authorizationHeader, nickname)
+
+    call.enqueue(object : retrofit2.Callback<NickNameResponse> {
+        override fun onResponse(call: Call<NickNameResponse>, response: Response<NickNameResponse>) {
+            if (response.isSuccessful && response.body() != null) {
+                // 결과가 0이면 닉네임 사용 가능, 1이면 사용 불가능
+                onResult(response.body()!!.result == 0)
+            } else {
+                Log.e("APIResponse", "API Call failed!")
+                onResult(false)
+            }
+        }
+
+        override fun onFailure(call: Call<NickNameResponse>, t: Throwable) {
+            Log.e("APIError", "Failed to connect to the server")
+            onResult(false)
         }
     })
 }

@@ -6,6 +6,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 
@@ -14,6 +15,11 @@ interface ApiService {
     data class IdTokenRequest(
         @SerializedName("idToken")
         val idToken: String
+    )
+
+    data class UserSignupRequest(
+        @SerializedName("nickname") val nickname: String,
+        @SerializedName("profileImg") val profileImg: String
     )
 
     @POST("api/auth/login")
@@ -28,5 +34,7 @@ interface ApiService {
     @GET("api/s3")
     fun getS3URI(@Header("Authorization") authorization: String, @Query("filename") filename: String): Call<String>
 
+    @GET("api/user/{nickname}")
+    fun checkNickname(@Header("Authorization") authorization: String, @Path("nickname") nickname: String): Call<NickNameResponse>
 }
 
