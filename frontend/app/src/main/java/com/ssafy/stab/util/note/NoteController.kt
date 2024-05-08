@@ -39,13 +39,6 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
             .launchIn(scope)
     }
 
-    var bgColor by mutableStateOf(Color.White)
-        private set
-
-    fun changeBgColor(value: Color) {
-        bgColor = value
-    }
-
     var penType by mutableStateOf(PenType.Pen)
         private set
 
