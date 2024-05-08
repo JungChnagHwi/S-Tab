@@ -14,6 +14,7 @@ const eurekaURL = process.env.EUREKA_SERVICE_URL;
 const hostName = process.env.HOST_NAME;
 const ipAddr = process.env.IP_ADDR;
 const vipAddress = process.env.VIP_ADDR;
+const port = process.env.PORT;
 
 const eurekaClient = new Eureka({
   instance: {
@@ -22,7 +23,7 @@ const eurekaClient = new Eureka({
     hostName: hostName,
     ipAddr: ipAddr,
     port: {
-      $: 5442,
+      $: port,
       "@enabled": true,
     },
     vipAddress: vipAddress,
