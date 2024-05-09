@@ -21,7 +21,7 @@ class NoteListViewModel() : ViewModel() {
 
     private fun loadFiles() {
         viewModelScope.launch {
-            getFileList(PreferencesUtil.getLoginDetails().rootFolderId.toString(),
+            getFileList(PreferencesUtil.getNowLocation().nowLocation.toString(),
                 { folders ->
                     val updatedFolders = folders ?: emptyList<Folder>()
                     updateCombinedList(updatedFolders)
@@ -34,9 +34,11 @@ class NoteListViewModel() : ViewModel() {
         }
     }
 
+
     private fun updateCombinedList(newItems: List<FileEntity>) {
         val currentList = _combinedList.value.toMutableList()
         currentList.addAll(newItems)
+        _combinedList.value = currentList.toList()
         _combinedList.value = currentList.sortedByDescending { it.updatedAt }
     }
 
@@ -51,4 +53,5 @@ class NoteListViewModel() : ViewModel() {
         _combinedList.value = newList.sortedByDescending { it.updatedAt }
         println("Added folder, new list size: ${_combinedList.value.size}") // 로그 추가
     }
+
 }

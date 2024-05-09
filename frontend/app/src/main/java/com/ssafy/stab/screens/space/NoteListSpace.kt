@@ -1,5 +1,6 @@
 package com.ssafy.stab.screens.space
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,28 +34,24 @@ import com.ssafy.stab.R
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.stab.apis.space.folder.FileEntity
 import com.ssafy.stab.apis.space.folder.Folder
 import com.ssafy.stab.apis.space.folder.Note
+import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.modals.CreateNoteModal
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun NoteListSpace(nowId: String) {
-    val viewModel: NoteListViewModel = viewModel()
-    val combinedList by viewModel.combinedList.collectAsState()
+
     val listImg = painterResource(id = R.drawable.list)
     val isNameSort = remember { mutableStateOf(false) }
 
 
-    LaunchedEffect(combinedList) {
-        // 여기서는 특별히 수행할 필요가 없지만, 이 효과는 combinedList가 변경될 때마다 리컴포지션을 트리거한다.
-    }
-
     Column {
         Spacer(modifier = Modifier.height(5.dp))
-        // 날짜 / 이름 / 아이콘 보기 / 자세히 보기
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -110,16 +107,19 @@ fun NoteListSpace(nowId: String) {
         Spacer(modifier = Modifier.height(10.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))
-            ListGridScreen(combinedList)
+            ListGridScreen(viewModel = NoteListViewModel())
         }
     }
 }
 
 
 @Composable
-fun ListGridScreen(combinedList: List<FileEntity>) {
-    val showModal = remember { mutableStateOf(false) }
+fun ListGridScreen(viewModel: NoteListViewModel) {
+    val showNoteModal = remember { mutableStateOf(false) }
+    val showFolderModal = remember { mutableStateOf(false) }
     val showCreateOptions = remember { mutableStateOf(false) }
+
+    val combinedList by viewModel.combinedList.collectAsState()
 
     val notebookImg = painterResource(id = R.drawable.notebook)
     val createnoteImg = painterResource(id = R.drawable.createnote)
@@ -128,17 +128,24 @@ fun ListGridScreen(combinedList: List<FileEntity>) {
     val staronImg = painterResource(id = R.drawable.eachstaron)
     val staroffImg = painterResource(id = R.drawable.eachstaroff)
 
-    if (showModal.value) {
-        Dialog(onDismissRequest = { showModal.value = false }) {
-            val closeModal = { showModal.value = false}
+    if (showNoteModal.value) {
+        Dialog(onDismissRequest = { showNoteModal.value = false }) {
+            val closeModal = { showNoteModal.value = false}
             Box(
                 modifier = Modifier
                     .width(1000.dp)
                     .height(800.dp)
                     .background(Color.White, shape = RoundedCornerShape(10.dp))
             ) {
-                CreateNoteModal(closeModal, viewModel = NoteListViewModel())
+                CreateNoteModal(closeModal, viewModel = viewModel)
             }
+        }
+    }
+
+    if (showFolderModal.value) {
+        Dialog(onDismissRequest = { showFolderModal.value = false }) {
+            val closeModal = { showFolderModal.value = false}
+            CreateFolderModal(closeModal)
         }
     }
 
@@ -148,7 +155,6 @@ fun ListGridScreen(combinedList: List<FileEntity>) {
                 Row(modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)) {
-                    // "새로 만들기" button as first item
                     Column(modifier = Modifier
                         .weight(1f)
                         .padding(0.dp, 5.dp, 25.dp, 0.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -164,7 +170,6 @@ fun ListGridScreen(combinedList: List<FileEntity>) {
                         Text(text = "새로 만들기")
                     }
 
-                    // Displaying the first four items beside the create button
                     combinedList.take(4).forEach { item ->
                         Box(modifier = Modifier
                             .weight(1f)
@@ -176,7 +181,6 @@ fun ListGridScreen(combinedList: List<FileEntity>) {
                         }
                     }
 
-                    // Filling space if fewer than four items
                     repeat(4 - combinedList.take(4).size) {
                         Spacer(modifier = Modifier
                             .weight(1f)
@@ -184,33 +188,33 @@ fun ListGridScreen(combinedList: List<FileEntity>) {
                     }
                 }
 
-                // Conditional display of the options popup
                 if (showCreateOptions.value) {
                     Column(
                         modifier = Modifier
                             .padding(top = 70.dp, start = 120.dp)
                             .height(100.dp)
                             .width(100.dp)
-                            .background(color = Color(0XFFC3CCDE), shape = RoundedCornerShape(10.dp))
+                            .background(
+                                color = Color(0XFFC3CCDE),
+                                shape = RoundedCornerShape(10.dp)
+                            )
                             .padding(8.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text("폴더 생성", modifier = Modifier.clickable {
-                            // Logic for folder creation
                             showCreateOptions.value = false
+                            showFolderModal.value = true
                         })
                         Spacer(modifier = Modifier.height(15.dp))
                         Text("노트 생성", modifier = Modifier.clickable {
-                            // Open note creation dialog
                             showCreateOptions.value = false
-                            showModal.value = true
+                            showNoteModal.value = true
                         })
                     }
                 }
             }
         }
-        // Display remaining items in chunks of five
         combinedList.drop(4).chunked(5).forEach { rowItems ->
             item {
                 Row(modifier = Modifier

@@ -11,8 +11,7 @@ import retrofit2.Call
 import retrofit2.Response
 
 private val apiService: ApiService = RetrofitClient.instance.create(ApiService::class.java)
-private val accessToken = PreferencesUtil.getLoginDetails().accessToken
-private val authorizationHeader = "Bearer $accessToken"
+
 
 fun socialLogin(idToken: String, navController: NavController) {
     val idTokenRequest = IdTokenRequest(idToken) // idToken을 IdTokenRequest 객체로 변환
@@ -39,10 +38,13 @@ fun socialLogin(idToken: String, navController: NavController) {
 
 
 fun tryLogin(authorization: String, navController: NavController) {
+    val accessToken = authorization
+    val authorizationHeader = "Bearer $accessToken"
     val call = apiService.getInfoIfUser(authorizationHeader)
-
+    Log.d("a", authorizationHeader)
     call.enqueue(object : retrofit2.Callback<AuthResponse> {
         override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+            Log.d("a", response.toString())
             when (response.code()) {
                 200 -> {
                     val userInfo = response.body()
@@ -55,6 +57,7 @@ fun tryLogin(authorization: String, navController: NavController) {
                             profileImg = userInfo.profileImg,
                             rootFolderId = userInfo.rootFolderId
                         )
+                        PreferencesUtil.saveLocation(nowLocation = userInfo.rootFolderId)
                         navController.navigate("space")
                     } else {
                         Log.e("APIResponse", "Response was successful but no user info found")
@@ -73,7 +76,7 @@ fun tryLogin(authorization: String, navController: NavController) {
                 }
                 else -> {
                     // Handle other unexpected status codes
-                    Log.e("APIResponse", "Unexpected response code: ${response.code()}")
+                    Log.e("APIResponse", "Unexpected response code: ${response}")
                 }
             }
         }
@@ -87,6 +90,8 @@ fun tryLogin(authorization: String, navController: NavController) {
 }
 
 fun signUp(nickname: String, profileImg: String) {
+    val accessToken = PreferencesUtil.getLoginDetails().accessToken
+    val authorizationHeader = "Bearer $accessToken"
     val userSignupRequest = UserSignupRequest(nickname, profileImg)
     val call = apiService.getInfoNewUser(authorizationHeader, userSignupRequest)
 
@@ -102,6 +107,7 @@ fun signUp(nickname: String, profileImg: String) {
                     profileImg = authResponse.profileImg,
                     rootFolderId = authResponse.rootFolderId
                 )
+                PreferencesUtil.saveLocation(nowLocation = authResponse.rootFolderId)
             } else {
                 Log.e("APIResponse", "API Call failed!")
             }
@@ -113,6 +119,8 @@ fun signUp(nickname: String, profileImg: String) {
 }
 
 fun s3uri(context: Context, imageUri: Uri, nickname: String) {
+    val accessToken = PreferencesUtil.getLoginDetails().accessToken
+    val authorizationHeader = "Bearer $accessToken"
     val imgUri = "$imageUri.jpeg"
     val call = apiService.getS3URI(authorizationHeader, imgUri)
 
@@ -136,6 +144,8 @@ fun s3uri(context: Context, imageUri: Uri, nickname: String) {
 }
 
 fun checkNickName(nickname: String, onResult: (Boolean) -> Unit) {
+    val accessToken = PreferencesUtil.getLoginDetails().accessToken
+    val authorizationHeader = "Bearer $accessToken"
     val call = apiService.checkNickname(authorizationHeader, nickname)
 
     call.enqueue(object : retrofit2.Callback<NickNameResponse> {

@@ -62,7 +62,6 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
         mutableStateOf(Direction.Portrait)
     }
 
-    // ㅋㅋ 그저 "value"
     val finalTemplateImg = getTemplate(templateType.value, backgroundColor.value, direction.value)
 
     var noteTitle by remember { mutableStateOf("제목 없는 노트") }
@@ -87,7 +86,7 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
             Text(text = "취소", fontSize = 20.sp, modifier = Modifier.clickable { closeModal() })
             Text(text = "새 노트북", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Text(text = "생성", fontSize = 20.sp, modifier = Modifier.clickable { createNote(
-                PreferencesUtil.getLoginDetails().rootFolderId.toString(),
+                PreferencesUtil.getNowLocation().nowLocation.toString(),
                 noteTitle,
                 backgroundColor.value,
                 templateType.value,

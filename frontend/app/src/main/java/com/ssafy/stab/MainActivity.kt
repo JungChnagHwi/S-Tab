@@ -26,6 +26,7 @@ import com.ssafy.stab.webrtc.audiocall.AudioCallScreen
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 import com.kakao.sdk.common.util.Utility
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.screens.space.NoteListViewModel
 
 
@@ -70,5 +71,6 @@ fun Routers(){
             AudioCallScreen(viewModel = audioCallViewModel)
         }
         composable("create-note") { CreateNoteModal({}, NoteListViewModel()) }
+        composable("create-folder") { CreateFolderModal({}) }
     }
 }

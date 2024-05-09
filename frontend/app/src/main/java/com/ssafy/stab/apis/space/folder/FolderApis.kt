@@ -3,6 +3,7 @@ package com.ssafy.stab.apis.space.folder
 import android.util.Log
 import com.ssafy.stab.apis.RetrofitClient
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.screens.space.NoteListViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -39,11 +40,13 @@ fun createFolder(parentFolderId: String, title: String) {
     val createFolderRequest = CreateFolderRequest(parentFolderId, title)
     val call = apiService.createFolder(authorizationHeader, createFolderRequest)
 
-    call.enqueue(object: retrofit2.Callback<Folder> {
+    call.enqueue(object: Callback<Folder> {
         override fun onResponse(call: Call<Folder>, response: Response<Folder>) {
             Log.d("a", response.toString())
             if (response.isSuccessful && response.body() != null) {
                 Log.i("APIResponse", "Successful response: ${response.body()}")
+                NoteListViewModel().addFolder(response.body()!!)
+
             } else {
                 Log.e("APIResponse", "API Call failed!")
             }

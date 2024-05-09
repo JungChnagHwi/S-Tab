@@ -28,6 +28,17 @@ object PreferencesUtil {
         val rootFolderId = sharedPreferences.getString("RootFolderId", null)
         return LoginDetails(isLoggedIn, accessToken, userName, profileImg, rootFolderId)
     }
+
+    fun saveLocation(nowLocation: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString("nowLocation", nowLocation)
+        editor.apply()
+    }
+
+    fun getNowLocation(): NowLocation {
+        val nowLocation = sharedPreferences.getString("nowLocation", "")
+        return NowLocation(nowLocation)
+    }
 }
 
 data class LoginDetails(
@@ -36,4 +47,8 @@ data class LoginDetails(
     val userName: String?,
     val profileImg: String?,
     val rootFolderId: String?
+)
+
+data class NowLocation(
+    val nowLocation: String?
 )
