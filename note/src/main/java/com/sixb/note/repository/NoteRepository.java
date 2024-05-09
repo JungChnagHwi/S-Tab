@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface NoteRepository extends Neo4jRepository<Note, String> {
-    @Query("MATCH (f:Folder)-[:Hierarchy]->(n:Note) WHERE f.id = $folderId RETURN n")
+    @Query("MATCH (f:Folder)-[:Hierarchy]->(n:Note) WHERE f.id = $folderId AND n.isDeleted = false RETURN n")
     List<Note> findNotesByFolderId(@Param("folderId") String folderId);
     @Query("MATCH (n:Note) WHERE n.id = $noteId RETURN n")
     Note findNoteById(@Param("noteId") String noteId);
