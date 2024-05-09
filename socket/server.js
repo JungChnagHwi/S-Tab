@@ -198,4 +198,9 @@ io.on("connection", (socket) => {
   socket.on("positionMove", (data) => {
     socket.broadcast.to(displayId).emit("position", data);
   });
+
+  // 노트 수정 공유
+  socket.on("updateDrawing", (noteId, message) => {
+    io.to(noteId).emit("receiveDrawing", message);
+  });
 });
