@@ -2,9 +2,11 @@ package com.sixb.note.api.controller;
 
 
 import com.sixb.note.api.service.NoteService;
+import com.sixb.note.dto.folder.UpdateFolderTitleRequestDto;
 import com.sixb.note.dto.note.CreateNoteRequestDto;
 import com.sixb.note.dto.note.CreateNoteResponseDto;
 import com.sixb.note.dto.note.UpdateNoteTitleRequestDto;
+import com.sixb.note.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +30,11 @@ public class NoteController {
 
     @PatchMapping("/rename")
     public ResponseEntity<String> updateNoteTitle(@RequestBody UpdateNoteTitleRequestDto request) {
-        boolean isUpdated = noteService.updateNoteTitle(request.getNoteId(), request.getNewTitle());
-        if (isUpdated) {
+        try {
+            noteService.updateNoteTitle(request.getNoteId(), request.getNewTitle());
             return ResponseEntity.ok("노트 이름 수정 완료");
-        } else {
-            return ResponseEntity.badRequest().body("노트 이름 수정 실패");
+        } catch (NotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

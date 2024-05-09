@@ -6,6 +6,7 @@ import com.sixb.note.dto.note.CreateNoteResponseDto;
 import com.sixb.note.dto.note.UpdateNoteTitleRequestDto;
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Space;
+import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
 import com.sixb.note.repository.PageRepository;
@@ -115,14 +116,12 @@ public class NoteService {
     }
 
     //노트 이름 변경
-    public boolean updateNoteTitle(String noteId, String newTitle) {
+    public void updateNoteTitle(String noteId, String newTitle) throws NotFoundException {
         Note note = noteRepository.findNoteById(noteId);
-        if (note != null) {
-            note.setTitle(newTitle);
-            noteRepository.save(note);
-            return true;
+        if (note == null) {
+            throw new NotFoundException("노트 이름 수정 실패");
         }
-        return false;
+        noteRepository.updateNoteTitle(noteId, newTitle);
     }
 
     //노트 삭제

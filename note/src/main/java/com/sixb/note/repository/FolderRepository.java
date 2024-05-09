@@ -11,13 +11,13 @@ import java.util.UUID;
 
 @Repository
 public interface FolderRepository extends Neo4jRepository<Folder, String> {
-    @Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE p.id = $folderId RETURN c")
+    @Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE p.id = $folderId AND c.isDeleted = false RETURN c")
     List<Folder> findSubFoldersByFolderId(String folderId);
 
     @Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE c.id = $folderId RETURN p")
     Folder findParentFolderByFolderId(@Param("folderId") String folderId);
 
-    @Query("MATCH (f:Folder) WHERE f.isDelete = true RETURN f")
+    @Query("MATCH (f:Folder) WHERE f.isDeleted = true RETURN f")
     List<Folder> findDeletedFolders();
 
     @Query("MATCH (f:Folder) WHERE f.id = $folderId RETURN f")
@@ -29,6 +29,7 @@ public interface FolderRepository extends Neo4jRepository<Folder, String> {
     @Query("MATCH (u:User {id: $userId})-[r:Like]->(f:Folder {id: $itemId}) DELETE r")
     void deleteLikeFolder(@Param("userId") String userId, @Param("itemId") String itemId);
 
-
+    @Query("MATCH (f:Folder {id: $folderId}) SET f.title = $newTitle RETURN f")
+    void updateFolderTitle(String folderId, String newTitle);
 }
 

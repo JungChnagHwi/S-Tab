@@ -12,11 +12,11 @@ import java.util.UUID;
 
 @Repository
 public interface NoteRepository extends Neo4jRepository<Note, String> {
-    @Query("MATCH (f:Folder)-[:Hierarchy]->(n:Note) WHERE f.id = $folderId RETURN n")
+    @Query("MATCH (f:Folder)-[:Hierarchy]->(n:Note) WHERE f.id = $folderId AND n.isDeleted = false RETURN n")
     List<Note> findNotesByFolderId(@Param("folderId") String folderId);
     @Query("MATCH (n:Note) WHERE n.id = $noteId RETURN n")
     Note findNoteById(@Param("noteId") String noteId);
-    @Query("MATCH (n:Note) WHERE n.isDelete = true RETURN n")
+    @Query("MATCH (n:Note) WHERE n.isDeleted = true RETURN n")
     List<Note> findDeletedNotes();
 
     @Query("MATCH (u:User {id: $userId})-[:Like]->(n:Note) RETURN n")
@@ -24,4 +24,7 @@ public interface NoteRepository extends Neo4jRepository<Note, String> {
 
     @Query("MATCH (u:User {id: $userId})-[r:Like]->(n:Note {id: $itemId}) DELETE r")
     void deleteLikeNote(@Param("userId") String userId, @Param("itemId") String itemId);
+
+    @Query("MATCH (n:Note {id: $noteId}) SET n.title = $newTitle RETURN n")
+    void updateNoteTitle(String noteId, String newTitle);
 }

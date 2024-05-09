@@ -1,18 +1,16 @@
 package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.SpaceService;
-import com.sixb.note.dto.folder.UpdateFolderTitleRequestDto;
 import com.sixb.note.dto.space.SpaceRequestDto;
 import com.sixb.note.dto.space.SpaceResponseDto;
 import com.sixb.note.dto.space.UpdateSpaceTitleRequestDto;
-import com.sixb.note.entity.Space;
+import com.sixb.note.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/space")
@@ -34,11 +32,11 @@ public class SpaceController {
 
     @PatchMapping("/rename")
     public ResponseEntity<String> updateSpaceTitle(@RequestBody UpdateSpaceTitleRequestDto request) {
-        boolean isUpdated = spaceService.updateSpaceTitle(request.getSpaceId(), request.getNewTitle());
-        if (isUpdated) {
+        try {
+            spaceService.updateSpaceTitle(request.getSpaceId(), request.getNewTitle());
             return ResponseEntity.ok("스페이스 이름 수정 완료");
-        } else {
-            return ResponseEntity.badRequest().body("스페이스 이름 수정 실패");
+        } catch (NotFoundException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
