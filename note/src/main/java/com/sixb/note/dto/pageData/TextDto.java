@@ -1,9 +1,9 @@
-package com.sixb.note.entity;
+package com.sixb.note.dto.pageData;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "Text")
-public class Text {
+public class TextDto {
     private String content;
     private String font;
     private Float size;

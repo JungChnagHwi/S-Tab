@@ -1,9 +1,9 @@
 package com.sixb.note.dto.page;
 
-import com.sixb.note.entity.Figure;
-import com.sixb.note.entity.Image;
-import com.sixb.note.entity.Path;
-import com.sixb.note.entity.TextBox;
+import com.sixb.note.dto.pageData.FigureDto;
+import com.sixb.note.dto.pageData.ImageDto;
+import com.sixb.note.dto.pageData.PathDto;
+import com.sixb.note.dto.pageData.TextBoxDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,8 +13,8 @@ import java.util.List;
 @Builder
 public class SaveDataRequestDto {
     private String pageId;
-    private List<Path> paths;
-    private List<Figure> figures;
-    private List<TextBox> textBoxes;
-    private List<Image> images;
+    private List<PathDto> paths;
+    private List<FigureDto> figures;
+    private List<TextBoxDto> textBoxes;
+    private List<ImageDto> images;
 }
