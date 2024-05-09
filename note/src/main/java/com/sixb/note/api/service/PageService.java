@@ -1,9 +1,12 @@
 package com.sixb.note.api.service;
 
 import com.sixb.note.dto.page.*;
+import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;
 import com.sixb.note.entity.PageData;
+import com.sixb.note.exception.NoteNotFoundException;
 import com.sixb.note.exception.PageNotFoundException;
+import com.sixb.note.repository.NoteRepository;
 import com.sixb.note.repository.PageDataRepository;
 import com.sixb.note.repository.PageRepository;
 import com.sixb.note.util.IdCreator;
@@ -12,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,6 +28,9 @@ public class PageService {
 
     @Autowired
     private PageDataRepository pageDataRepository;
+
+    @Autowired
+    private NoteRepository noteRepository;
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
         String beforeNoteId = request.getBeforePageId();
@@ -141,5 +149,72 @@ public class PageService {
         } else {
             throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
         }
+    }
+
+    // 페이지 조회
+    public PageListResponseDto getPageList(String userId, String noteId) throws NoteNotFoundException {
+        Note note = noteRepository.findNoteById(noteId);
+        if (note != null) {
+            List<PageInfoDto> pageInfoList = new ArrayList<>();
+            // noteId에 연결되어있는 페이지 불러오기
+            Page firstPage = pageRepository.findFirstPageByNoteId(noteId);
+            // 그 페이지에 해당하는 data 불러오기
+            PageData firstPageData = pageDataRepository.findById(firstPage.getId()).orElse(null);
+            String fistPageId = firstPageData.getId();
+            // dto 빌드
+            PageInfoDto pageInfoDto = PageInfoDto.builder()
+                    .pageId(fistPageId)
+                    .color(firstPage.getColor())
+                    .template(firstPage.getTemplate())
+                    .direction(firstPage.getDirection())
+                    .isBookmarked(pageRepository.isLikedByPageId(userId, fistPageId))
+                    .pdfUrl(firstPage.getPdfUrl())
+                    .pdfPage(firstPage.getPdfPage())
+                    .updatedAt(firstPage.getUpdatedAt())
+                    .paths(firstPageData.getPaths())
+                    .figures(firstPageData.getFigures())
+                    .textBoxes(firstPageData.getTextBoxes())
+                    .images(firstPageData.getImages())
+                    .build();
+            // List에 넣기
+            pageInfoList.add(pageInfoDto);
+
+            Page nextPage = firstPage.getNextPage();
+//            Page nextPage = pageRepository.findNextPageByPageId(fistPageId);
+
+            while (nextPage != null) { // 다음 페이지가 없을때까지
+                // 그 페이지에 해당하는 data 불러오기
+                PageData data = pageDataRepository.findById(nextPage.getId()).orElse(null);
+                // dto 빌드
+                String nextPageId = nextPage.getId();
+                PageInfoDto nextPageInfoDto = PageInfoDto.builder()
+                        .pageId(nextPageId)
+                        .color(nextPage.getColor())
+                        .template(nextPage.getTemplate())
+                        .direction(nextPage.getDirection())
+                        .isBookmarked(pageRepository.isLikedByPageId(userId, nextPageId))
+                        .pdfUrl(nextPage.getPdfUrl())
+                        .pdfPage(nextPage.getPdfPage())
+                        .updatedAt(nextPage.getUpdatedAt())
+                        .paths(data.getPaths())
+                        .figures(data.getFigures())
+                        .textBoxes(data.getTextBoxes())
+                        .images(data.getImages())
+                        .build();
+
+                // List에 넣기
+                pageInfoList.add(nextPageInfoDto);
+                // 페이지에 연결되어있는 다음 페이지 불러오기
+                nextPage = nextPage.getNextPage();
+            }
+            PageListResponseDto pageListResponseDto = PageListResponseDto.builder()
+                                    .data(pageInfoList)
+                                    .build();
+
+            return pageListResponseDto;
+        } else {
+            throw new NoteNotFoundException("노트를 찾을 수 없습니다.");
+        }
+
     }
 }
