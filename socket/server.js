@@ -122,7 +122,7 @@ io.on("connection", (socket) => {
 
     socket.join(spaceId);
     io.to(spaceId).emit("spaceConnectUser", spaceRoom[spaceId]);
-    socket.broadcast.to(spaceId).emit("notify", nickname);
+    socket.broadcast.to(spaceId).emit("notifySpace", nickname);
     console.log(`${socket.id} just joined the Space Room ${spaceId}`);
 
     socket.spaceId = spaceId;
@@ -147,16 +147,11 @@ io.on("connection", (socket) => {
 
     socket.join(noteId);
     io.to(noteId).emit("noteConnectUser", noteRoom[noteId]);
+    socket.broadcast.to(noteId).emit("notifyNote", nickname);
     console.log(`${socket.id} just joined the Note Room ${noteId}`);
 
     // 내 화면 따라가기 room 생성
-    displayRoom[displayId] = {
-      ...displayRoom[displayId],
-      [socket.id]: {
-        nickname,
-        color,
-      },
-    };
+    displayRoom[displayId] = {};
     socket.join(displayId);
 
     socket.noteId = noteId;
@@ -171,45 +166,8 @@ io.on("connection", (socket) => {
     deleteDisplayRoom(displayId);
   });
 
-  const leaveRoom = (room, roomId, type) => {
-    console.log(`${socket.id} leaved the Room ${roomId}`);
-
-    if (room[roomId] && room[roomId][socket.id]) {
-      // 유저 정보 삭제
-      delete room[roomId][socket.id];
-      socket.leave(roomId, () => {
-        // 해당 스페이스 방이 비어 있는지 확인
-        if (Object.keys(room[roomId]).length === 0) {
-          console.log(`Room ${roomId} is now empty and will be deleted.`);
-          delete room[roomId];
-        } else {
-          // 나간 유저 정보 알리기
-          io.to(roomId).emit(`${type}ConnectUser`, room[roomId]);
-        }
-      });
-    }
-  };
-
-  const deleteDisplayRoom = (displayId) => {
-    const room = io.sockets.adapter.rooms.get(displayId);
-
-    if (room) {
-      room.forEach((socketId) => {
-        const sock = io.sockets.sockets.get(socketId);
-        if (sock) {
-          console.log(`${socketId} stop following ${socket.id}`);
-          sock.leave(displayId);
-          sock.emit("quitFollow");
-        }
-      });
-    }
-
-    delete displayRoom[displayId];
-    console.log(`Display Room ${displayId} has been deleted`);
-  };
-
   // 화면 따라가기 시작
-  socket.on("displayFollow", (socketId, nickname, color) => {
+  socket.on("displayFollowing", (socketId, nickname, color) => {
     let followDisplayId = "display-" + socketId;
 
     displayRoom[followDisplayId] = {
@@ -228,10 +186,66 @@ io.on("connection", (socket) => {
   });
 
   // 화면 따라가기 종료
-  socket.on("stopFollow", (socketId) => {
+  socket.on("stopFollowing", (socketId) => {
     leaveDisplayRoom(socketId);
   });
 
+  // 화면 이동
+  socket.on("positionMove", (data) => {
+    socket.broadcast.to(displayId).emit("position", data);
+  });
+
+  // 스페이스 수정 공유
+  socket.on("updateSpace", (spaceId, message) => {
+    io.to(spaceId).emit("receiveSpace", message);
+  });
+
+  // 노트 수정 공유
+  socket.on("updateDrawing", (noteId, message) => {
+    io.to(noteId).emit("receiveDrawing", message);
+  });
+
+  // Room 나가기
+  const leaveRoom = (room, roomId, type) => {
+    console.log(`${socket.id} left the Room ${roomId}`);
+
+    if (room[roomId] && room[roomId][socket.id]) {
+      // 유저 정보 삭제
+      delete room[roomId][socket.id];
+      socket.leave(roomId, () => {
+        // 해당 스페이스 방이 비어 있는지 확인
+        if (Object.keys(room[roomId]).length === 0) {
+          console.log(`Room ${roomId} is now empty and will be deleted.`);
+          delete room[roomId];
+        } else {
+          // 나간 유저 정보 알리기
+          io.to(roomId).emit(`${type}ConnectUser`, room[roomId]);
+        }
+      });
+    }
+  };
+
+  // Display Room 제거
+  const deleteDisplayRoom = (displayId) => {
+    const sockets = io.sockets.adapter.rooms.get(displayId);
+
+    if (sockets) {
+      sockets.forEach((socketId) => {
+        const sock = io.sockets.sockets.get(socketId);
+        if (sock) {
+          console.log(`${socketId} stop following ${socket.id}`);
+          sock.leave(displayId, () => {
+            sock.emit("exitFollow");
+          });
+        }
+      });
+    }
+
+    console.log(`Display Room ${displayId} is now empty and will be deleted.`);
+    delete displayRoom[displayId];
+  };
+
+  // Display Follow 종료
   const leaveDisplayRoom = (socketId) => {
     let followDisplayId = "display-" + socketId;
 
@@ -249,19 +263,4 @@ io.on("connection", (socket) => {
     socket.leave(followDisplayId);
     socket.followId = null;
   };
-
-  // 화면 이동
-  socket.on("positionMove", (data) => {
-    socket.broadcast.to(displayId).emit("position", data);
-  });
-
-  // 스페이스 수정 공유
-  socket.on("updateSpace", (spaceId, message) => {
-    io.to(spaceId).emit("receiveSpace", message);
-  });
-
-  // 노트 수정 공유
-  socket.on("updateDrawing", (noteId, message) => {
-    io.to(noteId).emit("receiveDrawing", message);
-  });
 });
