@@ -79,7 +79,7 @@ fun ShareSpace() {
                 )
             }
         }
-        NoteListSpace()
+        NoteListSpace("")
     }
 }
 

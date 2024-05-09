@@ -1,6 +1,5 @@
 package com.ssafy.stab.screens.space
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,8 +19,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.stab.R
-import com.ssafy.stab.apis.space.folder.createFolder
-import com.ssafy.stab.apis.space.folder.getFileList
 import com.ssafy.stab.data.PreferencesUtil
 
 @Composable
@@ -34,27 +30,16 @@ fun PersonalSpace() {
             .background(Color(0xFFE9ECF5))
             .fillMaxSize()
     ) {
-        Row {
-            Button(onClick = { getFileList(folderId.toString()) }) {
-                Text(text = "현재폴더 파일 리스트")
-            }
-            Button(onClick = {
-                Log.d("A", PreferencesUtil.getLoginDetails().accessToken.toString())
-                Log.d("A", PreferencesUtil.getLoginDetails().rootFolderId.toString())
-                createFolder(folderId.toString(), "두번째 폴더")
-            }) {
-                Text(text = "폴더 생성")
-            }
-        }
         MyTitleBar()
         Divider(
             color = Color.Gray, // 선의 색상 설정
             thickness = 1.dp, // 선의 두께 설정
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 20.dp) // 선 주변에 수직 패딩 추가
         )
-        NoteListSpace()
+        NoteListSpace(folderId.toString())
     }
 }
+
 
 @Composable
 fun MyTitleBar() {

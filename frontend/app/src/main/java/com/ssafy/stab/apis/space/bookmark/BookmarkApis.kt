@@ -7,10 +7,11 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+private val apiService: ApiService = RetrofitClient.instance.create(ApiService::class.java)
+private val accessToken = PreferencesUtil.getLoginDetails().accessToken
+private val authorizationHeader = "Bearer $accessToken"
 fun getBookMarkList() {
     val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val call = apiService.getBookmarkList(authorizationHeader)
 
     call.enqueue(object: Callback<BookmarkListResponse> {
@@ -25,9 +26,6 @@ fun getBookMarkList() {
 }
 
 fun addBookMark(id: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val addBookmarkRequest = AddBookmarkRequest(id)
     val call = apiService.addBookmark(authorizationHeader, addBookmarkRequest)
 
@@ -44,9 +42,6 @@ fun addBookMark(id: String) {
 }
 
 fun deleteBookMark(fileId: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val call = apiService.deleteBookmark(authorizationHeader, fileId)
 
     call.enqueue(object: Callback<Void> {
