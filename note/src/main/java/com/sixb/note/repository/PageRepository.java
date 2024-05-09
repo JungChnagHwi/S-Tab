@@ -31,6 +31,6 @@ public interface PageRepository extends Neo4jRepository<Page, String> {
 //    @Query("MATCH (p: Page {id: $pageId})-[r:NextPage]->(n: Page) RETURN n")
 //    Page findNextPageByPageId(@Param("pageId") String pageId);
 
-    @Query("MATCH (:User {id: $userId})-[:LIKE]->(:Page {id: $pageId}) RETURN COUNT(*) > 0 AS liked")
+    @Query("MATCH (u:User {id: $userId})-[r:Like]->(p:Page {id: $pageId}) RETURN COUNT(*) > 0 AS liked")
     boolean isLikedByPageId(@Param("userId") String userId, @Param("pageId") String pageId);
 }
