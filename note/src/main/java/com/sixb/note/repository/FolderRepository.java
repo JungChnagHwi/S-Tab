@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface FolderRepository extends Neo4jRepository<Folder, String> {
-    @Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE p.id = $folderId RETURN c")
+    @Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE p.id = $folderId AND c.isDeleted = false RETURN c")
     List<Folder> findSubFoldersByFolderId(String folderId);
 
     @Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE c.id = $folderId RETURN p")
