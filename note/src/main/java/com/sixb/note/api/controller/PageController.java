@@ -50,7 +50,7 @@ public class PageController {
 
     // 필기데이터 저장
     @PutMapping("")
-    public ResponseEntity<?> saveDate(@RequestBody SaveDataRequestDto request) {
+    public ResponseEntity<?> saveData(@RequestBody SaveDataRequestDto request) {
         try {
             pageService.saveData(request);
             return ResponseEntity.ok("데이터 저장완료");
@@ -60,7 +60,7 @@ public class PageController {
     }
 
     @GetMapping("/{note-id}")
-    public ResponseEntity<?> getPageList(@PathVariable("note-id") String noteId, @Param("userId") String userId) {
+    public ResponseEntity<?> getPageList(@RequestParam("userId") long userId, @PathVariable("note-id") String noteId) {
         try {
             PageListResponseDto response = pageService.getPageList(userId, noteId);
             return ResponseEntity.ok(response);
