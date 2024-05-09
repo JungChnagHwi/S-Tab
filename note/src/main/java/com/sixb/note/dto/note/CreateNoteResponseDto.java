@@ -14,8 +14,8 @@ public class CreateNoteResponseDto {
     private int totalPageCnt;
     private boolean isLiked;
     private PageDto page;
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private Boolean isDeleted;
 
     @Getter
