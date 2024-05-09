@@ -171,8 +171,8 @@ public class PageService {
                         .template(firstPage.getTemplate())
                         .direction(firstPage.getDirection())
                         .isBookmarked(pageRepository.isLikedByPageId(userId, fistPageId))
-//                        .pdfUrl(firstPage.getPdfUrl())
-//                        .pdfPage(firstPage.getPdfPage())
+                        .pdfUrl(firstPage.getPdfUrl())
+                        .pdfPage(firstPage.getPdfPage())
                         .updatedAt(firstPage.getUpdatedAt())
                         .paths(firstPageData.getPaths())
                         .figures(firstPageData.getFigures())
@@ -189,8 +189,8 @@ public class PageService {
                         .template(firstPage.getTemplate())
                         .direction(firstPage.getDirection())
                         .isBookmarked(pageRepository.isLikedByPageId(userId, fistPageId))
-//                        .pdfUrl(firstPage.getPdfUrl())
-//                        .pdfPage(firstPage.getPdfPage())
+                        .pdfUrl(firstPage.getPdfUrl())
+                        .pdfPage(firstPage.getPdfPage())
                         .updatedAt(firstPage.getUpdatedAt())
                         .build();
                 // List에 넣기
@@ -202,10 +202,9 @@ public class PageService {
 
             while (nextPage != null) { // 다음 페이지가 없을때까지
                 // 그 페이지에 해당하는 data 불러오기
-                PageData data = pageDataRepository.findById(nextPage.getId()).orElse(null);
-                // dto 빌드
                 String nextPageId = nextPage.getId();
                 PageData nextData = pageDataRepository.findById(nextPageId).orElse(null);
+                // dto 빌드
                 if (nextData != null) {
                     PageInfoDto nextPageInfoDto = PageInfoDto.builder()
                             .pageId(nextPageId)
@@ -213,8 +212,8 @@ public class PageService {
                             .template(nextPage.getTemplate())
                             .direction(nextPage.getDirection())
                             .isBookmarked(pageRepository.isLikedByPageId(userId, nextPageId))
-//                            .pdfUrl(nextPage.getPdfUrl())
-//                            .pdfPage(nextPage.getPdfPage())
+                            .pdfUrl(nextPage.getPdfUrl())
+                            .pdfPage(nextPage.getPdfPage())
                             .updatedAt(nextPage.getUpdatedAt())
                             .paths(nextData.getPaths())
                             .figures(nextData.getFigures())
@@ -231,8 +230,8 @@ public class PageService {
                             .template(nextPage.getTemplate())
                             .direction(nextPage.getDirection())
                             .isBookmarked(pageRepository.isLikedByPageId(userId, nextPageId))
-//                            .pdfUrl(nextPage.getPdfUrl())
-//                            .pdfPage(nextPage.getPdfPage())
+                            .pdfUrl(nextPage.getPdfUrl())
+                            .pdfPage(nextPage.getPdfPage())
                             .updatedAt(nextPage.getUpdatedAt())
                             .build();
 
