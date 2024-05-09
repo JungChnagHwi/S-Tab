@@ -151,7 +151,7 @@ public class PageService {
     }
 
     // 페이지 조회
-    public PageListResponseDto getPageList(String userId, String noteId) throws NoteNotFoundException {
+    public PageListResponseDto getPageList(long userId, String noteId) throws NoteNotFoundException {
         Note note = noteRepository.findNoteById(noteId);
         if (note != null) {
             List<PageInfoDto> pageInfoList = new ArrayList<>();
