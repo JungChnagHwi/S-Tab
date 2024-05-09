@@ -41,9 +41,9 @@ public class FolderService {
             FolderResponseDto.FolderInfo info = new FolderResponseDto.FolderInfo();
             info.setFolderId(folder.getId());
             info.setTitle(folder.getTitle());
-            info.setCreateAt(folder.getCreatedAt());
-            info.setUpdateAt(folder.getModifiedAt());
-            info.setIsDelete(folder.getIsDelete());
+            info.setCreatedAt(folder.getCreatedAt());
+            info.setUpdatedAt(folder.getUpdatedAt());
+            info.setIsDeleted(folder.getIsDeleted());
             info.setIsLiked(false);
             return info;
         }).collect(Collectors.toList());
@@ -53,9 +53,9 @@ public class FolderService {
             info.setNoteId(note.getId());
             info.setTitle(note.getTitle());
             info.setTotalPageCnt(note.getTotalPageCnt());
-            info.setCreateAt(note.getCreatedAt());
-            info.setUpdateAt(note.getModifiedAt());
-            info.setIsDelete(note.getIsDelete());
+            info.setCreatedAt(note.getCreatedAt());
+            info.setUpdatedAt(note.getUpdatedAt());
+            info.setIsDeleted(note.getIsDeleted());
             info.setIsLiked(false);
             return info;
         }).collect(Collectors.toList());
@@ -98,7 +98,7 @@ public class FolderService {
         }
         LocalDateTime now = LocalDateTime.now();
         newFolder.setCreatedAt(now);
-        newFolder.setModifiedAt(now);
+        newFolder.setUpdatedAt(now);
 
         folderRepository.save(newFolder);
         if (parentFolder != null) {
@@ -110,9 +110,9 @@ public class FolderService {
         CreateFolderResponseDto response = new CreateFolderResponseDto();
         response.setFolderId(newFolder.getId());
         response.setTitle(newFolder.getTitle());
-        response.setCreateAt(LocalDateTime.now());
-        response.setUpdateAt(LocalDateTime.now());
-        response.setIsDelete(0);
+        response.setCreatedAt(LocalDateTime.now());
+        response.setUpdatedAt(LocalDateTime.now());
+        response.setIsDeleted(false);
         response.setIsLiked(false);
         return response;
     }
@@ -132,7 +132,7 @@ public class FolderService {
     public boolean deleteFolder(String folderId) {
         Folder folder = folderRepository.findFolderById(folderId);
         if (folder != null) {
-            folder.setIsDelete(1);
+            folder.setIsDeleted(true);
             folderRepository.save(folder);
             return true;
         }
