@@ -1,14 +1,14 @@
-package com.sixb.note.entity;
+package com.sixb.note.dto.pageData;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
-@Document(collection = "TextBox")
-public class TextBox {
-    private List<Text> texts;
+@Document(collection = "Figure")
+public class FigureDto {
+    private String shape;
+    private String color;
     private Float width;
     private Float height;
     private Float x;
     private Float y;
+
 }
