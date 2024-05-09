@@ -30,9 +30,11 @@ import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
 import com.ssafy.stab.util.note.NoteController
 import com.ssafy.stab.data.note.PenType
+import com.ssafy.stab.data.note.response.PageData
 
 @Composable
 fun ControlsBar(
+    pageList: MutableList<PageData>,
     noteController: NoteController,
     undoAvailable: MutableState<Boolean>,
     redoAvailable: MutableState<Boolean>,
@@ -43,16 +45,16 @@ fun ControlsBar(
         horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
         EditIcons(
-            if (undoAvailable.value) R.drawable.undo_abled else R.drawable.undo_disabled,
+            if (undoAvailable.value && pageList.isNotEmpty()) R.drawable.undo_abled else R.drawable.undo_disabled,
             "undo",
             ) {
-                if (undoAvailable.value) noteController.undo()
+                if (undoAvailable.value && pageList.isNotEmpty()) noteController.undo(pageList)
             }
         EditIcons(
             if (redoAvailable.value) R.drawable.redo_abled else R.drawable.redo_disabled,
             "redo"
             ) {
-                if (redoAvailable.value) noteController.redo()
+                if (redoAvailable.value) noteController.redo(pageList)
             }
         EditIcons(
             if (noteController.penType == PenType.Pen) R.drawable.pen_abled else R.drawable.pen_disabled,

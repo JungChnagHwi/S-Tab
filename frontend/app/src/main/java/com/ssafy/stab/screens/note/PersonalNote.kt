@@ -1,6 +1,5 @@
 package com.ssafy.stab.screens.note
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,14 +36,18 @@ import com.ssafy.stab.util.note.rememberNoteController
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@SuppressLint("UnrememberedMutableState")
 @Composable
 fun PersonalNote(navController: NavController){
     val noteController = rememberNoteController()
     val undoAvailable = remember { mutableStateOf(false) }
     val redoAvailable = remember { mutableStateOf(false) }
 
-    val coordinates: SnapshotStateList<Coordinate> = mutableStateListOf(Coordinate(5f,5f),Coordinate(5f,6f),Coordinate(5f,15f))
+    val coordinates: SnapshotStateList<Coordinate> =
+        remember { mutableStateListOf(Coordinate(5f, 5f), Coordinate(5f, 6f), Coordinate(5f, 15f)) }
+    val paths1: SnapshotStateList<PathInfo> =
+        remember { mutableStateListOf(PathInfo(PenType.Pen, 10f, "000000", coordinates)) }
+    val paths2: SnapshotStateList<PathInfo> =
+        remember { mutableStateListOf(PathInfo(PenType.Highlighter, 20f, "00FF00", coordinates)) }
 
     val data = mutableListOf(
         PageData(PageDetail(
@@ -52,9 +55,7 @@ fun PersonalNote(navController: NavController){
             BackgroundColor.Yellow, TemplateType.Lined, 0,
             false, "", 0,
             LocalDateTime.parse("2024-05-08 10:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            mutableListOf(
-                PathInfo(PenType.Pen, 10f, "000000", coordinates)
-            ),
+            paths1,
             mutableListOf(), mutableListOf(), mutableListOf()
         )),
         PageData(PageDetail(
@@ -62,14 +63,12 @@ fun PersonalNote(navController: NavController){
             BackgroundColor.Yellow, TemplateType.Lined, 0,
             false, "", 0,
             LocalDateTime.parse("2024-05-08 10:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            mutableListOf(
-                PathInfo(PenType.Pen, 20f, "00FF00", coordinates)
-            ),
+            paths2,
             mutableListOf(), mutableListOf(), mutableListOf()
         )),
     )
 
-    val response = mutableStateOf<PageListResponse?>(null)
+    val response = remember { mutableStateOf<PageListResponse?>(null) }
 
     response.value = PageListResponse(data = data)
 //    fetchPageList() {
@@ -93,17 +92,25 @@ fun PersonalNote(navController: NavController){
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
         ) {
-            ControlsBar(
-                noteController = noteController,
-                undoAvailable = undoAvailable,
-                redoAvailable = redoAvailable,
-            )
+            if (response.value != null) {
+                ControlsBar(
+                    response.value!!.data,
+                    noteController,
+                    undoAvailable,
+                    redoAvailable,
+                )
+            }
             Spacer(modifier = Modifier.width(16.dp))
             OptionsBar(noteController = noteController)
         }
 
         if (response.value != null) {
-            PageList(response.value!!, noteController)
+            PageList(
+                response.value!!, noteController
+            ) { undoCount, redoCount ->
+                undoAvailable.value = undoCount != 0
+                redoAvailable.value = redoCount != 0
+            }
         }
 
     }
