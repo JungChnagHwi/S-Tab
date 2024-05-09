@@ -48,6 +48,7 @@ public class PageService {
             String pageId = IdCreator.create("p");
             newPage.setId(pageId);
             newPage.setCreatedAt(now);
+            newPage.setUpdatedAt(now);
             newPage.setColor(beforePage.getColor());
             newPage.setDirection(beforePage.getDirection());
             // 만약 이전 페이지가 pdf페이지가 아니라면
@@ -73,6 +74,7 @@ public class PageService {
 
             // db에 저장하고 반환
             pageRepository.save(newPage);
+            pageRepository.save(beforePage);
             return responseDto;
         } else { // page 못찾은 경우
             // error
@@ -164,16 +166,17 @@ public class PageService {
             PageData firstPageData = pageDataRepository.findById(firstPage.getId()).orElse(null);
             String fistPageId = firstPage.getId();
             if (firstPageData != null) {
+                System.out.println("updatedAT"+firstPage.getUpdatedAt());
                 // dto 빌드
                 PageInfoDto pageInfoDto = PageInfoDto.builder()
                         .pageId(fistPageId)
                         .color(firstPage.getColor())
                         .template(firstPage.getTemplate())
                         .direction(firstPage.getDirection())
+                        .updatedAt(firstPage.getUpdatedAt())
                         .isBookmarked(pageRepository.isLikedByPageId(userId, fistPageId))
                         .pdfUrl(firstPage.getPdfUrl())
                         .pdfPage(firstPage.getPdfPage())
-                        .updatedAt(firstPage.getUpdatedAt())
                         .paths(firstPageData.getPaths())
                         .figures(firstPageData.getFigures())
                         .textBoxes(firstPageData.getTextBoxes())
@@ -188,10 +191,10 @@ public class PageService {
                         .color(firstPage.getColor())
                         .template(firstPage.getTemplate())
                         .direction(firstPage.getDirection())
+                        .updatedAt(firstPage.getUpdatedAt())
                         .isBookmarked(pageRepository.isLikedByPageId(userId, fistPageId))
                         .pdfUrl(firstPage.getPdfUrl())
                         .pdfPage(firstPage.getPdfPage())
-                        .updatedAt(firstPage.getUpdatedAt())
                         .build();
                 // List에 넣기
                 pageInfoList.add(pageInfoDto);
@@ -211,10 +214,10 @@ public class PageService {
                             .color(nextPage.getColor())
                             .template(nextPage.getTemplate())
                             .direction(nextPage.getDirection())
+                            .updatedAt(nextPage.getUpdatedAt())
                             .isBookmarked(pageRepository.isLikedByPageId(userId, nextPageId))
                             .pdfUrl(nextPage.getPdfUrl())
                             .pdfPage(nextPage.getPdfPage())
-                            .updatedAt(nextPage.getUpdatedAt())
                             .paths(nextData.getPaths())
                             .figures(nextData.getFigures())
                             .textBoxes(nextData.getTextBoxes())
@@ -229,10 +232,10 @@ public class PageService {
                             .color(nextPage.getColor())
                             .template(nextPage.getTemplate())
                             .direction(nextPage.getDirection())
+                            .updatedAt(nextPage.getUpdatedAt())
                             .isBookmarked(pageRepository.isLikedByPageId(userId, nextPageId))
                             .pdfUrl(nextPage.getPdfUrl())
                             .pdfPage(nextPage.getPdfPage())
-                            .updatedAt(nextPage.getUpdatedAt())
                             .build();
 
                     // List에 넣기
