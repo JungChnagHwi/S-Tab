@@ -19,7 +19,7 @@ public class PageInfoDto {
     private int direction;
     private Boolean isBookmarked;
     private String pdfUrl;
-    private int pdfPage;
+    private Integer pdfPage;
     private LocalDateTime updatedAt;
     private List<PathDto> paths;
     private List<FigureDto> figures;
