@@ -105,7 +105,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 		Node space = node("Space").named("s")
 				.withProperties(
 						"id", literalOf(spaceId),
-						"title", literalOf(request.getNickname() + "의 스페이스"),
+						"title", literalOf("나의 스페이스"),
 						"public", literalOf(false),
 						"createdAt", literalOf(now),
 						"updatedAt", literalOf(now),

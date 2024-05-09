@@ -16,10 +16,13 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.viewinterop.AndroidView
+import com.ssafy.stab.data.note.PathData
+import com.ssafy.stab.data.note.PathInfo
 import com.ssafy.stab.data.note.PenType
 
 @Composable
 fun NoteArea(
+    paths: MutableList<PathInfo>,
     noteController: NoteController,
     trackHistory: (undoCount: Int, redoCount: Int) -> Unit = { _, _ -> }
 ) = AndroidView(
@@ -68,37 +71,41 @@ fun NoteArea(
                         val checkPoint = saveLayer(null, null)
 
                         noteController.pathList.forEach { pathInfo ->
-                            if (pathInfo.penType == PenType.Pen) {
-                                drawPath(
-                                    path = createPath(pathInfo.coordinates),
-                                    color = Color(color = ("FF" + pathInfo.color).toLong(16)),
-                                    style = Stroke(
-                                        width = pathInfo.strokeWidth,
-                                        cap = StrokeCap.Round,
-                                        join = StrokeJoin.Round
+                            when (pathInfo.penType) {
+                                PenType.Pen -> {
+                                    drawPath(
+                                        path = createPath(pathInfo.coordinates),
+                                        color = Color(color = ("FF" + pathInfo.color).toLong(16)),
+                                        style = Stroke(
+                                            width = pathInfo.strokeWidth,
+                                            cap = StrokeCap.Round,
+                                            join = StrokeJoin.Round
+                                        )
                                     )
-                                )
-                            } else if (pathInfo.penType == PenType.Highlighter) {
-                                drawPath(
-                                    path = createPath(pathInfo.coordinates),
-                                    color = Color(color = ("40" + pathInfo.color).toLong(16)),
-                                    style = Stroke(
-                                        width = pathInfo.strokeWidth,
-                                        cap = StrokeCap.Square,
-                                        join = StrokeJoin.Round
+                                }
+                                PenType.Highlighter -> {
+                                    drawPath(
+                                        path = createPath(pathInfo.coordinates),
+                                        color = Color(color = ("40" + pathInfo.color).toLong(16)),
+                                        style = Stroke(
+                                            width = pathInfo.strokeWidth,
+                                            cap = StrokeCap.Square,
+                                            join = StrokeJoin.Round
+                                        )
                                     )
-                                )
-                            } else {
-                                drawPath(
-                                    path = createPath(pathInfo.coordinates),
-                                    color = Color(color = ("00" + pathInfo.color).toLong(16)),
-                                    style = Stroke(
-                                        width = pathInfo.strokeWidth,
-                                        cap = StrokeCap.Round,
-                                        join = StrokeJoin.Round
-                                    ),
-                                    blendMode = BlendMode.Clear
-                                )
+                                }
+                                else -> {
+                                    drawPath(
+                                        path = createPath(pathInfo.coordinates),
+                                        color = Color(color = ("00" + pathInfo.color).toLong(16)),
+                                        style = Stroke(
+                                            width = pathInfo.strokeWidth,
+                                            cap = StrokeCap.Round,
+                                            join = StrokeJoin.Round
+                                        ),
+                                        blendMode = BlendMode.Clear
+                                    )
+                                }
                             }
                         }
                         restoreToCount(checkPoint)

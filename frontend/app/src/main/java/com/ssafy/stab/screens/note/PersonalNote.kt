@@ -1,76 +1,80 @@
 package com.ssafy.stab.screens.note
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import coil.compose.rememberAsyncImagePainter
+import com.ssafy.stab.apis.note.fetchPageList
 import com.ssafy.stab.components.note.ControlsBar
 import com.ssafy.stab.components.note.OptionsBar
-import com.ssafy.stab.components.note.Template
+import com.ssafy.stab.components.note.PageList
 import com.ssafy.stab.data.note.BackgroundColor
-import com.ssafy.stab.data.note.Direction
-import com.ssafy.stab.data.note.PagesResponse
+import com.ssafy.stab.data.note.Coordinate
+import com.ssafy.stab.data.note.PathInfo
+import com.ssafy.stab.data.note.PenType
 import com.ssafy.stab.data.note.TemplateType
+import com.ssafy.stab.data.note.response.PageData
+import com.ssafy.stab.data.note.response.PageDetail
+import com.ssafy.stab.data.note.response.PageListResponse
 import com.ssafy.stab.ui.theme.Background
-import com.ssafy.stab.ui.theme.NoteAreaBackground
-import com.ssafy.stab.ui.theme.YellowNote
-import com.ssafy.stab.util.note.NoteArea
-import com.ssafy.stab.util.note.getTemplate
 import com.ssafy.stab.util.note.rememberNoteController
-import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-suspend fun fetchData(): String? {
-    return null
-}
-
-@OptIn(ExperimentalFoundationApi::class)
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun PersonalNote(navController: NavController){
     val noteController = rememberNoteController()
     val undoAvailable = remember { mutableStateOf(false) }
     val redoAvailable = remember { mutableStateOf(false) }
 
-    val isLandscape = remember { mutableStateOf(true) }
-    val pages = remember { mutableStateOf<PagesResponse?>(null) }
+    val coordinates: SnapshotStateList<Coordinate> = mutableStateListOf(Coordinate(5f,5f),Coordinate(5f,6f),Coordinate(5f,15f))
 
-    val coroutineScope = rememberCoroutineScope()
+    val data = mutableListOf(
+        PageData(PageDetail(
+            "1",
+            BackgroundColor.Yellow, TemplateType.Lined, 0,
+            false, "", 0,
+            LocalDateTime.parse("2024-05-08 10:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+            mutableListOf(
+                PathInfo(PenType.Pen, 10f, "000000", coordinates)
+            ),
+            mutableListOf(), mutableListOf(), mutableListOf()
+        )),
+        PageData(PageDetail(
+            "1",
+            BackgroundColor.Yellow, TemplateType.Lined, 0,
+            false, "", 0,
+            LocalDateTime.parse("2024-05-08 10:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+            mutableListOf(
+                PathInfo(PenType.Pen, 20f, "00FF00", coordinates)
+            ),
+            mutableListOf(), mutableListOf(), mutableListOf()
+        )),
+    )
 
-    LaunchedEffect(coroutineScope) {
-        coroutineScope.launch {
-            val fetchedData = mutableListOf(1, 2, 3)
-            val response = PagesResponse(data = fetchedData)
-            pages.value = response
-        }
-    }
+    val response = mutableStateOf<PageListResponse?>(null)
+
+    response.value = PageListResponse(data = data)
+//    fetchPageList() {
+//        response.value = it
+//    }
 
     Column(
         modifier = Modifier
@@ -98,60 +102,9 @@ fun PersonalNote(navController: NavController){
             OptionsBar(noteController = noteController)
         }
 
-        val pageCount = pages.value?.data?.size ?: 0
-        val state = rememberPagerState { pageCount }
-
-        HorizontalPager(
-            state = state
-        ) {
-            // 필기 공간
-            BoxWithConstraints(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(NoteAreaBackground),
-                contentAlignment = Alignment.Center
-            ) {
-                val aspectRatio = if (isLandscape.value) 297f / 210f else 210f / 297f
-                val density = LocalDensity.current
-
-                val maxWidth = with(density) { constraints.maxWidth.toDp() }
-                val maxHeight = with(density) { constraints.maxHeight.toDp() }
-                val calculatedWidth = maxHeight * (1 / aspectRatio)
-
-                val modifier = if (calculatedWidth > maxWidth) {
-                    Modifier.fillMaxWidth()
-                } else {
-                    Modifier.fillMaxHeight()
-                }
-
-                // 비율을 맞춘 노트
-                Box(
-                    modifier = modifier.aspectRatio(aspectRatio)
-                ) {
-
-
-                    val templateType = TemplateType.Grid
-                    val backgroundColor = BackgroundColor.White
-                    val direction = Direction.Landscape
-                    val templateResId = getTemplate(templateType, backgroundColor, direction)
-
-                    Template(resId = templateResId, modifier = Modifier.matchParentSize())
-
-                    NoteArea(
-                        noteController = noteController,
-                    ) { undoCount, redoCount ->
-                        undoAvailable.value = undoCount != 0
-                        redoAvailable.value = redoCount != 0
-                    }
-                }
-            }
+        if (response.value != null) {
+            PageList(response.value!!, noteController)
         }
+
     }
-}
-
-
-@Preview
-@Composable
-fun PersonalNotePreview() {
-    PersonalNote(navController = rememberNavController())
 }

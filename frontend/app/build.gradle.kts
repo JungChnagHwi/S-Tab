@@ -10,6 +10,8 @@ rootProject.file("local.properties").inputStream().use {
     localProperties.load(it)
 }
 val kakaoAppKey = localProperties.getProperty("kakao_native_app_key") ?: "default_key"
+val openviduUrl = localProperties.getProperty("openvidu_server") ?: "defalut_server"
+val openviduSecret = localProperties.getProperty("openvidu_secret") ?: "defalut_key"
 
 android {
     namespace = "com.ssafy.stab"
@@ -28,6 +30,8 @@ android {
             useSupportLibrary = true
         }
         buildConfigField("String", "KAKAO_APP_KEY", "\"$kakaoAppKey\"")
+        buildConfigField("String", "OPENVIDU_URL", "\"$openviduUrl\"")
+        buildConfigField("String", "OPENVIDU_SECRET", "\"$openviduSecret\"")
         resValue("string", "kakao_oauth_host", "kakao\"$kakaoAppKey\"")
     }
 
@@ -71,6 +75,7 @@ dependencies {
     implementation(libs.aws.android.sdk.core)
     implementation(libs.converter.scalars)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.lifecycle.viewmodel)
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation(libs.androidx.core.ktx)
@@ -93,5 +98,4 @@ dependencies {
     // openvidu 관련 설정
     implementation("io.github.webrtc-sdk:android:114.5735.10")
     implementation("com.neovisionaries:nv-websocket-client:2.9")
-
 }

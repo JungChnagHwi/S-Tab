@@ -13,7 +13,7 @@ import retrofit2.Response
 
 fun socialLogin(idToken: String, navController: NavController) {
     val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val idTokenRequest = ApiService.IdTokenRequest(idToken) // idToken을 IdTokenRequest 객체로 변환
+    val idTokenRequest = IdTokenRequest(idToken) // idToken을 IdTokenRequest 객체로 변환
     val call = apiService.getTokens(idTokenRequest) // 수정된 호출 방식
 
     call.enqueue(object : retrofit2.Callback<TokenResponse> {
@@ -91,7 +91,7 @@ fun signUp(nickname: String, profileImg: String) {
     val apiService = RetrofitClient.instance.create(ApiService::class.java)
     val accessToken = PreferencesUtil.getLoginDetails().accessToken
     val authorizationHeader = "Bearer $accessToken"
-    val userSignupRequest = ApiService.UserSignupRequest(nickname, profileImg)
+    val userSignupRequest = UserSignupRequest(nickname, profileImg)
     val call = apiService.getInfoNewUser(authorizationHeader, userSignupRequest)
 
     call.enqueue(object : retrofit2.Callback<AuthResponse> {

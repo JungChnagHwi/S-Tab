@@ -12,16 +12,6 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-    data class IdTokenRequest(
-        @SerializedName("idToken")
-        val idToken: String
-    )
-
-    data class UserSignupRequest(
-        @SerializedName("nickname") val nickname: String,
-        @SerializedName("profileImg") val profileImg: String
-    )
-
     @POST("api/auth/login")
     fun getTokens(@Body idToken: IdTokenRequest): Call<TokenResponse>
 
@@ -37,4 +27,5 @@ interface ApiService {
     @GET("api/user/{nickname}")
     fun checkNickname(@Header("Authorization") authorization: String, @Path("nickname") nickname: String): Call<NickNameResponse>
 }
+
 
