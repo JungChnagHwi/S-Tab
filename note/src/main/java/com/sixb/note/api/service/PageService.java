@@ -99,9 +99,8 @@ public class PageService {
     // 데이터 저장
     public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
         String pageId = request.getPageId();
-        Optional<Page> optionalPage = pageRepository.findById(pageId);
-        if (optionalPage.isPresent()) {
-            Page page = optionalPage.get();
+        Page page = pageRepository.findPageById(pageId);
+        if (page!=null) {
             Boolean deleteStatus = page.getIsDeleted();
             if (deleteStatus == false) {
                 // 필기데이터가 있는지 확인 후 있으면 삭제
