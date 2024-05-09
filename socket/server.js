@@ -58,28 +58,49 @@ const io = new Server(httpServer, {
   },
 });
 
+const randomRGB = () => {
+  let rgb = "";
+  rgb += Math.floor(Math.random() * 256)
+    .toString(16)
+    .padStart(2, "0");
+  rgb += Math.floor(Math.random() * 256)
+    .toString(16)
+    .padStart(2, "0");
+  rgb += Math.floor(Math.random() * 256)
+    .toString(16)
+    .padStart(2, "0");
+  return "#" + rgb;
+};
+
 const socketRoom = {};
 
 // 소켓 connection
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
+  socket.emit("connection-success", {
+    socketId: socket.id,
+  });
+
   // 소켓 disconnect
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
 
-  // 통신 채녈 접속
-  socket.on("joinRoom", (roomId, nickname) => {
+  // room 접속
+  socket.on("join-room", (roomId, socketId, nickname) => {
     try {
       socketRoom[roomId] = {
         ...socketRoom[roomId],
-        nickname,
+        [socketId]: {
+          nickname,
+          color: randomRGB(),
+        },
       };
 
       // 유저 입장
       socket.join(roomId);
-      io.to(roomId).emit("connectUser", socketRoom[roomId]);
+      io.to(roomId).emit("connect-user", socketRoom[roomId]);
       socket.broadcast.to(roomId).emit("notify", nickname);
       console.log(`${nickname} just joined the Room ${roomId}`);
     } catch (error) {
@@ -87,8 +108,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 통신 채널 종료
-  socket.on("leaveRoom", (roomId, nickname) => {
+  // room 종료
+  socket.on("leave-room", (roomId, nickname) => {
     try {
       console.log(`${nickname} leaved the Room ${roomId}`);
 
@@ -96,7 +117,7 @@ io.on("connection", (socket) => {
       delete socketRoom[roomId][nickname];
 
       // 나간 유저 정보 알리기
-      io.to(roomId).emit("connectUser", socketRoom[roomId]);
+      io.to(roomId).emit("connect-user", socketRoom[roomId]);
       socket.leave(roomId);
     } catch (error) {
       console.log(error);
