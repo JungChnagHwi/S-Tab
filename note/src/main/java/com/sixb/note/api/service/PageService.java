@@ -155,28 +155,47 @@ public class PageService {
         Note note = noteRepository.findNoteById(noteId);
         if (note != null) {
             List<PageInfoDto> pageInfoList = new ArrayList<>();
+
+            // 일단 구현 후 하위부분 do-while이나 while로 바꿀 예정
+
             // noteId에 연결되어있는 페이지 불러오기
             Page firstPage = pageRepository.findFirstPageByNoteId(noteId);
             // 그 페이지에 해당하는 data 불러오기
             PageData firstPageData = pageDataRepository.findById(firstPage.getId()).orElse(null);
-            String fistPageId = firstPageData.getId();
-            // dto 빌드
-            PageInfoDto pageInfoDto = PageInfoDto.builder()
-                    .pageId(fistPageId)
-                    .color(firstPage.getColor())
-                    .template(firstPage.getTemplate())
-                    .direction(firstPage.getDirection())
-                    .isBookmarked(pageRepository.isLikedByPageId(userId, fistPageId))
-                    .pdfUrl(firstPage.getPdfUrl())
-                    .pdfPage(firstPage.getPdfPage())
-                    .updatedAt(firstPage.getUpdatedAt())
-                    .paths(firstPageData.getPaths())
-                    .figures(firstPageData.getFigures())
-                    .textBoxes(firstPageData.getTextBoxes())
-                    .images(firstPageData.getImages())
-                    .build();
-            // List에 넣기
-            pageInfoList.add(pageInfoDto);
+            String fistPageId = firstPage.getId();
+            if (firstPageData != null) {
+                // dto 빌드
+                PageInfoDto pageInfoDto = PageInfoDto.builder()
+                        .pageId(fistPageId)
+                        .color(firstPage.getColor())
+                        .template(firstPage.getTemplate())
+                        .direction(firstPage.getDirection())
+                        .isBookmarked(pageRepository.isLikedByPageId(userId, fistPageId))
+//                        .pdfUrl(firstPage.getPdfUrl())
+//                        .pdfPage(firstPage.getPdfPage())
+                        .updatedAt(firstPage.getUpdatedAt())
+                        .paths(firstPageData.getPaths())
+                        .figures(firstPageData.getFigures())
+                        .textBoxes(firstPageData.getTextBoxes())
+                        .images(firstPageData.getImages())
+                        .build();
+                // List에 넣기
+                pageInfoList.add(pageInfoDto);
+            } else {
+                // dto 빌드
+                PageInfoDto pageInfoDto = PageInfoDto.builder()
+                        .pageId(fistPageId)
+                        .color(firstPage.getColor())
+                        .template(firstPage.getTemplate())
+                        .direction(firstPage.getDirection())
+                        .isBookmarked(pageRepository.isLikedByPageId(userId, fistPageId))
+//                        .pdfUrl(firstPage.getPdfUrl())
+//                        .pdfPage(firstPage.getPdfPage())
+                        .updatedAt(firstPage.getUpdatedAt())
+                        .build();
+                // List에 넣기
+                pageInfoList.add(pageInfoDto);
+            }
 
             Page nextPage = firstPage.getNextPage();
 //            Page nextPage = pageRepository.findNextPageByPageId(fistPageId);
@@ -186,23 +205,41 @@ public class PageService {
                 PageData data = pageDataRepository.findById(nextPage.getId()).orElse(null);
                 // dto 빌드
                 String nextPageId = nextPage.getId();
-                PageInfoDto nextPageInfoDto = PageInfoDto.builder()
-                        .pageId(nextPageId)
-                        .color(nextPage.getColor())
-                        .template(nextPage.getTemplate())
-                        .direction(nextPage.getDirection())
-                        .isBookmarked(pageRepository.isLikedByPageId(userId, nextPageId))
-                        .pdfUrl(nextPage.getPdfUrl())
-                        .pdfPage(nextPage.getPdfPage())
-                        .updatedAt(nextPage.getUpdatedAt())
-                        .paths(data.getPaths())
-                        .figures(data.getFigures())
-                        .textBoxes(data.getTextBoxes())
-                        .images(data.getImages())
-                        .build();
+                PageData nextData = pageDataRepository.findById(nextPageId).orElse(null);
+                if (nextData != null) {
+                    PageInfoDto nextPageInfoDto = PageInfoDto.builder()
+                            .pageId(nextPageId)
+                            .color(nextPage.getColor())
+                            .template(nextPage.getTemplate())
+                            .direction(nextPage.getDirection())
+                            .isBookmarked(pageRepository.isLikedByPageId(userId, nextPageId))
+//                            .pdfUrl(nextPage.getPdfUrl())
+//                            .pdfPage(nextPage.getPdfPage())
+                            .updatedAt(nextPage.getUpdatedAt())
+                            .paths(nextData.getPaths())
+                            .figures(nextData.getFigures())
+                            .textBoxes(nextData.getTextBoxes())
+                            .images(nextData.getImages())
+                            .build();
 
-                // List에 넣기
-                pageInfoList.add(nextPageInfoDto);
+                    // List에 넣기
+                    pageInfoList.add(nextPageInfoDto);
+                } else {
+                    PageInfoDto nextPageInfoDto = PageInfoDto.builder()
+                            .pageId(nextPageId)
+                            .color(nextPage.getColor())
+                            .template(nextPage.getTemplate())
+                            .direction(nextPage.getDirection())
+                            .isBookmarked(pageRepository.isLikedByPageId(userId, nextPageId))
+//                            .pdfUrl(nextPage.getPdfUrl())
+//                            .pdfPage(nextPage.getPdfPage())
+                            .updatedAt(nextPage.getUpdatedAt())
+                            .build();
+
+                    // List에 넣기
+                    pageInfoList.add(nextPageInfoDto);
+                }
+
                 // 페이지에 연결되어있는 다음 페이지 불러오기
                 nextPage = nextPage.getNextPage();
             }

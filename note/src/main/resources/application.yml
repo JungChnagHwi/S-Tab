@@ -6,9 +6,9 @@ spring:
   application:
     name: note
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE}
+    active: dev
   config:
-    import: ${SPRING_CONFIG_IMPORT}
+    import: optional:configserver:http://admin:1234@localhost:8888
 
 eureka:
   instance:
@@ -17,4 +17,4 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      defaultZone: http://admin:1234@localhost:8761/eureka
