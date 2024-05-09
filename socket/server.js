@@ -207,21 +207,20 @@ io.on("connection", (socket) => {
 
   // Room 나가기
   const leaveRoom = (room, roomId, type) => {
-    console.log(`${socket.id} left the Room ${roomId}`);
-
     if (room[roomId] && room[roomId][socket.id]) {
+      console.log(`${socket.id} left the Room ${roomId}`);
+
       // 유저 정보 삭제
       delete room[roomId][socket.id];
-      socket.leave(roomId, () => {
-        // 해당 스페이스 방이 비어 있는지 확인
-        if (Object.keys(room[roomId]).length === 0) {
-          console.log(`Room ${roomId} is now empty and will be deleted.`);
-          delete room[roomId];
-        } else {
-          // 나간 유저 정보 알리기
-          io.to(roomId).emit(`${type}ConnectUser`, room[roomId]);
-        }
-      });
+      socket.leave(roomId);
+      // 해당 스페이스 방이 비어 있는지 확인
+      if (Object.keys(room[roomId]).length === 0) {
+        console.log(`Room ${roomId} is now empty and will be deleted.`);
+        delete room[roomId];
+      } else {
+        // 나간 유저 정보 알리기
+        io.to(roomId).emit(`${type}ConnectUser`, room[roomId]);
+      }
     }
   };
 
@@ -234,9 +233,8 @@ io.on("connection", (socket) => {
         const sock = io.sockets.sockets.get(socketId);
         if (sock) {
           console.log(`${socketId} stop following ${socket.id}`);
-          sock.leave(displayId, () => {
-            sock.emit("exitFollow");
-          });
+          sock.leave(displayId);
+          sock.emit("exitFollow");
         }
       });
     }
