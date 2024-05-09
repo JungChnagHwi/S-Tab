@@ -31,5 +31,5 @@ public class Page extends BaseTimeEntity {
     private Integer pdfPage;
 
     @Relationship(type = "NextPage")
-    private Page previousPage;
+    private Page NextPage;
 }

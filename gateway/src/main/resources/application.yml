@@ -10,6 +10,9 @@ spring:
     import: ${SPRING_CONFIG_IMPORT}
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
       routes:
         - id: note
           uri: lb://NOTE
@@ -40,9 +43,11 @@ spring:
           filters:
             - name: TokenValidationCheckFilter
         - id: socket
-          uri: lb:ws://SOCKET
+          uri: lb:wss://SOCKET
           predicates:
-            - Path=/socket.io/
+            - Path=/socket.io/**
+          filters:
+            - RewritePath=/socket.io/(?<remaining>.*),/socket.io/$\{remaining}
 
 eureka:
   instance:

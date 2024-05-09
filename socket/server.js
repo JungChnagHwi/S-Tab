@@ -8,11 +8,11 @@ dotenv.config();
 const app = express();
 const PORT = 5442;
 
-const eurekaURL = process.env.EUREKA_SERVICE_URL;
 const hostName = process.env.HOST_NAME;
 const ipAddr = process.env.IP_ADDR;
-const vipAddress = process.env.VIP_ADDR;
 const port = process.env.PORT;
+const vipAddr = process.env.VIP_ADDR;
+const eurekaURL = process.env.EUREKA_SERVICE_URL;
 
 const eurekaClient = new Eureka({
   instance: {
@@ -24,7 +24,7 @@ const eurekaClient = new Eureka({
       $: port,
       "@enabled": true,
     },
-    vipAddress: vipAddress,
+    vipAddress: vipAddr,
     dataCenterInfo: {
       "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
       name: "MyOwn",
@@ -64,48 +64,40 @@ const socketRoom = {};
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  socket.emit("connection-success", {
-    socketId: socket.id,
-  });
-
-  // 소켓 종료
+  // 소켓 disconnect
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
 
-  // 소켓 접속
-  socket.on("joinRoom", (spaceId, nickname) => {
+  // 통신 채녈 접속
+  socket.on("joinRoom", (roomId, nickname) => {
     try {
-      socketRoom[spaceId] = {
-        ...socketRoom[spaceId],
+      socketRoom[roomId] = {
+        ...socketRoom[roomId],
         nickname,
       };
 
       // 유저 입장
-      socket.join(spaceId);
-      io.to(spaceId).emit("connectUser", socketRoom[spaceId]);
-      console.log(`${nickname} just joined the Room `);
-    } catch (error) {
-      console.log(error);
-    }
-
-    try {
-      socket.broadcast.to(spaceId).emit("notify", nickname);
+      socket.join(roomId);
+      io.to(roomId).emit("connectUser", socketRoom[roomId]);
+      socket.broadcast.to(roomId).emit("notify", nickname);
+      console.log(`${nickname} just joined the Room ${roomId}`);
     } catch (error) {
       console.log(error);
     }
   });
 
-  socket.on("leaveRoom", (spaceId, nickname) => {
+  // 통신 채널 종료
+  socket.on("leaveRoom", (roomId, nickname) => {
     try {
-      console.log("socket room leave:", spaceId, nickname);
+      console.log(`${nickname} leaved the Room ${roomId}`);
 
       // 유저 정보 삭제
-      delete socketRoom[spaceId][nickname];
+      delete socketRoom[roomId][nickname];
 
       // 나간 유저 정보 알리기
-      io.to(spaceId).emit("connectUser", socketRoom[spaceId]);
-      socket.leave(spaceId);
+      io.to(roomId).emit("connectUser", socketRoom[roomId]);
+      socket.leave(roomId);
     } catch (error) {
       console.log(error);
     }
