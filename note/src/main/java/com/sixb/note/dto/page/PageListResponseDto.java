@@ -1,6 +1,5 @@
 package com.sixb.note.dto.page;
 
-import com.sixb.note.entity.Page;
 import lombok.Builder;
 import lombok.Data;
 
