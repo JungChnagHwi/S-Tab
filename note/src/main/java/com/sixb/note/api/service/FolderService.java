@@ -7,6 +7,7 @@ import com.sixb.note.dto.folder.FolderResponseDto;
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Space;
+import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
 import com.sixb.note.repository.SpaceRepository;
@@ -118,14 +119,12 @@ public class FolderService {
     }
 
     //폴더 이름 수정
-    public boolean updateFolderTitle(String folderId, String newTitle) {
+    public void updateFolderTitle(String folderId, String newTitle) throws NotFoundException {
         Folder folder = folderRepository.findFolderById(folderId);
-        if (folder != null) {
-            folder.setTitle(newTitle);
-            folderRepository.save(folder);
-            return true;
+        if (folder == null) {
+            throw new NotFoundException("폴더 이름 수정 실패");
         }
-        return false;
+        folderRepository.updateFolderTitle(folderId, newTitle);
     }
 
     //폴더 삭제

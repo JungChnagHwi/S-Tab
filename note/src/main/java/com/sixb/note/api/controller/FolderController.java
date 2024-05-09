@@ -5,6 +5,7 @@ import com.sixb.note.dto.folder.CreateFolderRequestDto;
 import com.sixb.note.dto.folder.CreateFolderResponseDto;
 import com.sixb.note.dto.folder.FolderResponseDto;
 import com.sixb.note.dto.folder.UpdateFolderTitleRequestDto;
+import com.sixb.note.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,11 +33,11 @@ public class FolderController {
 
     @PatchMapping("/rename")
     public ResponseEntity<String> updateFolderTitle(@RequestBody UpdateFolderTitleRequestDto request) {
-        boolean isUpdated = folderService.updateFolderTitle(request.getFolderId(), request.getNewTitle());
-        if (isUpdated) {
+        try {
+            folderService.updateFolderTitle(request.getFolderId(), request.getNewTitle());
             return ResponseEntity.ok("폴더 이름 수정 완료");
-        } else {
-            return ResponseEntity.badRequest().body("폴더 이름 수정 실패");
+        } catch (NotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
