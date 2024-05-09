@@ -1,19 +1,11 @@
 package com.ssafy.stab.data.note.response
 
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.gson.annotations.SerializedName
 import com.ssafy.stab.data.note.BackgroundColor
 import com.ssafy.stab.data.note.PathInfo
 import com.ssafy.stab.data.note.TemplateType
 import java.time.LocalDateTime
-
-data class Page(
-    val pageId: String,
-    val direction: Int
-)
-
-data class Response(
-    val data: MutableList<Page>
-)
 
 data class PageDetail(
     @SerializedName("pageId")
@@ -33,7 +25,7 @@ data class PageDetail(
     @SerializedName("updatedAt")
     val updatedAt: LocalDateTime,
     @SerializedName("paths")
-    val paths: MutableList<PathInfo>,
+    val paths: SnapshotStateList<PathInfo>,
     @SerializedName("figures")
     val figures: MutableList<Any>,
     @SerializedName("textBoxes")

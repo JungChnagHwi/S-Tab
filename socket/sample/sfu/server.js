@@ -80,24 +80,24 @@ connections.on("connection", async (socket) => {
     socketId: socket.id,
   });
 
-  // //[커서] 클라이언트에서 마우스가 움직일 때마다 보내주는 마우스 좌표 정보 (data)
-  // socket.on('mousemove', (data) => {
-  //   socket.broadcast.emit('mousemove', data, socket.id, socket.name);
+  //[커서] 클라이언트에서 마우스가 움직일 때마다 보내주는 마우스 좌표 정보 (data)
+  socket.on("mousemove", (data) => {
+    socket.broadcast.emit("mousemove", data, socket.id, socket.name);
 
-  //   cursorPositionsSaved[socket.id] = data; // 소켓별 좌표 정보 갱신
-  // });
+    cursorPositionsSaved[socket.id] = data; // 소켓별 좌표 정보 갱신
+  });
 
-  // //[커서] 🐭 유나 : 마우스 테스트
-  // socket.on('mouseHidden', (data) => {
-  //   console.log("테스트 중입니다.")
-  //   socket.emit('studentMouseHidden')
-  //   socket.to(data.roomName).emit('studentMouseHidden');
-  // })
+  //[커서] 🐭 유나 : 마우스 테스트
+  socket.on("mouseHidden", (data) => {
+    console.log("테스트 중입니다.");
+    socket.emit("studentMouseHidden");
+    socket.to(data.roomName).emit("studentMouseHidden");
+  });
 
-  // socket.on('mouseShow', (data) => {
-  //   socket.emit('studentMouseShow')
-  //   socket.to(data.roomName).emit('studentMouseShow');
-  // })
+  socket.on("mouseShow", (data) => {
+    socket.emit("studentMouseShow");
+    socket.to(data.roomName).emit("studentMouseShow");
+  });
 
   //! [fabric] todo: 나중에 방에만 갈 수 있도록 수정 필요
   socket.on("object-added", (data) => {
@@ -202,13 +202,17 @@ connections.on("connection", async (socket) => {
     // Router RTP Capabilities
     const rtpCapabilities = router1.rtpCapabilities;
 
-    // // [커서]mouseStart 최초 시작 -> 현재 해당 방의 소켓 좌표들을 전달해준다
-    // socket.emit('mouseStart', { message: 'mouseStart!', id: socket.id, cursorPositionsSaved: cursorPositionsSaved});
-    // const id = socket.id
-    // socket.name = userName
+    // [커서]mouseStart 최초 시작 -> 현재 해당 방의 소켓 좌표들을 전달해준다
+    socket.emit("mouseStart", {
+      message: "mouseStart!",
+      id: socket.id,
+      cursorPositionsSaved: cursorPositionsSaved,
+    });
+    const id = socket.id;
+    socket.name = userName;
 
-    // //Initialize this client's sequence number
-    // sequenceNumberByClient.set(socket, 1);
+    //Initialize this client's sequence number
+    sequenceNumberByClient.set(socket, 1);
 
     // call callback from the client and send back the rtpCapabilities
     callback({ rtpCapabilities });
