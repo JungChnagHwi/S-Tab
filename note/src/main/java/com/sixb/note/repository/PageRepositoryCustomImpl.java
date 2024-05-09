@@ -1,12 +1,10 @@
 package com.sixb.note.repository;
 
-import com.sixb.note.entity.Page;
 import lombok.RequiredArgsConstructor;
 import org.neo4j.cypherdsl.core.Node;
 import org.neo4j.cypherdsl.core.Relationship;
 import org.neo4j.cypherdsl.core.Statement;
 import org.neo4j.driver.Driver;
-import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.springframework.stereotype.Repository;
