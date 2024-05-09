@@ -15,8 +15,8 @@ public class SpaceResponseDto {
     private Boolean isPublic;
     private String rootFolderId;
     private List<UserResponse> users;
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @Getter
     @Setter

@@ -39,24 +39,24 @@ public class TrashService {
 
         // Recover Folder
         Folder folder = folderRepository.findFolderById(itemId);
-        if (folder != null && folder.getIsDelete() == 1) {
-            folder.setIsDelete(0);
+        if (folder != null && folder.getIsDeleted() == true) {
+            folder.setIsDeleted(false);
             folderRepository.save(folder);
             recovered = true;
         }
 
         // Recover Note
         Note note = noteRepository.findNoteById(itemId);
-        if (note != null && note.getIsDelete() == 1) {
-            note.setIsDelete(0);
+        if (note != null && note.getIsDeleted() == true) {
+            note.setIsDeleted(false);
             noteRepository.save(note);
             recovered = true;
         }
 
         // Recover Page
         Page page = pageRepository.findPageById(itemId);
-        if (page != null && page.getIsDelete() == 1) {
-            page.setIsDelete(0);
+        if (page != null && page.getIsDeleted() == true) {
+            page.setIsDeleted(false);
             pageRepository.save(page);
             recovered = true;
         }

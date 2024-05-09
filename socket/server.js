@@ -8,11 +8,11 @@ dotenv.config();
 const app = express();
 const PORT = 5442;
 
-const eurekaURL = process.env.EUREKA_SERVICE_URL;
 const hostName = process.env.HOST_NAME;
 const ipAddr = process.env.IP_ADDR;
-const vipAddress = process.env.VIP_ADDR;
 const port = process.env.PORT;
+const vipAddr = process.env.VIP_ADDR;
+const eurekaURL = process.env.EUREKA_SERVICE_URL;
 
 const eurekaClient = new Eureka({
   instance: {
@@ -24,7 +24,7 @@ const eurekaClient = new Eureka({
       $: port,
       "@enabled": true,
     },
-    vipAddress: vipAddress,
+    vipAddress: vipAddr,
     dataCenterInfo: {
       "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
       name: "MyOwn",
@@ -58,56 +58,149 @@ const io = new Server(httpServer, {
   },
 });
 
-const socketRoom = {};
+// 랜덤 color 생성
+const randomRGB = () => {
+  let rgb = "";
+  rgb += Math.floor(Math.random() * 256)
+    .toString(16)
+    .padStart(2, "0");
+  rgb += Math.floor(Math.random() * 256)
+    .toString(16)
+    .padStart(2, "0");
+  rgb += Math.floor(Math.random() * 256)
+    .toString(16)
+    .padStart(2, "0");
+  return "#" + rgb;
+};
+
+const noteRoom = {};
+const displayRoom = {};
 
 // 소켓 connection
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  socket.emit("connection-success", {
+  // 화면 따라가기
+  let displayId = "display-" + socket.id;
+  displayRoom[displayId] = {};
+  socket.join(displayId);
+
+  socket.emit("connectionSuccess", {
     socketId: socket.id,
   });
 
-  // 소켓 종료
+  // 소켓 disconnect
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+
+    // note room에서 유저 삭제
+    if (socket.noteId) {
+      deleteNoteRoom(socket.noteId);
+    }
+
+    // 화면 따라가기 종료
+    if (socket.followId) {
+      deleteDisplayRoom(socket.followId);
+    }
+
+    delete displayRoom[displayId];
+    io.to(displayId).emit("exitFollow");
   });
 
-  // 소켓 접속
-  socket.on("joinRoom", (spaceId, nickname) => {
-    try {
-      socketRoom[spaceId] = {
-        ...socketRoom[spaceId],
+  // note room 접속
+  socket.on("joinNote", (noteId, nickname) => {
+    // 유저 입장
+    noteRoom[noteId] = {
+      ...noteRoom[noteId],
+      [socket.id]: {
         nickname,
-      };
+        color: randomRGB(),
+      },
+    };
 
-      // 유저 입장
-      socket.join(spaceId);
-      io.to(spaceId).emit("connectUser", socketRoom[spaceId]);
-      console.log(`${nickname} just joined the Room `);
-    } catch (error) {
-      console.log(error);
-    }
+    socket.join(noteId);
+    io.to(noteId).emit("connectUser", noteRoom[noteId]);
+    socket.broadcast.to(noteId).emit("notify", nickname);
+    console.log(`${socket.id} just joined the Room ${noteId}`);
 
-    try {
-      socket.broadcast.to(spaceId).emit("notify", nickname);
-    } catch (error) {
-      console.log(error);
-    }
+    socket.noteId = noteId;
   });
 
-  socket.on("leaveRoom", (spaceId, nickname) => {
-    try {
-      console.log("socket room leave:", spaceId, nickname);
+  // note room 종료
+  socket.on("leaveNote", (noteId) => {
+    deleteNoteRoom(noteId);
 
-      // 유저 정보 삭제
-      delete socketRoom[spaceId][nickname];
+    // 화면 따라가기 종료
+    socket.broadcast.to(displayId).emit("exitFollow");
+    socket.noteId = null;
+  });
 
-      // 나간 유저 정보 알리기
-      io.to(spaceId).emit("connectUser", socketRoom[spaceId]);
-      socket.leave(spaceId);
-    } catch (error) {
-      console.log(error);
+  const deleteNoteRoom = (noteId) => {
+    console.log(`${socket.id} leaved the Room ${noteId}`);
+
+    // 유저 정보 삭제
+    delete noteRoom[noteId][socket.id];
+
+    // 나간 유저 정보 알리기
+    io.to(noteId).emit("connectUser", noteRoom[noteId]);
+    socket.leave(noteId);
+
+    // 해당 노트 방이 비어 있는지 확인
+    if (Object.keys(noteRoom[noteId]).length === 0) {
+      console.log(`Room ${noteId} is now empty and will be deleted.`);
+      delete noteRoom[noteId];
     }
+  };
+
+  // 화면 따라가기 시작
+  socket.on("displayFollow", (socketId, nickname, color) => {
+    let followDisplayId = "display-" + socketId;
+
+    displayRoom[followDisplayId] = {
+      ...displayRoom[followDisplayId],
+      [socket.id]: {
+        nickname,
+        color,
+      },
+    };
+
+    socket.join(followDisplayId);
+    io.to(socketId).emit("followUser", displayRoom[followDisplayId]);
+    console.log(`${socket.id} follows ${socketId}`);
+
+    socket.followId = socketId;
+  });
+
+  // 화면 따라가기 종료
+  socket.on("stopFollow", (socketId) => {
+    deleteDisplayRoom(socketId);
+  });
+
+  const deleteDisplayRoom = (socketId) => {
+    let followDisplayId = "display-" + socketId;
+
+    if (
+      displayRoom[followDisplayId] &&
+      displayRoom[followDisplayId][socket.id]
+    ) {
+      console.log(`${socket.id} stop following ${socketId}`);
+
+      delete displayRoom[followDisplayId][socket.id];
+
+      io.to(socketId).emit("followUser", displayRoom[followDisplayId]);
+    }
+
+    socket.leave(followDisplayId);
+    socket.followId = null;
+  };
+
+  // 화면 이동
+  socket.on("positionMove", (data) => {
+    socket.broadcast.to(displayId).emit("position", data);
+  });
+
+  // 노트 수정 공유
+  socket.on("updateDrawing", (noteId, message) => {
+    io.to(noteId).emit("receiveDrawing", message);
   });
 });

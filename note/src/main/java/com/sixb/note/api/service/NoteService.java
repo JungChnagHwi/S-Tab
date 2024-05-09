@@ -53,9 +53,9 @@ public class NoteService {
 
         LocalDateTime now = LocalDateTime.now();
         page.setCreatedAt(now);
-        page.setModifiedAt(now);
+        page.setUpdatedAt(now);
         note.setCreatedAt(now);
-        note.setModifiedAt(now);
+        note.setUpdatedAt(now);
 
         // 노트와 페이지 연결
         note.setPages(new ArrayList<>());
@@ -96,7 +96,7 @@ public class NoteService {
         response.setLiked(false);
         response.setCreateAt(LocalDateTime.now());
         response.setUpdateAt(LocalDateTime.now());
-        response.setIsDelete(0);
+        response.setIsDeleted(false);
 
         // 페이지 DTO 설정
         CreateNoteResponseDto.PageDto pageDto = new CreateNoteResponseDto.PageDto();
@@ -105,9 +105,9 @@ public class NoteService {
         pageDto.setTemplate(request.getTemplate());
         pageDto.setDirection(request.getDirection());
         pageDto.setBookmarked(false);
-        pageDto.setCreateAt(LocalDateTime.now());
-        pageDto.setUpdateAt(LocalDateTime.now());
-        pageDto.setIsDelete(0);
+        pageDto.setCreatedAt(LocalDateTime.now());
+        pageDto.setUpdatedAt(LocalDateTime.now());
+        pageDto.setIsDeleted(false);
 
         response.setPage(pageDto);
 
@@ -129,7 +129,7 @@ public class NoteService {
     public boolean deleteNote(String noteId) {
         Note note = noteRepository.findNoteById(noteId);
         if (note != null) {
-            note.setIsDelete(1);
+            note.setIsDeleted(true);
             noteRepository.save(note);
             return true;
         }

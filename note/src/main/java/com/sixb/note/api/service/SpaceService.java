@@ -32,8 +32,8 @@ public class SpaceService {
             dto.setTitle(space.getTitle());
             dto.setIsPublic(space.getIsPublic());
             dto.setRootFolderId(null);
-            dto.setCreateAt(space.getCreatedAt());
-            dto.setUpdateAt(space.getModifiedAt());
+            dto.setCreatedAt(space.getCreatedAt());
+            dto.setUpdatedAt(space.getUpdatedAt());
 
             List<User> usersInSpace = userService.findUsersBySpaceId(space.getId());
             List<SpaceResponseDto.UserResponse> userResponses = usersInSpace.stream().map(user -> {
@@ -61,7 +61,7 @@ public class SpaceService {
         newSpace.setIsPublic(true);
         LocalDateTime now = LocalDateTime.now();
         newSpace.setCreatedAt(now);
-        newSpace.setModifiedAt(now);
+        newSpace.setUpdatedAt(now);
 
         //보류 : 로그인 기능 구현 후 스페이스 생성 시 나 추가 해야 함
 
@@ -76,8 +76,8 @@ public class SpaceService {
         responseDto.setTitle(space.getTitle());
         responseDto.setIsPublic(true);
         responseDto.setRootFolderId(null);
-        responseDto.setCreateAt(LocalDateTime.now());
-        responseDto.setUpdateAt(LocalDateTime.now());
+        responseDto.setCreatedAt(LocalDateTime.now());
+        responseDto.setUpdatedAt(LocalDateTime.now());
         responseDto.setUsers(new ArrayList<>());
 
         return responseDto;
