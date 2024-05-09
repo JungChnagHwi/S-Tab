@@ -13,8 +13,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -29,7 +28,15 @@ import com.ssafy.stab.util.note.getTemplate
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PageList(pageList: PageListResponse, noteController: NoteController) {
+fun PageList(
+    pageList: PageListResponse,
+    noteController: NoteController,
+    trackHistory: (undoCount: Int, redoCount: Int) -> Unit = { _, _ -> }
+) {
+    LaunchedEffect(noteController) {
+        noteController.trackHistory(this, trackHistory)
+    }
+
     val pageCount = pageList.data.size
     val state = rememberPagerState { pageCount }
     val pageIndex = state.currentPage + 1
@@ -39,7 +46,7 @@ fun PageList(pageList: PageListResponse, noteController: NoteController) {
     ) {
         page ->
         Box {
-            Page(pageList.data[page].page, noteController)
+            Page(page, pageList.data[page].page, noteController)
             Text(
                 text = "$pageIndex / $pageCount",
                 Modifier.padding(8.dp).align(Alignment.BottomEnd)
@@ -50,10 +57,11 @@ fun PageList(pageList: PageListResponse, noteController: NoteController) {
 }
 
 @Composable
-fun Page(page: PageDetail, noteController: NoteController) {
-    val undoAvailable = remember { mutableStateOf(false) }
-    val redoAvailable = remember { mutableStateOf(false) }
-
+fun Page(
+    index: Int,
+    page: PageDetail,
+    noteController: NoteController
+) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -86,12 +94,10 @@ fun Page(page: PageDetail, noteController: NoteController) {
             Template(resId = templateResId, modifier = Modifier.matchParentSize())
 
             NoteArea(
-                noteController = noteController,
-                paths = page.paths
-            ) { undoCount, redoCount ->
-                undoAvailable.value = undoCount != 0
-                redoAvailable.value = redoCount != 0
-            }
+                index,
+                page.paths,
+                noteController
+            )
         }
     }
 }
