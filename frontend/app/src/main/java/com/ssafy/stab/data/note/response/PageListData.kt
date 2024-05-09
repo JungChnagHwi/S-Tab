@@ -19,19 +19,19 @@ data class PageDetail(
     @SerializedName("isBoolean")
     val isBookmarked: Boolean,
     @SerializedName("pdfUrl")
-    val pdfUrl: String,
+    val pdfUrl: String?,
     @SerializedName("pdfPage")
-    val pdfPage: Int,
+    val pdfPage: Int?,
     @SerializedName("updatedAt")
     val updatedAt: LocalDateTime,
     @SerializedName("paths")
-    val paths: SnapshotStateList<PathInfo>,
+    val paths: SnapshotStateList<PathInfo>?,
     @SerializedName("figures")
-    val figures: MutableList<Any>,
+    val figures: MutableList<Any>?,
     @SerializedName("textBoxes")
-    val textBoxes: MutableList<Any>,
+    val textBoxes: MutableList<Any>?,
     @SerializedName("images")
-    val images: MutableList<Any>,
+    val images: MutableList<Any>?,
 )
 
 data class PageData(

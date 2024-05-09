@@ -1,5 +1,6 @@
 package com.ssafy.stab.screens.note
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +24,7 @@ import androidx.navigation.NavController
 import com.ssafy.stab.apis.note.fetchPageList
 import com.ssafy.stab.components.note.ControlsBar
 import com.ssafy.stab.components.note.OptionsBar
+import com.ssafy.stab.components.note.PageInterfaceBar
 import com.ssafy.stab.components.note.PageList
 import com.ssafy.stab.data.note.BackgroundColor
 import com.ssafy.stab.data.note.Coordinate
@@ -75,6 +78,9 @@ fun PersonalNote(navController: NavController){
 //        response.value = it
 //    }
 
+    val currentPageIndex = remember { mutableIntStateOf(0) }
+    val onPageChange = { index: Int -> currentPageIndex.intValue = index }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -84,6 +90,12 @@ fun PersonalNote(navController: NavController){
                 Text(text = "뒤로가기")
             }
         }
+
+        PageInterfaceBar(
+            currentPage = currentPageIndex.intValue,
+            pageList = response.value!!.data,
+            noteController = noteController
+        )
 
         Row(
             modifier = Modifier
@@ -106,7 +118,7 @@ fun PersonalNote(navController: NavController){
 
         if (response.value != null) {
             PageList(
-                response.value!!, noteController
+                response.value!!, noteController, onPageChange
             ) { undoCount, redoCount ->
                 undoAvailable.value = undoCount != 0
                 redoAvailable.value = redoCount != 0

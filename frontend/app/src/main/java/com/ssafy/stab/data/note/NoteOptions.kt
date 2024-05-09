@@ -29,3 +29,9 @@ enum class Direction {
     Portrait,
     Landscape
 }
+
+enum class Shape {
+    Circle,
+    Square,
+    Triangle
+}
