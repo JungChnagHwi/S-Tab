@@ -95,8 +95,8 @@ public class NoteService {
         response.setTitle(note.getTitle());
         response.setTotalPageCnt(note.getTotalPageCnt());
         response.setLiked(false);
-        response.setCreateAt(LocalDateTime.now());
-        response.setUpdateAt(LocalDateTime.now());
+        response.setCreatedAt(LocalDateTime.now());
+        response.setUpdatedAt(LocalDateTime.now());
         response.setIsDeleted(false);
 
         // 페이지 DTO 설정
