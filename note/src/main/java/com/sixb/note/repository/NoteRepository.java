@@ -24,4 +24,7 @@ public interface NoteRepository extends Neo4jRepository<Note, String> {
 
     @Query("MATCH (u:User {id: $userId})-[r:Like]->(n:Note {id: $itemId}) DELETE r")
     void deleteLikeNote(@Param("userId") String userId, @Param("itemId") String itemId);
+
+    @Query("MATCH (n:Note {id: $noteId}) SET n.title = $newTitle RETURN n")
+    void updateNoteTitle(String noteId, String newTitle);
 }

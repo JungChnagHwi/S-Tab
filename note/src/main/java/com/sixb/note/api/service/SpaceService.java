@@ -2,9 +2,11 @@ package com.sixb.note.api.service;
 
 import com.sixb.note.dto.space.SpaceRequestDto;
 import com.sixb.note.dto.space.SpaceResponseDto;
+import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Space;
 import com.sixb.note.entity.User;
+import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.repository.SpaceRepository;
 import com.sixb.note.util.IdCreator;
 import lombok.extern.slf4j.Slf4j;
@@ -84,14 +86,12 @@ public class SpaceService {
     }
 
     //스페이스 이름 변경
-    public boolean updateSpaceTitle(String spaceId, String newTitle) {
+    public void updateSpaceTitle(String spaceId, String newTitle) throws NotFoundException {
         Space space = spaceRepository.findSpaceById(spaceId);
-        if (space != null) {
-            space.setTitle(newTitle);
-            spaceRepository.save(space);
-            return true;
+        if (space == null) {
+            throw new NotFoundException("스페이스 이름 수정 실패");
         }
-        return false;
+        spaceRepository.updateSpaceTitle(spaceId, newTitle);
     }
 
     //스페이스 삭제
