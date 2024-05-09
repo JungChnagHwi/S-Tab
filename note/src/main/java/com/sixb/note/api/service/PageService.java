@@ -73,9 +73,9 @@ public class PageService {
         Optional<Page> optionalPage = pageRepository.findById(pageId);
         if (optionalPage.isPresent()) {
             Page page = optionalPage.get();
-            int deleteStatus = page.getIsDelete();
-            if (deleteStatus == 0) {
-                page.setIsDelete(1);
+            Boolean deleteStatus = page.getIsDeleted();
+            if (deleteStatus == false) {
+                page.setIsDeleted(true);
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
@@ -90,8 +90,8 @@ public class PageService {
         Optional<Page> optionalPage = pageRepository.findById(pageId);
         if (optionalPage.isPresent()) {
             Page page = optionalPage.get();
-            int deleteStatus = page.getIsDelete();
-            if (deleteStatus == 0) {
+            Boolean deleteStatus = page.getIsDeleted();
+            if (deleteStatus == false) {
                 // 필기데이터가 있는지 확인 후 있으면 삭제
                 Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
                 optionalPageData.ifPresent(pageData -> pageDataRepository.delete(pageData));
@@ -119,8 +119,8 @@ public class PageService {
         Optional<Page> optionalPage = pageRepository.findById(pageId);
         if (optionalPage.isPresent()) {
             Page page = optionalPage.get();
-            int deleteStatus = page.getIsDelete();
-            if (deleteStatus == 0) {
+            Boolean deleteStatus = page.getIsDeleted();
+            if (deleteStatus == false) {
                 // 필기데이터가 있는지 확인 후
                 Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
                 // 양식 정보 수정

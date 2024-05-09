@@ -12,7 +12,7 @@ public class CreateFolderResponseDto {
     private String folderId;
     private String title;
     private Boolean isLiked;
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
-    private int isDelete;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private Boolean isDeleted;
 }

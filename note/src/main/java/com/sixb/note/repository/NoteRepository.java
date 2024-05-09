@@ -16,7 +16,7 @@ public interface NoteRepository extends Neo4jRepository<Note, String> {
     List<Note> findNotesByFolderId(@Param("folderId") String folderId);
     @Query("MATCH (n:Note) WHERE n.id = $noteId RETURN n")
     Note findNoteById(@Param("noteId") String noteId);
-    @Query("MATCH (n:Note) WHERE n.isDelete = 1 RETURN n")
+    @Query("MATCH (n:Note) WHERE n.isDelete = true RETURN n")
     List<Note> findDeletedNotes();
 
     @Query("MATCH (u:User {id: $userId})-[:Like]->(n:Note) RETURN n")
