@@ -10,15 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.ssafy.stab.screens.auth.KakaoAuthViewModel
 import com.ssafy.stab.modals.CreateNoteModal
 import com.ssafy.stab.screens.auth.Login
 import com.ssafy.stab.screens.auth.SignUp
@@ -29,7 +26,7 @@ import com.ssafy.stab.webrtc.audiocall.AudioCallScreen
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 import com.kakao.sdk.common.util.Utility
 import com.ssafy.stab.data.PreferencesUtil
-import com.ssafy.stab.screens.space.PersonalSpace
+import com.ssafy.stab.screens.space.NoteListViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -72,6 +69,6 @@ fun Routers(){
             val audioCallViewModel = viewModel<AudioCallViewModel>()
             AudioCallScreen(viewModel = audioCallViewModel)
         }
-        composable("create-note") { CreateNoteModal() }
+        composable("create-note") { CreateNoteModal({}, NoteListViewModel()) }
     }
 }

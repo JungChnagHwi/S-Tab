@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -26,53 +26,56 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.stab.R
+import com.ssafy.stab.apis.space.folder.Note
+import com.ssafy.stab.apis.space.note.CreateNoteResponse
+import com.ssafy.stab.apis.space.note.createNote
+import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.data.note.BackgroundColor
+import com.ssafy.stab.data.note.Direction
+import com.ssafy.stab.data.note.TemplateType
+import com.ssafy.stab.screens.space.NoteListViewModel
+import com.ssafy.stab.util.note.getTemplate
+import java.time.LocalDateTime
 
 
 @Composable
-fun CreateNoteModal() {
-    val blankwwImg = painterResource(id = R.drawable.blankww)
-    val blankwhImg = painterResource(id = R.drawable.blankwh)
-    val blankywImg = painterResource(id = R.drawable.blankyw)
-    val blankyhImg = painterResource(id = R.drawable.blankyh)
-    val linewwImg = painterResource(id = R.drawable.lineww)
-    val linewhImg = painterResource(id = R.drawable.linewh)
-    val lineywImg = painterResource(id = R.drawable.lineyw)
-    val lineyhImg = painterResource(id = R.drawable.lineyh)
-    val checkedwwImg = painterResource(id = R.drawable.checkedww)
-    val checkedwhImg = painterResource(id = R.drawable.checkedwh)
-    val checkedywImg = painterResource(id = R.drawable.checkedyw)
-    val checkedyhImg = painterResource(id = R.drawable.checkedyh)
+fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
     val selectedImg = painterResource(id = R.drawable.selected)
     val notselectedImg = painterResource(id = R.drawable.notselected)
+    val selectPlainImg = painterResource(id = R.drawable.plain_white_portrait)
+    val selectLinedImg = painterResource(id = R.drawable.lined_white_portrait)
+    val selectGridImg = painterResource(id = R.drawable.grid_white_portrait)
 
-    var text by remember { mutableStateOf("제목 없는 노트") }
-    var selectedTemplate by remember { mutableStateOf("line") }
-    var selectedColor by remember { mutableStateOf("w") }
-    var selectedOrientation by remember { mutableStateOf("h") }
+    val templateType = remember {
+        mutableStateOf(TemplateType.Plain)
+    }
 
-    // UI에서 선택된 템플릿, 색상, 방향에 따라 적절한 이미지 리소스 결정
-    val imageResource = when (selectedTemplate) {
-        "blank" -> when (selectedColor) {
-            "w" -> if (selectedOrientation == "h") blankwhImg else blankwwImg
-            "y" -> if (selectedOrientation == "h") blankyhImg else blankywImg
-            else -> blankwhImg
-        }
-        "line" -> when (selectedColor) {
-            "w" -> if (selectedOrientation == "h") linewhImg else linewwImg
-            "y" -> if (selectedOrientation == "h") lineyhImg else lineywImg
-            else -> linewhImg
-        }
-        "checked" -> when (selectedColor) {
-            "w" -> if (selectedOrientation == "h") checkedwhImg else checkedwwImg
-            "y" -> if (selectedOrientation == "h") checkedyhImg else checkedywImg
-            else -> checkedwhImg
-        }
-        else -> linewhImg
+    val backgroundColor = remember {
+        mutableStateOf(BackgroundColor.White)
+    }
+
+    val direction = remember {
+        mutableStateOf(Direction.Portrait)
+    }
+
+    // ㅋㅋ 그저 "value"
+    val finalTemplateImg = getTemplate(templateType.value, backgroundColor.value, direction.value)
+
+    var noteTitle by remember { mutableStateOf("제목 없는 노트") }
+
+
+    fun createNoteResponseToNote(response: CreateNoteResponse): Note {
+        return Note(
+            noteId = response.noteId,
+            title = response.title,
+            totalPageCnt = response.totalPageCnt,
+            updatedAt = response.updatedAt ?: LocalDateTime.now(),
+            isLiked = response.isLiked
+        )
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -81,9 +84,20 @@ fun CreateNoteModal() {
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp)),
             horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "취소", fontSize = 20.sp)
+            Text(text = "취소", fontSize = 20.sp, modifier = Modifier.clickable { closeModal() })
             Text(text = "새 노트북", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Text(text = "생성", fontSize = 20.sp)
+            Text(text = "생성", fontSize = 20.sp, modifier = Modifier.clickable { createNote(
+                PreferencesUtil.getLoginDetails().rootFolderId.toString(),
+                noteTitle,
+                backgroundColor.value,
+                templateType.value,
+                if (direction.value == Direction.Portrait) 1 else 0
+            ) { response ->
+                val note = createNoteResponseToNote(response)
+                viewModel.addNote(note)
+            }
+                closeModal()
+            })
         }
         Spacer(modifier = Modifier.height(40.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -97,12 +111,12 @@ fun CreateNoteModal() {
             ) {
                 Text(text = "내지 디자인", fontSize = 20.sp)
                 Image(
-                    painter = imageResource,
+                    painter = painterResource(id = finalTemplateImg),
                     contentDescription = null,
                     modifier = Modifier
                         .padding(10.dp)
-                        .height(if (selectedOrientation == "h") 160.dp else 120.dp)
-                        .width(if (selectedOrientation == "h") 120.dp else 160.dp)
+                        .height(if (direction.value == Direction.Portrait) 160.dp else 120.dp)
+                        .width(if (direction.value == Direction.Portrait) 120.dp else 160.dp)
                 )
             }
             Spacer(modifier = Modifier.width(20.dp))
@@ -113,31 +127,60 @@ fun CreateNoteModal() {
                     .fillMaxWidth(0.8f)
                     .height(240.dp)
             ) {
+                Row(modifier=Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "제목  :")
+                    TextField(
+                        value = noteTitle,
+                        onValueChange = { noteTitle = it },
+                        modifier = Modifier.padding(10.dp).fillMaxWidth()
+                    )
+                }
                 Text(text = "크기  :  A4", fontSize = 16.sp, modifier = Modifier.padding(10.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "색상  :", fontSize = 16.sp, modifier = Modifier.padding(10.dp))
-                    listOf("하얀색" to "w", "노란색" to "y").forEach { (label, color) ->
-                        Image(
-                            painter = if (selectedColor == color) selectedImg else notselectedImg,
-                            contentDescription = null,
-                            modifier = Modifier.clickable { selectedColor = color }
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = label, modifier = Modifier.clickable { selectedColor = color }.padding(10.dp, 0.dp))
-                    }
+                    Image(
+                        painter = if (backgroundColor.value == BackgroundColor.White) selectedImg else notselectedImg,
+                        contentDescription = null,
+                        modifier = Modifier.clickable { backgroundColor.value = BackgroundColor.White }
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "하얀색", modifier = Modifier
+                        .clickable { backgroundColor.value = BackgroundColor.White }
+                        .padding(10.dp, 0.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Image(
+                        painter = if (backgroundColor.value == BackgroundColor.Yellow) selectedImg else notselectedImg,
+                        contentDescription = null,
+                        modifier = Modifier.clickable { backgroundColor.value = BackgroundColor.Yellow }
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "노란색", modifier = Modifier
+                        .clickable { backgroundColor.value = BackgroundColor.Yellow }
+                        .padding(10.dp, 0.dp))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "방향  :", fontSize = 16.sp, modifier = Modifier.padding(10.dp))
-                    listOf("가로" to "w", "세로" to "h").forEach { (label, orientation) ->
-                        Image(
-                            painter = if (selectedOrientation == orientation) selectedImg else notselectedImg,
-                            contentDescription = null,
-                            modifier = Modifier.clickable { selectedOrientation = orientation }
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = label, modifier = Modifier.clickable { selectedOrientation = orientation }.padding(10.dp, 0.dp))
-                    }
+                    Image(
+                        painter = if (direction.value == Direction.Landscape) selectedImg else notselectedImg,
+                        contentDescription = null,
+                        modifier = Modifier.clickable { direction.value = Direction.Landscape }
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "가로", modifier = Modifier
+                        .clickable { direction.value = Direction.Landscape }
+                        .padding(10.dp, 0.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Image(
+                        painter = if (direction.value == Direction.Portrait) selectedImg else notselectedImg,
+                        contentDescription = null,
+                        modifier = Modifier.clickable { direction.value = Direction.Portrait }
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "세로", modifier = Modifier
+                        .clickable { direction.value = Direction.Portrait }
+                        .padding(10.dp, 0.dp))
                 }
+
             }
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -157,44 +200,44 @@ fun CreateNoteModal() {
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(
-                        painter = blankwhImg,
+                        painter = selectPlainImg,
                         contentDescription = null,
                         modifier = Modifier
                             .padding(10.dp)
                             .height(120.dp)
                             .width(80.dp)
-                            .clickable { selectedTemplate = "blank" }  // 템플릿 선택 업데이트
+                            .clickable { templateType.value = TemplateType.Plain }  // 템플릿 선택 업데이트
                     )
                     Spacer(modifier = Modifier.height(5.dp))
-                    Text(text = "무지 노트", modifier = Modifier.clickable { selectedTemplate = "blank" })
+                    Text(text = "무지 노트", modifier = Modifier.clickable { templateType.value = TemplateType.Plain })
                     Spacer(modifier = Modifier.height(10.dp))
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(
-                        painter = linewhImg,
+                        painter = selectLinedImg,
                         contentDescription = null,
                         modifier = Modifier
                             .padding(10.dp)
                             .height(120.dp)
                             .width(80.dp)
-                            .clickable { selectedTemplate = "line" }  // 템플릿 선택 업데이트
+                            .clickable { templateType.value = TemplateType.Lined }  // 템플릿 선택 업데이트
                     )
                     Spacer(modifier = Modifier.height(5.dp))
-                    Text(text = "줄 노트", modifier = Modifier.clickable { selectedTemplate = "line" })
+                    Text(text = "줄 노트", modifier = Modifier.clickable { templateType.value = TemplateType.Lined })
                     Spacer(modifier = Modifier.height(10.dp))
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(
-                        painter = checkedwhImg,
+                        painter = selectGridImg,
                         contentDescription = null,
                         modifier = Modifier
                             .padding(10.dp)
                             .height(120.dp)
                             .width(80.dp)
-                            .clickable { selectedTemplate = "checked" }  // 템플릿 선택 업데이트
+                            .clickable { templateType.value = TemplateType.Grid }  // 템플릿 선택 업데이트
                     )
                     Spacer(modifier = Modifier.height(5.dp))
-                    Text(text = "격자 노트", modifier = Modifier.clickable { selectedTemplate = "checked" })
+                    Text(text = "격자 노트", modifier = Modifier.clickable { templateType.value = TemplateType.Grid })
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
