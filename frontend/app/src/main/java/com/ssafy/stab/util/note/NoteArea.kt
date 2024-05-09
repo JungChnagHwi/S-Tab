@@ -34,7 +34,7 @@ fun NoteArea(
                         detectTapGestures(
                             onTap = { offset ->
                                 val coordinate = offsetToCoordinate(offset)
-                                noteController.insertNewPathInfo(index,coordinate, paths)
+                                noteController.insertNewPathInfo(index, coordinate, paths)
                                 noteController.updateLatestPath(coordinate, paths)
                             }
                         )
@@ -48,15 +48,22 @@ fun NoteArea(
                                 } else {
                                     // 올가미
                                 }
+                            },
+                            onDrag = { change, _ ->
+                                val newPoint = change.position
+                                if (noteController.penType != PenType.Lasso) {
+                                    noteController
+                                        .updateLatestPath(
+                                            offsetToCoordinate(newPoint), paths
+                                        )
+                                } else {
+                                    // 올가미
+                                }
+                            },
+                            onDragEnd = {
+                                noteController.getLastPath(paths)
                             }
-                        ) { change, _ ->
-                            val newPoint = change.position
-                            if (noteController.penType != PenType.Lasso) {
-                                noteController.updateLatestPath(offsetToCoordinate(newPoint), paths)
-                            } else {
-                                // 올가미
-                            }
-                        }
+                        )
                     }
 
                 Canvas(

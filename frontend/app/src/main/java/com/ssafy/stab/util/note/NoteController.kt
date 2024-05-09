@@ -78,6 +78,10 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
         paths[index].coordinates.add(newCoordinate)
     }
 
+    fun getLastPath(paths: MutableList<PathInfo>): PathInfo {
+        return paths.last()
+    }
+
     fun undo(pageList: MutableList<PageData>) {
         if (undoPageList.isNotEmpty() && pageList.isNotEmpty()) {
             val page = undoPageList.last()
