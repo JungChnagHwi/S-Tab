@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface PageRepository extends Neo4jRepository<Page, String> {
 
-    @Query("MATCH (p) WHERE p.isDeleted = true RETURN p")
+    @Query("MATCH (p:Page) WHERE p.isDeleted = true RETURN p")
     List<Page> findDeletedPages();
 
     @Query("MATCH (p:Page) WHERE p.id = $pageId RETURN p")
