@@ -52,7 +52,7 @@ public class PageService {
             newPage.setColor(beforePage.getColor());
             newPage.setDirection(beforePage.getDirection());
             // 만약 이전 페이지가 pdf페이지가 아니라면
-            if (beforePage.getPdfUrl()!=null) {
+            if (beforePage.getPdfUrl()==null) {
                 newPage.setTemplate(beforePage.getTemplate());
             } else { // pdf인 경우 기본 템플릿
                 // 현재는 내 마음대로 넣어둠
@@ -129,9 +129,8 @@ public class PageService {
 
     public PageUpdateDto updatePage(PageUpdateDto request) throws PageNotFoundException {
         String pageId = request.getPageId();
-        Optional<Page> optionalPage = pageRepository.findById(pageId);
-        if (optionalPage.isPresent()) {
-            Page page = optionalPage.get();
+        Page page = pageRepository.findPageById(pageId);
+        if (page != null) {
             Boolean deleteStatus = page.getIsDeleted();
             if (deleteStatus == false) {
                 // 필기데이터가 있는지 확인 후
