@@ -21,7 +21,7 @@ import com.ssafy.stab.data.note.PenType
 
 @Composable
 fun NoteArea(
-    index: Int,
+    currentPage: Int,
     paths: SnapshotStateList<PathInfo>,
     noteController: NoteController,
 ) = AndroidView(
@@ -34,7 +34,7 @@ fun NoteArea(
                         detectTapGestures(
                             onTap = { offset ->
                                 val coordinate = offsetToCoordinate(offset)
-                                noteController.insertNewPathInfo(index, coordinate, paths)
+                                noteController.insertNewPathInfo(currentPage, coordinate, paths)
                                 noteController.updateLatestPath(coordinate, paths)
                             }
                         )
@@ -44,7 +44,7 @@ fun NoteArea(
                             onDragStart = { offset ->
                                 val coordinate = offsetToCoordinate(offset)
                                 if (noteController.penType != PenType.Lasso) {
-                                    noteController.insertNewPathInfo(index, coordinate, paths)
+                                    noteController.insertNewPathInfo(currentPage, coordinate, paths)
                                 } else {
                                     // 올가미
                                 }

@@ -1,5 +1,6 @@
 package com.ssafy.stab.components.note
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -31,15 +33,23 @@ import com.ssafy.stab.util.note.getTemplate
 fun PageList(
     pageList: PageListResponse,
     noteController: NoteController,
+    onPageChange: (Int) -> Unit,
     trackHistory: (undoCount: Int, redoCount: Int) -> Unit = { _, _ -> }
 ) {
+    val pageCount = pageList.data.size
+    val state = rememberPagerState { pageCount }
+    val pageIndex = state.currentPage + 1
+
     LaunchedEffect(noteController) {
         noteController.trackHistory(this, trackHistory)
     }
 
-    val pageCount = pageList.data.size
-    val state = rememberPagerState { pageCount }
-    val pageIndex = state.currentPage + 1
+    LaunchedEffect(state) {
+        snapshotFlow { state.settledPage }.collect {
+            page -> onPageChange(page)
+        }
+        Log.d("d", "${state.settledPage}")
+    }
 
     HorizontalPager(
         state = state
@@ -49,7 +59,9 @@ fun PageList(
             Page(page, pageList.data[page].page, noteController)
             Text(
                 text = "$pageIndex / $pageCount",
-                Modifier.padding(8.dp).align(Alignment.BottomEnd)
+                Modifier
+                    .padding(8.dp)
+                    .align(Alignment.BottomEnd)
             )
         }
     }
@@ -58,7 +70,7 @@ fun PageList(
 
 @Composable
 fun Page(
-    index: Int,
+    currentPage: Int,
     page: PageDetail,
     noteController: NoteController
 ) {
@@ -93,11 +105,13 @@ fun Page(
 
             Template(resId = templateResId, modifier = Modifier.matchParentSize())
 
-            NoteArea(
-                index,
-                page.paths,
-                noteController
-            )
+            page.paths?.let {
+                NoteArea(
+                    currentPage,
+                    it,
+                    noteController
+                )
+            }
         }
     }
 }

@@ -9,16 +9,19 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-fun createNote(parentFolderId: String, title: String, color: BackgroundColor, template: TemplateType, direction: Int) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
+
+private val apiService: ApiService = RetrofitClient.instance.create(ApiService::class.java)
+private val accessToken = PreferencesUtil.getLoginDetails().accessToken
+private val authorizationHeader = "Bearer $accessToken"
+
+fun createNote(parentFolderId: String, title: String, color: BackgroundColor, template: TemplateType, direction: Int, onResult: (CreateNoteResponse) -> Unit) {
     val createNoteRequest = CreateNoteRequest(parentFolderId, title, color, template, direction)
     val call = apiService.createNote(authorizationHeader, createNoteRequest)
 
     call.enqueue(object: Callback<CreateNoteResponse> {
         override fun onResponse(call: Call<CreateNoteResponse>, response: Response<CreateNoteResponse>) {
             Log.d("APIResponse", response.body().toString())
+            response.body()?.let { onResult(it) }
         }
 
         override fun onFailure(call: Call<CreateNoteResponse>, t: Throwable) {
@@ -28,9 +31,6 @@ fun createNote(parentFolderId: String, title: String, color: BackgroundColor, te
 }
 
 fun createPdfNote(parentFolderId: String, pdfUrl: String, pdfPageCount: Int, title: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val createPdfNoteRequest = CreatePdfNoteRequest(parentFolderId, pdfUrl, pdfPageCount, title)
     val call = apiService.createPdfNote(authorizationHeader,createPdfNoteRequest)
 
@@ -46,9 +46,6 @@ fun createPdfNote(parentFolderId: String, pdfUrl: String, pdfPageCount: Int, tit
 }
 
 fun copyNote(noteId: String, parentFolderId: String, title: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val copyNoteRequest = CopyNoteRequest(noteId, parentFolderId, title)
     val call = apiService.copyNote(authorizationHeader, copyNoteRequest)
 
@@ -64,9 +61,6 @@ fun copyNote(noteId: String, parentFolderId: String, title: String) {
 }
 
 fun renameNote(noteId: String, title: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val renameNoteRequest = RenameNoteRequest(noteId, title)
     val call = apiService.renameNote(authorizationHeader, renameNoteRequest)
 
@@ -82,9 +76,6 @@ fun renameNote(noteId: String, title: String) {
 }
 
 fun relocateNote(noteId: String, parentFolderId: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val relocateRequest = RelocateRequest(noteId, parentFolderId)
     val call = apiService.relocateNote(authorizationHeader, relocateRequest)
 
@@ -100,9 +91,6 @@ fun relocateNote(noteId: String, parentFolderId: String) {
 }
 
 fun deleteNote(noteId: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val call = apiService.deleteNote(authorizationHeader, noteId)
 
     call.enqueue(object: Callback<Void> {
