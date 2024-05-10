@@ -9,6 +9,7 @@ import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.repository.*;
 import com.sixb.note.util.IdCreator;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,17 +20,15 @@ import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor
 public class NoteService {
-    @Autowired
-    private NoteRepository noteRepository;
-    @Autowired
-    private FolderRepository folderRepository;
-    @Autowired
-    private PageRepository pageRepository;
-    @Autowired
-    private SpaceRepository spaceRepository;
-    @Autowired
-    private PageDataRepository pageDataRepository;
+
+    private final NoteRepository noteRepository;
+    private final FolderRepository folderRepository;
+    private final PageRepository pageRepository;
+    private final SpaceRepository spaceRepository;
+    private final PageDataRepository pageDataRepository;
+
 
     public CreateNoteResponseDto createNote(CreateNoteRequestDto request) {
         // 새로운 노트 생성

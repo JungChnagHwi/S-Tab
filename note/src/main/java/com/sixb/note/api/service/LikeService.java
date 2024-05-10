@@ -10,6 +10,7 @@ import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
 import com.sixb.note.repository.PageRepository;
 import com.sixb.note.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,15 +18,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class LikeService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private FolderRepository folderRepository;
-    @Autowired
-    private NoteRepository noteRepository;
-    @Autowired
-    private PageRepository pageRepository;
+
+    private final UserRepository userRepository;
+    private final FolderRepository folderRepository;
+    private final NoteRepository noteRepository;
+    private final PageRepository pageRepository;
 
     //즐겨찾기 추가
     //public boolean addLike(UUID userId, LikeRequestDto likeRequestDto)

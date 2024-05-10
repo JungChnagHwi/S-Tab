@@ -27,9 +27,7 @@ import java.util.Optional;
 public class PageService {
 
     private final PageRepository pageRepository;
-
     private final PageDataRepository pageDataRepository;
-
     private final NoteRepository noteRepository;
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
