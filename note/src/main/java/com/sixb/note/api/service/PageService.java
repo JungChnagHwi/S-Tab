@@ -15,7 +15,6 @@ import com.sixb.note.repository.PageDataRepository;
 import com.sixb.note.repository.PageRepository;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

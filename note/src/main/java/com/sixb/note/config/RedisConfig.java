@@ -11,6 +11,7 @@ import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -32,6 +33,7 @@ import static com.sixb.note.util.Const.PAGE;
 import static com.sixb.note.util.Const.PAGE_CACHE_EXPIRE_TIME;
 
 @Configuration
+@EnableCaching
 @EnableRedisRepositories
 @RequiredArgsConstructor
 public class RedisConfig {
@@ -66,7 +68,7 @@ public class RedisConfig {
 	}
 
 	@Bean
-	public CacheManager chacheManager(RedisConnectionFactory redisConnectionFactory) {
+	public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
 		ObjectMapper mapper = new ObjectMapper();
 
 		mapper.activateDefaultTyping(
