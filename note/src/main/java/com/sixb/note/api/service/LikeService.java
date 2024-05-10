@@ -29,11 +29,8 @@ public class LikeService {
 
     //즐겨찾기 추가
     //public boolean addLike(UUID userId, LikeRequestDto likeRequestDto)
-    public boolean addLike(LikeRequestDto likeRequestDto) {
-        //유저 id 하드코딩
-        String testUserId = "34840adb-99bc-4d78-a90a-c6d491b0bd62";
-        User user = userRepository.findUserById(testUserId);
-//        User user = userRepository.findUserById(userId);
+    public boolean addLike(long userId, LikeRequestDto likeRequestDto) {
+        User user = userRepository.findUserById(userId);
         if (user == null) return false;
 
         String itemId = likeRequestDto.getId();
@@ -62,34 +59,27 @@ public class LikeService {
     }
 
     //즐겨찾기 조회
-    //public LikeResponseDto getFavorites(UUID userId)
-    public LikeResponseDto getLikes() {
-//        List<Folder> likedFolders = folderRepository.findAllLikedFoldersByUserId(userId);
-//        List<Note> likedNotes = noteRepository.findAllLikedNotesByUserId(userId);
-//        List<Page> likedPages = pageRepository.findAllLikedPagesByUserId(userId);
-        String testUserId = "34840adb-99bc-4d78-a90a-c6d491b0bd62";
-        List<Folder> likedFolders = folderRepository.findAllLikedFoldersByUserId(testUserId);
-        List<Note> likedNotes = noteRepository.findAllLikedNotesByUserId(testUserId);
-        List<Page> likedPages = pageRepository.findAllLikedPagesByUserId(testUserId);
+    public LikeResponseDto getLikes(long userId) {
+        List<Folder> likedFolders = folderRepository.findAllLikedFoldersByUserId(userId);
+        List<Note> likedNotes = noteRepository.findAllLikedNotesByUserId(userId);
+        List<Page> likedPages = pageRepository.findAllLikedPagesByUserId(userId);
 
 //        User user = userRepository.findUserById(testUserId);
         return new LikeResponseDto(likedFolders, likedNotes, likedPages);
     }
 
     //즐겨찾기 삭제
-    //public boolean removeLike(UUID userId, UUID itemId)
-    public boolean removeLike(String itemId) {
-        String testUserId = "34840adb-99bc-4d78-a90a-c6d491b0bd62";
-        User user = userRepository.findUserById(testUserId);
+    public boolean removeLike(long userId, String itemId) {
+        User user = userRepository.findUserById(userId);
 
             if (folderRepository.findFolderById(itemId) != null) {
-                folderRepository.deleteLikeFolder(testUserId, itemId);
+                folderRepository.deleteLikeFolder(userId, itemId);
                 return true;
             } else if (noteRepository.findNoteById(itemId) != null) {
-                noteRepository.deleteLikeNote(testUserId, itemId);
+                noteRepository.deleteLikeNote(userId, itemId);
                 return true;
             } else if (pageRepository.findPageById(itemId) != null) {
-                pageRepository.deleteLikePage(testUserId, itemId);
+                pageRepository.deleteLikePage(userId, itemId);
                 return true;
             }
 

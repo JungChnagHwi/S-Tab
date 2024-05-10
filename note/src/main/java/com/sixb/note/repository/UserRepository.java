@@ -11,12 +11,12 @@ import com.sixb.note.entity.User;
 import java.util.*;
 
 @Repository
-public interface UserRepository extends Neo4jRepository<User, String>, UserRepositoryCustom {
+public interface UserRepository extends Neo4jRepository<User, Long>, UserRepositoryCustom {
 
     @Query("MATCH (u:User)-[:Join]->(s:Space {id: $spaceId}) RETURN u")
     List<User> findUsersBySpaceId(String spaceId);
 
     @Query("MATCH (u:User) WHERE u.id = $userId RETURN u")
-    User findUserById(@Param("userId") String userId);
+    User findUserById(@Param("userId") long userId);
 
 }

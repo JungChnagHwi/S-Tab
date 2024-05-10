@@ -24,10 +24,10 @@ public interface FolderRepository extends Neo4jRepository<Folder, String> {
     Folder findFolderById(@Param("folderId") String folderId);
 
     @Query("MATCH (u:User {id: $userId})-[:Like]->(f:Folder) RETURN f")
-    List<Folder> findAllLikedFoldersByUserId(@Param("userId") String userId);
+    List<Folder> findAllLikedFoldersByUserId(@Param("userId") long userId);
 
     @Query("MATCH (u:User {id: $userId})-[r:Like]->(f:Folder {id: $itemId}) DELETE r")
-    void deleteLikeFolder(@Param("userId") String userId, @Param("itemId") String itemId);
+    void deleteLikeFolder(@Param("userId") long userId, @Param("itemId") String itemId);
 
     @Query("MATCH (f:Folder {id: $folderId}) SET f.title = $newTitle RETURN f")
     void updateFolderTitle(String folderId, String newTitle);

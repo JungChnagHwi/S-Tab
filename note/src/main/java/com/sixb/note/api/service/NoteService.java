@@ -59,8 +59,7 @@ public class NoteService {
         note.setUpdatedAt(now);
 
         // 노트와 페이지 연결
-        note.setPages(new ArrayList<>());
-        note.getPages().add(page);
+        note.setPages(page);
 
         String parentFolderId = request.getParentFolderId();
 

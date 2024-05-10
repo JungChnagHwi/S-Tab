@@ -1,4 +1,4 @@
-package com.ssafy.stab.apis.space.trash
+package com.ssafy.stab.apis.space.share
 
 import android.util.Log
 import com.ssafy.stab.apis.RetrofitClient
@@ -11,14 +11,33 @@ private val apiService: ApiService = RetrofitClient.instance.create(ApiService::
 private val accessToken = PreferencesUtil.getLoginDetails().accessToken
 private val authorizationHeader = "Bearer $accessToken"
 
-fun getTrashList() {
-    val call = apiService.getTrashList(authorizationHeader)
+fun getShareSpaceList() {
+    val call = apiService.getShareSpaceList(authorizationHeader)
 
-    call.enqueue(object: Callback<GetTrashListResponse>{
+    call.enqueue(object: Callback<List<ShareSpaceList>> {
         override fun onResponse(
-            call: Call<GetTrashListResponse>,
-            response: Response<GetTrashListResponse>
+            call: Call<List<ShareSpaceList>>,
+            response: Response<List<ShareSpaceList>>
         ) {
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.toString())
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
+        }
+
+        override fun onFailure(call: Call<List<ShareSpaceList>>, t: Throwable) {
+            Log.d("APIResponse", "요청 실패")
+        }
+    })
+}
+
+fun createShareSpace(title: String) {
+    val createShareSpaceRequest = CreateShareSpaceRequest(title)
+    val call = apiService.createShareSpace(authorizationHeader, createShareSpaceRequest)
+
+    call.enqueue(object: Callback<ShareSpaceList> {
+        override fun onResponse(call: Call<ShareSpaceList>, response: Response<ShareSpaceList>) {
             if (response.isSuccessful) {
                 Log.d("APIResponse", response.body().toString())
             } else {
@@ -26,29 +45,7 @@ fun getTrashList() {
             }
         }
 
-        override fun onFailure(call: Call<GetTrashListResponse>, t: Throwable) {
-            Log.d("APIResponse", "요청 실패")
-        }
-    })
-}
-
-fun restoreTrash(id: String) {
-    val restoreTrashRequest = RestoreTrashRequest(id)
-    val call = apiService.restoreTrash(authorizationHeader, restoreTrashRequest)
-
-    call.enqueue(object: Callback<Void>{
-        override fun onResponse(
-            call: Call<Void>,
-            response: Response<Void>
-        ) {
-            if (response.isSuccessful) {
-                Log.d("APIResponse", "요청 성공")
-            } else {
-                println("Response not successful: ${response.errorBody()?.string()}")
-            }
-        }
-
-        override fun onFailure(call: Call<Void>, t: Throwable) {
+        override fun onFailure(call: Call<ShareSpaceList>, t: Throwable) {
             Log.d("APIResponse", "요청 실패")
         }
     })

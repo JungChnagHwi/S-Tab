@@ -36,24 +36,22 @@ fun getFileList(folderId: String, onFolderResult: (List<Folder>?) -> Unit, onNot
     })
 }
 
-fun createFolder(parentFolderId: String, title: String) {
+fun createFolder(parentFolderId: String, title: String, onResult: (Folder) -> Unit) {
     val createFolderRequest = CreateFolderRequest(parentFolderId, title)
     val call = apiService.createFolder(authorizationHeader, createFolderRequest)
 
     call.enqueue(object: Callback<Folder> {
         override fun onResponse(call: Call<Folder>, response: Response<Folder>) {
-            Log.d("a", response.toString())
-            if (response.isSuccessful && response.body() != null) {
+            if (response.isSuccessful){
                 Log.i("APIResponse", "Successful response: ${response.body()}")
-                NoteListViewModel().addFolder(response.body()!!)
-
+                response.body()?.let { onResult(it) }
             } else {
-                Log.e("APIResponse", "API Call failed!")
+                println("Response not successful: ${response.errorBody()?.string()}")
             }
         }
 
         override fun onFailure(call: Call<Folder>, t: Throwable) {
-            t.printStackTrace()
+            Log.d("APIResponse", "요청 실패")
         }
     })
 }
@@ -64,7 +62,11 @@ fun renameFolder(folderId: String, title: String) {
 
     call.enqueue(object : Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
-            Log.d("APIResponse", response.toString())
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.toString())
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<Void>, p1: Throwable) {
@@ -79,7 +81,11 @@ fun relocateFolder(folderId: String, parentFolderId: String){
 
     call.enqueue(object : Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
-            Log.d("APIResponse", response.toString())
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.toString())
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -93,7 +99,11 @@ fun deleteFolder(folderId: String) {
 
     call.enqueue(object: Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
-            Log.d("APIResponse", response.toString())
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.toString())
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -101,3 +111,4 @@ fun deleteFolder(folderId: String) {
         }
     })
 }
+// git amend 연습

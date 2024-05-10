@@ -13,7 +13,6 @@ public class SpaceResponseDto {
     private String spaceId;
     private String title;
     private Boolean isPublic;
-    private String rootFolderId;
     private List<UserResponse> users;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
