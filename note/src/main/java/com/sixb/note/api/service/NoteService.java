@@ -13,6 +13,7 @@ import com.sixb.note.repository.PageRepository;
 import com.sixb.note.repository.SpaceRepository;
 import com.sixb.note.util.IdCreator;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sixb.note.entity.Note;
@@ -25,15 +26,13 @@ import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor
 public class NoteService {
-    @Autowired
-    private NoteRepository noteRepository;
-    @Autowired
-    private FolderRepository folderRepository;
-    @Autowired
-    private PageRepository pageRepository;
-    @Autowired
-    private SpaceRepository spaceRepository;
+
+    private final NoteRepository noteRepository;
+    private final FolderRepository folderRepository;
+    private final PageRepository pageRepository;
+    private final SpaceRepository spaceRepository;
 
     public CreateNoteResponseDto createNote(CreateNoteRequestDto request) {
         // 새로운 노트 생성

@@ -7,6 +7,7 @@ import com.sixb.note.entity.Page;
 import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
 import com.sixb.note.repository.PageRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +16,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class TrashService {
-    @Autowired
-    private FolderRepository folderRepository;
-    @Autowired
-    private NoteRepository noteRepository;
-    @Autowired
-    private PageRepository pageRepository;
+    private final FolderRepository folderRepository;
+    private final NoteRepository noteRepository;
+    private final PageRepository pageRepository;
 
     //휴지통 조회
     public List<Object> findDeletedItems() {

@@ -23,14 +23,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PageService {
 
-    @Autowired
-    private PageRepository pageRepository;
-
-    @Autowired
-    private PageDataRepository pageDataRepository;
-
-    @Autowired
-    private NoteRepository noteRepository;
+    private final PageRepository pageRepository;
+    private final PageDataRepository pageDataRepository;
+    private final NoteRepository noteRepository;
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
         String beforeNoteId = request.getBeforePageId();
