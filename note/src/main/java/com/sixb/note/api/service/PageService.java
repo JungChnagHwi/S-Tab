@@ -27,20 +27,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PageService {
 
-    @Autowired
-    private PageRepository pageRepository;
+    private final PageRepository pageRepository;
 
-    @Autowired
-    private PageDataRepository pageDataRepository;
+    private final PageDataRepository pageDataRepository;
 
-    @Autowired
-    private NoteRepository noteRepository;
+    private final NoteRepository noteRepository;
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
-        String beforeNoteId = request.getBeforePageId();
+        String beforePageId = request.getBeforePageId();
 
         // id로 이전 페이지 정보를 찾아
-        Optional<Page> beforePageOptional = Optional.ofNullable(pageRepository.findPageById(beforeNoteId));
+        Optional<Page> beforePageOptional = Optional.ofNullable(pageRepository.findPageById(beforePageId));
 
         // 이전 페이지 정보가 있다면
         if (beforePageOptional.isPresent()) {
@@ -62,10 +59,18 @@ public class PageService {
                 // 현재는 내 마음대로 넣어둠
                 newPage.setTemplate("basic");
             }
-            // 앞 페이지 링크하기
-            if (beforePage.getNextPage() != null) {
-                newPage.setNextPage(beforePage.getNextPage());
+
+            // 앞페이지에 이어진 페이지 찾기
+            Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
+            // 페이지가 있다면
+            if (connectPage!=null) {
+                // 그 페이지와 새로운 페이지 연결
+                newPage.setNextPage(connectPage);
+                // 앞페이지와 연결 삭제
+                pageRepository.deleteNextPageRelation(beforePageId);
             }
+
+            // 페이지 링크하기
             beforePage.setNextPage(newPage);
 
             // responsedto에 넣기
