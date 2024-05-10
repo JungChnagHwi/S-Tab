@@ -53,7 +53,7 @@ fun SpaceRouters(homeNavController: NavController) {
         Column(modifier = Modifier.weight(0.75f).background(color = Color(0xFFE9ECF5))) {
             Header(homeNavController = homeNavController)
             NavHost(navController = navController, startDestination = "personal-space") {
-                composable("personal-space") { PersonalSpace() }
+                composable("personal-space") { PersonalSpace(navController) }
                 composable("share-space") { ShareSpace() }
                 composable("book-mark") { BookMark() }
                 composable("deleted") { Deleted() }
