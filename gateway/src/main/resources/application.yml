@@ -42,12 +42,6 @@ spring:
             - Path=/api/ocr/**
           filters:
             - name: TokenValidationCheckFilter
-        - id: socket
-          uri: lb:wss://SOCKET
-          predicates:
-            - Path=/socket.io/**
-          filters:
-            - RewritePath=/socket.io/(?<remaining>.*),/socket.io/$\{remaining}
 
 eureka:
   instance:
