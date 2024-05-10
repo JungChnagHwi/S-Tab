@@ -48,13 +48,13 @@ fun ControlsBar(
             if (undoAvailable.value && pageList.isNotEmpty()) R.drawable.undo_abled else R.drawable.undo_disabled,
             "undo",
             ) {
-                if (undoAvailable.value && pageList.isNotEmpty()) noteController.undo(pageList)
+                if (undoAvailable.value && pageList.isNotEmpty()) noteController.undo()
             }
         EditIcons(
             if (redoAvailable.value) R.drawable.redo_abled else R.drawable.redo_disabled,
             "redo"
             ) {
-                if (redoAvailable.value) noteController.redo(pageList)
+                if (redoAvailable.value) noteController.redo()
             }
         EditIcons(
             if (noteController.penType == PenType.Pen) R.drawable.pen_abled else R.drawable.pen_disabled,

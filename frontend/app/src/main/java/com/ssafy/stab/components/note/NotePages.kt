@@ -105,13 +105,11 @@ fun Page(
 
             Template(resId = templateResId, modifier = Modifier.matchParentSize())
 
-            page.paths?.let {
-                NoteArea(
-                    currentPage,
-                    it,
-                    noteController
-                )
-            }
+            NoteArea(
+                currentPage,
+                page.paths,
+                noteController
+            )
         }
     }
 }
