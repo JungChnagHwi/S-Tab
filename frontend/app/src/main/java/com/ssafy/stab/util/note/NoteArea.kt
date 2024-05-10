@@ -21,7 +21,7 @@ import com.ssafy.stab.data.note.PenType
 
 @Composable
 fun NoteArea(
-    currentPage: Int,
+    currentPageId: String,
     paths: SnapshotStateList<PathInfo>?,
     noteController: NoteController,
 ) = AndroidView(
@@ -34,7 +34,7 @@ fun NoteArea(
                         detectTapGestures(
                             onTap = { offset ->
                                 val coordinate = offsetToCoordinate(offset)
-                                noteController.insertNewPathInfo(currentPage, coordinate)
+                                noteController.insertNewPathInfo(currentPageId, coordinate)
                                 noteController.updateLatestPath(coordinate)
                                 noteController.addNewPath()
                             }
@@ -45,7 +45,7 @@ fun NoteArea(
                             onDragStart = { offset ->
                                 val coordinate = offsetToCoordinate(offset)
                                 if (noteController.penType != PenType.Lasso) {
-                                    noteController.insertNewPathInfo(currentPage, coordinate)
+                                    noteController.insertNewPathInfo(currentPageId, coordinate)
                                 } else {
                                     // 올가미
                                 }
@@ -114,8 +114,8 @@ fun NoteArea(
                                 }
                             }
                         }
-                        if (noteController.getCurrentPathList(currentPage).isNotEmpty()) {
-                            noteController.getCurrentPathList(currentPage)
+                        if (noteController.getCurrentPathList(currentPageId).isNotEmpty()) {
+                            noteController.getCurrentPathList(currentPageId)
                                 .forEach { userPagePathInfo ->
                                 val pathInfo = userPagePathInfo.pathInfo
                                 when (pathInfo.penType) {
@@ -160,7 +160,7 @@ fun NoteArea(
                         }
                         if (noteController.newPathList.isNotEmpty()) {
                             noteController.newPathList.forEach { userPagePathInfo ->
-                                if (userPagePathInfo.page == currentPage) {
+                                if (userPagePathInfo.pageId == currentPageId) {
                                     val pathInfo = userPagePathInfo.pathInfo
                                     when (pathInfo.penType) {
                                         PenType.Pen -> {

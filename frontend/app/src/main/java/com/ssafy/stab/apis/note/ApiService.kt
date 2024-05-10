@@ -1,6 +1,8 @@
 package com.ssafy.stab.apis.note
 
 import com.ssafy.stab.data.note.request.NoteRequest
+import com.ssafy.stab.data.note.request.PageId
+import com.ssafy.stab.data.note.response.NewPage
 import com.ssafy.stab.data.note.response.NoteResponse
 import com.ssafy.stab.data.note.response.PageListResponse
 import retrofit2.Call
@@ -18,9 +20,9 @@ interface ApiService {
         @Path("noteId") noteId: String
     ): Call<PageListResponse>
 
-    @POST("/api/note")
-    fun createNote(
+    @POST("/api/page")
+    fun createPage(
         @Header("Authorization") authorization: String,
-        @Body noteRequest: NoteRequest
-    ): Call<NoteResponse>
+        @Body beforePageId: PageId
+    ): Call<NewPage>
 }
