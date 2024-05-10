@@ -66,6 +66,8 @@ public class PageController {
             return ResponseEntity.ok(response);
         } catch (NoteNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (PageNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
