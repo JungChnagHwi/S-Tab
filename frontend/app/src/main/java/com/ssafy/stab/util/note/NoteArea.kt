@@ -114,48 +114,9 @@ fun NoteArea(
                                 }
                             }
                         }
-                        val currentPathList = noteController.pathList.filter { it.page == currentPage }
-                        currentPathList.forEach { userPagePathInfo ->
-                            val pathInfo = userPagePathInfo.pathInfo
-                            when (pathInfo.penType) {
-                                PenType.Pen -> {
-                                    drawPath(
-                                        path = createPath(pathInfo.coordinates),
-                                        color = Color(color = ("FF" + pathInfo.color).toLong(16)),
-                                        style = Stroke(
-                                            width = pathInfo.strokeWidth,
-                                            cap = StrokeCap.Round,
-                                            join = StrokeJoin.Round
-                                        )
-                                    )
-                                }
-                                PenType.Highlighter -> {
-                                    drawPath(
-                                        path = createPath(pathInfo.coordinates),
-                                        color = Color(color = ("40" + pathInfo.color).toLong(16)),
-                                        style = Stroke(
-                                            width = pathInfo.strokeWidth,
-                                            cap = StrokeCap.Square,
-                                            join = StrokeJoin.Round
-                                        )
-                                    )
-                                }
-                                else -> {
-                                    drawPath(
-                                        path = createPath(pathInfo.coordinates),
-                                        color = Color(color = ("00" + pathInfo.color).toLong(16)),
-                                        style = Stroke(
-                                            width = pathInfo.strokeWidth,
-                                            cap = StrokeCap.Round,
-                                            join = StrokeJoin.Round
-                                        ),
-                                        blendMode = BlendMode.Clear
-                                    )
-                                }
-                            }
-                        }
-                        noteController.newPathList.forEach { userPagePathInfo ->
-                            if (userPagePathInfo.page == currentPage) {
+                        if (noteController.getCurrentPathList(currentPage).isNotEmpty()) {
+                            noteController.getCurrentPathList(currentPage)
+                                .forEach { userPagePathInfo ->
                                 val pathInfo = userPagePathInfo.pathInfo
                                 when (pathInfo.penType) {
                                     PenType.Pen -> {
@@ -169,6 +130,7 @@ fun NoteArea(
                                             )
                                         )
                                     }
+
                                     PenType.Highlighter -> {
                                         drawPath(
                                             path = createPath(pathInfo.coordinates),
@@ -180,6 +142,7 @@ fun NoteArea(
                                             )
                                         )
                                     }
+
                                     else -> {
                                         drawPath(
                                             path = createPath(pathInfo.coordinates),
@@ -191,6 +154,49 @@ fun NoteArea(
                                             ),
                                             blendMode = BlendMode.Clear
                                         )
+                                    }
+                                }
+                            }
+                        }
+                        if (noteController.newPathList.isNotEmpty()) {
+                            noteController.newPathList.forEach { userPagePathInfo ->
+                                if (userPagePathInfo.page == currentPage) {
+                                    val pathInfo = userPagePathInfo.pathInfo
+                                    when (pathInfo.penType) {
+                                        PenType.Pen -> {
+                                            drawPath(
+                                                path = createPath(pathInfo.coordinates),
+                                                color = Color(color = ("FF" + pathInfo.color).toLong(16)),
+                                                style = Stroke(
+                                                    width = pathInfo.strokeWidth,
+                                                    cap = StrokeCap.Round,
+                                                    join = StrokeJoin.Round
+                                                )
+                                            )
+                                        }
+                                        PenType.Highlighter -> {
+                                            drawPath(
+                                                path = createPath(pathInfo.coordinates),
+                                                color = Color(color = ("40" + pathInfo.color).toLong(16)),
+                                                style = Stroke(
+                                                    width = pathInfo.strokeWidth,
+                                                    cap = StrokeCap.Square,
+                                                    join = StrokeJoin.Round
+                                                )
+                                            )
+                                        }
+                                        else -> {
+                                            drawPath(
+                                                path = createPath(pathInfo.coordinates),
+                                                color = Color(color = ("00" + pathInfo.color).toLong(16)),
+                                                style = Stroke(
+                                                    width = pathInfo.strokeWidth,
+                                                    cap = StrokeCap.Round,
+                                                    join = StrokeJoin.Round
+                                                ),
+                                                blendMode = BlendMode.Clear
+                                            )
+                                        }
                                     }
                                 }
                             }

@@ -1,8 +1,8 @@
 package com.sixb.note.dto.pageData;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.Data;
 
-@Document(collection = "Coordinate")
+@Data
 public class CoordinateDto {
     private Float x;
     private Float y;

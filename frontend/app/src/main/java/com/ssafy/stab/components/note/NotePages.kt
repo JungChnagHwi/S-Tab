@@ -21,8 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.data.note.Direction
-import com.ssafy.stab.data.note.response.PageDetail
-import com.ssafy.stab.data.note.response.PageListResponse
+import com.ssafy.stab.data.note.response.PageData
 import com.ssafy.stab.ui.theme.NoteAreaBackground
 import com.ssafy.stab.util.note.NoteArea
 import com.ssafy.stab.util.note.NoteController
@@ -31,12 +30,12 @@ import com.ssafy.stab.util.note.getTemplate
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PageList(
-    pageList: PageListResponse,
+    pageList: MutableList<PageData>,
     noteController: NoteController,
     onPageChange: (Int) -> Unit,
     trackHistory: (undoCount: Int, redoCount: Int) -> Unit = { _, _ -> }
 ) {
-    val pageCount = pageList.data.size
+    val pageCount = pageList.size
     val state = rememberPagerState { pageCount }
     val pageIndex = state.currentPage + 1
 
@@ -51,18 +50,20 @@ fun PageList(
         Log.d("d", "${state.settledPage}")
     }
 
-    HorizontalPager(
-        state = state
-    ) {
-        page ->
-        Box {
-            Page(page, pageList.data[page].page, noteController)
-            Text(
-                text = "$pageIndex / $pageCount",
-                Modifier
-                    .padding(8.dp)
-                    .align(Alignment.BottomEnd)
-            )
+    if (pageCount > 0) {
+        HorizontalPager(
+            state = state
+        ) {
+            page ->
+            Box {
+                Page(page, pageList[page], noteController)
+                Text(
+                    text = "$pageIndex / $pageCount",
+                    Modifier
+                        .padding(8.dp)
+                        .align(Alignment.BottomEnd)
+                )
+            }
         }
     }
 
@@ -71,7 +72,7 @@ fun PageList(
 @Composable
 fun Page(
     currentPage: Int,
-    page: PageDetail,
+    page: PageData,
     noteController: NoteController
 ) {
     BoxWithConstraints(

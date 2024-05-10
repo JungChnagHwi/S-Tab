@@ -16,7 +16,6 @@ import com.ssafy.stab.data.note.PenType
 import com.ssafy.stab.data.note.TemplateType
 import com.ssafy.stab.data.note.UserPagePathInfo
 import com.ssafy.stab.data.note.response.PageData
-import com.ssafy.stab.data.note.response.PageDetail
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -140,8 +139,12 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
         _historyTracker.tryEmit("reset")
     }
 
+    fun getCurrentPathList(currentPage: Int): List<UserPagePathInfo> {
+        return pathList.filter { it.page == currentPage }
+    }
+
     fun createPage(currentPage: Int, pageList: MutableList<PageData>) {
-        val pageDetail = PageDetail(
+        val pageData = PageData(
             pageId = "p-어쩌고",
             color = BackgroundColor.White,
             template = TemplateType.Grid,
@@ -155,8 +158,6 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
             textBoxes = null,
             images = null
         )
-
-        val pageData = PageData(page = pageDetail)
 
         if (currentPage + 1 >= pageList.size) {
             pageList.add(pageData)
