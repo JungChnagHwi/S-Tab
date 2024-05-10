@@ -22,7 +22,7 @@ import com.ssafy.stab.data.note.PenType
 @Composable
 fun NoteArea(
     currentPage: Int,
-    paths: SnapshotStateList<PathInfo>,
+    paths: SnapshotStateList<PathInfo>?,
     noteController: NoteController,
 ) = AndroidView(
     modifier = Modifier.fillMaxSize(),
@@ -34,8 +34,9 @@ fun NoteArea(
                         detectTapGestures(
                             onTap = { offset ->
                                 val coordinate = offsetToCoordinate(offset)
-                                noteController.insertNewPathInfo(currentPage, coordinate, paths)
-                                noteController.updateLatestPath(coordinate, paths)
+                                noteController.insertNewPathInfo(currentPage, coordinate)
+                                noteController.updateLatestPath(coordinate)
+                                noteController.addNewPath()
                             }
                         )
                     }
@@ -44,7 +45,7 @@ fun NoteArea(
                             onDragStart = { offset ->
                                 val coordinate = offsetToCoordinate(offset)
                                 if (noteController.penType != PenType.Lasso) {
-                                    noteController.insertNewPathInfo(currentPage, coordinate, paths)
+                                    noteController.insertNewPathInfo(currentPage, coordinate)
                                 } else {
                                     // 올가미
                                 }
@@ -54,14 +55,15 @@ fun NoteArea(
                                 if (noteController.penType != PenType.Lasso) {
                                     noteController
                                         .updateLatestPath(
-                                            offsetToCoordinate(newPoint), paths
+                                            offsetToCoordinate(newPoint)
                                         )
                                 } else {
                                     // 올가미
                                 }
                             },
                             onDragEnd = {
-                                noteController.getLastPath(paths)
+                                noteController.getLastPath()
+                                noteController.addNewPath()
                             }
                         )
                     }
@@ -72,7 +74,49 @@ fun NoteArea(
                     with(drawContext.canvas.nativeCanvas) {
                         val checkPoint = saveLayer(null, null)
 
-                        paths.forEach { pathInfo ->
+                        paths?.forEach { pathInfo ->
+                            when (pathInfo.penType) {
+                                PenType.Pen -> {
+                                    drawPath(
+                                        path = createPath(pathInfo.coordinates),
+                                        color = Color(color = ("FF" + pathInfo.color).toLong(16)),
+                                        style = Stroke(
+                                            width = pathInfo.strokeWidth,
+                                            cap = StrokeCap.Round,
+                                            join = StrokeJoin.Round
+                                        )
+                                    )
+                                }
+
+                                PenType.Highlighter -> {
+                                    drawPath(
+                                        path = createPath(pathInfo.coordinates),
+                                        color = Color(color = ("40" + pathInfo.color).toLong(16)),
+                                        style = Stroke(
+                                            width = pathInfo.strokeWidth,
+                                            cap = StrokeCap.Square,
+                                            join = StrokeJoin.Round
+                                        )
+                                    )
+                                }
+
+                                else -> {
+                                    drawPath(
+                                        path = createPath(pathInfo.coordinates),
+                                        color = Color(color = ("00" + pathInfo.color).toLong(16)),
+                                        style = Stroke(
+                                            width = pathInfo.strokeWidth,
+                                            cap = StrokeCap.Round,
+                                            join = StrokeJoin.Round
+                                        ),
+                                        blendMode = BlendMode.Clear
+                                    )
+                                }
+                            }
+                        }
+                        val currentPathList = noteController.pathList.filter { it.page == currentPage }
+                        currentPathList.forEach { userPagePathInfo ->
+                            val pathInfo = userPagePathInfo.pathInfo
                             when (pathInfo.penType) {
                                 PenType.Pen -> {
                                     drawPath(
@@ -107,6 +151,47 @@ fun NoteArea(
                                         ),
                                         blendMode = BlendMode.Clear
                                     )
+                                }
+                            }
+                        }
+                        noteController.newPathList.forEach { userPagePathInfo ->
+                            if (userPagePathInfo.page == currentPage) {
+                                val pathInfo = userPagePathInfo.pathInfo
+                                when (pathInfo.penType) {
+                                    PenType.Pen -> {
+                                        drawPath(
+                                            path = createPath(pathInfo.coordinates),
+                                            color = Color(color = ("FF" + pathInfo.color).toLong(16)),
+                                            style = Stroke(
+                                                width = pathInfo.strokeWidth,
+                                                cap = StrokeCap.Round,
+                                                join = StrokeJoin.Round
+                                            )
+                                        )
+                                    }
+                                    PenType.Highlighter -> {
+                                        drawPath(
+                                            path = createPath(pathInfo.coordinates),
+                                            color = Color(color = ("40" + pathInfo.color).toLong(16)),
+                                            style = Stroke(
+                                                width = pathInfo.strokeWidth,
+                                                cap = StrokeCap.Square,
+                                                join = StrokeJoin.Round
+                                            )
+                                        )
+                                    }
+                                    else -> {
+                                        drawPath(
+                                            path = createPath(pathInfo.coordinates),
+                                            color = Color(color = ("00" + pathInfo.color).toLong(16)),
+                                            style = Stroke(
+                                                width = pathInfo.strokeWidth,
+                                                cap = StrokeCap.Round,
+                                                join = StrokeJoin.Round
+                                            ),
+                                            blendMode = BlendMode.Clear
+                                        )
+                                    }
                                 }
                             }
                         }
