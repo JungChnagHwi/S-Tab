@@ -36,24 +36,18 @@ fun getFileList(folderId: String, onFolderResult: (List<Folder>?) -> Unit, onNot
     })
 }
 
-fun createFolder(parentFolderId: String, title: String) {
+fun createFolder(parentFolderId: String, title: String, onResult: (Folder) -> Unit) {
     val createFolderRequest = CreateFolderRequest(parentFolderId, title)
     val call = apiService.createFolder(authorizationHeader, createFolderRequest)
 
     call.enqueue(object: Callback<Folder> {
         override fun onResponse(call: Call<Folder>, response: Response<Folder>) {
-            Log.d("a", response.toString())
-            if (response.isSuccessful && response.body() != null) {
-                Log.i("APIResponse", "Successful response: ${response.body()}")
-                NoteListViewModel().addFolder(response.body()!!)
-
-            } else {
-                Log.e("APIResponse", "API Call failed!")
-            }
+            Log.i("APIResponse", "Successful response: ${response.body()}")
+            response.body()?.let { onResult(it) }
         }
 
         override fun onFailure(call: Call<Folder>, t: Throwable) {
-            t.printStackTrace()
+            Log.d("APIResponse", "요청 실패")
         }
     })
 }

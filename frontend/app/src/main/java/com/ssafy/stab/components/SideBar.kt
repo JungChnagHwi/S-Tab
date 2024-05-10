@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ssafy.stab.apis.space.share.createShareSpace
+import com.ssafy.stab.apis.space.share.getShareSpaceList
 
 @Composable
 fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
@@ -66,6 +68,7 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
                 .clip(RoundedCornerShape(10.dp))
                 .background(color = Color(0xFF5584FD))
                 .align(Alignment.CenterHorizontally)
+                .clickable { getShareSpaceList() }
         ){
             Text(
                 text = "S-Tab",
@@ -114,6 +117,7 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(7.dp))
         Column {
             Row(
+                modifier = Modifier.clickable { createShareSpace("첫번째 공스") },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Spacer(modifier = Modifier.width(70.dp))
