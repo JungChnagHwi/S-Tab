@@ -126,16 +126,7 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
     val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(folderId))
     val combinedList by viewModel.combinedList.collectAsState()
 
-    val notebookImg = painterResource(id = R.drawable.notebook)
     val createnoteImg = painterResource(id = R.drawable.createnote)
-    val folderImg = painterResource(id = R.drawable.folder)
-    val modiImg = painterResource(id = R.drawable.modi)
-    val staronImg = painterResource(id = R.drawable.eachstaron)
-    val staroffImg = painterResource(id = R.drawable.eachstaroff)
-
-    fun navigateTo(go: String){
-        navController.navigate(go)
-    }
 
     if (showNoteModal.value) {
         Dialog(onDismissRequest = { showNoteModal.value = false }) {
@@ -186,8 +177,8 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
                             .weight(1f)
                             .padding(8.dp)) {
                             when (item) {
-                                is Folder -> FolderItem(folder = item, folderImg, modiImg, staronImg, viewModel = viewModel, onFolderChange)
-                                is Note -> NoteItem(note = item, notebookImg, modiImg, staroffImg, navController)
+                                is Folder -> FolderItem(folder = item, viewModel = viewModel, onFolderChange)
+                                is Note -> NoteItem(note = item, viewModel, navController)
                             }
                         }
                     }
@@ -236,8 +227,8 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
                             .weight(1f)
                             .padding(8.dp)) {
                             when (item) {
-                                is Folder -> FolderItem(folder = item, folderImg, modiImg, staronImg, viewModel = viewModel, onFolderChange)
-                                is Note -> NoteItem(note = item, notebookImg, modiImg, staroffImg, navController)
+                                is Folder -> FolderItem(folder = item, viewModel, onFolderChange)
+                                is Note -> NoteItem(note = item, viewModel, navController)
                             }
                         }
                     }
@@ -254,8 +245,16 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
 }
 
 @Composable
-fun FolderItem(folder: Folder, folderImg: Painter, modiImg: Painter, starImg: Painter, viewModel: NoteListViewModel, onFolderChange: (String) -> Unit) {
+fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (String) -> Unit) {
+    val folderImg = painterResource(id = R.drawable.folder)
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val modiImg = painterResource(id = R.drawable.modi)
+    val staronImg = painterResource(id = R.drawable.eachstaron)
+    val staroffImg = painterResource(id = R.drawable.eachstaroff)
+
+    var isLiked by remember{ mutableStateOf( folder.isLiked ) }
+    val bookmarkIcon = if (isLiked) staronImg else staroffImg
+
     Column(
         modifier = Modifier.clickable {
             viewModel.updateFolderId(folder.folderId)
@@ -265,9 +264,10 @@ fun FolderItem(folder: Folder, folderImg: Painter, modiImg: Painter, starImg: Pa
     ) {
         Box(contentAlignment = Alignment.TopEnd) {
             Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(120.dp, 160.dp))
-            Image(painter = starImg, contentDescription = "즐겨찾기", modifier = Modifier
+            Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)
+                .clickable { isLiked = !isLiked }
                 .align(Alignment.TopEnd))
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -282,17 +282,27 @@ fun FolderItem(folder: Folder, folderImg: Painter, modiImg: Painter, starImg: Pa
 }
 
 @Composable
-fun NoteItem(note: Note, noteImg: Painter, modiImg: Painter, starImg: Painter, navController: NavController) {
+fun NoteItem(note: Note, viewModel: NoteListViewModel, navController: NavController) {
+    val notebookImg = painterResource(id = R.drawable.notebook)
+    val modiImg = painterResource(id = R.drawable.modi)
+    val staronImg = painterResource(id = R.drawable.eachstaron)
+    val staroffImg = painterResource(id = R.drawable.eachstaroff)
+
+    var isLiked by remember{ mutableStateOf( note.isLiked ) }
+    val bookmarkIcon = if (isLiked) staronImg else staroffImg
+
+
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     Column(
         modifier = Modifier.clickable { navController.navigate("personal-note") },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(contentAlignment = Alignment.TopEnd) {
-            Image(painter = noteImg, contentDescription = "노트", modifier = Modifier.size(120.dp, 160.dp))
-            Image(painter = starImg, contentDescription = "즐겨찾기", modifier = Modifier
+            Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier.size(120.dp, 160.dp))
+            Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)
+                .clickable { isLiked = !isLiked }
                 .align(Alignment.TopEnd))
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
