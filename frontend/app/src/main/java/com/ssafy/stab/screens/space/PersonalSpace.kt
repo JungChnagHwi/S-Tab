@@ -23,7 +23,7 @@ import com.ssafy.stab.data.PreferencesUtil
 
 @Composable
 fun PersonalSpace() {
-    val folderId = PreferencesUtil.getNowLocation().nowLocation
+    val folderId = PreferencesUtil.getLoginDetails().rootFolderId
 
     Column(
         modifier = Modifier

@@ -1,6 +1,6 @@
 package com.ssafy.stab.screens.space
 
-import android.util.Log
+import NoteListViewModelFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,11 +18,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,9 +34,7 @@ import com.ssafy.stab.R
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ssafy.stab.apis.space.folder.FileEntity
 import com.ssafy.stab.apis.space.folder.Folder
 import com.ssafy.stab.apis.space.folder.Note
 import com.ssafy.stab.modals.CreateFolderModal
@@ -46,6 +44,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun NoteListSpace(nowId: String) {
 
+    val folderIdState = remember { mutableStateOf(nowId) }
     val listImg = painterResource(id = R.drawable.list)
     val isNameSort = remember { mutableStateOf(false) }
 
@@ -107,19 +106,24 @@ fun NoteListSpace(nowId: String) {
         Spacer(modifier = Modifier.height(10.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))
-            ListGridScreen(viewModel = NoteListViewModel())
+            ListGridScreen(folderIdState.value) { newFolderId ->
+                folderIdState.value = newFolderId
+            }
         }
     }
 }
 
 
 @Composable
-fun ListGridScreen(viewModel: NoteListViewModel) {
+fun ListGridScreen(initfolderId: String, onFolderChange: (String) -> Unit) {
+    var folderId by remember { mutableStateOf(initfolderId) }
     val showNoteModal = remember { mutableStateOf(false) }
     val showFolderModal = remember { mutableStateOf(false) }
     val showCreateOptions = remember { mutableStateOf(false) }
 
+    val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(folderId))
     val combinedList by viewModel.combinedList.collectAsState()
+
 
     val notebookImg = painterResource(id = R.drawable.notebook)
     val createnoteImg = painterResource(id = R.drawable.createnote)
@@ -144,8 +148,10 @@ fun ListGridScreen(viewModel: NoteListViewModel) {
 
     if (showFolderModal.value) {
         Dialog(onDismissRequest = { showFolderModal.value = false }) {
-            val closeModal = { showFolderModal.value = false}
-            CreateFolderModal(closeModal, viewModel)
+            CreateFolderModal(
+                closeModal = { showFolderModal.value = false },
+                viewModel = viewModel,
+            )
         }
     }
 
@@ -175,7 +181,7 @@ fun ListGridScreen(viewModel: NoteListViewModel) {
                             .weight(1f)
                             .padding(8.dp)) {
                             when (item) {
-                                is Folder -> FolderItem(folder = item, folderImg, modiImg, staronImg)
+                                is Folder -> FolderItem(folder = item, folderImg, modiImg, staronImg, viewModel = viewModel, onFolderChange)
                                 is Note -> NoteItem(note = item, notebookImg, modiImg, staroffImg)
                             }
                         }
@@ -225,7 +231,7 @@ fun ListGridScreen(viewModel: NoteListViewModel) {
                             .weight(1f)
                             .padding(8.dp)) {
                             when (item) {
-                                is Folder -> FolderItem(folder = item, folderImg, modiImg, staronImg)
+                                is Folder -> FolderItem(folder = item, folderImg, modiImg, staronImg, viewModel = viewModel, onFolderChange)
                                 is Note -> NoteItem(note = item, notebookImg, modiImg, staroffImg)
                             }
                         }
@@ -243,9 +249,15 @@ fun ListGridScreen(viewModel: NoteListViewModel) {
 }
 
 @Composable
-fun FolderItem(folder: Folder, folderImg: Painter, modiImg: Painter, starImg: Painter) {
+fun FolderItem(folder: Folder, folderImg: Painter, modiImg: Painter, starImg: Painter, viewModel: NoteListViewModel, onFolderChange: (String) -> Unit) {
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier.clickable {
+            viewModel.updateFolderId(folder.folderId)
+            onFolderChange(folder.folderId)
+                                      },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Box(contentAlignment = Alignment.TopEnd) {
             Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(120.dp, 160.dp))
             Image(painter = starImg, contentDescription = "즐겨찾기", modifier = Modifier
