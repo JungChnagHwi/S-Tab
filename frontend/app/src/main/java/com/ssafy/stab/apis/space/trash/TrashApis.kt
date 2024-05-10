@@ -7,7 +7,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-
 private val apiService: ApiService = RetrofitClient.instance.create(ApiService::class.java)
 private val accessToken = PreferencesUtil.getLoginDetails().accessToken
 private val authorizationHeader = "Bearer $accessToken"
@@ -20,7 +19,11 @@ fun getTrashList() {
             call: Call<GetTrashListResponse>,
             response: Response<GetTrashListResponse>
         ) {
-            Log.d("APIResponse", response.body().toString())
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.body().toString())
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<GetTrashListResponse>, t: Throwable) {
@@ -38,7 +41,11 @@ fun restoreTrash(id: String) {
             call: Call<Void>,
             response: Response<Void>
         ) {
-            Log.d("APIResponse", "요청 성공")
+            if (response.isSuccessful) {
+                Log.d("APIResponse", "요청 성공")
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {

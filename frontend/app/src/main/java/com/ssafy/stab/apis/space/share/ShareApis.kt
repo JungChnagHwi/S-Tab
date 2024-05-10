@@ -19,7 +19,11 @@ fun getShareSpaceList() {
             call: Call<List<ShareSpaceList>>,
             response: Response<List<ShareSpaceList>>
         ) {
-            Log.d("APIResponse", response.toString())
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.toString())
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<List<ShareSpaceList>>, t: Throwable) {
@@ -34,7 +38,11 @@ fun createShareSpace(title: String) {
 
     call.enqueue(object: Callback<ShareSpaceList> {
         override fun onResponse(call: Call<ShareSpaceList>, response: Response<ShareSpaceList>) {
-            Log.d("APIResponse", response.body().toString())
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.body().toString())
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<ShareSpaceList>, t: Throwable) {

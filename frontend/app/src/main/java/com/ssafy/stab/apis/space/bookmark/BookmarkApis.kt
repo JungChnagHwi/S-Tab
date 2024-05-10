@@ -16,7 +16,11 @@ fun getBookMarkList() {
 
     call.enqueue(object: Callback<BookmarkListResponse> {
         override fun onResponse(call: Call<BookmarkListResponse>, response: Response<BookmarkListResponse>) {
-            Log.d("APIResponse", response.body().toString())
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.body().toString())
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<BookmarkListResponse>, t: Throwable) {
@@ -31,7 +35,11 @@ fun addBookMark(id: String) {
 
     call.enqueue(object: Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
-            Log.d("APIResponse", "요청 성공")
+            if (response.isSuccessful) {
+                Log.d("APIResponse", "요청 성공")
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -46,7 +54,11 @@ fun deleteBookMark(fileId: String) {
 
     call.enqueue(object: Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
-            Log.d("APIResponse", "요청 성공")
+            if (response.isSuccessful) {
+                Log.d("APIResponse", "요청 성공")
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {
