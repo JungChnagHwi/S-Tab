@@ -166,7 +166,6 @@ public class PageService {
             PageData firstPageData = pageDataRepository.findById(firstPage.getId()).orElse(null);
             String fistPageId = firstPage.getId();
             if (firstPageData != null) {
-                System.out.println("updatedAT"+firstPage.getUpdatedAt());
                 // dto 빌드
                 PageInfoDto pageInfoDto = PageInfoDto.builder()
                         .pageId(fistPageId)
@@ -200,8 +199,9 @@ public class PageService {
                 pageInfoList.add(pageInfoDto);
             }
 
-            Page nextPage = firstPage.getNextPage();
-//            Page nextPage = pageRepository.findNextPageByPageId(fistPageId);
+//            Page nextPage = firstPage.getNextPage();
+            Page nextPage = pageRepository.getNextPageByPageId(fistPageId);
+
 
             while (nextPage != null) { // 다음 페이지가 없을때까지
                 // 그 페이지에 해당하는 data 불러오기
@@ -243,7 +243,7 @@ public class PageService {
                 }
 
                 // 페이지에 연결되어있는 다음 페이지 불러오기
-                nextPage = nextPage.getNextPage();
+                nextPage = pageRepository.getNextPageByPageId(nextPageId);
             }
             PageListResponseDto pageListResponseDto = PageListResponseDto.builder()
                                     .data(pageInfoList)
