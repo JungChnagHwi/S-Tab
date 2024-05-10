@@ -1,6 +1,10 @@
 package com.sixb.note.api.service;
 
 import com.sixb.note.dto.page.*;
+import com.sixb.note.dto.pageData.FigureDto;
+import com.sixb.note.dto.pageData.ImageDto;
+import com.sixb.note.dto.pageData.PathDto;
+import com.sixb.note.dto.pageData.TextBoxDto;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;
 import com.sixb.note.entity.PageData;
@@ -75,6 +79,15 @@ public class PageService {
             // db에 저장하고 반환
             pageRepository.save(newPage);
             pageRepository.save(beforePage);
+
+            // mongodb에 데이터 만들기
+            // 필기 데이터 저장
+            PageData pageData = PageData.builder()
+                    .id(pageId)
+                    .build();
+
+            pageDataRepository.save(pageData);
+
             return responseDto;
         } else { // page 못찾은 경우
             // error
@@ -105,19 +118,22 @@ public class PageService {
         if (page!=null) {
             Boolean deleteStatus = page.getIsDeleted();
             if (deleteStatus == false) {
-                // 필기데이터가 있는지 확인 후 있으면 삭제
-                Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
-                optionalPageData.ifPresent(pageData -> pageDataRepository.delete(pageData));
-                // 필기 데이터 저장
-                PageData pageData = PageData.builder()
-                        .id(pageId)
-                        .figures(request.getFigures())
-                        .paths(request.getPaths())
-                        .images(request.getImages())
-                        .textBoxes(request.getTextBoxes())
-                        .build();
+                // 검색 잘 되는지 나중에 확인해야함
+                PageData pageData = pageDataRepository.findDataById(pageId);
+                if (pageData!=null) {
+                    Optional<List<FigureDto>> optionalFigures = Optional.ofNullable(pageData.getFigures());
+                    Optional<List<ImageDto>> optionalImages = Optional.ofNullable(pageData.getImages());
+                    Optional<List<TextBoxDto>> optionalTextBoxes = Optional.ofNullable(pageData.getTextBoxes());
+                    Optional<List<PathDto>> optionalPaths = Optional.ofNullable(pageData.getPaths());
 
-                pageDataRepository.save(pageData);
+                    pageData.setFigures(optionalFigures.orElse(null));
+                    pageData.setImages(optionalImages.orElse(null));
+                    pageData.setTextBoxes(optionalTextBoxes.orElse(null));
+                    pageData.setPaths(optionalPaths.orElse(null));
+
+                    pageDataRepository.save(pageData);
+                }
+
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
