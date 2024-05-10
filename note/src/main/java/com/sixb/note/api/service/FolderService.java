@@ -12,6 +12,7 @@ import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
 import com.sixb.note.repository.SpaceRepository;
 import com.sixb.note.util.IdCreator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,16 +23,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FolderService {
 
-    @Autowired
-    private SpaceRepository spaceRepository;
-    @Autowired
-    private FolderRepository folderRepository;
-    @Autowired
-    private NoteRepository noteRepository;
-    @Autowired
-    private UserService userService;
+    private final SpaceRepository spaceRepository;
+    private final FolderRepository folderRepository;
+    private final NoteRepository noteRepository;
+    private final UserService userService;
 
     // 폴더 조회
     public FolderResponseDto getFolderDetail(String folderId) {

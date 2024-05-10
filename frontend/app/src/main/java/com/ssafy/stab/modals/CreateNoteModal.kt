@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,7 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
     val selectPlainImg = painterResource(id = R.drawable.plain_white_portrait)
     val selectLinedImg = painterResource(id = R.drawable.lined_white_portrait)
     val selectGridImg = painterResource(id = R.drawable.grid_white_portrait)
+    val folderId by viewModel.folderId.collectAsState()
 
     val templateType = remember {
         mutableStateOf(TemplateType.Plain)
@@ -86,7 +88,7 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
             Text(text = "취소", fontSize = 20.sp, modifier = Modifier.clickable { closeModal() })
             Text(text = "새 노트북", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Text(text = "생성", fontSize = 20.sp, modifier = Modifier.clickable { createNote(
-                PreferencesUtil.getNowLocation().nowLocation.toString(),
+                folderId,
                 noteTitle,
                 backgroundColor.value,
                 templateType.value,

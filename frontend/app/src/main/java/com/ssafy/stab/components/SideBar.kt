@@ -1,5 +1,6 @@
 package com.ssafy.stab.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import com.ssafy.stab.R
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.stab.apis.space.share.createShareSpace
 import com.ssafy.stab.apis.space.share.getShareSpaceList
+import com.ssafy.stab.data.PreferencesUtil
 
 @Composable
 fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {

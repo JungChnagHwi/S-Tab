@@ -1,13 +1,10 @@
 package com.ssafy.stab
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -71,7 +68,7 @@ fun Routers(){
             val audioCallViewModel = viewModel<AudioCallViewModel>()
             AudioCallScreen(viewModel = audioCallViewModel)
         }
-        composable("create-note") { CreateNoteModal({}, NoteListViewModel()) }
-        composable("create-folder") { CreateFolderModal({}, NoteListViewModel()) }
+        composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
+        composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }
     }
 }

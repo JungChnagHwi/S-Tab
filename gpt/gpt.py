@@ -41,10 +41,12 @@ runnable = prompt | model
 
 store = {}
 
+
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
-    if (session_id) not in store:
+    if session_id not in store:
         store[session_id] = ChatMessageHistory()
     return store[session_id]
+
 
 with_message_history = (
     RunnableWithMessageHistory(
@@ -55,16 +57,18 @@ with_message_history = (
     )
 )
 
+
 @app.get("/api/gpt")
 async def chat(q: str = Query(...), user_id: int = Query(..., alias="userId")):
     question = parse.unquote(q)
 
     result = with_message_history.invoke(
         {"question": question},
-         config={"configurable": {"session_id": user_id}}
+        config={"configurable": {"session_id": user_id}}
     )
 
     return {"question": question, "answer": result.content}
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -18,12 +18,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ssafy.stab.R
 import com.ssafy.stab.data.PreferencesUtil
 
 @Composable
-fun PersonalSpace() {
-    val folderId = PreferencesUtil.getNowLocation().nowLocation
+fun PersonalSpace(navController: NavController) {
+    val folderId = PreferencesUtil.getLoginDetails().rootFolderId
 
     Column(
         modifier = Modifier
@@ -36,7 +37,7 @@ fun PersonalSpace() {
             thickness = 1.dp, // 선의 두께 설정
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 20.dp) // 선 주변에 수직 패딩 추가
         )
-        NoteListSpace(folderId.toString())
+        NoteListSpace(folderId.toString(), navController)
     }
 }
 

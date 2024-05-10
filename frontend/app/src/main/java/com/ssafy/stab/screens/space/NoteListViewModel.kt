@@ -1,27 +1,32 @@
 package com.ssafy.stab.screens.space
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.apis.space.folder.FileEntity
 import com.ssafy.stab.apis.space.folder.Folder
 import com.ssafy.stab.apis.space.folder.Note
 import com.ssafy.stab.apis.space.folder.getFileList
-import com.ssafy.stab.data.PreferencesUtil
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class NoteListViewModel() : ViewModel() {
+class NoteListViewModel(initialFolderId: String) : ViewModel() {
+    private val _folderId = MutableStateFlow(initialFolderId)
+    val folderId: StateFlow<String> = _folderId.asStateFlow()
+
     private val _combinedList = MutableStateFlow<List<FileEntity>>(emptyList())
     val combinedList = _combinedList.asStateFlow()
-
     init {
-        loadFiles()
+        loadFiles(_folderId.value)
     }
 
-    private fun loadFiles() {
+    private fun loadFiles(folderId: String) {
         viewModelScope.launch {
-            getFileList(PreferencesUtil.getNowLocation().nowLocation.toString(),
+            Log.d("B", folderId)
+            _combinedList.value = emptyList()
+            getFileList(folderId,
                 { folders ->
                     val updatedFolders = folders ?: emptyList<Folder>()
                     updateCombinedList(updatedFolders)
@@ -31,6 +36,7 @@ class NoteListViewModel() : ViewModel() {
                     updateCombinedList(updatedNotes)
                 }
             )
+            Log.d("C", _combinedList.value.size.toString())
         }
     }
 
@@ -38,8 +44,14 @@ class NoteListViewModel() : ViewModel() {
     private fun updateCombinedList(newItems: List<FileEntity>) {
         val currentList = _combinedList.value.toMutableList()
         currentList.addAll(newItems)
-        _combinedList.value = currentList.toList()
         _combinedList.value = currentList.sortedByDescending { it.updatedAt }
+    }
+
+    fun updateFolderId(newFolderId: String) {
+        if (_folderId.value != newFolderId) {
+            _folderId.value = newFolderId
+            loadFiles(newFolderId)
+        }
     }
 
     fun addNote(note: Note) {

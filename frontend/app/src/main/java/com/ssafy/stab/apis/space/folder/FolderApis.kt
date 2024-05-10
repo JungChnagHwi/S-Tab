@@ -3,11 +3,9 @@ package com.ssafy.stab.apis.space.folder
 import android.util.Log
 import com.ssafy.stab.apis.RetrofitClient
 import com.ssafy.stab.data.PreferencesUtil
-import com.ssafy.stab.screens.space.NoteListViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.create
 
 private val apiService: ApiService = RetrofitClient.instance.create(ApiService::class.java)
 private val accessToken = PreferencesUtil.getLoginDetails().accessToken
@@ -111,4 +109,3 @@ fun deleteFolder(folderId: String) {
         }
     })
 }
-// git amend 연습

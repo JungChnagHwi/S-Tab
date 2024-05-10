@@ -10,6 +10,7 @@ import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.repository.SpaceRepository;
 import com.sixb.note.repository.UserRepository;
 import com.sixb.note.util.IdCreator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,13 +24,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SpaceService {
-    @Autowired
-    private SpaceRepository spaceRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserService userService;
+
+    private final SpaceRepository spaceRepository;
+    private final UserRepository userRepository;
+    private final UserService userService;
 
     public List<SpaceResponseDto> findAllSpaceDetails() {
 
