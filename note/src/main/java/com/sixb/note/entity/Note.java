@@ -26,5 +26,5 @@ public class Note extends BaseTimeEntity {
     private int totalPageCnt;
 
     @Relationship(type = "FirstPage")
-    private List<Page> pages;
+    private Page pages;
 }

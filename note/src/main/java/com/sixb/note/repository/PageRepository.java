@@ -18,10 +18,10 @@ public interface PageRepository extends Neo4jRepository<Page, String> {
     Page findPageById(@Param("pageId") String pageId);
 
     @Query("MATCH (u:User {id: $userId})-[:Like]->(p:Page) RETURN p")
-    List<Page> findAllLikedPagesByUserId(@Param("userId") String userId);
+    List<Page> findAllLikedPagesByUserId(@Param("userId") long userId);
 
     @Query("MATCH (u:User {id: $userId})-[r:Like]->(p:Page {id: $itemId}) DELETE r")
-    void deleteLikePage(@Param("userId") String userId, @Param("itemId") String itemId);
+    void deleteLikePage(@Param("userId") long userId, @Param("itemId") String itemId);
 
     @Query("MATCH (n: Note {id: $noteId})-[r:FirstPage]->(p: Page) RETURN p")
     Page findFirstPageByNoteId(@Param("noteId") String noteId);
