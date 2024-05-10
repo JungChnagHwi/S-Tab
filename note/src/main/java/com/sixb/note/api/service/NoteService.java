@@ -4,19 +4,13 @@ package com.sixb.note.api.service;
 import com.sixb.note.dto.note.CreateNoteRequestDto;
 import com.sixb.note.dto.note.CreateNoteResponseDto;
 import com.sixb.note.dto.note.UpdateNoteTitleRequestDto;
-import com.sixb.note.entity.Folder;
-import com.sixb.note.entity.Space;
+import com.sixb.note.entity.*;
 import com.sixb.note.exception.NotFoundException;
-import com.sixb.note.repository.FolderRepository;
-import com.sixb.note.repository.NoteRepository;
-import com.sixb.note.repository.PageRepository;
-import com.sixb.note.repository.SpaceRepository;
+import com.sixb.note.repository.*;
 import com.sixb.note.util.IdCreator;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.sixb.note.entity.Note;
-import com.sixb.note.entity.Page;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +28,8 @@ public class NoteService {
     private PageRepository pageRepository;
     @Autowired
     private SpaceRepository spaceRepository;
+    @Autowired
+    private PageDataRepository pageDataRepository;
 
     public CreateNoteResponseDto createNote(CreateNoteRequestDto request) {
         // 새로운 노트 생성
@@ -86,6 +82,14 @@ public class NoteService {
         }
         // 저장
         noteRepository.save(note);
+
+        // mongodb에 데이터 만들기
+        // 필기 데이터 저장
+        PageData pageData = PageData.builder()
+                .id(formattedPageId)
+                .build();
+
+        pageDataRepository.save(pageData);
 
 
         // 응답 DTO 구성
