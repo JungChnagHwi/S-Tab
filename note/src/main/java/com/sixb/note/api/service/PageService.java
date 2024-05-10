@@ -52,7 +52,7 @@ public class PageService {
             newPage.setColor(beforePage.getColor());
             newPage.setDirection(beforePage.getDirection());
             // 만약 이전 페이지가 pdf페이지가 아니라면
-            if (beforePage.getPdfUrl()!=null) {
+            if (beforePage.getPdfUrl()==null) {
                 newPage.setTemplate(beforePage.getTemplate());
             } else { // pdf인 경우 기본 템플릿
                 // 현재는 내 마음대로 넣어둠
@@ -84,12 +84,12 @@ public class PageService {
     }
 
     public void deletePage(String pageId) throws PageNotFoundException {
-        Optional<Page> optionalPage = pageRepository.findById(pageId);
-        if (optionalPage.isPresent()) {
-            Page page = optionalPage.get();
+        Page page = pageRepository.findPageById(pageId);
+        if (page != null) {
             Boolean deleteStatus = page.getIsDeleted();
             if (deleteStatus == false) {
                 page.setIsDeleted(true);
+                pageRepository.save(page);
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
@@ -129,9 +129,8 @@ public class PageService {
 
     public PageUpdateDto updatePage(PageUpdateDto request) throws PageNotFoundException {
         String pageId = request.getPageId();
-        Optional<Page> optionalPage = pageRepository.findById(pageId);
-        if (optionalPage.isPresent()) {
-            Page page = optionalPage.get();
+        Page page = pageRepository.findPageById(pageId);
+        if (page != null) {
             Boolean deleteStatus = page.getIsDeleted();
             if (deleteStatus == false) {
                 // 필기데이터가 있는지 확인 후
@@ -166,7 +165,6 @@ public class PageService {
             PageData firstPageData = pageDataRepository.findById(firstPage.getId()).orElse(null);
             String fistPageId = firstPage.getId();
             if (firstPageData != null) {
-                System.out.println("updatedAT"+firstPage.getUpdatedAt());
                 // dto 빌드
                 PageInfoDto pageInfoDto = PageInfoDto.builder()
                         .pageId(fistPageId)
@@ -200,8 +198,9 @@ public class PageService {
                 pageInfoList.add(pageInfoDto);
             }
 
-            Page nextPage = firstPage.getNextPage();
-//            Page nextPage = pageRepository.findNextPageByPageId(fistPageId);
+//            Page nextPage = firstPage.getNextPage();
+            Page nextPage = pageRepository.getNextPageByPageId(fistPageId);
+
 
             while (nextPage != null) { // 다음 페이지가 없을때까지
                 // 그 페이지에 해당하는 data 불러오기
@@ -243,7 +242,7 @@ public class PageService {
                 }
 
                 // 페이지에 연결되어있는 다음 페이지 불러오기
-                nextPage = nextPage.getNextPage();
+                nextPage = pageRepository.getNextPageByPageId(nextPageId);
             }
             PageListResponseDto pageListResponseDto = PageListResponseDto.builder()
                                     .data(pageInfoList)

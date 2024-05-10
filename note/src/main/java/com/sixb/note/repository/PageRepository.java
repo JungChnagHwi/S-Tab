@@ -26,9 +26,8 @@ public interface PageRepository extends Neo4jRepository<Page, String> {
     @Query("MATCH (n: Note {id: $noteId})-[r:FirstPage]->(p: Page) RETURN p")
     Page findFirstPageByNoteId(@Param("noteId") String noteId);
 
-    // pageId로 nextPage 찾는건데, 기본 제공 함수가 있어서 일단 그걸 사용해볼 예정!
-//    @Query("MATCH (p: Page {id: $pageId})-[r:NextPage]->(n: Page) RETURN n")
-//    Page findNextPageByPageId(@Param("pageId") String pageId);
+    @Query("MATCH (p: Page {id: $pageId})-[r:NextPage]->(p1: Page) RETURN p1")
+    Page getNextPageByPageId(@Param("pageId") String pageId);
 
     @Query("MATCH (u:User {id: $userId})-[r:Like]->(p:Page {id: $pageId}) RETURN COUNT(*) > 0 AS liked")
     boolean isLikedByPageId(@Param("userId") long userId, @Param("pageId") String pageId);
