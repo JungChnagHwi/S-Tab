@@ -121,18 +121,31 @@ public class PageService {
             Boolean deleteStatus = page.getIsDeleted();
             if (deleteStatus == false) {
                 // 검색 잘 되는지 나중에 확인해야함
-                PageData pageData = pageDataRepository.findDataById(pageId);
-                if (pageData!=null) {
-                    Optional<List<FigureDto>> optionalFigures = Optional.ofNullable(pageData.getFigures());
-                    Optional<List<ImageDto>> optionalImages = Optional.ofNullable(pageData.getImages());
-                    Optional<List<TextBoxDto>> optionalTextBoxes = Optional.ofNullable(pageData.getTextBoxes());
-                    Optional<List<PathDto>> optionalPaths = Optional.ofNullable(pageData.getPaths());
+                Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
+                List<FigureDto> figures = request.getFigures();
+                List<ImageDto> images = request.getImages();
+                List<TextBoxDto> textBoxes = request.getTextBoxes();
+                List<PathDto> paths = request.getPaths();
+//                List<PathDto> paths = Optional.ofNullable(request.getPaths());
 
-                    pageData.setFigures(optionalFigures.orElse(null));
-                    pageData.setImages(optionalImages.orElse(null));
-                    pageData.setTextBoxes(optionalTextBoxes.orElse(null));
-                    pageData.setPaths(optionalPaths.orElse(null));
+                System.out.println("fig: "+figures);
+                if (optionalPageData.isPresent()) {
+                    PageData pageData = optionalPageData.get();
 
+                    pageData.setFigures(figures);
+                    pageData.setImages(images);
+                    pageData.setTextBoxes(textBoxes);
+//                    pageData.setPaths(optionalPaths.orElse(null));
+
+                    pageDataRepository.save(pageData);
+                } else {
+                    PageData pageData = PageData.builder()
+                            .id(pageId)
+//                            .paths(optionalPaths.orElse(null))
+                            .images(images)
+                            .figures(figures)
+                            .textBoxes(textBoxes)
+                            .build();
                     pageDataRepository.save(pageData);
                 }
 
@@ -151,8 +164,6 @@ public class PageService {
         if (page != null) {
             Boolean deleteStatus = page.getIsDeleted();
             if (deleteStatus == false) {
-                // 필기데이터가 있는지 확인 후
-                Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
                 // 양식 정보 수정
                 page.setTemplate(request.getTemplate());
                 page.setColor(request.getColor());
@@ -182,12 +193,12 @@ public class PageService {
             String fistPageId = firstPage.getId();
             if (firstPage.getIsDeleted() == false) {
                 // 그 페이지에 해당하는 data 불러오기
-                PageData firstPageData = pageDataRepository.findDataById(firstPage.getId());
+                Optional<PageData> optionalFirstPageData = pageDataRepository.findById(firstPage.getId());
 
-                if (firstPageData == null) {
+                if (!optionalFirstPageData.isPresent()) {
                     throw new PageNotFoundException("페이지 데이터를 찾을 수 없습니다.");
                 }
-
+                PageData firstPageData = optionalFirstPageData.get();
                 // optional로 nullException 처리해주기
                 Optional<String> pdfUrl = Optional.ofNullable(firstPage.getPdfUrl());
                 Optional<Integer> pdfPage = Optional.ofNullable(firstPage.getPdfPage());
@@ -222,10 +233,11 @@ public class PageService {
                 String nextPageId = nextPage.getId();
 
                 if (nextPage.getIsDeleted() == false) {
-                    PageData nextData = pageDataRepository.findDataById(nextPageId);
-                    if (nextData == null) {
+                    Optional<PageData> optionalNextData = pageDataRepository.findById(nextPageId);
+                    if (!optionalNextData.isPresent()) {
                         throw new PageNotFoundException("페이지 데이터를 찾을 수 없습니다.");
                     }
+                    PageData nextData = optionalNextData.get();
                     // optional로 nullException 처리해주기
                     Optional<String> pdfUrl = Optional.ofNullable(nextPage.getPdfUrl());
                     Optional<Integer> pdfPage = Optional.ofNullable(nextPage.getPdfPage());
