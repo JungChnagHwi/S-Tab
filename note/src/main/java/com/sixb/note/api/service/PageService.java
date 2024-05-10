@@ -84,12 +84,12 @@ public class PageService {
     }
 
     public void deletePage(String pageId) throws PageNotFoundException {
-        Optional<Page> optionalPage = pageRepository.findById(pageId);
-        if (optionalPage.isPresent()) {
-            Page page = optionalPage.get();
+        Page page = pageRepository.findPageById(pageId);
+        if (page != null) {
             Boolean deleteStatus = page.getIsDeleted();
             if (deleteStatus == false) {
                 page.setIsDeleted(true);
+                pageRepository.save(page);
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
