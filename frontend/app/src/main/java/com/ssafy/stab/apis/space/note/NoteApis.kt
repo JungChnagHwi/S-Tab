@@ -20,8 +20,12 @@ fun createNote(parentFolderId: String, title: String, color: BackgroundColor, te
 
     call.enqueue(object: Callback<CreateNoteResponse> {
         override fun onResponse(call: Call<CreateNoteResponse>, response: Response<CreateNoteResponse>) {
-            Log.d("APIResponse", response.body().toString())
-            response.body()?.let { onResult(it) }
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.body().toString())
+                response.body()?.let { onResult(it) }
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<CreateNoteResponse>, t: Throwable) {
@@ -36,7 +40,11 @@ fun createPdfNote(parentFolderId: String, pdfUrl: String, pdfPageCount: Int, tit
 
     call.enqueue(object: Callback<CreateNoteResponse> {
         override fun onResponse(call: Call<CreateNoteResponse>, response: Response<CreateNoteResponse>) {
-            Log.d("APIResponse", response.body().toString())
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.body().toString())
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<CreateNoteResponse>, t: Throwable) {
@@ -51,7 +59,11 @@ fun copyNote(noteId: String, parentFolderId: String, title: String) {
 
     call.enqueue(object: Callback<CopyNoteResponse> {
         override fun onResponse(call: Call<CopyNoteResponse>, response: Response<CopyNoteResponse>) {
-            Log.d("APIResponse", response.body().toString())
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.body().toString())
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<CopyNoteResponse>, t: Throwable) {
@@ -66,7 +78,11 @@ fun renameNote(noteId: String, title: String) {
 
     call.enqueue(object: Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
-            Log.d("APIResponse", "요청 성공")
+            if (response.isSuccessful) {
+                Log.d("APIResponse", "요청 성공")
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -81,7 +97,11 @@ fun relocateNote(noteId: String, parentFolderId: String) {
 
     call.enqueue(object: Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
-            Log.d("APIResponse", "요청 성공")
+            if (response.isSuccessful) {
+                Log.d("APIResponse", "요청 성공")
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -95,7 +115,11 @@ fun deleteNote(noteId: String) {
 
     call.enqueue(object: Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
-            Log.d("APIResponse", "요청 성공")
+            if (response.isSuccessful) {
+                Log.d("APIResponse", "요청 성공")
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {

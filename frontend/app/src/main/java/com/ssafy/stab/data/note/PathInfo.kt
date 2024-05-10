@@ -17,3 +17,9 @@ data class Coordinate(
     val x: Float,
     val y: Float
 )
+
+data class UserPagePathInfo(
+    val userName: String,
+    var page: Int,
+    val pathInfo: PathInfo
+)

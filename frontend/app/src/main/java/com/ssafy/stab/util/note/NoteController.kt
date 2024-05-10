@@ -7,11 +7,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.data.note.BackgroundColor
 import com.ssafy.stab.data.note.Coordinate
 import com.ssafy.stab.data.note.PathInfo
 import com.ssafy.stab.data.note.PenType
 import com.ssafy.stab.data.note.TemplateType
+import com.ssafy.stab.data.note.UserPagePathInfo
 import com.ssafy.stab.data.note.response.PageData
 import com.ssafy.stab.data.note.response.PageDetail
 import kotlinx.coroutines.CoroutineScope
@@ -23,20 +26,25 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class NoteController internal constructor(val trackHistory: (undoCount: Int, redoCount: Int) -> Unit = { _, _ -> }) {
+    private val userName = PreferencesUtil.getLoginDetails().userName ?: "unknown"
 
-    private val undoPageList = mutableStateListOf<Int>()
-    private val redoPageList = mutableStateListOf<Int>()
-    private val redoPathList = mutableStateListOf<PathInfo>()
+    private val _undoPathList = mutableStateListOf<UserPagePathInfo>()
+    internal val pathList: SnapshotStateList<UserPagePathInfo> = _undoPathList
 
-    private val historyTracking = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    private val historyTracker = historyTracking.asSharedFlow()
+    private val _newPathList = mutableStateListOf<UserPagePathInfo>()
+    internal val newPathList: SnapshotStateList<UserPagePathInfo> = _newPathList
+
+    private val _redoPathList = mutableStateListOf<UserPagePathInfo>()
+
+    private val _historyTracker = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    private val historyTracker = _historyTracker.asSharedFlow()
 
     fun trackHistory(
         scope: CoroutineScope,
         trackHistory: (undoCount: Int, redoCount: Int) -> Unit
     ) {
         historyTracker
-            .onEach { trackHistory(undoPageList.size, redoPageList.size) }
+            .onEach { trackHistory(_undoPathList.size, _redoPathList.size) }
             .launchIn(scope)
     }
 
@@ -61,7 +69,7 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
         color = value
     }
 
-    fun insertNewPathInfo(currentPage: Int, newCoordinate: Coordinate, paths: MutableList<PathInfo>) {
+    fun insertNewPathInfo(currentPage: Int, newCoordinate: Coordinate) {
         val pathInfo = PathInfo(
             penType = penType,
             coordinates = mutableStateListOf(newCoordinate),
@@ -69,70 +77,67 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
             color = color
         )
 
-        paths.add(pathInfo)
-        undoPageList.add(currentPage)
+        val userPagePathInfo = UserPagePathInfo(
+            userName, currentPage, pathInfo
+        )
 
-        redoPageList.clear()
-        redoPathList.clear()
+        _newPathList.add(userPagePathInfo)
 
-        historyTracking.tryEmit("insert path")
+        _redoPathList.clear()
+        _historyTracker.tryEmit("insert path")
     }
 
-    fun updateLatestPath(newCoordinate: Coordinate, paths: MutableList<PathInfo>) {
-        val index = paths.lastIndex
-        paths[index].coordinates.add(newCoordinate)
+    fun updateLatestPath(newCoordinate: Coordinate) {
+        _newPathList[0].pathInfo.coordinates.add(newCoordinate)
     }
 
-    fun getLastPath(paths: MutableList<PathInfo>): PathInfo {
-        return paths.last()
+    fun getLastPath(): UserPagePathInfo {
+        return _newPathList[0]
     }
 
-    fun undo(pageList: MutableList<PageData>) {
-        if (undoPageList.isNotEmpty() && pageList.isNotEmpty()) {
-            val page = undoPageList.last()
-            val paths = pageList[page].page.paths
-            val last = paths?.last()
+    fun addNewPath() {
+        _undoPathList.add(_newPathList[0])
+        _newPathList.clear()
+    }
+
+    fun addOthersPath(userPagePathInfo: UserPagePathInfo) {
+        _undoPathList.add(userPagePathInfo)
+    }
+
+    fun undo() {
+        val userPathList = _undoPathList.filter { it.userName == userName }
+        if (userPathList.isNotEmpty()) {
+            val last = userPathList.last()
+            val index = _undoPathList.indexOfLast { it.userName == userName }
 
             // redo 경로 정보 저장
-            redoPageList.add(page)
-            if (last != null) {
-                redoPathList.add(last)
-            }
+            _redoPathList.add(last)
 
             // 현재 경로에서 삭제
-            paths?.remove(last)
-            undoPageList.remove(page)
+            _undoPathList.removeAt(index)
 
-            trackHistory(undoPageList.size, redoPageList.size)
-            historyTracking.tryEmit("undo")
+            trackHistory(_undoPathList.size, _redoPathList.size)
+            _historyTracker.tryEmit("undo")
         }
     }
 
-    fun redo(pageList: MutableList<PageData>) {
-        if (redoPageList.isNotEmpty() && redoPathList.isNotEmpty()) {
-            val page = redoPageList.last()
-            val last = redoPathList.last()
-            val paths = pageList[page].page.paths
+    fun redo() {
+        if (_redoPathList.isNotEmpty()) {
+            val last = _redoPathList.last()
 
             // 경로 복원
-            paths?.add(last)
+            _undoPathList.add(last)
+            _redoPathList.remove(last)
 
-            // undo 경로 정보 저장
-            undoPageList.add(page)
-
-            redoPathList.remove(last)
-            redoPageList.remove(page)
-
-            trackHistory(undoPageList.size, redoPageList.size)
-            historyTracking.tryEmit("redo")
+            trackHistory(_undoPathList.size, _redoPathList.size)
+            _historyTracker.tryEmit("redo")
         }
     }
 
     fun reset() {
-        undoPageList.clear()
-        redoPageList.clear()
-        redoPathList.clear()
-        historyTracking.tryEmit("reset")
+        _undoPathList.clear()
+        _redoPathList.clear()
+        _historyTracker.tryEmit("reset")
     }
 
     fun createPage(currentPage: Int, pageList: MutableList<PageData>) {
@@ -160,9 +165,9 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
         }
 
         // 생성된 페이지 이후 undo 페이지 번호 하나씩 뒤로 밀기
-        undoPageList.forEachIndexed { i, value ->
-            if (value > currentPage) {
-                undoPageList[i] = value + 1
+        _undoPathList.forEach {
+            if (it.page < currentPage) {
+                it.page += 1
             }
         }
     }
