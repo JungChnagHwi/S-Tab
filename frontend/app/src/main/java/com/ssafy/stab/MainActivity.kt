@@ -71,6 +71,6 @@ fun Routers(){
             AudioCallScreen(viewModel = audioCallViewModel)
         }
         composable("create-note") { CreateNoteModal({}, NoteListViewModel()) }
-        composable("create-folder") { CreateFolderModal({}) }
+        composable("create-folder") { CreateFolderModal({}, NoteListViewModel()) }
     }
 }

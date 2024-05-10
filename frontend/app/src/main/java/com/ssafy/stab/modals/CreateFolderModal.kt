@@ -23,10 +23,11 @@ import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.folder.createFolder
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.screens.space.NoteListViewModel
 
 
 @Composable
-fun CreateFolderModal(closeModal: () -> Unit) {
+fun CreateFolderModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
     var folderName by remember { mutableStateOf("제목 없는 폴더") }
     val folderImg = painterResource(id = R.drawable.folder)
 
@@ -50,7 +51,9 @@ fun CreateFolderModal(closeModal: () -> Unit) {
             Button(onClick = { createFolder(
                 PreferencesUtil.getNowLocation().nowLocation.toString(),
                 folderName
-            )
+            ){ response ->
+                viewModel.addFolder(response)
+            }
                 closeModal()
             }) {
                 Text(text = "생성")

@@ -145,7 +145,7 @@ fun ListGridScreen(viewModel: NoteListViewModel) {
     if (showFolderModal.value) {
         Dialog(onDismissRequest = { showFolderModal.value = false }) {
             val closeModal = { showFolderModal.value = false}
-            CreateFolderModal(closeModal)
+            CreateFolderModal(closeModal, viewModel)
         }
     }
 
