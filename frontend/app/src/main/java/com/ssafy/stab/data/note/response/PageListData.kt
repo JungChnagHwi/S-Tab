@@ -7,7 +7,7 @@ import com.ssafy.stab.data.note.PathInfo
 import com.ssafy.stab.data.note.TemplateType
 import java.time.LocalDateTime
 
-data class PageDetail(
+data class PageData(
     @SerializedName("pageId")
     val pageId: String,
     @SerializedName("color")
@@ -32,11 +32,6 @@ data class PageDetail(
     val textBoxes: MutableList<Any>?,
     @SerializedName("images")
     val images: MutableList<Any>?,
-)
-
-data class PageData(
-    @SerializedName("page")
-    val page: PageDetail
 )
 
 data class PageListResponse(

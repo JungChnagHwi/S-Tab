@@ -26,7 +26,6 @@ fun fetchPageList(
         ) {
             if (response.isSuccessful) {
                 val responseBody = response.body()!!
-                Log.d("response", responseBody.toString())
                 onResponseSuccess(responseBody)
                 Log.i("fetchPageList", "isSuccessful")
             } else {

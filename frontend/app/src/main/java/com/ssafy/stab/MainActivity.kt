@@ -27,6 +27,7 @@ import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 import com.kakao.sdk.common.util.Utility
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
+import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.space.NoteListViewModel
 
 
@@ -64,7 +65,7 @@ fun Routers(){
         composable("login") { Login(navController = navController) }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
         composable("space") { SpaceRouters(homeNavController = navController) }
-        composable("personal-note") { PersonalNote(navController = navController)}
+        composable("personal-note") { PersonalNote(viewModel = NoteViewModel(), navController = navController)}
         composable("audio-call") {
             // ViewModel 초기화
             val audioCallViewModel = viewModel<AudioCallViewModel>()
