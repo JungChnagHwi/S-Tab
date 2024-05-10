@@ -133,7 +133,7 @@ fun DeletedUnder(){
         Spacer(modifier = Modifier.height(10.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))
-            ListGridScreen()
+//            ListGridScreen()
         }
     }
 }

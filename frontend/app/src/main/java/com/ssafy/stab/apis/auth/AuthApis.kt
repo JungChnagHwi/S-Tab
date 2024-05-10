@@ -10,9 +10,10 @@ import com.ssafy.stab.screens.auth.uploadFile
 import retrofit2.Call
 import retrofit2.Response
 
+private val apiService: ApiService = RetrofitClient.instance.create(ApiService::class.java)
+
 
 fun socialLogin(idToken: String, navController: NavController) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
     val idTokenRequest = IdTokenRequest(idToken) // idToken을 IdTokenRequest 객체로 변환
     val call = apiService.getTokens(idTokenRequest) // 수정된 호출 방식
 
@@ -37,13 +38,13 @@ fun socialLogin(idToken: String, navController: NavController) {
 
 
 fun tryLogin(authorization: String, navController: NavController) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
     val accessToken = authorization
     val authorizationHeader = "Bearer $accessToken"
     val call = apiService.getInfoIfUser(authorizationHeader)
-
+    Log.d("a", authorizationHeader)
     call.enqueue(object : retrofit2.Callback<AuthResponse> {
         override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+            Log.d("a", response.toString())
             when (response.code()) {
                 200 -> {
                     val userInfo = response.body()
@@ -51,11 +52,12 @@ fun tryLogin(authorization: String, navController: NavController) {
                         Log.i("APIResponse", "User info received: $userInfo")
                         PreferencesUtil.saveLoginDetails(
                             isLoggedIn = true,
-                            accessToken = accessToken,
+                            accessToken = accessToken.toString(),
                             userName = userInfo.nickname,
                             profileImg = userInfo.profileImg,
                             rootFolderId = userInfo.rootFolderId
                         )
+                        PreferencesUtil.saveLocation(nowLocation = userInfo.rootFolderId)
                         navController.navigate("space")
                     } else {
                         Log.e("APIResponse", "Response was successful but no user info found")
@@ -65,7 +67,7 @@ fun tryLogin(authorization: String, navController: NavController) {
                     Log.i("APIResponse", "No content: User does not exist or no data available")
                     PreferencesUtil.saveLoginDetails(
                         isLoggedIn = false,
-                        accessToken = accessToken,
+                        accessToken = accessToken.toString(),
                         userName = "",
                         profileImg = "",
                         rootFolderId = ""
@@ -74,7 +76,7 @@ fun tryLogin(authorization: String, navController: NavController) {
                 }
                 else -> {
                     // Handle other unexpected status codes
-                    Log.e("APIResponse", "Unexpected response code: ${response.code()}")
+                    Log.e("APIResponse", "Unexpected response code: ${response}")
                 }
             }
         }
@@ -88,7 +90,6 @@ fun tryLogin(authorization: String, navController: NavController) {
 }
 
 fun signUp(nickname: String, profileImg: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
     val accessToken = PreferencesUtil.getLoginDetails().accessToken
     val authorizationHeader = "Bearer $accessToken"
     val userSignupRequest = UserSignupRequest(nickname, profileImg)
@@ -106,6 +107,7 @@ fun signUp(nickname: String, profileImg: String) {
                     profileImg = authResponse.profileImg,
                     rootFolderId = authResponse.rootFolderId
                 )
+                PreferencesUtil.saveLocation(nowLocation = authResponse.rootFolderId)
             } else {
                 Log.e("APIResponse", "API Call failed!")
             }
@@ -117,7 +119,6 @@ fun signUp(nickname: String, profileImg: String) {
 }
 
 fun s3uri(context: Context, imageUri: Uri, nickname: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
     val accessToken = PreferencesUtil.getLoginDetails().accessToken
     val authorizationHeader = "Bearer $accessToken"
     val imgUri = "$imageUri.jpeg"
@@ -143,7 +144,6 @@ fun s3uri(context: Context, imageUri: Uri, nickname: String) {
 }
 
 fun checkNickName(nickname: String, onResult: (Boolean) -> Unit) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
     val accessToken = PreferencesUtil.getLoginDetails().accessToken
     val authorizationHeader = "Bearer $accessToken"
     val call = apiService.checkNickname(authorizationHeader, nickname)

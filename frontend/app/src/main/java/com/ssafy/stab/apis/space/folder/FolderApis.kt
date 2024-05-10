@@ -3,16 +3,17 @@ package com.ssafy.stab.apis.space.folder
 import android.util.Log
 import com.ssafy.stab.apis.RetrofitClient
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.screens.space.NoteListViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.create
 
+private val apiService: ApiService = RetrofitClient.instance.create(ApiService::class.java)
+private val accessToken = PreferencesUtil.getLoginDetails().accessToken
+private val authorizationHeader = "Bearer $accessToken"
 
-fun getFileList(folderId: String){
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
+fun getFileList(folderId: String, onFolderResult: (List<Folder>?) -> Unit, onNoteResult: (List<Note>?) -> Unit){
     val call = apiService.getFileList(authorizationHeader, folderId)
 
     call.enqueue(object : Callback<FileListResponse> {
@@ -20,11 +21,8 @@ fun getFileList(folderId: String){
             if (response.isSuccessful) {
                 // 성공적으로 데이터를 받아왔을 때
                 val fileListResponse = response.body()
-                fileListResponse?.let {
-                    // 응답 데이터 처리, 예: 리스트 출력
-                    Log.d("Folders :", it.folders.toString())
-                    Log.d("Notes :", it.notes.toString())
-                }
+                onFolderResult(fileListResponse?.folders)
+                onNoteResult(fileListResponse?.notes)
             } else {
                 // 서버로부터 예상치 못한 응답을 받았을 때 (예: 404, 500 등)
                 println("Response not successful: ${response.errorBody()?.string()}")
@@ -36,21 +34,19 @@ fun getFileList(folderId: String){
             println("Error fetching file list: ${t.message}")
         }
     })
-
 }
 
 fun createFolder(parentFolderId: String, title: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val createFolderRequest = CreateFolderRequest(parentFolderId, title)
     val call = apiService.createFolder(authorizationHeader, createFolderRequest)
 
-    call.enqueue(object: retrofit2.Callback<Folder> {
+    call.enqueue(object: Callback<Folder> {
         override fun onResponse(call: Call<Folder>, response: Response<Folder>) {
             Log.d("a", response.toString())
             if (response.isSuccessful && response.body() != null) {
                 Log.i("APIResponse", "Successful response: ${response.body()}")
+                NoteListViewModel().addFolder(response.body()!!)
+
             } else {
                 Log.e("APIResponse", "API Call failed!")
             }
@@ -63,9 +59,6 @@ fun createFolder(parentFolderId: String, title: String) {
 }
 
 fun renameFolder(folderId: String, title: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val renameFolderRequest = RenameFolderRequest(folderId, title)
     val call = apiService.renameFolder(authorizationHeader, renameFolderRequest)
 
@@ -81,9 +74,6 @@ fun renameFolder(folderId: String, title: String) {
 }
 
 fun relocateFolder(folderId: String, parentFolderId: String){
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val relocateFolderRequest = RelocateFolderRequest(folderId, parentFolderId)
     val call = apiService.relocateFolder(authorizationHeader, relocateFolderRequest)
 
@@ -99,9 +89,6 @@ fun relocateFolder(folderId: String, parentFolderId: String){
 }
 
 fun deleteFolder(folderId: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val call = apiService.deleteFolder(authorizationHeader, folderId)
 
     call.enqueue(object: Callback<Void> {

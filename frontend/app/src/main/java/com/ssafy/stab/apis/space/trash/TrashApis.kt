@@ -7,10 +7,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+
+private val apiService: ApiService = RetrofitClient.instance.create(ApiService::class.java)
+private val accessToken = PreferencesUtil.getLoginDetails().accessToken
+private val authorizationHeader = "Bearer $accessToken"
+
 fun getTrashList() {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val call = apiService.getTrashList(authorizationHeader)
 
     call.enqueue(object: Callback<GetTrashListResponse>{
@@ -28,9 +30,6 @@ fun getTrashList() {
 }
 
 fun restoreTrash(id: String) {
-    val apiService = RetrofitClient.instance.create(ApiService::class.java)
-    val accessToken = PreferencesUtil.getLoginDetails().accessToken
-    val authorizationHeader = "Bearer $accessToken"
     val restoreTrashRequest = RestoreTrashRequest(id)
     val call = apiService.restoreTrash(authorizationHeader, restoreTrashRequest)
 
