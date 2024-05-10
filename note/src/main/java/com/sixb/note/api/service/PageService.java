@@ -122,18 +122,30 @@ public class PageService {
             if (deleteStatus == false) {
                 // 검색 잘 되는지 나중에 확인해야함
                 Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
+                List<FigureDto> figures = request.getFigures();
+                List<ImageDto> images = request.getImages();
+                List<TextBoxDto> textBoxes = request.getTextBoxes();
+                List<PathDto> paths = request.getPaths();
+//                List<PathDto> paths = Optional.ofNullable(request.getPaths());
+
+                System.out.println("fig: "+figures);
                 if (optionalPageData.isPresent()) {
                     PageData pageData = optionalPageData.get();
-                    Optional<List<FigureDto>> optionalFigures = Optional.ofNullable(pageData.getFigures());
-                    Optional<List<ImageDto>> optionalImages = Optional.ofNullable(pageData.getImages());
-                    Optional<List<TextBoxDto>> optionalTextBoxes = Optional.ofNullable(pageData.getTextBoxes());
-                    Optional<List<PathDto>> optionalPaths = Optional.ofNullable(pageData.getPaths());
 
-                    pageData.setFigures(optionalFigures.orElse(null));
-                    pageData.setImages(optionalImages.orElse(null));
-                    pageData.setTextBoxes(optionalTextBoxes.orElse(null));
-                    pageData.setPaths(optionalPaths.orElse(null));
+                    pageData.setFigures(figures);
+                    pageData.setImages(images);
+                    pageData.setTextBoxes(textBoxes);
+//                    pageData.setPaths(optionalPaths.orElse(null));
 
+                    pageDataRepository.save(pageData);
+                } else {
+                    PageData pageData = PageData.builder()
+                            .id(pageId)
+//                            .paths(optionalPaths.orElse(null))
+                            .images(images)
+                            .figures(figures)
+                            .textBoxes(textBoxes)
+                            .build();
                     pageDataRepository.save(pageData);
                 }
 

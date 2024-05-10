@@ -1,8 +1,9 @@
 package com.sixb.note.dto.pageData;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.Data;
 
-@Document(collection = "Figure")
+
+@Data
 public class FigureDto {
     private String shape;
     private String color;
