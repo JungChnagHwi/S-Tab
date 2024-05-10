@@ -22,6 +22,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,9 +33,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import com.ssafy.stab.apis.space.share.ShareSpaceList
 import com.ssafy.stab.apis.space.share.createShareSpace
 import com.ssafy.stab.apis.space.share.getShareSpaceList
-import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.modals.CreateFolderModal
+import com.ssafy.stab.modals.CreateShareSpaceModal
 
 @Composable
 fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
@@ -45,18 +52,28 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
     val phoneImg = painterResource(id = R.drawable.phone)
     val plusImg = painterResource(id = R.drawable.plus)
 
-    val shareSpaceList = listOf(
-        "스터디1",
-        "스터디2",
-        "스터디3",
-        "스터디4",
-        "스터디5",
-        "스터디6",
-        "스터디7",
-        "스터디8",
-        "스터디9",
-        "스터디10"
-    )
+    val showCreateModal = remember { mutableStateOf(false) }
+    var shareSpaceList = remember { mutableStateListOf<ShareSpaceList>() }
+
+    LaunchedEffect(key1 = true) {
+        getShareSpaceList { res ->
+            shareSpaceList.clear()
+            shareSpaceList.addAll(res)
+        }
+    }
+
+    Log.d("a", shareSpaceList.size.toString())
+
+    if (showCreateModal.value) {
+        Dialog(onDismissRequest = { showCreateModal.value = false }) {
+            CreateShareSpaceModal(
+                closeModal = { showCreateModal.value = false },
+                onSpaceCreated = { newSpace ->
+                    shareSpaceList.add(newSpace)
+                }
+            )
+        }
+    }
 
     Column( modifier = modifier
         .fillMaxSize()
@@ -70,7 +87,6 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
                 .clip(RoundedCornerShape(10.dp))
                 .background(color = Color(0xFF5584FD))
                 .align(Alignment.CenterHorizontally)
-                .clickable { getShareSpaceList() }
         ){
             Text(
                 text = "S-Tab",
@@ -119,7 +135,9 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(7.dp))
         Column {
             Row(
-                modifier = Modifier.clickable { createShareSpace("첫번째 공스") },
+                modifier = Modifier.clickable {
+                    showCreateModal.value = true
+                                              },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Spacer(modifier = Modifier.width(70.dp))
@@ -128,9 +146,7 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
                 Text(text = "새로 만들기")
             }
             Spacer(modifier = Modifier.height(7.dp))
-            ShareSpaceListScreen({ onNavigate("share-space") },
-                spaceNames = shareSpaceList
-            )
+            ShareSpaceListScreen({ onNavigate("share-space") }, shareSpaceList)
         }
         Spacer(modifier = Modifier.weight(1f))
         Box(
@@ -172,27 +188,18 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ShareSpaceListScreen(onNavigate: (String) -> Unit, spaceNames: List<String>){
+fun ShareSpaceListScreen(onNavigate: (String) -> Unit, shareSpaceList: List<ShareSpaceList>){
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val callingImg = painterResource(id = R.drawable.calling)
 
     LazyColumn(modifier = Modifier.fillMaxHeight(0.6f)) {
-        items(spaceNames) { spaceName ->
+        items(shareSpaceList) { shareSpace ->
             Row {
                 Spacer(modifier = Modifier.width(70.dp))
                 Row(modifier = Modifier.clickable { onNavigate("share-space") }) {
-                    if (spaceName == "스터디1") {
-                        Image(painter = callingImg, contentDescription = null, modifier= Modifier
-                            .height(30.dp)
-                            .width(30.dp))
-                        Spacer(modifier = Modifier.width(5.dp))
-                    }
                     Image(painter = sharespImg, contentDescription = null)
                     Spacer(modifier = Modifier.width(5.dp))
-                    Text(
-                        text = spaceName,
-                        modifier = Modifier.padding(7.dp)
-                    )
+                    Text(text = shareSpace.title , modifier = Modifier.padding(7.dp))
                 }
             }
         }
