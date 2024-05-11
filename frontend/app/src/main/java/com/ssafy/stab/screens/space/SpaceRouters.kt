@@ -52,7 +52,9 @@ fun SpaceRouters(homeNavController: NavController) {
             SideBar(onNavigate = { navigateTo(it) }, modifier = Modifier.weight(0.25f))
         }
         Column(modifier = Modifier.weight(0.75f).background(color = Color(0xFFE9ECF5))) {
-            Header(homeNavController = homeNavController)
+            if (currentRoute != "personal-note" && currentRoute != "share-note") {
+                Header(homeNavController = homeNavController)
+            }
             NavHost(navController = navController, startDestination = "personal-space") {
                 composable("personal-space") { PersonalSpace(navController) }
                 composable("share-space") { ShareSpace() }

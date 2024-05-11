@@ -197,12 +197,12 @@ io.on("connection", (socket) => {
 
   // 스페이스 수정 공유
   socket.on("updateSpace", (spaceId, message) => {
-    io.to(spaceId).emit("receiveSpace", message);
+    socket.broadcast.to(spaceId).emit("receiveSpace", message);
   });
 
   // 노트 수정 공유
   socket.on("updateDrawing", (noteId, message) => {
-    io.to(noteId).emit("receiveDrawing", message);
+    socket.broadcast.to(noteId).emit("receiveDrawing", message);
   });
 
   // Room 나가기
