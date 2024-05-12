@@ -112,7 +112,8 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
     val leftImg = painterResource(id = R.drawable.left)
 
     // 통화 방 참여 상태에 따른 이미지 리소스 결정
-    val callButtonImage = if (isCurrentSpaceActive) {
+    val callActive = remember { mutableStateOf(isCurrentSpaceActive) }
+    val callButtonImage = if (callActive.value) {
         painterResource(id = R.drawable.calloff)  // 통화 종료 아이콘
     } else {
         painterResource(id = R.drawable.call)  // 통화 시작 아이콘
@@ -160,11 +161,13 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
                         painter = callButtonImage,
-                        contentDescription = if (isCurrentSpaceActive) "통화 종료" else "통화 시작",
+                        contentDescription = if (callActive.value) "통화 종료" else "통화 시작",
                         modifier = Modifier
                             .height(30.dp)
                             .height(30.dp)
-                            .clickable { audioCallViewModel.buttonPressed(context) }
+                            .clickable {
+                                callActive.value = !callActive.value
+                                audioCallViewModel.buttonPressed(context) }
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
