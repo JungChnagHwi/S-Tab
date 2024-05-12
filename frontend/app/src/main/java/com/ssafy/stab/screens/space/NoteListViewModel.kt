@@ -66,5 +66,45 @@ class NoteListViewModel(initialFolderId: String) : ViewModel() {
         _combinedList.value = newList.sortedByDescending { it.updatedAt }
         println("Added folder, new list size: ${_combinedList.value.size}") // 로그 추가
     }
+    fun renameFolder(folderId: String, newTitle: String) {
+        viewModelScope.launch {
+            val updatedList = _combinedList.value.map { item ->
+                if (item is Folder && item.folderId == folderId) {
+                    item.copy(title = newTitle)
+                } else {
+                    item
+                }
+            }
+            _combinedList.value = updatedList
+        }
+        println("Renamed folder, new list size: ${_combinedList.value.size}") // 로그 추가
+    }
 
+    fun renameNote(noteId: String, newTitle: String) {
+        viewModelScope.launch {
+            val updatedList = _combinedList.value.map { item ->
+                if (item is Note && item.noteId == noteId) {
+                    item.copy(title = newTitle)
+                } else {
+                    item
+                }
+            }
+            _combinedList.value = updatedList
+        }
+        println("Renamed note, new list size: ${_combinedList.value.size}") // 로그 추가
+    }
+
+    fun deleteFolder(folderId: String) {
+        viewModelScope.launch {
+            _combinedList.value = _combinedList.value.filterNot { it is Folder && it.folderId == folderId }
+        }
+        println("Deleted folder, new list size: ${_combinedList.value.size}") // 로그 추가
+    }
+
+    fun deleteNote(noteId: String) {
+        viewModelScope.launch {
+            _combinedList.value = _combinedList.value.filterNot { it is Note && it.noteId == noteId }
+        }
+        println("Deleted note, new list size: ${_combinedList.value.size}") // 로그 추가
+    }
 }

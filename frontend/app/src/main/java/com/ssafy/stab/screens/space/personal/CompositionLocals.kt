@@ -9,4 +9,6 @@ val LocalPrevFolderTitle = compositionLocalOf { mutableStateOf("") }
 val LocalNowFolderTitle = compositionLocalOf { mutableStateOf("내 스페이스") }
 
 val LocalPrevFolderId = compositionLocalOf { mutableStateOf("") }
+val LocalSelectedFileId = compositionLocalOf { mutableStateOf("") }
+val LocalSelectedFileTitle = compositionLocalOf { mutableStateOf("") }
 val LocalNowFolderId = compositionLocalOf { mutableStateOf(PreferencesUtil.getLoginDetails().rootFolderId) }
