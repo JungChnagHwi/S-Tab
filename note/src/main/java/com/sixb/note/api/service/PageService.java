@@ -49,6 +49,7 @@ public class PageService {
             newPage.setUpdatedAt(now);
             newPage.setColor(beforePage.getColor());
             newPage.setDirection(beforePage.getDirection());
+            newPage.setPageData("");
             // 만약 이전 페이지가 pdf페이지가 아니라면
             if (beforePage.getPdfUrl()==null) {
                 newPage.setTemplate(beforePage.getTemplate());
@@ -85,11 +86,11 @@ public class PageService {
 
             // mongodb에 데이터 만들기
             // 필기 데이터 저장
-            PageData pageData = PageData.builder()
-                    .id(pageId)
-                    .build();
+//            PageData pageData = PageData.builder()
+//                    .id(pageId)
+//                    .build();
 
-            pageDataRepository.save(pageData);
+//            pageDataRepository.save(pageData);
 
             return responseDto;
         } else { // page 못찾은 경우
@@ -115,48 +116,73 @@ public class PageService {
     }
 
     // 데이터 저장
+//    public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
+//        String pageId = request.getPageId();
+//        Page page = pageRepository.findPageById(pageId);
+//        if (page!=null) {
+//            Boolean deleteStatus = page.getIsDeleted();
+//            if (deleteStatus == false) {
+//                // 검색 잘 되는지 나중에 확인해야함
+//                Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
+//                List<FigureDto> figures = request.getFigures();
+//                List<ImageDto> images = request.getImages();
+//                List<TextBoxDto> textBoxes = request.getTextBoxes();
+//                List<PathDto> paths = request.getPaths();
+////                List<PathDto> paths = Optional.ofNullable(request.getPaths());
+//
+//                System.out.println("fig: "+figures);
+//                if (optionalPageData.isPresent()) {
+//                    PageData pageData = optionalPageData.get();
+//
+//                    pageData.setFigures(figures);
+//                    pageData.setImages(images);
+//                    pageData.setTextBoxes(textBoxes);
+////                    pageData.setPaths(optionalPaths.orElse(null));
+//
+//                    pageDataRepository.save(pageData);
+//                } else {
+//                    PageData pageData = PageData.builder()
+//                            .id(pageId)
+////                            .paths(optionalPaths.orElse(null))
+//                            .images(images)
+//                            .figures(figures)
+//                            .textBoxes(textBoxes)
+//                            .build();
+//                    pageDataRepository.save(pageData);
+//                }
+//
+//            } else {
+//                throw new PageNotFoundException("이미 삭제된 페이지입니다.");
+//            }
+//        } else {
+//            throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
+//        }
+//
+//    }
     public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
+        System.out.println(request);
         String pageId = request.getPageId();
         Page page = pageRepository.findPageById(pageId);
-        if (page!=null) {
-            Boolean deleteStatus = page.getIsDeleted();
-            if (deleteStatus == false) {
-                // 검색 잘 되는지 나중에 확인해야함
-                Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
-                List<FigureDto> figures = request.getFigures();
-                List<ImageDto> images = request.getImages();
-                List<TextBoxDto> textBoxes = request.getTextBoxes();
-                List<PathDto> paths = request.getPaths();
-//                List<PathDto> paths = Optional.ofNullable(request.getPaths());
-
-                System.out.println("fig: "+figures);
-                if (optionalPageData.isPresent()) {
-                    PageData pageData = optionalPageData.get();
-
-                    pageData.setFigures(figures);
-                    pageData.setImages(images);
-                    pageData.setTextBoxes(textBoxes);
-//                    pageData.setPaths(optionalPaths.orElse(null));
-
-                    pageDataRepository.save(pageData);
-                } else {
-                    PageData pageData = PageData.builder()
-                            .id(pageId)
-//                            .paths(optionalPaths.orElse(null))
-                            .images(images)
-                            .figures(figures)
-                            .textBoxes(textBoxes)
-                            .build();
-                    pageDataRepository.save(pageData);
-                }
-
+//        Note note = noteRepository.findNoteByPageId(pageId);
+        LocalDateTime now = LocalDateTime.now();
+//        if (note == null) {
+//            throw new PageNotFoundException("노트를 찾을 수 없습니다.");
+//        }
+        if (page != null) {
+            if (page.getIsDeleted() == false) {
+                page.setUpdatedAt(now);
+                page.setPageData(request.getPageData());
+//                note.setUpdatedAt(now);
+                pageRepository.save(page);
+//                noteRepository.save(note);
+//                System.out.println(note.getId());
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
+
         } else {
             throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
         }
-
     }
 
     public PageUpdateDto updatePage(PageUpdateDto request) throws PageNotFoundException {
