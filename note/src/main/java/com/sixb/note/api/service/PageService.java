@@ -49,7 +49,7 @@ public class PageService {
             newPage.setUpdatedAt(now);
             newPage.setColor(beforePage.getColor());
             newPage.setDirection(beforePage.getDirection());
-            newPage.setPageData("");
+            newPage.setPageData("{paths: [], figures: [],textBoxes: [], images: []}");
             // 만약 이전 페이지가 pdf페이지가 아니라면
             if (beforePage.getPdfUrl()==null) {
                 newPage.setTemplate(beforePage.getTemplate());
