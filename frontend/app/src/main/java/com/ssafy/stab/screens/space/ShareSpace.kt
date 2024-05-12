@@ -1,5 +1,6 @@
 package com.ssafy.stab.screens.space
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -58,9 +60,7 @@ fun ShareSpace(navController: NavController, spaceId: String) {
             .background(Color(0xFFE9ECF5))
             .fillMaxSize()
     ) {
-        SpTitleBar(onCallButtonClick = {
-            audioCallViewModel.buttonPressed(context)
-        })
+        SpTitleBar( context = context, audioCallViewModel = audioCallViewModel )
         Divider(
             color = Color.Gray,
             thickness = 1.dp,
@@ -101,13 +101,20 @@ fun ShareSpace(navController: NavController, spaceId: String) {
 }
 
 @Composable
-fun SpTitleBar(onCallButtonClick: () -> Unit) {
+fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
-    val callImg = painterResource(id = R.drawable.call)
+    val isConnected = audioCallViewModel.isConnected.collectAsState() // 음성 통화 방 참여 상태
+    // 통화 방 참여 상태에 따른 이미지 리소스 결정
+    val callButtonImage = if (isConnected.value) {
+        painterResource(id = R.drawable.calloff)  // 통화 종료 아이콘
+    } else {
+        painterResource(id = R.drawable.call)  // 통화 시작 아이콘
+    }
     val envelopeImg = painterResource(id = R.drawable.envelope)
     val outImg = painterResource(id = R.drawable.out)
     val peopleImg = painterResource(id = R.drawable.people)
+
 
     Row {
         Spacer(modifier = Modifier.width(30.dp))
@@ -146,12 +153,12 @@ fun SpTitleBar(onCallButtonClick: () -> Unit) {
                     Text(text = "( 2 / 6 )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
-                        painter = callImg,
-                        contentDescription = null,
+                        painter = callButtonImage,
+                        contentDescription = if (isConnected.value) "통화 종료" else "통화 시작",
                         modifier = Modifier
                             .height(30.dp)
                             .height(30.dp)
-                            .clickable { onCallButtonClick() }
+                            .clickable { audioCallViewModel.buttonPressed(context) }
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
