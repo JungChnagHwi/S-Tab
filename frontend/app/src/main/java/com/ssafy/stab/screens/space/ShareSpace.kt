@@ -22,15 +22,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.R
+import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
 fun ShareSpace(navController: NavController, spaceId: String) {
+    // audioCallViewModel instance로 관리: 화면을 이동해도 계속 통화가 실행되게 하기 위함
+    val audioCallViewModel: AudioCallViewModel = viewModel()
     // 드롭다운 이미지와 드롭업 이미지 리소스를 로드합니다.
     val dropdownImg = painterResource(id = R.drawable.dropdown)
     val dropupImg = painterResource(id = R.drawable.dropup)
@@ -39,12 +45,22 @@ fun ShareSpace(navController: NavController, spaceId: String) {
     // 초기값은 최대 높이인 300.dp로 설정합니다.
     val boxHeightState = remember { mutableStateOf(300.dp) }
 
+    // webRTC에 필요한 정보 설정(context, sessionId, participantName)
+    val context = LocalContext.current
+    val loginDetails = remember { PreferencesUtil.getLoginDetails() }
+    val userName = remember { loginDetails.userName }
+    audioCallViewModel.sessionId.value = spaceId
+    if (userName != null) { audioCallViewModel.participantName.value = userName }
+
+
     Column(
         modifier = Modifier
             .background(Color(0xFFE9ECF5))
             .fillMaxSize()
     ) {
-        SpTitleBar()
+        SpTitleBar(onCallButtonClick = {
+            audioCallViewModel.buttonPressed(context)
+        })
         Divider(
             color = Color.Gray,
             thickness = 1.dp,
@@ -85,7 +101,7 @@ fun ShareSpace(navController: NavController, spaceId: String) {
 }
 
 @Composable
-fun SpTitleBar() {
+fun SpTitleBar(onCallButtonClick: () -> Unit) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
     val callImg = painterResource(id = R.drawable.call)
@@ -135,6 +151,7 @@ fun SpTitleBar() {
                         modifier = Modifier
                             .height(30.dp)
                             .height(30.dp)
+                            .clickable { onCallButtonClick() }
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
