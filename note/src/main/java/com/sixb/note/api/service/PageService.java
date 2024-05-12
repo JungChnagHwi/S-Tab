@@ -84,14 +84,6 @@ public class PageService {
             pageRepository.save(newPage);
             pageRepository.save(beforePage);
 
-            // mongodb에 데이터 만들기
-            // 필기 데이터 저장
-//            PageData pageData = PageData.builder()
-//                    .id(pageId)
-//                    .build();
-
-//            pageDataRepository.save(pageData);
-
             return responseDto;
         } else { // page 못찾은 경우
             // error
@@ -115,50 +107,6 @@ public class PageService {
         }
     }
 
-    // 데이터 저장
-//    public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
-//        String pageId = request.getPageId();
-//        Page page = pageRepository.findPageById(pageId);
-//        if (page!=null) {
-//            Boolean deleteStatus = page.getIsDeleted();
-//            if (deleteStatus == false) {
-//                // 검색 잘 되는지 나중에 확인해야함
-//                Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
-//                List<FigureDto> figures = request.getFigures();
-//                List<ImageDto> images = request.getImages();
-//                List<TextBoxDto> textBoxes = request.getTextBoxes();
-//                List<PathDto> paths = request.getPaths();
-////                List<PathDto> paths = Optional.ofNullable(request.getPaths());
-//
-//                System.out.println("fig: "+figures);
-//                if (optionalPageData.isPresent()) {
-//                    PageData pageData = optionalPageData.get();
-//
-//                    pageData.setFigures(figures);
-//                    pageData.setImages(images);
-//                    pageData.setTextBoxes(textBoxes);
-////                    pageData.setPaths(optionalPaths.orElse(null));
-//
-//                    pageDataRepository.save(pageData);
-//                } else {
-//                    PageData pageData = PageData.builder()
-//                            .id(pageId)
-////                            .paths(optionalPaths.orElse(null))
-//                            .images(images)
-//                            .figures(figures)
-//                            .textBoxes(textBoxes)
-//                            .build();
-//                    pageDataRepository.save(pageData);
-//                }
-//
-//            } else {
-//                throw new PageNotFoundException("이미 삭제된 페이지입니다.");
-//            }
-//        } else {
-//            throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
-//        }
-//
-//    }
     public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
         System.out.println(request);
         String pageId = request.getPageId();
