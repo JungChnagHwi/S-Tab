@@ -3,10 +3,9 @@ package com.ssafy.stab.apis.note
 import android.util.Log
 import com.ssafy.stab.apis.RetrofitClient
 import com.ssafy.stab.data.PreferencesUtil
-import com.ssafy.stab.data.note.request.NoteRequest
 import com.ssafy.stab.data.note.request.PageId
+import com.ssafy.stab.data.note.request.SavingPageData
 import com.ssafy.stab.data.note.response.NewPage
-import com.ssafy.stab.data.note.response.NoteResponse
 import com.ssafy.stab.data.note.response.PageListResponse
 import retrofit2.Call
 import retrofit2.Callback
@@ -64,23 +63,23 @@ fun createNewPage(
     })
 }
 
-//fun createNewNote(noteRequest: NoteRequest) {
-//    val call = apiService.createNote(authorizationHeader, noteRequest)
-//
-//    call.enqueue(object : Callback<NoteResponse> {
-//        override fun onResponse(call: Call<NoteResponse>, response: Response<NoteResponse>) {
-//            if (response.isSuccessful) {
-//                val noteResponse = response.body()
-//                Log.i("createNewNote", noteResponse.toString())
-//            } else {
-//                Log.e("createNewNote", "${response.code()}: ${response.errorBody()?.string()}")
-//            }
-//        }
-//
-//
-//        override fun onFailure(call: Call<NoteResponse>, t: Throwable) {
-//            Log.e("createNewNote", "err: ${t.localizedMessage}")
-//            t.printStackTrace()
-//        }
-//    })
-//}
+fun savePageData(
+    pageData: SavingPageData
+) {
+    Log.d("save api", pageData.toString())
+    val call = apiService.updatePage(authorizationHeader, pageData)
+
+    call.enqueue(object : Callback<String> {
+        override fun onResponse(call: Call<String>, response: Response<String>) {
+            if (response.isSuccessful) {
+                Log.i("savePage", "ok")
+            } else {
+                Log.e("savePage", "${response.code()}: ${response.errorBody()?.string()}")
+            }
+        }
+
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            Log.e("savePage", "err: ${t.localizedMessage}")
+        }
+    })
+}

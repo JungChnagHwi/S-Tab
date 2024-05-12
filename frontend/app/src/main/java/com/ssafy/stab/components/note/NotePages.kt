@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.data.note.Direction
-import com.ssafy.stab.data.note.response.PageData
+import com.ssafy.stab.data.note.response.PageDetail
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.ui.theme.NoteAreaBackground
 import com.ssafy.stab.util.note.NoteArea
@@ -70,7 +70,7 @@ fun PageList(
 
 @Composable
 fun Page(
-    page: PageData,
+    page: PageDetail,
     viewModel: NoteControlViewModel
 ) {
     BoxWithConstraints(

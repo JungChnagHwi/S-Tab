@@ -45,7 +45,10 @@ fun PersonalNote(
             .fillMaxSize()
     ) {
         Row {
-            Button(onClick = { navController.popBackStack() }) {
+            Button(onClick = {
+//                noteViewModel.savePage(noteControlViewModel.pathList)
+                navController.popBackStack()
+            }) {
                 Text(text = "뒤로가기")
             }
         }
