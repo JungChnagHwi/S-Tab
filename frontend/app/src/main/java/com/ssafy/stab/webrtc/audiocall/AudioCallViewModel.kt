@@ -4,10 +4,8 @@ package com.ssafy.stab.webrtc.audiocall
 import android.app.Application
 import android.content.Context
 import android.util.Log
-import android.view.View
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.data.PreferencesUtil
@@ -18,8 +16,8 @@ import com.ssafy.stab.webrtc.utils.CustomHttpClient
 import com.ssafy.stab.webrtc.utils.PermissionManager
 import com.ssafy.stab.webrtc.websocket.CustomWebSocket
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -42,22 +40,30 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
 
     // 오디오 권한 체크 후, 세션 id와 서버 url이 유효한지 확인하고 session 입장 요청
     fun buttonPressed(context: Context) {
-        val callState = PreferencesUtil.getCallState()
+        viewModelScope.launch {
+            val callState = PreferencesUtil.callState.first()  // 현재 상태를 한 번만 가져옵니다.
+            val currentSessionId = sessionId.value
+            Log.d("Debug", "Call State: is in call = ${callState.isInCall}, callSpaceId = ${callState.callSpaceId}")
+            Log.d("Debug", "Current Session ID: $currentSessionId")
 
-        if (callState.isInCall) {
-            leaveSession()
-            return
+            if (callState.isInCall && callState.callSpaceId == currentSessionId) {
+                leaveSession()
+            } else if (callState.isInCall && callState.callSpaceId != currentSessionId) {
+                leaveSession()
+                startSession(context)
+            } else if (!callState.isInCall) {
+                startSession(context)
+            }
         }
+    }
 
+    private fun startSession(context: Context) {
         if (PermissionManager.arePermissionsGranted(context)) {
             val currentSessionId = sessionId.value
-            // 서버 Url을 담은 customhttpclient 생성
             httpClient = CustomHttpClient(serverUrl)
-            getToken(currentSessionId)
-        }
-        else {
+            getToken(currentSessionId)  // 세션 토큰 요청
+        } else {
             _errorMessage.value = "오디오 권한이 필요합니다."
-            return
         }
     }
 

@@ -54,8 +54,8 @@ fun ShareSpace(navController: NavController, spaceId: String) {
     audioCallViewModel.sessionId.value = spaceId
     if (userName != null) { audioCallViewModel.participantName.value = userName }
     // 현재 공유 스페이스의 통화방 참여 여부 판단
-    val currentCallState = PreferencesUtil.getCallState()
-    val isCurrentSpaceActive = currentCallState.callSpaceId == spaceId && currentCallState.isInCall
+    val currentCallState = PreferencesUtil.callState.collectAsState()
+    val isCurrentSpaceActive = currentCallState.value.callSpaceId == spaceId && currentCallState.value.isInCall
 
     Column(
         modifier = Modifier

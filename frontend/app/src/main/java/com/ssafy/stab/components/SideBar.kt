@@ -23,9 +23,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +39,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.ssafy.stab.apis.space.share.ShareSpaceList
 import com.ssafy.stab.apis.space.share.getShareSpaceList
+import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateShareSpaceModal
 import com.ssafy.stab.screens.space.personal.LocalNowFolderId
 
@@ -62,6 +65,8 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
         }
     }
 
+    val callState = PreferencesUtil.callState.collectAsState()
+
     Log.d("a", shareSpaceList.size.toString())
 
     if (showCreateModal.value) {
@@ -75,9 +80,10 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
         }
     }
 
-    Column( modifier = modifier
-        .fillMaxSize()
-        .background(Color(0xFFDCE3F1))
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFFDCE3F1))
     ) {
         Spacer(modifier = Modifier.height(30.dp))
         Box(
@@ -87,7 +93,7 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
                 .clip(RoundedCornerShape(10.dp))
                 .background(color = Color(0xFF5584FD))
                 .align(Alignment.CenterHorizontally)
-        ){
+        ) {
             Text(
                 text = "S-Tab",
                 fontSize = 28.sp,
@@ -96,7 +102,7 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
             )
         }
         Spacer(modifier = Modifier.height(30.dp))
-        Row{
+        Row {
             Spacer(modifier = Modifier.width(50.dp))
             Row(verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable { navController.navigate("book-mark") }) {
@@ -106,7 +112,7 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Row{
+        Row {
             Spacer(modifier = Modifier.width(50.dp))
             Row(verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable { navController.navigate("deleted") }) {
@@ -137,7 +143,7 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
             Row(
                 modifier = Modifier.clickable {
                     showCreateModal.value = true
-                                              },
+                },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Spacer(modifier = Modifier.width(70.dp))
@@ -149,41 +155,55 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
             ShareSpaceListScreen(navController, shareSpaceList)
         }
         Spacer(modifier = Modifier.weight(1f))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .height(72.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(color = Color(0xFF7591C6))
-                .align(Alignment.CenterHorizontally)
-        ){
-            Row(
+        if (callState.value.isInCall) {
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp)
-                    .align(Alignment.Center),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                Image(
-                    painter = wifiImg,
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp)
-                )
-                Column {
-                    Text(
-                        text = "음성 연결됨",
-                        color = Color(0xff4ADE80),
-                        fontSize = 16.sp
+                    .fillMaxWidth(0.8f)
+                    .height(72.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(color = Color(0xFF7591C6))
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp)
+                        .align(Alignment.Center),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Image(
+                        painter = wifiImg,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp)
                     )
-                    Text(text = "스터디1")
+                    Column {
+                        Text(
+                            text = "음성 연결됨",
+                            color = Color(0xff4ADE80),
+                            fontSize = 16.sp
+                        )
+                        Text(text = callState.value.callSpaceId ?: "스터디1")
+                    }
+                    Image(
+                        painter = micImg,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Image(
+                        painter = speakerImg,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Image(
+                        painter = phoneImg,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
-                Image(painter = micImg, contentDescription = null, modifier = Modifier.size(24.dp))
-                Image(painter = speakerImg, contentDescription = null, modifier = Modifier.size(24.dp))
-                Image(painter = phoneImg, contentDescription = null, modifier = Modifier.size(24.dp))
             }
+            Spacer(modifier = Modifier.height(30.dp))
         }
-        Spacer(modifier = Modifier.height(30.dp))
     }
 }
 
@@ -210,3 +230,4 @@ fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<Shar
         }
     }
 }
+
