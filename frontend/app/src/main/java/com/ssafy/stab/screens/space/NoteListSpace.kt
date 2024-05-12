@@ -1,6 +1,7 @@
 package com.ssafy.stab.screens.space
 
 import NoteListViewModelFactory
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,8 +40,11 @@ import com.ssafy.stab.apis.space.folder.Folder
 import com.ssafy.stab.apis.space.folder.Note
 import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.modals.CreateNoteModal
+import com.ssafy.stab.modals.PatchDeleteModal
 import com.ssafy.stab.screens.space.personal.LocalNowFolderTitle
 import com.ssafy.stab.screens.space.personal.LocalPrevFolderTitle
+import com.ssafy.stab.screens.space.personal.LocalSelectedFileId
+import com.ssafy.stab.screens.space.personal.LocalSelectedFileTitle
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -118,15 +122,22 @@ fun NoteListSpace(nowId: String, navController: NavController) {
 
 @Composable
 fun ListGridScreen(initfolderId: String, navController: NavController, onFolderChange: (String) -> Unit) {
-    var folderId by remember { mutableStateOf(initfolderId) }
+    val selectedFileId = LocalSelectedFileId.current
+    val selectedFileTitle = LocalSelectedFileTitle.current
+    val folderId by remember { mutableStateOf(initfolderId) }
     val showNoteModal = remember { mutableStateOf(false) }
     val showFolderModal = remember { mutableStateOf(false) }
+    val showPatchDeleteModal = remember { mutableStateOf(false) }
     val showCreateOptions = remember { mutableStateOf(false) }
+
 
     val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(folderId))
     val combinedList by viewModel.combinedList.collectAsState()
 
     val createnoteImg = painterResource(id = R.drawable.createnote)
+    fun patchDeleteToggle(){
+        showPatchDeleteModal.value = !showPatchDeleteModal.value
+    }
 
     if (showNoteModal.value) {
         Dialog(onDismissRequest = { showNoteModal.value = false }) {
@@ -148,6 +159,20 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
                 closeModal = { showFolderModal.value = false },
                 viewModel = viewModel,
             )
+        }
+    }
+
+    if (showPatchDeleteModal.value) {
+        Dialog(onDismissRequest = { showPatchDeleteModal.value = false }) {
+            val closeModal = { showPatchDeleteModal.value = false }
+            Box(
+                modifier = Modifier
+                    .width(1000.dp)
+                    .height(800.dp)
+                    .background(Color.White, shape = RoundedCornerShape(10.dp))
+            ) {
+                PatchDeleteModal(closeModal, viewModel, selectedFileId.value, selectedFileTitle.value)
+            }
         }
     }
 
@@ -177,8 +202,11 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
                             .weight(1f)
                             .padding(8.dp)) {
                             when (item) {
-                                is Folder -> FolderItem(folder = item, viewModel = viewModel, onFolderChange)
-                                is Note -> NoteItem(note = item, viewModel, navController)
+                                is Folder -> FolderItem(folder = item, viewModel = viewModel, onFolderChange
+                                ) { patchDeleteToggle() }
+
+                                is Note -> NoteItem(note = item, navController
+                                ) { patchDeleteToggle() }
                             }
                         }
                     }
@@ -227,8 +255,11 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
                             .weight(1f)
                             .padding(8.dp)) {
                             when (item) {
-                                is Folder -> FolderItem(folder = item, viewModel, onFolderChange)
-                                is Note -> NoteItem(note = item, viewModel, navController)
+                                is Folder -> FolderItem(folder = item, viewModel, onFolderChange
+                                ) { patchDeleteToggle() }
+
+                                is Note -> NoteItem(note = item, navController
+                                ) { patchDeleteToggle() }
                             }
                         }
                     }
@@ -245,7 +276,7 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
 }
 
 @Composable
-fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (String) -> Unit) {
+fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (String) -> Unit, patchDeleteToggle: () -> Unit) {
     val folderImg = painterResource(id = R.drawable.folder)
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val modiImg = painterResource(id = R.drawable.modi)
@@ -253,6 +284,9 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (St
     val staroffImg = painterResource(id = R.drawable.eachstaroff)
     val nowFolderTitle = LocalNowFolderTitle.current
     val prevFolderTitle = LocalPrevFolderTitle.current
+    val selectedFileId = LocalSelectedFileId.current
+    val selectedFileTitle = LocalSelectedFileTitle.current
+
 
     var isLiked by remember{ mutableStateOf( folder.isLiked ) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
@@ -262,7 +296,7 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (St
             viewModel.updateFolderId(folder.folderId)
             onFolderChange(folder.folderId)
             prevFolderTitle.value = nowFolderTitle.value
-            nowFolderTitle.value = folder.title
+            nowFolderTitle.value = folder.title ?: "untitled"
                                       },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -274,8 +308,15 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (St
                 .clickable { isLiked = !isLiked }
                 .align(Alignment.TopEnd))
         }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = folder.title)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable {
+                selectedFileId.value = folder.folderId
+                selectedFileTitle.value = folder.title ?: "untitled"
+                patchDeleteToggle()
+            }
+        ) {
+            Text(text = folder.title ?: "untitled")
             Spacer(modifier = Modifier.width(3.dp))
             Image(painter = modiImg, contentDescription = null, modifier = Modifier
                 .height(20.dp)
@@ -286,12 +327,14 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (St
 }
 
 @Composable
-fun NoteItem(note: Note, viewModel: NoteListViewModel, navController: NavController) {
+fun NoteItem(note: Note, navController: NavController, patchDeleteToggle: () -> Unit) {
     val notebookImg = painterResource(id = R.drawable.notebook)
     val modiImg = painterResource(id = R.drawable.modi)
     val staronImg = painterResource(id = R.drawable.eachstaron)
     val staroffImg = painterResource(id = R.drawable.eachstaroff)
 
+    val selectedFileId = LocalSelectedFileId.current
+    val selectedFileTitle = LocalSelectedFileTitle.current
     var isLiked by remember{ mutableStateOf( note.isLiked ) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
@@ -309,7 +352,14 @@ fun NoteItem(note: Note, viewModel: NoteListViewModel, navController: NavControl
                 .clickable { isLiked = !isLiked }
                 .align(Alignment.TopEnd))
         }
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable {
+                selectedFileId.value = note.noteId
+                selectedFileTitle.value = note.title
+                patchDeleteToggle()
+            }
+        ) {
             Text(text = note.title)
             Spacer(modifier = Modifier.width(3.dp))
             Image(painter = modiImg, contentDescription = null, modifier = Modifier
