@@ -31,9 +31,9 @@ public class SpaceService {
     private final UserRepository userRepository;
     private final UserService userService;
 
-    public List<SpaceResponseDto> findAllSpaceDetails() {
-
-        List<Space> spaces = spaceRepository.findSpaces();
+    public List<SpaceResponseDto> findAllSpaceDetails(long userId) {
+        User users = userRepository.findUserById(userId);
+        List<Space> spaces = spaceRepository.findSpaces(users.getId());
 
         return spaces.stream().map(space -> {
             SpaceResponseDto dto = new SpaceResponseDto();
@@ -51,7 +51,6 @@ public class SpaceService {
             }).collect(Collectors.toList());
 
             dto.setUsers(userResponses);
-
             return dto;
         }).collect(Collectors.toList());
     }
@@ -66,9 +65,17 @@ public class SpaceService {
         newSpace.setCreatedAt(now);
         newSpace.setUpdatedAt(now);
 
-        //보류 : 로그인 기능 구현 후 스페이스 생성 시 나 추가 해야 함
+        Folder newFolder = new Folder();
+        newFolder.setSpaceId(newSpace.getId());
+        newFolder.setTitle("root");
+        newFolder.setId(IdCreator.create("f"));
+        newFolder.setCreatedAt(now);
+        newFolder.setUpdatedAt(now);
+
+        newSpace.setFolders(Arrays.asList(newFolder));
         newSpace.setUsers(Arrays.asList(user));
         Space savedSpace = spaceRepository.save(newSpace);
+//        userRepository.createJoinRelation(user.getId(), savedSpace.getId());
         return convertToSpaceResponseDto(savedSpace);
     }
 

@@ -5,6 +5,7 @@ import com.sixb.note.dto.space.SpaceRequestDto;
 import com.sixb.note.dto.space.SpaceResponseDto;
 import com.sixb.note.dto.space.UpdateSpaceTitleRequestDto;
 import com.sixb.note.exception.NotFoundException;
+import com.sixb.note.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,8 @@ public class SpaceController {
     private SpaceService spaceService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<SpaceResponseDto>> getAllSpaceDetails() {
-        List<SpaceResponseDto> spaces = spaceService.findAllSpaceDetails();
+    public ResponseEntity<List<SpaceResponseDto>> getAllSpaceDetails(long userId) {
+        List<SpaceResponseDto> spaces = spaceService.findAllSpaceDetails(userId);
         return ResponseEntity.ok(spaces);
     }
 
