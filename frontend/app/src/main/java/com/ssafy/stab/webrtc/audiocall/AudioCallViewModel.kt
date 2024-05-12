@@ -35,9 +35,6 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     var participantName = mutableStateOf("")
     private val serverUrl = BuildConfig.OPENVIDU_URL
     var participants = mutableStateOf(listOf<String>())
-    private val _isConnected = MutableStateFlow(false)
-    val isConnected: StateFlow<Boolean>
-        get() = MutableStateFlow(PreferencesUtil.getCallState().isInCall)
     private val _errorMessage = MutableStateFlow("")
     val errorMessage = _errorMessage.asStateFlow()
     private var session: Session? = null
@@ -164,11 +161,6 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    // 서버 url 연결 오류
-    private fun connectionError(url: String?) {
-        _errorMessage.value = "Error connecting to $url"
-        _isConnected.value = false
-    }
 
 
     // 미디어스트림 받기
@@ -196,7 +188,6 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     override fun onError(message: String) {
         viewModelScope.launch {
             _errorMessage.value = message
-            _isConnected.value = false
         }
     }
 }
