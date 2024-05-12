@@ -4,12 +4,11 @@ package com.ssafy.stab.webrtc.audiocall
 import android.app.Application
 import android.content.Context
 import android.util.Log
-import android.view.View
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.BuildConfig
+import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.webrtc.openvidu.LocalParticipant
 import com.ssafy.stab.webrtc.openvidu.RemoteParticipant
 import com.ssafy.stab.webrtc.openvidu.Session
@@ -18,6 +17,7 @@ import com.ssafy.stab.webrtc.utils.PermissionManager
 import com.ssafy.stab.webrtc.websocket.CustomWebSocket
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -33,8 +33,6 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     var participantName = mutableStateOf("")
     private val serverUrl = BuildConfig.OPENVIDU_URL
     var participants = mutableStateOf(listOf<String>())
-    private val _isConnected = MutableStateFlow(false)
-    val isConnected = _isConnected.asStateFlow()
     private val _errorMessage = MutableStateFlow("")
     val errorMessage = _errorMessage.asStateFlow()
     private var session: Session? = null
@@ -42,20 +40,30 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
 
     // 오디오 권한 체크 후, 세션 id와 서버 url이 유효한지 확인하고 session 입장 요청
     fun buttonPressed(context: Context) {
-        if (_isConnected.value) {
-            leaveSession()
-            return
-        }
+        viewModelScope.launch {
+            val callState = PreferencesUtil.callState.first()  // 현재 상태를 한 번만 가져옵니다.
+            val currentSessionId = sessionId.value
+            Log.d("Debug", "Call State: is in call = ${callState.isInCall}, callSpaceId = ${callState.callSpaceId}")
+            Log.d("Debug", "Current Session ID: $currentSessionId")
 
+            if (callState.isInCall && callState.callSpaceId == currentSessionId) {
+                leaveSession()
+            } else if (callState.isInCall && callState.callSpaceId != currentSessionId) {
+                leaveSession()
+                startSession(context)
+            } else if (!callState.isInCall) {
+                startSession(context)
+            }
+        }
+    }
+
+    private fun startSession(context: Context) {
         if (PermissionManager.arePermissionsGranted(context)) {
             val currentSessionId = sessionId.value
-            // 서버 Url을 담은 customhttpclient 생성
             httpClient = CustomHttpClient(serverUrl)
-            getToken(currentSessionId)
-        }
-        else {
+            getToken(currentSessionId)  // 세션 토큰 요청
+        } else {
             _errorMessage.value = "오디오 권한이 필요합니다."
-            return
         }
     }
 
@@ -102,9 +110,9 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
 
     // 토큰으로 입장 성공
     private fun getTokenSuccess(token: String, sessionId: String) {
-        _isConnected.value = true
+        PreferencesUtil.saveCallState(true, sessionId)
         // 현재 참가자 추가
-        participants.value = participants.value + participantName.value
+        participants.value += participantName.value
 
         // 세션 초기화 및 로컬 참가자 오디오 시작
         val context = getApplication<Application>().applicationContext
@@ -126,11 +134,11 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     override fun onConnected() {
-        _isConnected.value = true
+        PreferencesUtil.saveCallState(true, sessionId.value)
     }
 
     override fun onDisconnected() {
-        _isConnected.value = false
+        PreferencesUtil.saveCallState(false, null)
         _errorMessage.value = "WebSocket Disconnected"
     }
 
@@ -159,11 +167,6 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    // 서버 url 연결 오류
-    private fun connectionError(url: String?) {
-        _errorMessage.value = "Error connecting to $url"
-        _isConnected.value = false
-    }
 
 
     // 미디어스트림 받기
@@ -183,7 +186,7 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
         if (httpClient != null) {
             httpClient!!.dispose()
         }
-        _isConnected.value = false
+        PreferencesUtil.saveCallState(false, null)
     }
 
 
@@ -191,7 +194,6 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     override fun onError(message: String) {
         viewModelScope.launch {
             _errorMessage.value = message
-            _isConnected.value = false
         }
     }
 }

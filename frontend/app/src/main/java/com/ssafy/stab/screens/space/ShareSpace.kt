@@ -1,5 +1,6 @@
 package com.ssafy.stab.screens.space
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,20 +18,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.R
+import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
 fun ShareSpace(navController: NavController, spaceId: String) {
+    // audioCallViewModel instance로 관리: 화면을 이동해도 계속 통화가 실행되게 하기 위함
+    val audioCallViewModel: AudioCallViewModel = viewModel()
     // 드롭다운 이미지와 드롭업 이미지 리소스를 로드합니다.
     val dropdownImg = painterResource(id = R.drawable.dropdown)
     val dropupImg = painterResource(id = R.drawable.dropup)
@@ -39,12 +47,26 @@ fun ShareSpace(navController: NavController, spaceId: String) {
     // 초기값은 최대 높이인 300.dp로 설정합니다.
     val boxHeightState = remember { mutableStateOf(300.dp) }
 
+    // webRTC에 필요한 정보 설정(context, sessionId, participantName)
+    val context = LocalContext.current
+    val loginDetails = remember { PreferencesUtil.getLoginDetails() }
+    val userName = remember { loginDetails.userName }
+    audioCallViewModel.sessionId.value = spaceId
+    if (userName != null) { audioCallViewModel.participantName.value = userName }
+    // 현재 공유 스페이스의 통화방 참여 여부 판단
+    val currentCallState = PreferencesUtil.callState.collectAsState()
+    val isCurrentSpaceActive = currentCallState.value.callSpaceId == spaceId && currentCallState.value.isInCall
+
     Column(
         modifier = Modifier
             .background(Color(0xFFE9ECF5))
             .fillMaxSize()
     ) {
-        SpTitleBar()
+        SpTitleBar(
+            context = context,
+            audioCallViewModel = audioCallViewModel,
+            isCurrentSpaceActive = isCurrentSpaceActive
+        )
         Divider(
             color = Color.Gray,
             thickness = 1.dp,
@@ -85,13 +107,21 @@ fun ShareSpace(navController: NavController, spaceId: String) {
 }
 
 @Composable
-fun SpTitleBar() {
+fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurrentSpaceActive: Boolean) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
-    val callImg = painterResource(id = R.drawable.call)
+
+    // 통화 방 참여 상태에 따른 이미지 리소스 결정
+    val callActive = remember { mutableStateOf(isCurrentSpaceActive) }
+    val callButtonImage = if (callActive.value) {
+        painterResource(id = R.drawable.calloff)  // 통화 종료 아이콘
+    } else {
+        painterResource(id = R.drawable.call)  // 통화 시작 아이콘
+    }
     val envelopeImg = painterResource(id = R.drawable.envelope)
     val outImg = painterResource(id = R.drawable.out)
     val peopleImg = painterResource(id = R.drawable.people)
+
 
     Row {
         Spacer(modifier = Modifier.width(30.dp))
@@ -130,11 +160,14 @@ fun SpTitleBar() {
                     Text(text = "( 2 / 6 )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
-                        painter = callImg,
-                        contentDescription = null,
+                        painter = callButtonImage,
+                        contentDescription = if (callActive.value) "통화 종료" else "통화 시작",
                         modifier = Modifier
                             .height(30.dp)
                             .height(30.dp)
+                            .clickable {
+                                callActive.value = !callActive.value
+                                audioCallViewModel.buttonPressed(context) }
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
