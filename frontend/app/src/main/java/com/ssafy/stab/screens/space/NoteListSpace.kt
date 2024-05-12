@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.stab.R
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -40,7 +39,8 @@ import com.ssafy.stab.apis.space.folder.Folder
 import com.ssafy.stab.apis.space.folder.Note
 import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.modals.CreateNoteModal
-import com.ssafy.stab.screens.note.PersonalNote
+import com.ssafy.stab.screens.space.personal.LocalNowFolderTitle
+import com.ssafy.stab.screens.space.personal.LocalPrevFolderTitle
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -251,6 +251,8 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (St
     val modiImg = painterResource(id = R.drawable.modi)
     val staronImg = painterResource(id = R.drawable.eachstaron)
     val staroffImg = painterResource(id = R.drawable.eachstaroff)
+    val nowFolderTitle = LocalNowFolderTitle.current
+    val prevFolderTitle = LocalPrevFolderTitle.current
 
     var isLiked by remember{ mutableStateOf( folder.isLiked ) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
@@ -259,6 +261,8 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (St
         modifier = Modifier.clickable {
             viewModel.updateFolderId(folder.folderId)
             onFolderChange(folder.folderId)
+            prevFolderTitle.value = nowFolderTitle.value
+            nowFolderTitle.value = folder.title
                                       },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

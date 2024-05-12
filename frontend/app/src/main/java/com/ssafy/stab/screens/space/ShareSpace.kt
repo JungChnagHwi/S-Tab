@@ -26,10 +26,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ssafy.stab.R
 
 @Composable
-fun ShareSpace() {
+fun ShareSpace(navController: NavController, spaceId: String) {
     // 드롭다운 이미지와 드롭업 이미지 리소스를 로드합니다.
     val dropdownImg = painterResource(id = R.drawable.dropdown)
     val dropupImg = painterResource(id = R.drawable.dropup)
@@ -79,7 +80,7 @@ fun ShareSpace() {
                 )
             }
         }
-//        NoteListSpace("")
+        NoteListSpace(spaceId, navController)
     }
 }
 

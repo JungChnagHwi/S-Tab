@@ -34,14 +34,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.navigation.NavController
 import com.ssafy.stab.apis.space.share.ShareSpaceList
-import com.ssafy.stab.apis.space.share.createShareSpace
 import com.ssafy.stab.apis.space.share.getShareSpaceList
-import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.modals.CreateShareSpaceModal
+import com.ssafy.stab.screens.space.personal.LocalNowFolderId
 
 @Composable
-fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
+fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
     val starImg = painterResource(id = R.drawable.star)
     val trashImg = painterResource(id = R.drawable.trash)
     val myspImg = painterResource(id = R.drawable.mysp)
@@ -99,7 +99,7 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
         Row{
             Spacer(modifier = Modifier.width(50.dp))
             Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onNavigate("book-mark") }) {
+                modifier = Modifier.clickable { navController.navigate("book-mark") }) {
                 Image(painter = starImg, contentDescription = null)
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(text = "즐겨찾기")
@@ -109,7 +109,7 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
         Row{
             Spacer(modifier = Modifier.width(50.dp))
             Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onNavigate("deleted") }) {
+                modifier = Modifier.clickable { navController.navigate("deleted") }) {
                 Image(painter = trashImg, contentDescription = null)
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(text = "휴지통")
@@ -119,7 +119,7 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
         Row {
             Spacer(modifier = Modifier.width(50.dp))
             Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onNavigate("personal-space") }) {
+                modifier = Modifier.clickable { navController.navigate("personal-space") }) {
                 Image(painter = myspImg, contentDescription = null)
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(text = "내 스페이스")
@@ -146,7 +146,7 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
                 Text(text = "새로 만들기")
             }
             Spacer(modifier = Modifier.height(7.dp))
-            ShareSpaceListScreen({ onNavigate("share-space") }, shareSpaceList)
+            ShareSpaceListScreen(navController, shareSpaceList)
         }
         Spacer(modifier = Modifier.weight(1f))
         Box(
@@ -188,15 +188,20 @@ fun SideBar(onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ShareSpaceListScreen(onNavigate: (String) -> Unit, shareSpaceList: List<ShareSpaceList>){
+fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<ShareSpaceList>){
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val callingImg = painterResource(id = R.drawable.calling)
+    val nowFolderId = LocalNowFolderId.current
+
 
     LazyColumn(modifier = Modifier.fillMaxHeight(0.6f)) {
         items(shareSpaceList) { shareSpace ->
             Row {
                 Spacer(modifier = Modifier.width(70.dp))
-                Row(modifier = Modifier.clickable { onNavigate("share-space") }) {
+                Row(modifier = Modifier.clickable {
+                    navController.navigate("share-space/${shareSpace.spaceId}")
+                    nowFolderId.value = shareSpace.spaceId
+                }) {
                     Image(painter = sharespImg, contentDescription = null)
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(text = shareSpace.title , modifier = Modifier.padding(7.dp))

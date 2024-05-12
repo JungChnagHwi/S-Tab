@@ -34,6 +34,7 @@ import com.ssafy.stab.modals.PatchAuth
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.note.ShareNote
+import com.ssafy.stab.screens.space.personal.PersonalSpace
 
 @Composable
 fun SpaceRouters(homeNavController: NavController) {
@@ -42,14 +43,11 @@ fun SpaceRouters(homeNavController: NavController) {
     // NavController의 현재 라우트를 추적
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
-    fun navigateTo(destination: String) {
-        navController.navigate(destination)
-    }
 
     Row(modifier = Modifier.fillMaxSize()) {
         // "personal-note"와 "share-note"가 아닐 때만 SideBar를 렌더링
         if (currentRoute != "personal-note" && currentRoute != "share-note") {
-            SideBar(onNavigate = { navigateTo(it) }, modifier = Modifier.weight(0.25f))
+            SideBar(navController, modifier = Modifier.weight(0.25f))
         }
         Column(modifier = Modifier.weight(0.75f).background(color = Color(0xFFE9ECF5))) {
             if (currentRoute != "personal-note" && currentRoute != "share-note") {
@@ -57,7 +55,10 @@ fun SpaceRouters(homeNavController: NavController) {
             }
             NavHost(navController = navController, startDestination = "personal-space") {
                 composable("personal-space") { PersonalSpace(navController) }
-                composable("share-space") { ShareSpace() }
+                composable("share-space/{spaceId}") { backStackEntry ->
+                    backStackEntry.arguments?.getString("spaceId")
+                        ?.let { ShareSpace(navController, spaceId = it) }
+                }
                 composable("book-mark") { BookMark() }
                 composable("deleted") { Deleted() }
                 composable("personal-note") { PersonalNote(viewModel = NoteViewModel(), navController) }

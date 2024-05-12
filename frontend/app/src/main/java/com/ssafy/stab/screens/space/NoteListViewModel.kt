@@ -16,6 +16,7 @@ class NoteListViewModel(initialFolderId: String) : ViewModel() {
     private val _folderId = MutableStateFlow(initialFolderId)
     val folderId: StateFlow<String> = _folderId.asStateFlow()
 
+
     private val _combinedList = MutableStateFlow<List<FileEntity>>(emptyList())
     val combinedList = _combinedList.asStateFlow()
     init {
