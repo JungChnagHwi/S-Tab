@@ -61,7 +61,12 @@ fun Routers(){
         composable("login") { Login(navController = navController) }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
         composable("space") { SpaceRouters(homeNavController = navController) }
-        composable("personal-note") { PersonalNote(viewModel = NoteViewModel(), navController = navController)}
+        composable("personal-note") { PersonalNote(NoteViewModel(), navController)}
+        composable("audio-call") {
+            // ViewModel 초기화
+            val audioCallViewModel = viewModel<AudioCallViewModel>()
+            AudioCallScreen(viewModel = audioCallViewModel)
+        }
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }
 

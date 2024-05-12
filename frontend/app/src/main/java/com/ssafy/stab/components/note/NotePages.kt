@@ -15,6 +15,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,26 +24,23 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.data.note.Direction
 import com.ssafy.stab.data.note.response.PageData
+import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.ui.theme.NoteAreaBackground
 import com.ssafy.stab.util.note.NoteArea
-import com.ssafy.stab.util.note.NoteController
+import com.ssafy.stab.util.note.NoteControlViewModel
 import com.ssafy.stab.util.note.getTemplate
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PageList(
-    pageList: MutableList<PageData>,
-    noteController: NoteController,
+    noteViewModel: NoteViewModel,
+    noteControlViewModel: NoteControlViewModel,
     onPageChange: (Int) -> Unit,
-    trackHistory: (undoCount: Int, redoCount: Int) -> Unit = { _, _ -> }
 ) {
+    val pageList by noteViewModel.pageList.collectAsState()
     val pageCount = pageList.size
     val state = rememberPagerState { pageCount }
     val pageIndex = state.currentPage + 1
-
-    LaunchedEffect(noteController) {
-        noteController.trackHistory(this, trackHistory)
-    }
 
     LaunchedEffect(state) {
         snapshotFlow { state.settledPage }.collect { page ->
@@ -56,7 +55,7 @@ fun PageList(
         ) {
             page ->
             Box {
-                Page(pageList[page], noteController)
+                Page(pageList[page], noteControlViewModel)
                 Text(
                     text = "$pageIndex / $pageCount",
                     Modifier
@@ -72,7 +71,7 @@ fun PageList(
 @Composable
 fun Page(
     page: PageData,
-    noteController: NoteController
+    viewModel: NoteControlViewModel
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -108,7 +107,7 @@ fun Page(
             NoteArea(
                 page.pageId,
                 page.paths,
-                noteController
+                viewModel
             )
         }
     }

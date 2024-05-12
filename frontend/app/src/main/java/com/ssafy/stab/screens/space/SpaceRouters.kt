@@ -34,6 +34,7 @@ import com.ssafy.stab.modals.PatchAuth
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.note.ShareNote
+import com.ssafy.stab.util.note.NoteControlViewModel
 import com.ssafy.stab.screens.space.personal.PersonalSpace
 
 @Composable
@@ -61,7 +62,7 @@ fun SpaceRouters(homeNavController: NavController) {
                 }
                 composable("book-mark") { BookMark() }
                 composable("deleted") { Deleted() }
-                composable("personal-note") { PersonalNote(viewModel = NoteViewModel(), navController) }
+                composable("personal-note") { PersonalNote(NoteViewModel(), navController) }
                 composable("share-note") { ShareNote(navController) }
                 dialog("patch-auth") {
                     PatchAuth(onDismiss = { navController.popBackStack() })

@@ -1,42 +1,59 @@
 package com.ssafy.stab.util.note
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.data.PreferencesUtil
-import com.ssafy.stab.data.note.BackgroundColor
 import com.ssafy.stab.data.note.Coordinate
 import com.ssafy.stab.data.note.PathInfo
 import com.ssafy.stab.data.note.PenType
-import com.ssafy.stab.data.note.TemplateType
 import com.ssafy.stab.data.note.UserPagePathInfo
-import com.ssafy.stab.data.note.response.PageData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
-class NoteController internal constructor(val trackHistory: (undoCount: Int, redoCount: Int) -> Unit = { _, _ -> }) {
+class NoteControlViewModel : ViewModel() {
     private val userName = PreferencesUtil.getLoginDetails().userName ?: "unknown"
 
     private val _undoPathList = mutableStateListOf<UserPagePathInfo>()
-    internal val pathList: SnapshotStateList<UserPagePathInfo> = _undoPathList
+    val pathList: SnapshotStateList<UserPagePathInfo> = _undoPathList
 
     private val _newPathList = mutableStateListOf<UserPagePathInfo>()
-    internal val newPathList: SnapshotStateList<UserPagePathInfo> = _newPathList
+    val newPathList: SnapshotStateList<UserPagePathInfo> = _newPathList
 
     private val _redoPathList = mutableStateListOf<UserPagePathInfo>()
 
     private val _historyTracker = MutableSharedFlow<String>(extraBufferCapacity = 1)
     private val historyTracker = _historyTracker.asSharedFlow()
+
+    var penType by mutableStateOf(PenType.Pen)
+        private set
+    var strokeWidth by mutableFloatStateOf(10f)
+        private set
+    var color by mutableStateOf("000000")
+        private set
+
+    private val _undoAvailable = MutableStateFlow(false)
+    val undoAvailable = _undoAvailable.asStateFlow()
+
+    private val _redoAvailable = MutableStateFlow(false)
+    val redoAvailable = _redoAvailable.asStateFlow()
+
+    init {
+        trackHistory(viewModelScope) { undoCount, redoCount ->
+            _undoAvailable.value = undoCount != 0
+            _redoAvailable.value = redoCount != 0
+        }
+    }
 
     fun trackHistory(
         scope: CoroutineScope,
@@ -47,22 +64,13 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
             .launchIn(scope)
     }
 
-    var penType by mutableStateOf(PenType.Pen)
-        private set
-
     fun changePenType(value: PenType) {
         penType = value
     }
 
-    var strokeWidth by mutableFloatStateOf(10f)
-        private set
-
     fun changeStrokeWidth(value: Float) {
         strokeWidth = value
     }
-
-    var color by mutableStateOf("000000")
-        private set
 
     fun changeColor(value: String) {
         color = value
@@ -83,7 +91,6 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
         _newPathList.add(userPagePathInfo)
 
         _redoPathList.clear()
-        _historyTracker.tryEmit("insert path")
     }
 
     fun updateLatestPath(newCoordinate: Coordinate) {
@@ -97,6 +104,7 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
     fun addNewPath() {
         _undoPathList.add(_newPathList[0])
         _newPathList.clear()
+        _historyTracker.tryEmit("insert path")
     }
 
     fun addOthersPath(userPagePathInfo: UserPagePathInfo) {
@@ -115,7 +123,6 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
             // 현재 경로에서 삭제
             _undoPathList.removeAt(index)
 
-            trackHistory(_undoPathList.size, _redoPathList.size)
             _historyTracker.tryEmit("undo")
         }
     }
@@ -128,7 +135,6 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
             _undoPathList.add(last)
             _redoPathList.remove(last)
 
-            trackHistory(_undoPathList.size, _redoPathList.size)
             _historyTracker.tryEmit("redo")
         }
     }
@@ -143,9 +149,4 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
         return pathList.filter { it.pageId == currentPageId }
     }
 
-}
-
-@Composable
-fun rememberNoteController(): NoteController {
-    return remember { NoteController() }
 }
