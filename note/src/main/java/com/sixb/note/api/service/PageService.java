@@ -76,6 +76,7 @@ public class PageService {
                     .color(beforePage.getColor())
                     .template(beforePage.getTemplate())
                     .direction(beforePage.getDirection())
+                    .updatedAt(now)
                     .build();
 
             // db에 저장하고 반환
