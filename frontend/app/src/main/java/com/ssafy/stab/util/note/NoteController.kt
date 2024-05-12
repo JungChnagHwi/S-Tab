@@ -68,7 +68,7 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
         color = value
     }
 
-    fun insertNewPathInfo(currentPage: Int, newCoordinate: Coordinate) {
+    fun insertNewPathInfo(currentPageId: String, newCoordinate: Coordinate) {
         val pathInfo = PathInfo(
             penType = penType,
             coordinates = mutableStateListOf(newCoordinate),
@@ -77,7 +77,7 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
         )
 
         val userPagePathInfo = UserPagePathInfo(
-            userName, currentPage, pathInfo
+            userName, currentPageId, pathInfo
         )
 
         _newPathList.add(userPagePathInfo)
@@ -139,38 +139,8 @@ class NoteController internal constructor(val trackHistory: (undoCount: Int, red
         _historyTracker.tryEmit("reset")
     }
 
-    fun getCurrentPathList(currentPage: Int): List<UserPagePathInfo> {
-        return pathList.filter { it.page == currentPage }
-    }
-
-    fun createPage(currentPage: Int, pageList: MutableList<PageData>) {
-        val pageData = PageData(
-            pageId = "p-어쩌고",
-            color = BackgroundColor.White,
-            template = TemplateType.Grid,
-            direction = 1,
-            isBookmarked = false,
-            pdfUrl = null,
-            pdfPage = null,
-            updatedAt = LocalDateTime.parse("2024-05-08 10:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-            paths = null,
-            figures = null,
-            textBoxes = null,
-            images = null
-        )
-
-        if (currentPage + 1 >= pageList.size) {
-            pageList.add(pageData)
-        } else {
-            pageList.add(currentPage + 1, pageData)
-        }
-
-        // 생성된 페이지 이후 undo 페이지 번호 하나씩 뒤로 밀기
-        _undoPathList.forEach {
-            if (it.page < currentPage) {
-                it.page += 1
-            }
-        }
+    fun getCurrentPathList(currentPageId: String): List<UserPagePathInfo> {
+        return pathList.filter { it.pageId == currentPageId }
     }
 
 }

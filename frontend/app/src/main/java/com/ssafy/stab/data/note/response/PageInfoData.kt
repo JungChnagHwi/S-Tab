@@ -2,7 +2,6 @@ package com.ssafy.stab.data.note.response
 
 import com.google.gson.annotations.SerializedName
 import com.ssafy.stab.data.note.BackgroundColor
-import com.ssafy.stab.data.note.Direction
 import com.ssafy.stab.data.note.TemplateType
 
 data class NewPage(
@@ -13,5 +12,5 @@ data class NewPage(
     @SerializedName("color")
     val color: BackgroundColor,
     @SerializedName("direction")
-    val direction: Direction
+    val direction: Int
 )

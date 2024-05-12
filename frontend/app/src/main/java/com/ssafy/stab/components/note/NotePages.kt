@@ -44,8 +44,8 @@ fun PageList(
     }
 
     LaunchedEffect(state) {
-        snapshotFlow { state.settledPage }.collect {
-            page -> onPageChange(page)
+        snapshotFlow { state.settledPage }.collect { page ->
+            onPageChange(page)
         }
         Log.d("d", "${state.settledPage}")
     }
@@ -56,7 +56,7 @@ fun PageList(
         ) {
             page ->
             Box {
-                Page(page, pageList[page], noteController)
+                Page(pageList[page], noteController)
                 Text(
                     text = "$pageIndex / $pageCount",
                     Modifier
@@ -71,7 +71,6 @@ fun PageList(
 
 @Composable
 fun Page(
-    currentPage: Int,
     page: PageData,
     noteController: NoteController
 ) {
@@ -107,7 +106,7 @@ fun Page(
             Template(resId = templateResId, modifier = Modifier.matchParentSize())
 
             NoteArea(
-                currentPage,
+                page.pageId,
                 page.paths,
                 noteController
             )

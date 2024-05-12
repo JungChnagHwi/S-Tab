@@ -38,8 +38,8 @@ fun PersonalNote(
     val undoAvailable = remember { mutableStateOf(false) }
     val redoAvailable = remember { mutableStateOf(false) }
 
-    val currentPageIndex = remember { mutableIntStateOf(0) }
-    val onPageChange = { index: Int -> currentPageIndex.intValue = index }
+    val currentPage = remember { mutableIntStateOf(0) }
+    val onPageChange = { page: Int -> currentPage.intValue = page }
 
     Column(
         modifier = Modifier
@@ -52,9 +52,8 @@ fun PersonalNote(
         }
 
         PageInterfaceBar(
-            currentPage = currentPageIndex.intValue,
-            pageList = pageList,
-            noteController = noteController
+            viewModel = viewModel,
+            currentPageId = pageList[currentPage.intValue].pageId,
         )
 
         Row(

@@ -20,6 +20,6 @@ data class Coordinate(
 
 data class UserPagePathInfo(
     val userName: String,
-    var page: Int,
+    var pageId: String,
     val pathInfo: PathInfo
 )
