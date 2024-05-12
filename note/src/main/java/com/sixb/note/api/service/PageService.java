@@ -49,6 +49,7 @@ public class PageService {
             newPage.setUpdatedAt(now);
             newPage.setColor(beforePage.getColor());
             newPage.setDirection(beforePage.getDirection());
+            newPage.setPageData("{\"paths\": [], \"figures\": [],\"textBoxes\": [], \"images\": []}");
             // 만약 이전 페이지가 pdf페이지가 아니라면
             if (beforePage.getPdfUrl()==null) {
                 newPage.setTemplate(beforePage.getTemplate());
@@ -76,19 +77,12 @@ public class PageService {
                     .color(beforePage.getColor())
                     .template(beforePage.getTemplate())
                     .direction(beforePage.getDirection())
+                    .updatedAt(now)
                     .build();
 
             // db에 저장하고 반환
             pageRepository.save(newPage);
             pageRepository.save(beforePage);
-
-            // mongodb에 데이터 만들기
-            // 필기 데이터 저장
-            PageData pageData = PageData.builder()
-                    .id(pageId)
-                    .build();
-
-            pageDataRepository.save(pageData);
 
             return responseDto;
         } else { // page 못찾은 경우
@@ -113,49 +107,30 @@ public class PageService {
         }
     }
 
-    // 데이터 저장
     public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
+        System.out.println(request);
         String pageId = request.getPageId();
         Page page = pageRepository.findPageById(pageId);
-        if (page!=null) {
-            Boolean deleteStatus = page.getIsDeleted();
-            if (deleteStatus == false) {
-                // 검색 잘 되는지 나중에 확인해야함
-                Optional<PageData> optionalPageData = pageDataRepository.findById(pageId);
-                List<FigureDto> figures = request.getFigures();
-                List<ImageDto> images = request.getImages();
-                List<TextBoxDto> textBoxes = request.getTextBoxes();
-                List<PathDto> paths = request.getPaths();
-//                List<PathDto> paths = Optional.ofNullable(request.getPaths());
-
-                System.out.println("fig: "+figures);
-                if (optionalPageData.isPresent()) {
-                    PageData pageData = optionalPageData.get();
-
-                    pageData.setFigures(figures);
-                    pageData.setImages(images);
-                    pageData.setTextBoxes(textBoxes);
-//                    pageData.setPaths(optionalPaths.orElse(null));
-
-                    pageDataRepository.save(pageData);
-                } else {
-                    PageData pageData = PageData.builder()
-                            .id(pageId)
-//                            .paths(optionalPaths.orElse(null))
-                            .images(images)
-                            .figures(figures)
-                            .textBoxes(textBoxes)
-                            .build();
-                    pageDataRepository.save(pageData);
-                }
-
+//        Note note = noteRepository.findNoteByPageId(pageId);
+        LocalDateTime now = LocalDateTime.now();
+//        if (note == null) {
+//            throw new PageNotFoundException("노트를 찾을 수 없습니다.");
+//        }
+        if (page != null) {
+            if (page.getIsDeleted() == false) {
+                page.setUpdatedAt(now);
+                page.setPageData(request.getPageData());
+//                note.setUpdatedAt(now);
+                pageRepository.save(page);
+//                noteRepository.save(note);
+//                System.out.println(note.getId());
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
+
         } else {
             throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
         }
-
     }
 
     public PageUpdateDto updatePage(PageUpdateDto request) throws PageNotFoundException {
@@ -186,116 +161,15 @@ public class PageService {
         if (note != null) {
             List<PageInfoDto> pageInfoList = new ArrayList<>();
 
-            // 일단 구현 후 하위부분 do-while이나 while로 바꿀 예정
-
             // noteId에 연결되어있는 페이지 불러오기
-            Page firstPage = pageRepository.findFirstPageByNoteId(noteId);
-            String fistPageId = firstPage.getId();
+            List<Page> pageList = pageRepository.findAllPagesByNoteId(noteId);
 
-            if (firstPage.getIsDeleted() == false) {
-                // 그 페이지에 해당하는 data 불러오기
-                Optional<PageData> optionalFirstPageData = pageDataRepository.findById(firstPage.getId());
+            System.out.println(pageList.size());
 
-                Optional<String> pdfUrl = Optional.ofNullable(firstPage.getPdfUrl());
-                Optional<Integer> pdfPage = Optional.ofNullable(firstPage.getPdfPage());
-
-                if (!optionalFirstPageData.isPresent()) {
-                    PageInfoDto nextPageInfoDto = PageInfoDto.builder()
-                            .pageId(fistPageId)
-                            .pdfUrl(firstPage.getPdfUrl())
-                            .pdfPage(firstPage.getPdfPage())
-                            .color(firstPage.getColor())
-                            .direction(firstPage.getDirection())
-                            .template(firstPage.getTemplate())
-                            .updatedAt(firstPage.getUpdatedAt())
-                            .isBookmarked(pageRepository.isLikedByPageId(userId, fistPageId))
-                            .build();
-                    // List에 넣기
-                    pageInfoList.add(nextPageInfoDto);
-                } else {
-                    PageData firstPageData = optionalFirstPageData.get();
-                    // optional로 nullException 처리해주기
-
-                    Optional<List<PathDto>> paths = Optional.ofNullable(firstPageData.getPaths());
-                    Optional<List<FigureDto>> figures = Optional.ofNullable(firstPageData.getFigures());
-                    Optional<List<ImageDto>> images = Optional.ofNullable(firstPageData.getImages());
-                    Optional<List<TextBoxDto>> textBoxes = Optional.ofNullable(firstPageData.getTextBoxes());
-
-                    // dto 빌드
-                    PageInfoDto pageInfoDto = PageInfoDto.builder()
-                            .pageId(fistPageId)
-                            .color(firstPage.getColor())
-                            .template(firstPage.getTemplate())
-                            .direction(firstPage.getDirection())
-                            .updatedAt(firstPage.getUpdatedAt())
-                            .isBookmarked(pageRepository.isLikedByPageId(userId, fistPageId))
-                            .pdfUrl(pdfUrl.orElse(null))
-                            .pdfPage(pdfPage.orElse(null))
-                            .paths(paths.orElse(null))
-                            .figures(figures.orElse(null))
-                            .textBoxes(textBoxes.orElse(null))
-                            .images(images.orElse(null))
-                            .build();
-                    // List에 넣기
-                    pageInfoList.add(pageInfoDto);
-                }
-            }
-
-            Page nextPage = pageRepository.getNextPageByPageId(fistPageId);
-
-            while (nextPage != null) { // 다음 페이지가 없을때까지
-                // 그 페이지에 해당하는 data 불러오기
-                String nextPageId = nextPage.getId();
-
-                if (nextPage.getIsDeleted() == false) {
-                    Optional<PageData> optionalNextData = pageDataRepository.findById(nextPageId);
-                    Optional<String> pdfUrl = Optional.ofNullable(nextPage.getPdfUrl());
-                    Optional<Integer> pdfPage = Optional.ofNullable(nextPage.getPdfPage());
-
-                    if (!optionalNextData.isPresent()) {
-                        PageInfoDto nextPageInfoDto = PageInfoDto.builder()
-                                .pageId(nextPageId)
-                                .pdfUrl(nextPage.getPdfUrl())
-                                .pdfPage(nextPage.getPdfPage())
-                                .color(nextPage.getColor())
-                                .direction(nextPage.getDirection())
-                                .template(nextPage.getTemplate())
-                                .updatedAt(nextPage.getUpdatedAt())
-                                .isBookmarked(pageRepository.isLikedByPageId(userId, nextPageId))
-                                .build();
-                        // List에 넣기
-                        pageInfoList.add(nextPageInfoDto);
-                    } else {
-                        PageData nextData = optionalNextData.get();
-                        // optional로 nullException 처리해주기
-
-                        Optional<List<PathDto>> paths = Optional.ofNullable(nextData.getPaths());
-                        Optional<List<FigureDto>> figures = Optional.ofNullable(nextData.getFigures());
-                        Optional<List<ImageDto>> images = Optional.ofNullable(nextData.getImages());
-                        Optional<List<TextBoxDto>> textBoxes = Optional.ofNullable(nextData.getTextBoxes());
-
-                        // dto 빌드
-                        PageInfoDto nextPageInfoDto = PageInfoDto.builder()
-                                .pageId(nextPageId)
-                                .color(nextPage.getColor())
-                                .template(nextPage.getTemplate())
-                                .direction(nextPage.getDirection())
-                                .updatedAt(nextPage.getUpdatedAt())
-                                .isBookmarked(pageRepository.isLikedByPageId(userId, nextPageId))
-                                .pdfUrl(pdfUrl.orElse(null))
-                                .pdfPage(pdfPage.orElse(null))
-                                .paths(paths.orElse(null))
-                                .figures(figures.orElse(null))
-                                .textBoxes(textBoxes.orElse(null))
-                                .images(images.orElse(null))
-                                .build();
-                        // List에 넣기
-                        pageInfoList.add(nextPageInfoDto);
-                    }
-                }
-
-                // 페이지에 연결되어있는 다음 페이지 불러오기
-                nextPage = pageRepository.getNextPageByPageId(nextPageId);
+            for (Page page : pageList) {
+                // pageData 역직렬화
+                // pageInfoDto에 넣기
+                // pageInfoList에 넣기
             }
 
             PageListResponseDto pageListResponseDto = PageListResponseDto.builder()
