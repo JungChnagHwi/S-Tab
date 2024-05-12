@@ -39,6 +39,22 @@ object PreferencesUtil {
         val nowLocation = sharedPreferences.getString("nowLocation", "")
         return NowLocation(nowLocation)
     }
+
+    fun saveCallState(isInCall: Boolean, callSpaceId: String?) {
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("IsInCall", isInCall)
+        callSpaceId?.let {
+            editor.putString("CallSpaceId", it)
+        }
+        editor.apply()
+    }
+
+    fun getCallState(): CallState {
+        val isInCall = sharedPreferences.getBoolean("IsInCall", false)
+        val callSpaceId = sharedPreferences.getString("CallSpaceId", "")
+        return CallState(isInCall, callSpaceId)
+    }
+
 }
 
 data class LoginDetails(
@@ -51,4 +67,9 @@ data class LoginDetails(
 
 data class NowLocation(
     val nowLocation: String?
+)
+
+data class CallState(
+    val isInCall: Boolean,
+    val callSpaceId: String?,
 )

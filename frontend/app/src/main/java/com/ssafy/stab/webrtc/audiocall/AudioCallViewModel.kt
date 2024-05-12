@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.BuildConfig
+import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.webrtc.openvidu.LocalParticipant
 import com.ssafy.stab.webrtc.openvidu.RemoteParticipant
 import com.ssafy.stab.webrtc.openvidu.Session
@@ -17,6 +18,7 @@ import com.ssafy.stab.webrtc.utils.CustomHttpClient
 import com.ssafy.stab.webrtc.utils.PermissionManager
 import com.ssafy.stab.webrtc.websocket.CustomWebSocket
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.*
@@ -34,7 +36,8 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     private val serverUrl = BuildConfig.OPENVIDU_URL
     var participants = mutableStateOf(listOf<String>())
     private val _isConnected = MutableStateFlow(false)
-    val isConnected = _isConnected.asStateFlow()
+    val isConnected: StateFlow<Boolean>
+        get() = MutableStateFlow(PreferencesUtil.getCallState().isInCall)
     private val _errorMessage = MutableStateFlow("")
     val errorMessage = _errorMessage.asStateFlow()
     private var session: Session? = null
@@ -42,7 +45,9 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
 
     // 오디오 권한 체크 후, 세션 id와 서버 url이 유효한지 확인하고 session 입장 요청
     fun buttonPressed(context: Context) {
-        if (_isConnected.value) {
+        val callState = PreferencesUtil.getCallState()
+
+        if (callState.isInCall) {
             leaveSession()
             return
         }
@@ -102,9 +107,9 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
 
     // 토큰으로 입장 성공
     private fun getTokenSuccess(token: String, sessionId: String) {
-        _isConnected.value = true
+        PreferencesUtil.saveCallState(true, sessionId)
         // 현재 참가자 추가
-        participants.value = participants.value + participantName.value
+        participants.value += participantName.value
 
         // 세션 초기화 및 로컬 참가자 오디오 시작
         val context = getApplication<Application>().applicationContext
@@ -126,11 +131,11 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     override fun onConnected() {
-        _isConnected.value = true
+        PreferencesUtil.saveCallState(true, sessionId.value)
     }
 
     override fun onDisconnected() {
-        _isConnected.value = false
+        PreferencesUtil.saveCallState(false, null)
         _errorMessage.value = "WebSocket Disconnected"
     }
 
@@ -183,7 +188,7 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
         if (httpClient != null) {
             httpClient!!.dispose()
         }
-        _isConnected.value = false
+        PreferencesUtil.saveCallState(false, null)
     }
 
 

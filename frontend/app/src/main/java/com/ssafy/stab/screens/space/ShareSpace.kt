@@ -53,14 +53,20 @@ fun ShareSpace(navController: NavController, spaceId: String) {
     val userName = remember { loginDetails.userName }
     audioCallViewModel.sessionId.value = spaceId
     if (userName != null) { audioCallViewModel.participantName.value = userName }
-
+    // 현재 공유 스페이스의 통화방 참여 여부 판단
+    val currentCallState = PreferencesUtil.getCallState()
+    val isCurrentSpaceActive = currentCallState.callSpaceId == spaceId && currentCallState.isInCall
 
     Column(
         modifier = Modifier
             .background(Color(0xFFE9ECF5))
             .fillMaxSize()
     ) {
-        SpTitleBar( context = context, audioCallViewModel = audioCallViewModel )
+        SpTitleBar(
+            context = context,
+            audioCallViewModel = audioCallViewModel,
+            isCurrentSpaceActive = isCurrentSpaceActive
+        )
         Divider(
             color = Color.Gray,
             thickness = 1.dp,
@@ -101,12 +107,12 @@ fun ShareSpace(navController: NavController, spaceId: String) {
 }
 
 @Composable
-fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel) {
+fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurrentSpaceActive: Boolean) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
-    val isConnected = audioCallViewModel.isConnected.collectAsState() // 음성 통화 방 참여 상태
+
     // 통화 방 참여 상태에 따른 이미지 리소스 결정
-    val callButtonImage = if (isConnected.value) {
+    val callButtonImage = if (isCurrentSpaceActive) {
         painterResource(id = R.drawable.calloff)  // 통화 종료 아이콘
     } else {
         painterResource(id = R.drawable.call)  // 통화 시작 아이콘
@@ -154,7 +160,7 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel) {
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
                         painter = callButtonImage,
-                        contentDescription = if (isConnected.value) "통화 종료" else "통화 시작",
+                        contentDescription = if (isCurrentSpaceActive) "통화 종료" else "통화 시작",
                         modifier = Modifier
                             .height(30.dp)
                             .height(30.dp)
