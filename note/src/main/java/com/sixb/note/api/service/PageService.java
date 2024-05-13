@@ -3,9 +3,9 @@ package com.sixb.note.api.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixb.note.dto.page.*;
+import com.sixb.note.dto.pageData.*;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;
-import com.sixb.note.dto.pageData.PageDataDto;
 import com.sixb.note.exception.NoteNotFoundException;
 import com.sixb.note.exception.PageNotFoundException;
 import com.sixb.note.repository.NoteRepository;
@@ -104,21 +104,33 @@ public class PageService {
         }
     }
 
-    public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
-//        System.out.println("request:" + request);
+    // 데이터 저장
+    public void saveData(SaveDataRequestDto request) throws PageNotFoundException, JsonProcessingException {
+        System.out.println("request:" + request);
         String pageId = request.getPageId();
+        System.out.println(pageId);
         Page page = pageRepository.findPageById(pageId);
 
         LocalDateTime now = LocalDateTime.now();
 
         if (page != null) {
             Note note = noteRepository.findNoteById(page.getNoteId());
+            System.out.println(note.getNoteId());
             if (note == null) {
                 throw new PageNotFoundException("노트를 찾을 수 없습니다.");
             }
             if (page.getIsDeleted() == false) {
+                // 형식 검사?
+                PageDataDto pageData = request.getPageData();
+
+                System.out.println(pageData.toString());
+
+                ObjectMapper mapper = new ObjectMapper();
+
+                String pageDataString = mapper.writeValueAsString(pageData);
+
                 page.setUpdatedAt(now);
-                page.setPageData(request.getPageData());
+                page.setPageData(pageDataString);
                 note.setUpdatedAt(now);
                 pageRepository.save(page);
                 noteRepository.save(note);
@@ -273,5 +285,5 @@ public class PageService {
             throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
         }
     }
-    
+
 }

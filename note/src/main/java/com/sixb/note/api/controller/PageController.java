@@ -56,6 +56,8 @@ public class PageController {
             return ResponseEntity.ok("데이터 저장완료");
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 
