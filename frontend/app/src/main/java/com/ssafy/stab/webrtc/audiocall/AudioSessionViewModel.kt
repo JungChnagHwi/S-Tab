@@ -2,9 +2,13 @@ package com.ssafy.stab.webrtc.audiocall
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.webrtc.utils.CustomHttpClient
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
@@ -14,6 +18,9 @@ import java.util.Base64
 class AudioSessionViewModel : ViewModel() {
     private val httpClient = CustomHttpClient(BuildConfig.OPENVIDU_URL)
     private val gson = Gson()
+
+    private val _participants = MutableStateFlow<List<Connection>>(emptyList())
+    val participants: StateFlow<List<Connection>> = _participants
 
     fun getSessionConnection(sessionId: String) {
         val url = "api/sessions/$sessionId/connection"
@@ -26,6 +33,9 @@ class AudioSessionViewModel : ViewModel() {
                     val body = response.body?.string()
                     body?.let {
                         val connections = gson.fromJson(it, ConnectionsResponse::class.java)
+                        viewModelScope.launch {
+                            _participants.value = connections.content
+                        }
                         // 이제 connections 객체를 사용하여 참가자 목록 등을 처리
                         connections.content.forEach { connection ->
                             Log.d("Connection Data", "ID: ${connection}")
@@ -54,6 +64,5 @@ data class Connection(
     val sessionId: String,
     val serverData: String?,
     val clientData: String?,
-    val record: Boolean?,
     val role: String?
 )

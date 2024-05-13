@@ -29,11 +29,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.google.gson.JsonParser
 import com.ssafy.stab.R
 
 
 @Composable
-fun ParticipantList(participants: List<String>) {
+fun ParticipantListModal(participants: List<Connection>, function: () -> Unit) {
 //    val onlineUsers = listOf("참가자1", "참가자2")
 //    val offlineUsers = listOf("참가자3", "참가자4", "참가자5", "참가자6")
     Log.d("ParticipantList", "Current participants: $participants")  // 디버그 로그 추가
@@ -54,7 +55,11 @@ fun ParticipantList(participants: List<String>) {
             item {
                 SectionTitle(title = "통화중")
             }
-            items(participants) { user ->
+            items(participants) { connection ->
+                val clientDataJson = connection.clientData ?: "{}" // clientData가 null이면 빈 JSON 객체를 사용
+                val clientDataObj = JsonParser.parseString(clientDataJson).asJsonObject
+                val user = if (clientDataObj.has("clientData")) clientDataObj.get("clientData").asString else "Unknown"
+                Log.d("user", user)
                 UserRow(user, profileImg, muteImg, micImg)
             }
             item {
