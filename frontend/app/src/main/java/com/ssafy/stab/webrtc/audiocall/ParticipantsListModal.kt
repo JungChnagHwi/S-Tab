@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -46,8 +48,9 @@ fun ParticipantListModal(participants: List<Connection>, function: () -> Unit) {
 
     Column(
         modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
             .background(Color(0xFF7591C6))
-            .width(300.dp)
+            .width(250.dp)
             .height(400.dp)
             .padding(16.dp)
     ) {
@@ -99,25 +102,26 @@ fun UserRow(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 16.dp)
+                .padding(end = 8.dp)
         ) {
             Text(text = user)
-            Spacer(modifier = Modifier.height(8.dp))
-            Slider(
-                value = volume,
-                onValueChange = { newVolume ->
-                    if (!isMuted) {
-                        volume = newVolume
-                    }
-                },
-                enabled = !isMuted
-            )
-        }
-        IconButton(onClick = { isMuted = !isMuted }) {
-            Icon(
-                painter = if (isMuted) muteImg else micImg,
-                contentDescription = if (isMuted) "음소거" else "음소거 해제"
-            )
+//            Spacer(modifier = Modifier.height(8.dp))
+//            Slider(
+//                value = volume,
+//                onValueChange = { newVolume ->
+//                    if (!isMuted) {
+//                        volume = newVolume
+//                    }
+//                },
+//                enabled = !isMuted
+//            )
+//        }
+//        IconButton(onClick = { isMuted = !isMuted }) {
+//            Icon(
+//                painter = if (isMuted) muteImg else micImg,
+//                contentDescription = if (isMuted) "음소거" else "음소거 해제"
+//            )
+//        }
         }
     }
 }
