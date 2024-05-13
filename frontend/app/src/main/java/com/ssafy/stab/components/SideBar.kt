@@ -40,6 +40,7 @@ import androidx.navigation.NavController
 import com.ssafy.stab.apis.space.share.ShareSpaceList
 import com.ssafy.stab.apis.space.share.getShareSpaceList
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.data.PreferencesUtil.callState
 import com.ssafy.stab.modals.CreateShareSpaceModal
 import com.ssafy.stab.screens.space.personal.LocalNowFolderId
 
@@ -57,6 +58,8 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
 
     val showCreateModal = remember { mutableStateOf(false) }
     var shareSpaceList = remember { mutableStateListOf<ShareSpaceList>() }
+    // 현재 통화 중인 스페이스의 이름 찾기
+    val currentCallSpaceName = shareSpaceList.find { it.spaceId == callState.value.callSpaceId }?.title ?: "Unknown Space"
 
     LaunchedEffect(key1 = true) {
         getShareSpaceList { res ->
@@ -183,7 +186,7 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
                             color = Color(0xff4ADE80),
                             fontSize = 16.sp
                         )
-                        Text(text = callState.value.callSpaceId ?: "스터디1")
+                        Text(text = currentCallSpaceName)
                     }
                     Image(
                         painter = micImg,
