@@ -108,4 +108,13 @@ public class SpaceService {
         }
         return false;
     }
+
+    //스페이스 참가
+    public void joinSpace(long userId, String spaceId) {
+        User user = userRepository.findUserById(userId);
+        Space space = spaceRepository.findSpaceById(spaceId);
+
+        user.getSpaces().add(space);
+        userRepository.save(user);
+    }
 }
