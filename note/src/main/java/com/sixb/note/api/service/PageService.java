@@ -46,7 +46,7 @@ public class PageService {
             newPage.setUpdatedAt(now);
             newPage.setColor(beforePage.getColor());
             newPage.setDirection(beforePage.getDirection());
-            newPage.setPageData("{\"paths\": [], \"figures\": [],\"textBoxes\": [], \"images\": []}");
+            newPage.setPageData("{\"paths\": [], \"figures\": [], \"textBoxes\": [], \"images\": []}");
             // 만약 이전 페이지가 pdf페이지가 아니라면
             if (beforePage.getPdfUrl()==null) {
                 newPage.setTemplate(beforePage.getTemplate());
@@ -134,7 +134,6 @@ public class PageService {
                 note.setUpdatedAt(now);
                 pageRepository.save(page);
                 noteRepository.save(note);
-//                System.out.println("noteId: "+note.getNoteId());
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
@@ -174,9 +173,6 @@ public class PageService {
 
             // noteId에 연결되어있는 페이지 모두 불러오기
             List<Page> pageList = pageRepository.findAllPagesByNoteId(noteId);
-            System.out.println("noteId: "+noteId);
-
-            System.out.println(pageList.size());
 
             for (Page page : pageList) {
                 // pageData 역직렬화
