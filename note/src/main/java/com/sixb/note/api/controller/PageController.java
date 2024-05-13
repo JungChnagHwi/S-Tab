@@ -1,5 +1,6 @@
 package com.sixb.note.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sixb.note.api.service.PageService;
 import com.sixb.note.dto.page.*;
 import com.sixb.note.exception.NoteNotFoundException;
@@ -67,6 +68,8 @@ public class PageController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (PageNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }
