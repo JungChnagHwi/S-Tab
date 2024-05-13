@@ -14,8 +14,8 @@ public class TrashController {
     @Autowired
     private TrashService trashService;
     @GetMapping
-    public ResponseEntity<List<Object>> getDeletedItems() {
-        List<Object> deletedItems = trashService.findDeletedItems();
+    public ResponseEntity<List<Object>> getDeletedItems(long userId) {
+        List<Object> deletedItems = trashService.findDeletedItems(userId);
         return ResponseEntity.ok(deletedItems);
     }
 

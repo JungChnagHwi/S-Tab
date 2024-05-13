@@ -205,17 +205,25 @@ io.on("connection", (socket) => {
     socket.broadcast.to(noteId).emit("receiveDrawing", message);
   });
 
+  const toCapitalize = (str) => {
+    return str.replace(/\b\w/g, (match) => match.toUpperCase());
+  };
+
   // Room 나가기
   const leaveRoom = (room, roomId, type) => {
     if (room[roomId] && room[roomId][socket.id]) {
-      console.log(`${socket.id} left the Room ${roomId}`);
+      capType = toCapitalize(type);
+
+      console.log(`${socket.id} left the ${capType} Room ${roomId}`);
 
       // 유저 정보 삭제
       delete room[roomId][socket.id];
       socket.leave(roomId);
       // 해당 스페이스 방이 비어 있는지 확인
       if (Object.keys(room[roomId]).length === 0) {
-        console.log(`Room ${roomId} is now empty and will be deleted.`);
+        console.log(
+          `${capType} Room ${roomId} is now empty and will be deleted.`
+        );
         delete room[roomId];
       } else {
         // 나간 유저 정보 알리기

@@ -14,7 +14,8 @@ import java.util.UUID;
 public class Note extends BaseTimeEntity {
 
     @Id
-    private String id;
+    @Property("noteId")
+    private String noteId;
 
     @Property("spaceId")
     private String spaceId;
@@ -25,6 +26,6 @@ public class Note extends BaseTimeEntity {
     @Property("totalPageCnt")
     private int totalPageCnt;
 
-    @Relationship(type = "FirstPage")
-    private Page pages;
+    @Relationship(type = "NextPage")
+    private Page page;
 }

@@ -1,17 +1,14 @@
 package com.sixb.note.api.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixb.note.dto.page.*;
-import com.sixb.note.dto.pageData.FigureDto;
-import com.sixb.note.dto.pageData.ImageDto;
-import com.sixb.note.dto.pageData.PathDto;
-import com.sixb.note.dto.pageData.TextBoxDto;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;
-import com.sixb.note.entity.PageData;
+import com.sixb.note.dto.pageData.PageDataDto;
 import com.sixb.note.exception.NoteNotFoundException;
 import com.sixb.note.exception.PageNotFoundException;
 import com.sixb.note.repository.NoteRepository;
-import com.sixb.note.repository.PageDataRepository;
 import com.sixb.note.repository.PageRepository;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +24,6 @@ import java.util.Optional;
 public class PageService {
 
     private final PageRepository pageRepository;
-    private final PageDataRepository pageDataRepository;
     private final NoteRepository noteRepository;
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
@@ -44,7 +40,8 @@ public class PageService {
 
             // 이전페이지 정보로 새로운 page만들기
             String pageId = IdCreator.create("p");
-            newPage.setId(pageId);
+            newPage.setPageId(pageId);
+            newPage.setNoteId(beforePage.getNoteId());
             newPage.setCreatedAt(now);
             newPage.setUpdatedAt(now);
             newPage.setColor(beforePage.getColor());
@@ -108,22 +105,24 @@ public class PageService {
     }
 
     public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
-        System.out.println(request);
+//        System.out.println("request:" + request);
         String pageId = request.getPageId();
         Page page = pageRepository.findPageById(pageId);
-//        Note note = noteRepository.findNoteByPageId(pageId);
+
         LocalDateTime now = LocalDateTime.now();
-//        if (note == null) {
-//            throw new PageNotFoundException("노트를 찾을 수 없습니다.");
-//        }
+
         if (page != null) {
+            Note note = noteRepository.findNoteById(page.getNoteId());
+            if (note == null) {
+                throw new PageNotFoundException("노트를 찾을 수 없습니다.");
+            }
             if (page.getIsDeleted() == false) {
                 page.setUpdatedAt(now);
                 page.setPageData(request.getPageData());
-//                note.setUpdatedAt(now);
+                note.setUpdatedAt(now);
                 pageRepository.save(page);
-//                noteRepository.save(note);
-//                System.out.println(note.getId());
+                noteRepository.save(note);
+//                System.out.println("noteId: "+note.getNoteId());
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
@@ -156,25 +155,47 @@ public class PageService {
     }
 
     // 페이지 조회
-    public PageListResponseDto getPageList(long userId, String noteId) throws NoteNotFoundException, PageNotFoundException {
+    public PageListResponseDto getPageList(long userId, String noteId) throws NoteNotFoundException, PageNotFoundException, JsonProcessingException {
         Note note = noteRepository.findNoteById(noteId);
         if (note != null) {
             List<PageInfoDto> pageInfoList = new ArrayList<>();
 
-            // noteId에 연결되어있는 페이지 불러오기
+            // noteId에 연결되어있는 페이지 모두 불러오기
             List<Page> pageList = pageRepository.findAllPagesByNoteId(noteId);
+            System.out.println("noteId: "+noteId);
 
             System.out.println(pageList.size());
 
             for (Page page : pageList) {
                 // pageData 역직렬화
+                String pageDataString = page.getPageData();
+                ObjectMapper mapper = new ObjectMapper();
+                PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
+                String pageId = page.getPageId();
+
                 // pageInfoDto에 넣기
+                PageInfoDto pageInfoDto = PageInfoDto.builder()
+                        .pageId(pageId)
+                        .color(page.getColor())
+                        .template(page.getTemplate())
+                        .direction(page.getDirection())
+                        .pdfPage(page.getPdfPage())
+                        .pdfUrl(page.getPdfUrl())
+                        .updatedAt(page.getUpdatedAt())
+                        .isBookmarked(pageRepository.isLikedByPageId(userId, pageId))
+                        .paths(pageDataDto.getPaths())
+                        .figures(pageDataDto.getFigures())
+                        .images(pageDataDto.getImages())
+                        .textBoxes(pageDataDto.getTextBoxes())
+                        .build();
                 // pageInfoList에 넣기
+                pageInfoList.add(pageInfoDto);
             }
 
             PageListResponseDto pageListResponseDto = PageListResponseDto.builder()
-                                    .data(pageInfoList)
-                                    .build();
+                    .data(pageInfoList)
+                    .title(note.getTitle())
+                    .build();
 
             return pageListResponseDto;
         } else {

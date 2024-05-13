@@ -33,11 +33,11 @@ public class SpaceService {
 
     public List<SpaceResponseDto> findAllSpaceDetails(long userId) {
         User users = userRepository.findUserById(userId);
-        List<Space> spaces = spaceRepository.findSpaces(users.getId());
+        List<Space> spaces = spaceRepository.findSpaces(users.getUserId());
 
         return spaces.stream().map(space -> {
             SpaceResponseDto dto = new SpaceResponseDto();
-            dto.setSpaceId(space.getId());
+            dto.setSpaceId(space.getSpaceId());
             dto.setTitle(space.getTitle());
             dto.setIsPublic(space.getIsPublic());
             dto.setCreatedAt(space.getCreatedAt());
@@ -59,16 +59,16 @@ public class SpaceService {
         User user = userRepository.findUserById(userId);
         Space newSpace = new Space();
         newSpace.setTitle(requestDto.getTitle());
-        newSpace.setId(IdCreator.create("s"));
+        newSpace.setSpaceId(IdCreator.create("s"));
         newSpace.setIsPublic(true);
         LocalDateTime now = LocalDateTime.now();
         newSpace.setCreatedAt(now);
         newSpace.setUpdatedAt(now);
 
         Folder newFolder = new Folder();
-        newFolder.setSpaceId(newSpace.getId());
+        newFolder.setSpaceId(newSpace.getSpaceId());
         newFolder.setTitle("root");
-        newFolder.setId(IdCreator.create("f"));
+        newFolder.setFolderId(IdCreator.create("f"));
         newFolder.setCreatedAt(now);
         newFolder.setUpdatedAt(now);
 
@@ -81,7 +81,7 @@ public class SpaceService {
 
     private SpaceResponseDto convertToSpaceResponseDto(Space space) {
         SpaceResponseDto responseDto = new SpaceResponseDto();
-        responseDto.setSpaceId(space.getId());
+        responseDto.setSpaceId(space.getSpaceId());
         responseDto.setTitle(space.getTitle());
         responseDto.setIsPublic(true);
         responseDto.setCreatedAt(LocalDateTime.now());
@@ -107,5 +107,14 @@ public class SpaceService {
             return true;
         }
         return false;
+    }
+
+    //스페이스 참가
+    public void joinSpace(long userId, String spaceId) {
+        User user = userRepository.findUserById(userId);
+        Space space = spaceRepository.findSpaceById(spaceId);
+
+        user.getSpaces().add(space);
+        userRepository.save(user);
     }
 }
