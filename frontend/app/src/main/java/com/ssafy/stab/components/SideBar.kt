@@ -215,7 +215,11 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
                     Image(
                         painter = phoneImg,
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                audioCallViewModel.leaveSession()
+                            }
                     )
                 }
             }
