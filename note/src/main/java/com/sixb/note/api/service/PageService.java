@@ -185,14 +185,28 @@ public class PageService {
                 PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
                 String pageId = page.getPageId();
 
+                Optional<Integer> optionalPdfPage = Optional.ofNullable(page.getPdfPage());
+                Optional<String> optionalPdfUrl = Optional.ofNullable(page.getPdfUrl());
+
+                String pdfUrl;
+                Integer pdfPage;
+
+                if (optionalPdfUrl.isPresent() && optionalPdfPage.isPresent()) {
+                    pdfUrl = optionalPdfUrl.get();
+                    pdfPage = optionalPdfPage.get();
+                } else {
+                    pdfUrl = null;
+                    pdfPage = null;
+                }
+
                 // pageInfoDto에 넣기
                 PageInfoDto pageInfoDto = PageInfoDto.builder()
                         .pageId(pageId)
                         .color(page.getColor())
                         .template(page.getTemplate())
                         .direction(page.getDirection())
-                        .pdfPage(page.getPdfPage())
-                        .pdfUrl(page.getPdfUrl())
+                        .pdfPage(pdfPage)
+                        .pdfUrl(pdfUrl)
                         .updatedAt(page.getUpdatedAt())
                         .isBookmarked(pageRepository.isLikedByPageId(userId, pageId))
                         .paths(pageDataDto.getPaths())
@@ -228,9 +242,29 @@ public class PageService {
         Page targetPage = pageRepository.findPageById(request.getTargetPageId());
 
         if (beforePage != null && targetPage != null) {
+            System.out.println(beforePage.getNoteId());
+            if (noteRepository.findNoteById(beforePage.getNoteId()) == null) {
+                throw new PageNotFoundException("no note found.");
+            }
+
             // before 페이지에 이어서 페이지 만들기
             Page newPage = new Page();
             LocalDateTime now = LocalDateTime.now();
+
+            // Integer니까 nullable?
+            Optional<Integer> optionalPdfPage = Optional.ofNullable(targetPage.getPdfPage());
+            Optional<String> optionalPdfUrl = Optional.ofNullable(targetPage.getPdfUrl());
+
+            String pdfUrl;
+            Integer pdfPage;
+
+            if (optionalPdfUrl.isPresent() && optionalPdfPage.isPresent()) {
+                pdfUrl = optionalPdfUrl.get();
+                pdfPage = optionalPdfPage.get();
+            } else {
+                pdfUrl = null;
+                pdfPage = null;
+            }
 
             // 이전페이지 정보로 새로운 page만들기
             String pageId = IdCreator.create("p");
@@ -242,6 +276,8 @@ public class PageService {
             newPage.setDirection(targetPage.getDirection());
             newPage.setPageData(targetPage.getPageData());
             newPage.setTemplate(targetPage.getTemplate());
+            newPage.setPdfUrl(pdfUrl);
+            newPage.setPdfPage(pdfPage);
 
             // 이전페이지에 이어진 페이지 찾기
             Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
@@ -265,8 +301,8 @@ public class PageService {
                     .color(newPage.getColor())
                     .template(newPage.getTemplate())
                     .direction(newPage.getDirection())
-                    .pdfPage(newPage.getPdfPage())
-                    .pdfUrl(newPage.getPdfUrl())
+                    .pdfPage(pdfPage)
+                    .pdfUrl(pdfUrl)
                     .updatedAt(newPage.getUpdatedAt())
                     .isBookmarked(false)
                     .paths(pageDataDto.getPaths())
