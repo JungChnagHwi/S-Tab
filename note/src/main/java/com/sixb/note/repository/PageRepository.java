@@ -23,7 +23,7 @@ public interface PageRepository extends Neo4jRepository<Page, String> {
     @Query("MATCH (u:User {id: $userId})-[r:Like]->(p:Page {id: $itemId}) DELETE r")
     void deleteLikePage(@Param("userId") long userId, @Param("itemId") String itemId);
 
-    @Query("MATCH (n: Note {id: $noteId})-[r:FirstPage]->(p: Page) RETURN p")
+    @Query("MATCH (n: Note {id: $noteId})-[r:NextPage]->(p: Page) RETURN p")
     Page findFirstPageByNoteId(@Param("noteId") String noteId);
 
     @Query("MATCH (p: Page {id: $pageId})-[r:NextPage]->(p1: Page) RETURN p1")
@@ -35,10 +35,8 @@ public interface PageRepository extends Neo4jRepository<Page, String> {
     @Query("MATCH (p: Page {id: $pageId})-[r:NextPage]->(p1: Page) DELETE r")
     void deleteNextPageRelation(@Param("pageId") String pageId);
 
-    @Query("MATCH (note:Note {id: $noteId})-[:FirstPage]->(firstPage:Page)\n" +
-            "WITH note, firstPage\n" +
-            "MATCH path=(firstPage)-[:NextPage*]->(page:Page)\n" +
+    @Query("MATCH (n:Note {id: $noteId})-[:NextPage*]->(page:Page)\n" +
             "WHERE NOT page.isDeleted\n" +
-            "RETURN collect(firstPage) + collect(page) AS allPages")
+            "RETURN collect(page) AS allPages")
     List<Page> findAllPagesByNoteId(@Param("noteId") String noteId);
 }
