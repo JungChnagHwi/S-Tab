@@ -203,4 +203,12 @@ public class PageService {
         }
 
     }
+
+    // 페이지 링크 - 보류
+//    public void linkPage(PageLinkRequestDto request) throws PageNotFoundException {
+//        Page linkPage = pageRepository.findPageById(request.getLinkPageId());
+//        Page targetPage = pageRepository.findPageById(request.getTargetPageId());
+//    }
+
+
 }
