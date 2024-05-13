@@ -22,7 +22,6 @@ public class NoteService {
     private final FolderRepository folderRepository;
     private final PageRepository pageRepository;
     private final SpaceRepository spaceRepository;
-    private final PageDataRepository pageDataRepository;
 
 
     public CreateNoteResponseDto createNote(CreateNoteRequestDto request) {
@@ -33,11 +32,11 @@ public class NoteService {
 
         String formattedNoteId = IdCreator.create("n");
 //        UUID formattedNoteId = UUID.randomUUID();
-        note.setId(formattedNoteId);
+        note.setNoteId(formattedNoteId);
         // 새로운 페이지 생성
         Page page = new Page();
         String formattedPageId = IdCreator.create("p");
-        page.setId(formattedPageId);
+        page.setPageId(formattedPageId);
         page.setNoteId(formattedNoteId);
         page.setTemplate(String.valueOf(request.getTemplate()));
         page.setColor(String.valueOf(request.getColor()));
@@ -90,7 +89,7 @@ public class NoteService {
 
         // 응답 DTO 구성
         CreateNoteResponseDto response = new CreateNoteResponseDto();
-        response.setNoteId(note.getId());
+        response.setNoteId(note.getNoteId());
         response.setTitle(note.getTitle());
         response.setTotalPageCnt(note.getTotalPageCnt());
         response.setLiked(false);
@@ -100,7 +99,7 @@ public class NoteService {
 
         // 페이지 DTO 설정
         CreateNoteResponseDto.PageDto pageDto = new CreateNoteResponseDto.PageDto();
-        pageDto.setPageId(page.getId());
+        pageDto.setPageId(page.getPageId());
         pageDto.setColor(request.getColor());
         pageDto.setTemplate(request.getTemplate());
         pageDto.setDirection(request.getDirection());

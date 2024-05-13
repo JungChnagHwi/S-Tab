@@ -14,7 +14,8 @@ import java.util.UUID;
 public class Note extends BaseTimeEntity {
 
     @Id
-    private String id;
+    @Property("noteId")
+    private String noteId;
 
     @Property("spaceId")
     private String spaceId;

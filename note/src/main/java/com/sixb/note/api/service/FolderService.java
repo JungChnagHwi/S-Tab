@@ -38,7 +38,7 @@ public class FolderService {
 
         List<FolderResponseDto.FolderInfo> folderInfos = folders.stream().map(folder -> {
             FolderResponseDto.FolderInfo info = new FolderResponseDto.FolderInfo();
-            info.setFolderId(folder.getId());
+            info.setFolderId(folder.getFolderId());
             info.setTitle(folder.getTitle());
             info.setCreatedAt(folder.getCreatedAt());
             info.setUpdatedAt(folder.getUpdatedAt());
@@ -49,7 +49,7 @@ public class FolderService {
 
         List<FolderResponseDto.NoteInfo> noteInfos = notes.stream().map(note -> {
             FolderResponseDto.NoteInfo info = new FolderResponseDto.NoteInfo();
-            info.setNoteId(note.getId());
+            info.setNoteId(note.getNoteId());
             info.setTitle(note.getTitle());
             info.setTotalPageCnt(note.getTotalPageCnt());
             info.setCreatedAt(note.getCreatedAt());
@@ -71,7 +71,7 @@ public class FolderService {
 
         List<FolderResponseDto.FolderInfo> folderInfos = folders.stream().map(folder -> {
             FolderResponseDto.FolderInfo info = new FolderResponseDto.FolderInfo();
-            info.setFolderId(folder.getId());
+            info.setFolderId(folder.getFolderId());
             info.setTitle(folder.getTitle());
             info.setCreatedAt(folder.getCreatedAt());
             info.setUpdatedAt(folder.getUpdatedAt());
@@ -82,7 +82,7 @@ public class FolderService {
 
         List<FolderResponseDto.NoteInfo> noteInfos = notes.stream().map(note -> {
             FolderResponseDto.NoteInfo info = new FolderResponseDto.NoteInfo();
-            info.setNoteId(note.getId());
+            info.setNoteId(note.getNoteId());
             info.setTitle(note.getTitle());
             info.setTotalPageCnt(note.getTotalPageCnt());
             info.setCreatedAt(note.getCreatedAt());
@@ -106,7 +106,7 @@ public class FolderService {
 
         String formattedFolderId = IdCreator.create("f");
 //        UUID formattedFolderId = UUID.randomUUID();
-        newFolder.setId(formattedFolderId);
+        newFolder.setFolderId(formattedFolderId);
 
         // 부모 폴더 또는 스페이스 ID로 조회
         Folder parentFolder = folderRepository.findFolderById(request.getParentFolderId());
@@ -117,7 +117,7 @@ public class FolderService {
             if (space == null) {
                 throw new IllegalStateException("Neither parent folder nor space found for given ID");
             }
-            newFolder.setSpaceId(space.getId());
+            newFolder.setSpaceId(space.getSpaceId());
             space.getFolders().add(newFolder);
         } else {
             newFolder.setSpaceId(parentFolder.getSpaceId());
@@ -140,7 +140,7 @@ public class FolderService {
         }
 
         CreateFolderResponseDto response = new CreateFolderResponseDto();
-        response.setFolderId(newFolder.getId());
+        response.setFolderId(newFolder.getFolderId());
         response.setTitle(newFolder.getTitle());
         response.setCreatedAt(LocalDateTime.now());
         response.setUpdatedAt(LocalDateTime.now());

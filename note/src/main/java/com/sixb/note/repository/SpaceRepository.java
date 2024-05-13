@@ -12,12 +12,12 @@ import java.util.UUID;
 @Repository
 public interface SpaceRepository extends Neo4jRepository<Space, String> {
 
-    @Query("MATCH (s:Space) WHERE s.id = $spaceId RETURN s")
+    @Query("MATCH (s:Space) WHERE s.spaceId = $spaceId RETURN s")
     Space findSpaceById(@Param("spaceId") String spaceId);
 //    @Query("MATCH (s:Space) RETURN s")
-    @Query("MATCH (u:User {id: $userId})-[:Join]->(s:Space) RETURN s")
+    @Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space) RETURN s")
     List<Space> findSpaces(@Param("userId") long userId);
 
-    @Query("MATCH (s:Space {id: $spaceId}) SET s.title = $newTitle RETURN s")
+    @Query("MATCH (s:Space {spaceId: $spaceId}) SET s.title = $newTitle RETURN s")
     void updateSpaceTitle(String spaceId, String newTitle);
 }

@@ -1,6 +1,5 @@
 package com.sixb.note.api.service;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixb.note.dto.page.*;
@@ -10,7 +9,6 @@ import com.sixb.note.dto.pageData.PageDataDto;
 import com.sixb.note.exception.NoteNotFoundException;
 import com.sixb.note.exception.PageNotFoundException;
 import com.sixb.note.repository.NoteRepository;
-import com.sixb.note.repository.PageDataRepository;
 import com.sixb.note.repository.PageRepository;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +40,7 @@ public class PageService {
 
             // 이전페이지 정보로 새로운 page만들기
             String pageId = IdCreator.create("p");
-            newPage.setId(pageId);
+            newPage.setPageId(pageId);
             newPage.setNoteId(beforePage.getNoteId());
             newPage.setCreatedAt(now);
             newPage.setUpdatedAt(now);
@@ -107,7 +105,7 @@ public class PageService {
     }
 
     public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
-        System.out.println("request:" + request);
+//        System.out.println("request:" + request);
         String pageId = request.getPageId();
         Page page = pageRepository.findPageById(pageId);
 
@@ -124,7 +122,7 @@ public class PageService {
                 note.setUpdatedAt(now);
                 pageRepository.save(page);
                 noteRepository.save(note);
-                System.out.println("noteId: "+note.getId());
+//                System.out.println("noteId: "+note.getNoteId());
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
@@ -173,7 +171,7 @@ public class PageService {
                 String pageDataString = page.getPageData();
                 ObjectMapper mapper = new ObjectMapper();
                 PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
-                String pageId = page.getId();
+                String pageId = page.getPageId();
 
                 // pageInfoDto에 넣기
                 PageInfoDto pageInfoDto = PageInfoDto.builder()
