@@ -34,9 +34,9 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     private val serverUrl = BuildConfig.OPENVIDU_URL
     var participants = mutableStateOf(listOf<String>())
     private val _errorMessage = MutableStateFlow("")
-    val errorMessage = _errorMessage.asStateFlow()
     private var session: Session? = null
     private var httpClient: CustomHttpClient? = null
+    var isMuted = mutableStateOf(false)
 
     // 오디오 권한 체크 후, 세션 id와 서버 url이 유효한지 확인하고 session 입장 요청
     fun buttonPressed(context: Context) {
@@ -124,11 +124,6 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
 
     }
 
-    // callback 구현
-    private fun onSuccess() {
-        participants.value = listOf(participantName.value) // 예시 데이터
-    }
-
     override fun onConnected() {
         PreferencesUtil.saveCallState(true, sessionId.value)
     }
@@ -163,13 +158,14 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-
-
     // 미디어스트림 받기
     override fun onStreamReceived(stream: MediaStream, participant: RemoteParticipant) {
         val audioTrack = stream.audioTracks.firstOrNull()
-        // 여기서 audioTrack를 사용한 오디오 처리 로직 구현
-        // 예: audioTrack.enabled = true
+    }
+    // 마이크 토글 함수
+    fun toggleMic() {
+        isMuted.value = !isMuted.value
+        session?.localParticipant?.muteMic(isMuted.value)
     }
 
     // 세션 떠나기
@@ -184,8 +180,6 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
         }
         PreferencesUtil.saveCallState(false, null)
     }
-
-
 
     override fun onError(message: String) {
         viewModelScope.launch {

@@ -38,7 +38,6 @@ public class LocalParticipant extends Participant {
     }
 
     public void startAudio() {
-
         PeerConnectionFactory peerConnectionFactory = this.session.getPeerConnectionFactory();
 
         // Create AudioSource
@@ -48,6 +47,12 @@ public class LocalParticipant extends Participant {
         // Add the audio track to the peer connection
         if (this.peerConnection != null) {
             this.peerConnection.addTrack(this.audioTrack);
+        }
+    }
+
+    public void muteMic(boolean mute) {
+        if (audioTrack != null) {
+            audioTrack.setEnabled(!mute);
         }
     }
 
@@ -110,4 +115,5 @@ public class LocalParticipant extends Participant {
             surfaceTextureHelper = null;
         }
     }
+
 }
