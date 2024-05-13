@@ -132,6 +132,7 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
         PermissionsDialog(
             onPermissionGranted = {
                 audioCallViewModel.buttonPressed(context)
+                !callActive.value
             },
             onPermissionDenied = {
                 // Handle permission denial, possibly notify user
@@ -187,6 +188,7 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
                             .clickable {
                                 if (PermissionManager.arePermissionsGranted(context)) {
                                     audioCallViewModel.buttonPressed(context)
+                                    callActive.value = !callActive.value
                                 } else {
                                     showDialog.value = true
                                 }
