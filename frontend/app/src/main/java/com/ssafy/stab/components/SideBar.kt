@@ -59,6 +59,8 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
     val plusImg = painterResource(id = R.drawable.plus)
     val participateImg = painterResource(id = R.drawable.participate)
 
+    val  soundImg = if (audioCallViewModel.isMuted.value) soundOffImg else soundOnImg
+
     val showCreateModal = remember { mutableStateOf(false) }
     var shareSpaceList = remember { mutableStateListOf<ShareSpaceList>() }
     // 현재 통화 중인 스페이스의 이름 찾기
@@ -197,9 +199,13 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
                         Text(text = currentCallSpaceName)
                     }
                     Image(
-                        painter = soundOnImg,
+                        painter = soundImg,
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                audioCallViewModel.toggleMic()
+                            }
                     )
                     Image(
                         painter = speakerImg,
