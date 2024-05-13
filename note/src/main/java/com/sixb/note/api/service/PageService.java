@@ -342,7 +342,7 @@ public class PageService {
 
         if (beforePage != null) {
             // pdfcount 만큼 for문 돌면서 페이지 생성하기
-            for (int i = pdfPageCount+1; i > 0; i--) {
+            for (int i = pdfPageCount; i > 0; i--) {
                 String pageId = IdCreator.create("p");
                 Page page = Page.builder()
                         .pageId(pageId)
@@ -356,7 +356,9 @@ public class PageService {
                         .build();
 
                 // 페이지 링크하기
-                page.setNextPage(connectPage);
+                if (connectPage!=null) {
+                    page.setNextPage(connectPage);
+                }
                 pageRepository.save(page);
                 connectPage = page; // 이렇게 재할당 해도 되나요?
             }
