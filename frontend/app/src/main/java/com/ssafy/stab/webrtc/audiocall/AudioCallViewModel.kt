@@ -58,13 +58,9 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun startSession(context: Context) {
-        if (PermissionManager.arePermissionsGranted(context)) {
-            val currentSessionId = sessionId.value
-            httpClient = CustomHttpClient(serverUrl)
-            getToken(currentSessionId)  // 세션 토큰 요청
-        } else {
-            _errorMessage.value = "오디오 권한이 필요합니다."
-        }
+        val currentSessionId = sessionId.value
+        httpClient = CustomHttpClient(serverUrl)
+        getToken(currentSessionId)  // 세션 토큰 요청
     }
 
     // 세션 생성 및 연결 토큰 얻기

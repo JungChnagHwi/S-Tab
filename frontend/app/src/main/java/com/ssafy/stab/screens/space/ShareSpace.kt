@@ -34,6 +34,8 @@ import androidx.navigation.NavController
 import com.ssafy.stab.R
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
+import com.ssafy.stab.webrtc.fragments.PermissionsDialog
+import com.ssafy.stab.webrtc.utils.PermissionManager
 
 @Composable
 fun ShareSpace(navController: NavController, spaceId: String) {
@@ -111,6 +113,7 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
 
+
     // 통화 방 참여 상태에 따른 이미지 리소스 결정
     val callActive = remember { mutableStateOf(isCurrentSpaceActive) }
     val callButtonImage = if (callActive.value) {
@@ -122,6 +125,22 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
     val outImg = painterResource(id = R.drawable.out)
     val peopleImg = painterResource(id = R.drawable.people)
 
+    // 음성 권한 요청 dialog
+    val showDialog = remember { mutableStateOf(false) }
+
+    if (showDialog.value) {
+        PermissionsDialog(
+            onPermissionGranted = {
+                audioCallViewModel.buttonPressed(context)
+            },
+            onPermissionDenied = {
+                // Handle permission denial, possibly notify user
+            },
+            onDialogDismiss = {
+                showDialog.value = false
+            }
+        )
+    }
 
     Row {
         Spacer(modifier = Modifier.width(30.dp))
@@ -166,8 +185,12 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
                             .height(30.dp)
                             .height(30.dp)
                             .clickable {
-                                callActive.value = !callActive.value
-                                audioCallViewModel.buttonPressed(context) }
+                                if (PermissionManager.arePermissionsGranted(context)) {
+                                    audioCallViewModel.buttonPressed(context)
+                                } else {
+                                    showDialog.value = true
+                                }
+                            }
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
