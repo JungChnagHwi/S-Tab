@@ -23,11 +23,11 @@ public class TrashService {
     private final PageRepository pageRepository;
 
     //휴지통 조회
-    public List<Object> findDeletedItems() {
+    public List<Object> findDeletedItems(long userId) {
         List<Object> deletedItems = new ArrayList<>();
-        deletedItems.addAll(folderRepository.findDeletedFolders());
-        deletedItems.addAll(noteRepository.findDeletedNotes());
-        deletedItems.addAll(pageRepository.findDeletedPages());
+        deletedItems.addAll(folderRepository.findDeletedFolders(userId));
+        deletedItems.addAll(noteRepository.findDeletedNotes(userId));
+        deletedItems.addAll(pageRepository.findDeletedPages(userId));
         return deletedItems;
     }
 
