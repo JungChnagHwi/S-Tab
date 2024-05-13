@@ -30,4 +30,10 @@ public interface NoteRepository extends Neo4jRepository<Note, String> {
     @Query("MATCH (n:Note {noteId: $noteId}) SET n.title = $newTitle RETURN n")
     void updateNoteTitle(String noteId, String newTitle);
 
+    @Query("MATCH (n:Note {noteId: $noteId})<-[or:Hierarchy]-(of:Folder) " +
+            "MATCH (nf:Folder {folderId: $parentFolderId}) " +
+            "CREATE (n)<-[nr:Hierarchy]-(nf) " +
+            "DELETE or")
+    void relocateNote(String noteId, String parentFolderId);
+
 }

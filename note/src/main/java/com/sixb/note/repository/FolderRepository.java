@@ -33,5 +33,11 @@ public interface FolderRepository extends Neo4jRepository<Folder, String> {
 
     @Query("MATCH (f:Folder {folderId: $folderId}) SET f.title = $newTitle RETURN f")
     void updateFolderTitle(String folderId, String newTitle);
+
+    @Query("MATCH (f:Folder {folderId: $folderId})<-[or:Hierarchy]-(of:Folder) " +
+            "MATCH (nf:Folder {folderId: $parentFolderId}) " +
+            "CREATE (f)<-[nr:Hierarchy]-(nf) " +
+            "DELETE or")
+    void relocateFolder(String folderId, String parentFolderId);
 }
 

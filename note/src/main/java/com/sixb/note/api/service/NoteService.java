@@ -1,18 +1,22 @@
 package com.sixb.note.api.service;
 
-
 import com.sixb.note.dto.note.CreateNoteRequestDto;
 import com.sixb.note.dto.note.CreateNoteResponseDto;
-import com.sixb.note.dto.pageData.PageDataDto;
-import com.sixb.note.entity.*;
+import com.sixb.note.dto.note.RelocateNoteRequestDto;
+import com.sixb.note.entity.Folder;
+import com.sixb.note.entity.Note;
+import com.sixb.note.entity.Page;
+import com.sixb.note.entity.Space;
 import com.sixb.note.exception.NotFoundException;
-import com.sixb.note.repository.*;
+import com.sixb.note.repository.FolderRepository;
+import com.sixb.note.repository.NoteRepository;
+import com.sixb.note.repository.PageRepository;
+import com.sixb.note.repository.SpaceRepository;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-
 
 @Service
 @RequiredArgsConstructor
@@ -122,6 +126,10 @@ public class NoteService {
         noteRepository.updateNoteTitle(noteId, newTitle);
     }
 
+    public void relocateNote(RelocateNoteRequestDto request) {
+        noteRepository.relocateNote(request.getNoteId(), request.getParentFolderId());
+    }
+
     //노트 삭제
     public boolean deleteNote(String noteId) {
         Note note = noteRepository.findNoteById(noteId);
@@ -132,4 +140,5 @@ public class NoteService {
         }
         return false;
     }
+
 }
