@@ -87,7 +87,7 @@ public class PageController {
 //    }
 
     @PostMapping("/copy")
-    public ResponseEntity<?> copyPage(PageCopyRequestDto request) throws PageNotFoundException {
+    public ResponseEntity<?> copyPage(@RequestBody PageCopyRequestDto request) throws PageNotFoundException {
         try {
             PageInfoDto response = pageService.copyPage(request);
             return ResponseEntity.ok(response);

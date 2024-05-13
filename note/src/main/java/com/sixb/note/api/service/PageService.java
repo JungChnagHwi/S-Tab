@@ -242,7 +242,6 @@ public class PageService {
         Page targetPage = pageRepository.findPageById(request.getTargetPageId());
 
         if (beforePage != null && targetPage != null) {
-            System.out.println(beforePage.getNoteId());
             if (noteRepository.findNoteById(beforePage.getNoteId()) == null) {
                 throw new PageNotFoundException("no note found.");
             }
