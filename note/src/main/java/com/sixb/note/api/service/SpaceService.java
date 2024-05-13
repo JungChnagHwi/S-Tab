@@ -1,5 +1,7 @@
 package com.sixb.note.api.service;
 
+import com.sixb.note.dto.space.SpaceMdRequestDto;
+import com.sixb.note.dto.space.SpaceMdResponseDto;
 import com.sixb.note.dto.space.SpaceRequestDto;
 import com.sixb.note.dto.space.SpaceResponseDto;
 import com.sixb.note.entity.Folder;
@@ -85,6 +87,7 @@ public class SpaceService {
         newSpace.setTitle(requestDto.getTitle());
         newSpace.setSpaceId(IdCreator.create("s"));
         newSpace.setIsPublic(true);
+        newSpace.setSpaceMd("SSAFY");
         LocalDateTime now = LocalDateTime.now();
         newSpace.setCreatedAt(now);
         newSpace.setUpdatedAt(now);
@@ -108,6 +111,7 @@ public class SpaceService {
         responseDto.setSpaceId(space.getSpaceId());
         responseDto.setTitle(space.getTitle());
         responseDto.setIsPublic(true);
+        responseDto.setSpaceMd("SSAFY");
         responseDto.setCreatedAt(LocalDateTime.now());
         responseDto.setUpdatedAt(LocalDateTime.now());
         responseDto.setUsers(new ArrayList<>());
@@ -140,5 +144,25 @@ public class SpaceService {
 
         user.getSpaces().add(space);
         userRepository.save(user);
+    }
+
+
+    public SpaceMdResponseDto findSpaceMarkdown(String spaceId) throws NotFoundException {
+        Space space = spaceRepository.findSpaceById(spaceId);
+        if (space == null) {
+            throw new NotFoundException("스페이스를 찾을 수 없습니다.");
+        }
+        SpaceMdResponseDto dto = new SpaceMdResponseDto();
+        dto.setData(space.getSpaceMd());
+        return dto;
+    }
+
+    public void updateSpaceMarkdown(SpaceMdRequestDto requestDto) throws NotFoundException {
+        Space space = spaceRepository.findSpaceById(requestDto.getSpaceId());
+        if (space == null) {
+            throw new NotFoundException("스페이스를 찾을 수 없습니다.");
+        }
+        space.setSpaceMd(requestDto.getData());
+        spaceRepository.save(space);
     }
 }
