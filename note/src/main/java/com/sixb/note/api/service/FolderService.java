@@ -4,6 +4,7 @@ package com.sixb.note.api.service;
 import com.sixb.note.dto.folder.CreateFolderRequestDto;
 import com.sixb.note.dto.folder.CreateFolderResponseDto;
 import com.sixb.note.dto.folder.FolderResponseDto;
+import com.sixb.note.dto.folder.RelocateFolderRequestDto;
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Space;
@@ -158,6 +159,10 @@ public class FolderService {
         folderRepository.updateFolderTitle(folderId, newTitle);
     }
 
+    public void relocateFolder(RelocateFolderRequestDto request) {
+        folderRepository.relocateFolder(request.getFolderId(), request.getParentFolderId());
+    }
+
     //폴더 삭제
     public boolean deleteFolder(String folderId) {
         Folder folder = folderRepository.findFolderById(folderId);
@@ -168,4 +173,5 @@ public class FolderService {
         }
         return false;
     }
+
 }
