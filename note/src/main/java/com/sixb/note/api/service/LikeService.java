@@ -27,8 +27,7 @@ public class LikeService {
     private final PageRepository pageRepository;
 
     //즐겨찾기 추가
-    //public boolean addLike(UUID userId, LikeRequestDto likeRequestDto)
-    public boolean addLike(long userId, LikeRequestDto likeRequestDto) {
+    public boolean addLike(LikeRequestDto likeRequestDto, long userId) {
         User user = userRepository.findUserById(userId);
         if (user == null) return false;
 

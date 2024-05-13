@@ -9,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,6 +25,7 @@ import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.space.NoteListViewModel
+import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,12 +36,13 @@ class MainActivity : ComponentActivity() {
         val loginDetails = PreferencesUtil.getLoginDetails()
         setContent {
             STabTheme {
+                val audioCallViewModel = viewModel<AudioCallViewModel>()
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Routers()
+                    Routers(audioCallViewModel)
                 }
             }
         }
@@ -49,7 +50,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Routers(){
+fun Routers(audioCallViewModel: AudioCallViewModel) {
 
     val navController = rememberNavController()
 
@@ -60,7 +61,7 @@ fun Routers(){
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { Login(navController = navController) }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
-        composable("space") { SpaceRouters(homeNavController = navController) }
+        composable("space") { SpaceRouters(homeNavController = navController, audioCallViewModel) }
         composable("personal-note") { PersonalNote(NoteViewModel(), navController)}
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }

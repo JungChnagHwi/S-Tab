@@ -11,7 +11,8 @@ import java.util.UUID;
 public class User {
 
     @Id
-    private long id;
+    @Property("userId")
+    private long userId;
 
     @Property("nickname")
     private String nickname;

@@ -77,6 +77,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.commonmark)
+    implementation(libs.c.crdtlib.jvm) {
+        exclude(group = "com.github.ntrrgc", module = "ts-generator")
+    }
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation(libs.androidx.core.ktx)

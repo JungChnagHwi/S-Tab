@@ -1,6 +1,7 @@
 package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.SpaceService;
+import com.sixb.note.dto.space.JoinSpaceRequestDto;
 import com.sixb.note.dto.space.SpaceRequestDto;
 import com.sixb.note.dto.space.SpaceResponseDto;
 import com.sixb.note.dto.space.UpdateSpaceTitleRequestDto;
@@ -23,6 +24,16 @@ public class SpaceController {
     public ResponseEntity<List<SpaceResponseDto>> getAllSpaceDetails(long userId) {
         List<SpaceResponseDto> spaces = spaceService.findAllSpaceDetails(userId);
         return ResponseEntity.ok(spaces);
+    }
+
+    @GetMapping("/{spaceId}")
+    public ResponseEntity<SpaceResponseDto> getSpaceDetails(long userId, @PathVariable long spaceId) {
+        try {
+            SpaceResponseDto spaceDetails = spaceService.findSpaceDetails(userId, spaceId);
+            return ResponseEntity.ok(spaceDetails);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -49,5 +60,11 @@ public class SpaceController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<String> joinSpace(long userId, @RequestBody JoinSpaceRequestDto joinSpaceRequestDto) {
+        spaceService.joinSpace(userId, joinSpaceRequestDto.getSpaceId());
+        return ResponseEntity.ok("스페이스 참여 성공");
     }
 }

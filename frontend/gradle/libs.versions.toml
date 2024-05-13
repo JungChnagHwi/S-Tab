@@ -17,6 +17,7 @@ awsAndroidSdkCore = "2.75.0"
 converterScalars = "2.11.0"
 lifecycleViewmodel = "2.8.0-rc01"
 commonmark = "0.17.0"
+cCrdtlibJvm = "1.0.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,6 +43,7 @@ aws-android-sdk-core = { group = "com.amazonaws", name = "aws-android-sdk-core",
 converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "converterScalars" }
 androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycleViewmodel" }
 commonmark = { group = "com.atlassian.commonmark", name = "commonmark", version.ref = "commonmark" }
+c-crdtlib-jvm = { group = "io.concordant", name = "c-crdtlib-jvm", version.ref = "cCrdtlibJvm" }
 
 
 [plugins]
