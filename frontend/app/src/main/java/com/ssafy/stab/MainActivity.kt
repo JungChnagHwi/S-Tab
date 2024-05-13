@@ -26,7 +26,6 @@ import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.space.NoteListViewModel
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         var keyHash = Utility.getKeyHash(this)
@@ -62,11 +61,6 @@ fun Routers(){
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
         composable("space") { SpaceRouters(homeNavController = navController) }
         composable("personal-note") { PersonalNote(NoteViewModel(), navController)}
-        composable("audio-call") {
-            // ViewModel 초기화
-            val audioCallViewModel = viewModel<AudioCallViewModel>()
-            AudioCallScreen(viewModel = audioCallViewModel)
-        }
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }
 
