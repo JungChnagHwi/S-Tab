@@ -44,6 +44,9 @@ fun Login(navController: NavController){
                 }) {
                     Text(text = "액세스 토큰")
                 }
+                Button(onClick = { navController.navigate("markdown") }) {
+                    Text(text = "마크 다운")
+                }
             }
         }
     }

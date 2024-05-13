@@ -20,3 +20,12 @@ data class User(
 data class CreateShareSpaceRequest(
     @SerializedName("title") val title: String
 )
+
+data class ParticipateShareSpaceRequest(
+    @SerializedName("spaceId") val spaceId: String
+)
+
+data class RenameShareSpaceRequest(
+    @SerializedName("spaceId") val spaceId: String,
+    @SerializedName("title") val title: String
+)

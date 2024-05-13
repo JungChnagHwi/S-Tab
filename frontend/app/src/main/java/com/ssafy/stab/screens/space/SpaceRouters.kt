@@ -34,8 +34,8 @@ import com.ssafy.stab.modals.PatchAuth
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.note.ShareNote
-import com.ssafy.stab.util.note.NoteControlViewModel
 import com.ssafy.stab.screens.space.personal.PersonalSpace
+import com.ssafy.stab.screens.space.share.ShareSpace
 
 @Composable
 fun SpaceRouters(homeNavController: NavController) {
