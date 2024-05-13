@@ -13,11 +13,13 @@ import java.util.UUID;
 public interface FolderRepository extends Neo4jRepository<Folder, String> {
     @Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE p.id = $folderId AND c.isDeleted = false RETURN c")
     List<Folder> findSubFoldersByFolderId(String folderId);
+    @Query("MATCH (s:Space {id: $spaceId})-[:Hierarchy]->(f:Folder) WHERE f.isDeleted = false RETURN f")
+    List<Folder> findFoldersBySpaceId(@Param("spaceId") String spaceId);
 
     @Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE c.id = $folderId RETURN p")
     Folder findParentFolderByFolderId(@Param("folderId") String folderId);
 
-    @Query("MATCH (f:Folder) WHERE f.isDeleted = true AND f.userId = $userId RETURN f")
+    @Query("MATCH (f:Folder) WHERE f.isDeleted = true RETURN f")
     List<Folder> findDeletedFolders(@Param("userId") long userId);
 
     @Query("MATCH (f:Folder) WHERE f.id = $folderId RETURN f")

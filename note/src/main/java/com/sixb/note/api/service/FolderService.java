@@ -65,6 +65,39 @@ public class FolderService {
         return responseDto;
     }
 
+    public FolderResponseDto getSpaceDetail(String spaceId) {
+        List<Folder> folders = folderRepository.findFoldersBySpaceId(spaceId);
+        List<Note> notes = noteRepository.findNotesBySpaceId(spaceId);
+
+        List<FolderResponseDto.FolderInfo> folderInfos = folders.stream().map(folder -> {
+            FolderResponseDto.FolderInfo info = new FolderResponseDto.FolderInfo();
+            info.setFolderId(folder.getId());
+            info.setTitle(folder.getTitle());
+            info.setCreatedAt(folder.getCreatedAt());
+            info.setUpdatedAt(folder.getUpdatedAt());
+            info.setIsDeleted(folder.getIsDeleted());
+            info.setIsLiked(false);
+            return info;
+        }).collect(Collectors.toList());
+
+        List<FolderResponseDto.NoteInfo> noteInfos = notes.stream().map(note -> {
+            FolderResponseDto.NoteInfo info = new FolderResponseDto.NoteInfo();
+            info.setNoteId(note.getId());
+            info.setTitle(note.getTitle());
+            info.setTotalPageCnt(note.getTotalPageCnt());
+            info.setCreatedAt(note.getCreatedAt());
+            info.setUpdatedAt(note.getUpdatedAt());
+            info.setIsDeleted(note.getIsDeleted());
+            info.setIsLiked(false);
+            return info;
+        }).collect(Collectors.toList());
+
+        FolderResponseDto responseDto = new FolderResponseDto();
+        responseDto.setFolders(folderInfos);
+        responseDto.setNotes(noteInfos);
+        return responseDto;
+    }
+
     //폴더 생성
     public CreateFolderResponseDto createFolder(CreateFolderRequestDto request) {
         // 부모 폴더 찾기
