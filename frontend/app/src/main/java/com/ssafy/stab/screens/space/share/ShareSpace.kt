@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.ShareSpace
@@ -43,6 +44,7 @@ import com.ssafy.stab.apis.space.share.getShareSpace
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
+import com.ssafy.stab.webrtc.audiocall.AudioSessionViewModel
 import com.ssafy.stab.webrtc.fragments.PermissionsDialog
 import com.ssafy.stab.webrtc.utils.PermissionManager
 
@@ -77,10 +79,13 @@ fun ShareSpace(
     val (shareSpaceDetails, setShareSpaceDetails) = remember { mutableStateOf<ShareSpace?>(null) }
     val (participants, setParticipants) = remember { mutableStateOf(listOf<String>()) }
 
+    val audioSessionViewModel: AudioSessionViewModel = viewModel()
+
     LaunchedEffect(spaceId) {
         getShareSpace(spaceId) { shareSpaceData ->
             setShareSpaceDetails(shareSpaceData)
             setParticipants(shareSpaceData.users.map { it.nickname })
+            audioSessionViewModel.getSessionConnection(spaceId)
         }
     }
 
