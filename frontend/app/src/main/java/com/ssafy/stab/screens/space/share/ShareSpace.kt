@@ -91,8 +91,8 @@ fun ShareSpace(
         getShareSpace(spaceId) { shareSpaceData ->
             setShareSpaceDetails(shareSpaceData)
             setTotalUsers(shareSpaceData.users.map { it.nickname })
-            audioSessionViewModel.getSessionConnection(spaceId)
         }
+        audioSessionViewModel.getSessionConnection(spaceId)
     }
 
     Column(
