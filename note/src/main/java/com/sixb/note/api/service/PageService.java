@@ -210,5 +210,68 @@ public class PageService {
 //        Page targetPage = pageRepository.findPageById(request.getTargetPageId());
 //    }
 
+    public PageInfoDto copyPage(PageCopyRequestDto request) throws PageNotFoundException, JsonProcessingException {
+        String beforePageId = request.getBeforePageId();
+        Page beforePage = pageRepository.findPageById(beforePageId);
+        Page targetPage = pageRepository.findPageById(request.getTargetPageId());
 
+        if (beforePage != null && targetPage != null) {
+            // before 페이지에 이어서 페이지 만들기
+            Page newPage = new Page();
+            LocalDateTime now = LocalDateTime.now();
+
+            // 이전페이지 정보로 새로운 page만들기
+            String pageId = IdCreator.create("p");
+            newPage.setPageId(pageId);
+            newPage.setNoteId(beforePage.getNoteId());
+            newPage.setCreatedAt(now);
+            newPage.setUpdatedAt(now);
+            newPage.setColor(targetPage.getColor());
+            newPage.setDirection(targetPage.getDirection());
+            newPage.setPageData(targetPage.getPageData());
+            newPage.setTemplate(targetPage.getTemplate());
+
+            // 이전페이지에 이어진 페이지 찾기
+            Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
+            // 페이지가 있다면
+            if (connectPage!=null) {
+                // 그 페이지와 새로운 페이지 연결
+                newPage.setNextPage(connectPage);
+                // 앞페이지와 연결 삭제
+                pageRepository.deleteNextPageRelation(beforePageId);
+            }
+
+            // 페이지 링크하기
+            beforePage.setNextPage(newPage);
+
+            // responsedto에 넣기
+            String pageDataString = newPage.getPageData();
+            ObjectMapper mapper = new ObjectMapper();
+            PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
+            PageInfoDto response = PageInfoDto.builder()
+                    .pageId(pageId)
+                    .color(newPage.getColor())
+                    .template(newPage.getTemplate())
+                    .direction(newPage.getDirection())
+                    .pdfPage(newPage.getPdfPage())
+                    .pdfUrl(newPage.getPdfUrl())
+                    .updatedAt(newPage.getUpdatedAt())
+                    .isBookmarked(false)
+                    .paths(pageDataDto.getPaths())
+                    .figures(pageDataDto.getFigures())
+                    .images(pageDataDto.getImages())
+                    .textBoxes(pageDataDto.getTextBoxes())
+                    .build();
+
+            // db에 저장하고 반환
+            pageRepository.save(newPage);
+            pageRepository.save(beforePage);
+
+            return response;
+
+        } else {
+            throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
+        }
+    }
+    
 }

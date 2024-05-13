@@ -83,4 +83,16 @@ public class PageController {
 //            return ResponseEntity.badRequest().body(e.getMessage());
 //        }
 //    }
+
+    @PostMapping("/copy")
+    public ResponseEntity<?> copyPage(PageCopyRequestDto request) throws PageNotFoundException {
+        try {
+            PageInfoDto response = pageService.copyPage(request);
+            return ResponseEntity.ok(response);
+        } catch (PageNotFoundException e) {
+            throw new PageNotFoundException(e.getMessage());
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 }
