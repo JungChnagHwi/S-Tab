@@ -1,5 +1,6 @@
 package com.sixb.note.repository;
 
+import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;

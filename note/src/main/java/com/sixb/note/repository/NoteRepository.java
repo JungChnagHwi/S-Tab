@@ -28,6 +28,4 @@ public interface NoteRepository extends Neo4jRepository<Note, String> {
     @Query("MATCH (n:Note {id: $noteId}) SET n.title = $newTitle RETURN n")
     void updateNoteTitle(String noteId, String newTitle);
 
-    @Query("MATCH (p:Page {id: $pageId}) OPTIONAL MATCH path = (p)-[:NextPage*0..]->(firstPage:Page)-[:FirstPage]->(note:Note) RETURN note")
-    Note findNoteByPageId(String pageId);
 }
