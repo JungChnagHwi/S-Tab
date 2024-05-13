@@ -55,6 +55,30 @@ public class SpaceService {
         }).collect(Collectors.toList());
     }
 
+    public SpaceResponseDto findSpaceDetails(long userId, long spaceId) {
+        User userInfo = userRepository.findUserById(userId);
+        Space space = spaceRepository.findSpaceByIdAndUserId(spaceId, userInfo.getId());
+
+
+        SpaceResponseDto dto = new SpaceResponseDto();
+        dto.setSpaceId(space.getId());
+        dto.setTitle(space.getTitle());
+        dto.setIsPublic(space.getIsPublic());
+        dto.setCreatedAt(space.getCreatedAt());
+        dto.setUpdatedAt(space.getUpdatedAt());
+
+        List<SpaceResponseDto.UserResponse> userResponses = space.getUsers().stream().map(user -> {
+            SpaceResponseDto.UserResponse userResponse = new SpaceResponseDto.UserResponse();
+            userResponse.setNickname(user.getNickname());
+            userResponse.setProfileImg(user.getProfileImg());
+            return userResponse;
+        }).collect(Collectors.toList());
+
+        dto.setUsers(userResponses);
+        return dto;
+    }
+
+
     public SpaceResponseDto createSpace(SpaceRequestDto requestDto, long userId) {
         User user = userRepository.findUserById(userId);
         Space newSpace = new Space();

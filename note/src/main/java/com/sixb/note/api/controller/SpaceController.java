@@ -26,6 +26,16 @@ public class SpaceController {
         return ResponseEntity.ok(spaces);
     }
 
+    @GetMapping("/{spaceId}")
+    public ResponseEntity<SpaceResponseDto> getSpaceDetails(long userId, @PathVariable long spaceId) {
+        try {
+            SpaceResponseDto spaceDetails = spaceService.findSpaceDetails(userId, spaceId);
+            return ResponseEntity.ok(spaceDetails);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping
     public ResponseEntity<SpaceResponseDto> createSpace(@RequestBody SpaceRequestDto requestDto, long userId) {
         SpaceResponseDto createdSpace = spaceService.createSpace(requestDto, userId);
