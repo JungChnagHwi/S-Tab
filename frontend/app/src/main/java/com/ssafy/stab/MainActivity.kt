@@ -20,6 +20,7 @@ import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.space.SpaceRouters
 import com.ssafy.stab.ui.theme.STabTheme
 import com.kakao.sdk.common.util.Utility
+import com.ssafy.stab.components.MarkdownScreen
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.screens.note.NoteViewModel
@@ -64,6 +65,6 @@ fun Routers(audioCallViewModel: AudioCallViewModel) {
         composable("personal-note") { PersonalNote(NoteViewModel(), navController)}
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }
-
+        composable("markdown") { MarkdownScreen() }
     }
 }

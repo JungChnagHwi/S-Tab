@@ -35,6 +35,7 @@ import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.note.ShareNote
 import com.ssafy.stab.screens.space.personal.PersonalSpace
+import com.ssafy.stab.screens.space.share.ShareSpace
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable

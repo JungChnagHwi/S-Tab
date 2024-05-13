@@ -1,5 +1,7 @@
-package com.ssafy.stab.screens.space
+package com.ssafy.stab.screens.space.share
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,6 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +39,7 @@ import androidx.navigation.NavController
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.ShareSpaceList
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 import com.ssafy.stab.webrtc.fragments.PermissionsDialog
 import com.ssafy.stab.webrtc.utils.PermissionManager
@@ -74,7 +79,8 @@ fun ShareSpace(
         SpTitleBar(
             context = context,
             audioCallViewModel = audioCallViewModel,
-            isCurrentSpaceActive = isCurrentSpaceActive
+            isCurrentSpaceActive = isCurrentSpaceActive,
+            spaceId
         )
         Divider(
             color = Color.Gray,
@@ -116,7 +122,7 @@ fun ShareSpace(
 }
 
 @Composable
-fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurrentSpaceActive: Boolean) {
+fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurrentSpaceActive: Boolean, spaceId: String) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
 
@@ -133,6 +139,40 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
     val outImg = painterResource(id = R.drawable.out)
     val peopleImg = painterResource(id = R.drawable.people)
 
+    val showPopup = remember { mutableStateOf(false) }
+
+    fun copyToClipboard(context: Context, text: String) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("label", text)
+        clipboard.setPrimaryClip(clip)
+    }
+
+    if (showPopup.value) {
+        AlertDialog(
+            onDismissRequest = {
+                showPopup.value = false
+            },
+            title = {
+                Text(text = "공유 코드")
+            },
+            text = {
+                Text(text = spaceId)
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        copyToClipboard(context, "s-12344123431")
+                        showPopup.value = false // 팝업 닫기
+                    }
+                ) {
+                    Text("복사")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showPopup.value = false }) {
+                    Text("취소")
+                }}
+        )}
     // 음성 권한 요청 dialog
     val showDialog = remember { mutableStateOf(false) }
 
@@ -209,6 +249,9 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
                         modifier = Modifier
                             .height(30.dp)
                             .height(30.dp)
+                            .clickable {
+                                showPopup.value = true
+                            }
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(

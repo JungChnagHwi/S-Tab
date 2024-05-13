@@ -57,6 +57,7 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
     val speakerImg = painterResource(id = R.drawable.speaker)
     val phoneImg = painterResource(id = R.drawable.phone)
     val plusImg = painterResource(id = R.drawable.plus)
+    val participateImg = painterResource(id = R.drawable.participate)
 
     val showCreateModal = remember { mutableStateOf(false) }
     var shareSpaceList = remember { mutableStateListOf<ShareSpaceList>() }
@@ -71,8 +72,6 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
     }
 
     val callState = PreferencesUtil.callState.collectAsState()
-
-    Log.d("a", shareSpaceList.size.toString())
 
     if (showCreateModal.value) {
         Dialog(onDismissRequest = { showCreateModal.value = false }) {
@@ -145,16 +144,23 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
         }
         Spacer(modifier = Modifier.height(7.dp))
         Column {
-            Row(
-                modifier = Modifier.clickable {
-                    showCreateModal.value = true
-                },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Spacer(modifier = Modifier.width(70.dp))
-                Image(painter = plusImg, contentDescription = null)
-                Spacer(modifier = Modifier.width(7.dp))
-                Text(text = "새로 만들기")
+                Row(
+                    modifier = Modifier.clickable {
+                        showCreateModal.value = true
+                    },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(painter = plusImg, contentDescription = null)
+                    Spacer(modifier = Modifier.width(7.dp))
+                    Text(text = "생성하기")
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(painter = participateImg, contentDescription = null)
+                    Text(text = "참가하기")
+                }
             }
             Spacer(modifier = Modifier.height(7.dp))
             ShareSpaceListScreen(navController, shareSpaceList)
