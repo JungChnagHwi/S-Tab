@@ -39,6 +39,8 @@ data class PageDetail(
 )
 
 data class PageListResponse(
+    @SerializedName("title")
+    val title: String,
     @SerializedName("data")
     val data: MutableList<PageDetail>
 )

@@ -48,8 +48,10 @@ import com.ssafy.stab.webrtc.utils.PermissionManager
 fun ShareSpace(
     navController: NavController,
     spaceId: String,
-    audioCallViewModel: AudioCallViewModel
+    audioCallViewModel: AudioCallViewModel,
+    onNote: (String) -> Unit
 ) {
+
     // 드롭다운 이미지와 드롭업 이미지 리소스를 로드합니다.
     val dropdownImg = painterResource(id = R.drawable.dropdown)
     val dropupImg = painterResource(id = R.drawable.dropup)
@@ -117,7 +119,7 @@ fun ShareSpace(
                 )
             }
         }
-        NoteListSpace(spaceId, navController)
+        NoteListSpace(spaceId, onNote)
     }
 }
 
