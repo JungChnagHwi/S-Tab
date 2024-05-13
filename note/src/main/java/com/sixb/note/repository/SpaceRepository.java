@@ -19,7 +19,7 @@ public interface SpaceRepository extends Neo4jRepository<Space, String> {
     List<Space> findSpaces(@Param("userId") long userId);
 
     @Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space) WHERE s.spaceId = $spaceId RETURN s")
-    Space findSpaceByIdAndUserId(@Param("spaceId") long spaceId, @Param("userId") long userId);
+    Space findSpaceByIdAndUserId(@Param("spaceId") String spaceId, @Param("userId") long userId);
 
     @Query("MATCH (s:Space {spaceId: $spaceId}) SET s.title = $newTitle RETURN s")
     void updateSpaceTitle(String spaceId, String newTitle);

@@ -57,7 +57,7 @@ public class SpaceService {
         }).collect(Collectors.toList());
     }
 
-    public SpaceResponseDto findSpaceDetails(long userId, long spaceId) {
+    public SpaceResponseDto findSpaceDetails(long userId, String spaceId) {
         User userInfo = userRepository.findUserById(userId);
         Space space = spaceRepository.findSpaceByIdAndUserId(spaceId, userInfo.getUserId());
 

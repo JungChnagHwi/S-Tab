@@ -24,7 +24,7 @@ public class SpaceController {
     }
 
     @GetMapping("/{spaceId}")
-    public ResponseEntity<SpaceResponseDto> getSpaceDetails(long userId, @PathVariable long spaceId) {
+    public ResponseEntity<SpaceResponseDto> getSpaceDetails(long userId, @PathVariable String spaceId) {
         try {
             SpaceResponseDto spaceDetails = spaceService.findSpaceDetails(userId, spaceId);
             return ResponseEntity.ok(spaceDetails);
