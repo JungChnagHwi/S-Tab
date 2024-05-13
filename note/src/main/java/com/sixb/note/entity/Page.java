@@ -14,6 +14,9 @@ public class Page extends BaseTimeEntity {
     @Id
     private String id;
 
+    @Property("noteId")
+    private String noteId;
+
     @Property("template")
     private String template;
 

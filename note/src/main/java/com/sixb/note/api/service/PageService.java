@@ -26,7 +26,6 @@ import java.util.Optional;
 public class PageService {
 
     private final PageRepository pageRepository;
-    private final PageDataRepository pageDataRepository;
     private final NoteRepository noteRepository;
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
@@ -44,6 +43,7 @@ public class PageService {
             // 이전페이지 정보로 새로운 page만들기
             String pageId = IdCreator.create("p");
             newPage.setId(pageId);
+            newPage.setNoteId(beforePage.getNoteId());
             newPage.setCreatedAt(now);
             newPage.setUpdatedAt(now);
             newPage.setColor(beforePage.getColor());
@@ -107,22 +107,24 @@ public class PageService {
     }
 
     public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
-        System.out.println(request);
+        System.out.println("request:" + request);
         String pageId = request.getPageId();
         Page page = pageRepository.findPageById(pageId);
-//        Note note = noteRepository.findNoteByPageId(pageId);
+
         LocalDateTime now = LocalDateTime.now();
-//        if (note == null) {
-//            throw new PageNotFoundException("노트를 찾을 수 없습니다.");
-//        }
+
         if (page != null) {
+            Note note = noteRepository.findNoteById(page.getNoteId());
+            if (note == null) {
+                throw new PageNotFoundException("노트를 찾을 수 없습니다.");
+            }
             if (page.getIsDeleted() == false) {
                 page.setUpdatedAt(now);
                 page.setPageData(request.getPageData());
-//                note.setUpdatedAt(now);
+                note.setUpdatedAt(now);
                 pageRepository.save(page);
-//                noteRepository.save(note);
-//                System.out.println(note.getId());
+                noteRepository.save(note);
+                System.out.println("noteId: "+note.getId());
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }

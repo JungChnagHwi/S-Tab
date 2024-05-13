@@ -38,6 +38,7 @@ public class NoteService {
         Page page = new Page();
         String formattedPageId = IdCreator.create("p");
         page.setId(formattedPageId);
+        page.setNoteId(formattedNoteId);
         page.setTemplate(String.valueOf(request.getTemplate()));
         page.setColor(String.valueOf(request.getColor()));
         page.setDirection(request.getDirection());
