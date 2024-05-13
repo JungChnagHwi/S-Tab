@@ -65,6 +65,6 @@ fun Routers(audioCallViewModel: AudioCallViewModel) {
         composable("personal-note") { PersonalNote(NoteViewModel(), navController)}
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }
-        composable("markdown") { MarkdownScreen() }
+        composable("markdown") { MarkdownScreen("") }
     }
 }

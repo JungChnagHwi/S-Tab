@@ -133,3 +133,44 @@ fun renameShareSpace(spaceId: String, title: String) {
         }
     })
 }
+
+fun getMarkdown(spaceId: String, onResult: (MarkdownDataResponse) -> Unit) {
+    val call = apiService.getMarkDown(authorizationHeader, spaceId)
+
+    call.enqueue(object: Callback<MarkdownDataResponse> {
+        override fun onResponse(
+            call: Call<MarkdownDataResponse>,
+            response: Response<MarkdownDataResponse>
+        ) {
+            if (response.isSuccessful) {
+                Log.d("APIResponse", "요청 성공")
+                response.body()?.let { onResult(it) }
+            } else {
+                Log.d("APIResponse", "요청 실패")
+            }
+        }
+
+        override fun onFailure(call: Call<MarkdownDataResponse>, t: Throwable) {
+            Log.d("APIResponse", "기타 이유로 요청 실패")
+        }
+    })
+}
+
+fun patchMarkdown(spaceId: String, data: String) {
+    val patchRequest = MarkdownDataPatchRequest(spaceId, data)
+    val call = apiService.patchMarkDown(authorizationHeader, patchRequest)
+
+    call.enqueue(object : Callback<Void> {
+        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+            if (response.isSuccessful) {
+                Log.d("APIResponse", "수정 완료")
+            } else {
+                Log.d("APIRespones", "수정 실패")
+            }
+        }
+
+        override fun onFailure(call: Call<Void>, t: Throwable) {
+            Log.d("APIResponse", "기타 이유로 요청 실패")
+        }
+    })
+}

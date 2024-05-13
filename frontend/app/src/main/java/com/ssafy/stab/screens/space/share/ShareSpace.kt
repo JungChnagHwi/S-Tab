@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.ShareSpaceList
+import com.ssafy.stab.components.MarkdownScreen
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
@@ -55,8 +56,8 @@ fun ShareSpace(
     val dropupImg = painterResource(id = R.drawable.dropup)
 
     // 높이 상태를 관리하기 위한 상태 변수입니다.
-    // 초기값은 최대 높이인 300.dp로 설정합니다.
-    val boxHeightState = remember { mutableStateOf(300.dp) }
+    // 초기값은 최대 높이인 320.dp로 설정합니다.
+    val boxHeightState = remember { mutableStateOf(320.dp) }
 
     // webRTC에 필요한 정보 설정(context, sessionId, participantName)
     val context = LocalContext.current
@@ -96,7 +97,7 @@ fun ShareSpace(
                 .background(color = Color.White)
         ) {
             // TextField 등 입력란을 여기에 배치할 수 있습니다.
-
+            MarkdownScreen(spaceId)
             // 드롭다운/드롭업 버튼을 배치합니다.
             // Box의 contentAlignment를 사용하여 버튼의 위치를 오른쪽 하단에 배치합니다.
             Box(
@@ -104,15 +105,15 @@ fun ShareSpace(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Image(
-                    painter = if (boxHeightState.value == 300.dp) dropupImg else dropdownImg,
-                    contentDescription = if (boxHeightState.value == 300.dp) "드롭다운" else "드롭업",
+                    painter = if (boxHeightState.value == 320.dp) dropupImg else dropdownImg,
+                    contentDescription = if (boxHeightState.value == 320.dp) "드롭다운" else "드롭업",
                     modifier = Modifier
                         .size(48.dp)
                         .padding(10.dp)
                         .clickable {
                             // 높이 상태를 토글합니다.
                             boxHeightState.value =
-                                if (boxHeightState.value == 300.dp) 80.dp else 300.dp
+                                if (boxHeightState.value == 320.dp) 80.dp else 320.dp
                         }
                 )
             }

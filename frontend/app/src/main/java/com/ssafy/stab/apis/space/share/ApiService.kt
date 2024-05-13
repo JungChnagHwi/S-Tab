@@ -8,11 +8,12 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ApiService {
 
-    @GET("api/space/{spaceId}")
+    @GET("api/folder/space/{spaceId}")
     fun getFileListShareSpace(@Header("Authorization") authorization: String, @Path("spaceId") spaceId: String): Call<FileListResponse>
 
     @GET("api/space/list")
@@ -29,4 +30,10 @@ interface ApiService {
 
     @PATCH("api/space/edit-name")
     fun renameShareSpace(@Header("Authorization") authorization: String, @Body renameShareSpaceRequest: RenameShareSpaceRequest): Call<Void>
+
+    @GET("api/space/cover/{spaceId}")
+    fun getMarkDown(@Header("Authorization") authorization: String, @Path("spaceId") spaceId: String): Call<MarkdownDataResponse>
+
+    @PUT("api/space/cover")
+    fun patchMarkDown(@Header("Authorization") authorization: String, @Body patchRequest: MarkdownDataPatchRequest): Call<Void>
 }
