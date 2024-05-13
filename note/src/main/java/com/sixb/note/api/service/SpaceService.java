@@ -57,11 +57,11 @@ public class SpaceService {
 
     public SpaceResponseDto findSpaceDetails(long userId, long spaceId) {
         User userInfo = userRepository.findUserById(userId);
-        Space space = spaceRepository.findSpaceByIdAndUserId(spaceId, userInfo.getId());
+        Space space = spaceRepository.findSpaceByIdAndUserId(spaceId, userInfo.getUserId());
 
 
         SpaceResponseDto dto = new SpaceResponseDto();
-        dto.setSpaceId(space.getId());
+        dto.setSpaceId(space.getSpaceId());
         dto.setTitle(space.getTitle());
         dto.setIsPublic(space.getIsPublic());
         dto.setCreatedAt(space.getCreatedAt());
