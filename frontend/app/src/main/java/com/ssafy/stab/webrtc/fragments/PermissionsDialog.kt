@@ -29,20 +29,20 @@ fun PermissionsDialog(
 
     AlertDialog(
         onDismissRequest = { onDialogDismiss() },
-        title = { Text("Audio Permission Needed") },
-        text = { Text("This application needs audio recording permission to proceed.") },
+        title = { Text("음성 권한이 필요합니다.") },
+        text = { Text("그룹 통화 기능을 사용하려면 음성 권한 허락이 필요합니다.") },
         confirmButton = {
             Button(onClick = {
                 permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
             }) {
-                Text("Allow")
+                Text("허락")
             }
         },
         dismissButton = {
             Button(onClick = {
                 onDialogDismiss()
             }) {
-                Text("Deny")
+                Text("거절")
             }
         }
     )

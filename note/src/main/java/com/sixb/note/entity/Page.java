@@ -12,7 +12,11 @@ import org.springframework.data.neo4j.core.schema.*;
 public class Page extends BaseTimeEntity {
 
     @Id
-    private String id;
+    @Property("pageId")
+    private String pageId;
+
+    @Property("noteId")
+    private String noteId;
 
     @Property("template")
     private String template;

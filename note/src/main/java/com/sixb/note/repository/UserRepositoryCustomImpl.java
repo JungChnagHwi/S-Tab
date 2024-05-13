@@ -28,7 +28,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 	@Override
 	public Optional<UserInfoResponseDto> getUserInfo(long userId) {
 		Node user = node("User").named("u")
-				.withProperties("id", literalOf(userId));
+				.withProperties("userId", literalOf(userId));
 
 		Node space = node("Space").named("s")
 				.withProperties("public", literalOf(false));
@@ -41,7 +41,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(
 						user.property("nickname").as("nickname"),
 						user.property("profileImg").as("profileImg"),
-						folder.property("id").as("rootFolderId"))
+						folder.property("folderId").as("rootFolderId"))
 				.build();
 
 		UserInfoResponseDto response = null;
@@ -66,24 +66,15 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 		Node user = node("User").named("u");
 
 		Statement statement = match(user)
-				.where(user.property("id").isEqualTo(literalOf(userId)))
+				.where(user.property("userId").isEqualTo(literalOf(userId)))
 				.returning(count(user).as("result"))
 				.build();
 
-		boolean ret = false;
-
 		try (Session session = driver.session()) {
 			Result result = session.run(statement.getCypher());
-			if (result.hasNext()) {
-				Record record = result.next();
-				int cnt = record.get("result").asInt();
-
-				if (cnt == 1) {
-					ret = true;
-				}
-			}
+			Record record = result.next();
+			return record.get("result").asInt() > 0;
 		}
-		return ret;
 	}
 
 	@Override
@@ -95,7 +86,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
 		Node user = node("User").named("u")
 				.withProperties(
-						"id", literalOf(userId),
+						"userId", literalOf(userId),
 						"nickname", literalOf(request.getNickname()),
 						"profileImg", literalOf(request.getProfileImg()),
 						"createdAt", literalOf(now),
@@ -104,7 +95,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
 		Node space = node("Space").named("s")
 				.withProperties(
-						"id", literalOf(spaceId),
+						"spaceId", literalOf(spaceId),
 						"title", literalOf("나의 스페이스"),
 						"public", literalOf(false),
 						"createdAt", literalOf(now),
@@ -113,7 +104,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
 		Node folder = node("Folder").named("f")
 				.withProperties(
-						"id", literalOf(folderId),
+						"folerId", literalOf(folderId),
 						"spaceId", literalOf(spaceId),
 						"title", literalOf("root"),
 						"createdAt", literalOf(now),
@@ -131,7 +122,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(
 						user.property("nickname").as("nickname"),
 						user.property("profileImg").as("profileImg"),
-						folder.property("id").as("rootFolderId"))
+						folder.property("folderId").as("rootFolderId"))
 				.build();
 
 		UserInfoResponseDto response = null;
@@ -154,7 +145,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 	@Override
 	public Optional<UserInfoResponseDto> updateUserInfo(long userId, UserInfoRequestDto request) {
 		Node user = node("User").named("u")
-				.withProperties("id", literalOf(userId));
+				.withProperties("userId", literalOf(userId));
 
 		Node space = node("Space").named("s")
 				.withProperties("public", literalOf(false));
@@ -171,7 +162,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(
 						user.property("nickname").as("nickname"),
 						user.property("profileImg").as("profileImg"),
-						folder.property("id").as("rootFolderId"))
+						folder.property("folderId").as("rootFolderId"))
 				.build();
 
 		UserInfoResponseDto response = null;
@@ -200,19 +191,13 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(count(user).as("result"))
 				.build();
 
-		NicknameResponseDto response = null;
-
 		try (Session session = driver.session()) {
 			Result result = session.run(statement.getCypher());
-			if (result.hasNext()) {
-				Record record = result.next();
-				response = NicknameResponseDto.builder()
-						.result(record.get("result").asInt())
-						.build();
-			}
+			Record record = result.next();
+			return NicknameResponseDto.builder()
+					.result(record.get("result").asInt())
+					.build();
 		}
-
-		return response;
 	}
 
 }

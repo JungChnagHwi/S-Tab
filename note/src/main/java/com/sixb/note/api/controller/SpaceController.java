@@ -1,9 +1,7 @@
 package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.SpaceService;
-import com.sixb.note.dto.space.SpaceRequestDto;
-import com.sixb.note.dto.space.SpaceResponseDto;
-import com.sixb.note.dto.space.UpdateSpaceTitleRequestDto;
+import com.sixb.note.dto.space.*;
 import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +21,16 @@ public class SpaceController {
     public ResponseEntity<List<SpaceResponseDto>> getAllSpaceDetails(long userId) {
         List<SpaceResponseDto> spaces = spaceService.findAllSpaceDetails(userId);
         return ResponseEntity.ok(spaces);
+    }
+
+    @GetMapping("/{spaceId}")
+    public ResponseEntity<SpaceResponseDto> getSpaceDetails(long userId, @PathVariable String spaceId) {
+        try {
+            SpaceResponseDto spaceDetails = spaceService.findSpaceDetails(userId, spaceId);
+            return ResponseEntity.ok(spaceDetails);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -47,6 +55,32 @@ public class SpaceController {
         if (isUpdated) {
             return ResponseEntity.ok("Space 삭제 완료");
         } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<String> joinSpace(long userId, @RequestBody JoinSpaceRequestDto joinSpaceRequestDto) {
+        spaceService.joinSpace(userId, joinSpaceRequestDto.getSpaceId());
+        return ResponseEntity.ok("스페이스 참여 성공");
+    }
+
+    @GetMapping("/cover/{spaceId}")
+    public ResponseEntity<SpaceMdResponseDto> getSpaceMarkdown(@PathVariable String spaceId) {
+        try {
+            SpaceMdResponseDto responseDto = spaceService.findSpaceMarkdown(spaceId);
+            return ResponseEntity.ok(responseDto);
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/cover")
+    public ResponseEntity<String> updateSpaceMarkdown(@RequestBody SpaceMdRequestDto requestDto) {
+        try {
+            spaceService.updateSpaceMarkdown(requestDto);
+            return ResponseEntity.ok("스페이스 표지 수정 성공");
+        } catch (NotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }

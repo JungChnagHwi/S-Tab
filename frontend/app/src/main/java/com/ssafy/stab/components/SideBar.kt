@@ -40,23 +40,29 @@ import androidx.navigation.NavController
 import com.ssafy.stab.apis.space.share.ShareSpaceList
 import com.ssafy.stab.apis.space.share.getShareSpaceList
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.data.PreferencesUtil.callState
 import com.ssafy.stab.modals.CreateShareSpaceModal
 import com.ssafy.stab.screens.space.personal.LocalNowFolderId
+import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
-fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
+fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel, modifier: Modifier = Modifier) {
     val starImg = painterResource(id = R.drawable.star)
     val trashImg = painterResource(id = R.drawable.trash)
     val myspImg = painterResource(id = R.drawable.mysp)
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val wifiImg = painterResource(id = R.drawable.connection)
-    val micImg = painterResource(id = R.drawable.mic)
+    val soundOnImg = painterResource(id = R.drawable.soundon)
+    val soundOffImg = painterResource(id = R.drawable.soundoff)
     val speakerImg = painterResource(id = R.drawable.speaker)
     val phoneImg = painterResource(id = R.drawable.phone)
     val plusImg = painterResource(id = R.drawable.plus)
+    val participateImg = painterResource(id = R.drawable.participate)
 
     val showCreateModal = remember { mutableStateOf(false) }
     var shareSpaceList = remember { mutableStateListOf<ShareSpaceList>() }
+    // 현재 통화 중인 스페이스의 이름 찾기
+    val currentCallSpaceName = shareSpaceList.find { it.spaceId == callState.value.callSpaceId }?.title ?: "Unknown Space"
 
     LaunchedEffect(key1 = true) {
         getShareSpaceList { res ->
@@ -66,8 +72,6 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
     }
 
     val callState = PreferencesUtil.callState.collectAsState()
-
-    Log.d("a", shareSpaceList.size.toString())
 
     if (showCreateModal.value) {
         Dialog(onDismissRequest = { showCreateModal.value = false }) {
@@ -140,16 +144,23 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
         }
         Spacer(modifier = Modifier.height(7.dp))
         Column {
-            Row(
-                modifier = Modifier.clickable {
-                    showCreateModal.value = true
-                },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Spacer(modifier = Modifier.width(70.dp))
-                Image(painter = plusImg, contentDescription = null)
-                Spacer(modifier = Modifier.width(7.dp))
-                Text(text = "새로 만들기")
+                Row(
+                    modifier = Modifier.clickable {
+                        showCreateModal.value = true
+                    },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(painter = plusImg, contentDescription = null)
+                    Spacer(modifier = Modifier.width(7.dp))
+                    Text(text = "생성하기")
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(painter = participateImg, contentDescription = null)
+                    Text(text = "참가하기")
+                }
             }
             Spacer(modifier = Modifier.height(7.dp))
             ShareSpaceListScreen(navController, shareSpaceList)
@@ -183,10 +194,10 @@ fun SideBar(navController: NavController, modifier: Modifier = Modifier) {
                             color = Color(0xff4ADE80),
                             fontSize = 16.sp
                         )
-                        Text(text = callState.value.callSpaceId ?: "스터디1")
+                        Text(text = currentCallSpaceName)
                     }
                     Image(
-                        painter = micImg,
+                        painter = soundOnImg,
                         contentDescription = null,
                         modifier = Modifier.size(24.dp)
                     )

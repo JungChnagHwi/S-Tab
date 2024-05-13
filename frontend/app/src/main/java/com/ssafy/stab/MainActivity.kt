@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,9 +19,11 @@ import com.ssafy.stab.screens.auth.SignUp
 import com.ssafy.stab.screens.space.SpaceRouters
 import com.ssafy.stab.ui.theme.STabTheme
 import com.kakao.sdk.common.util.Utility
+import com.ssafy.stab.components.MarkdownScreen
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.screens.space.NoteListViewModel
+import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,12 +34,13 @@ class MainActivity : ComponentActivity() {
         val loginDetails = PreferencesUtil.getLoginDetails()
         setContent {
             STabTheme {
+                val audioCallViewModel = viewModel<AudioCallViewModel>()
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Routers()
+                    Routers(audioCallViewModel)
                 }
             }
         }
@@ -44,7 +48,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Routers(){
+fun Routers(audioCallViewModel: AudioCallViewModel) {
 
     val navController = rememberNavController()
 
@@ -55,9 +59,13 @@ fun Routers(){
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { Login(navController = navController) }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
-        composable("space") { SpaceRouters(onLogin = { navController.navigate("login") }) }
+        composable("space") {
+            SpaceRouters(
+                onLogin = { navController.navigate("login") },
+                audioCallViewModel
+            ) }
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }
-
+        composable("markdown") { MarkdownScreen() }
     }
 }

@@ -1,23 +1,22 @@
 package com.sixb.note.api.service;
 
-
 import com.sixb.note.dto.note.CreateNoteRequestDto;
 import com.sixb.note.dto.note.CreateNoteResponseDto;
-import com.sixb.note.dto.note.UpdateNoteTitleRequestDto;
-import com.sixb.note.entity.*;
+import com.sixb.note.dto.note.RelocateNoteRequestDto;
+import com.sixb.note.entity.Folder;
+import com.sixb.note.entity.Note;
+import com.sixb.note.entity.Page;
+import com.sixb.note.entity.Space;
 import com.sixb.note.exception.NotFoundException;
-import com.sixb.note.repository.*;
+import com.sixb.note.repository.FolderRepository;
+import com.sixb.note.repository.NoteRepository;
+import com.sixb.note.repository.PageRepository;
+import com.sixb.note.repository.SpaceRepository;
 import com.sixb.note.util.IdCreator;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +26,6 @@ public class NoteService {
     private final FolderRepository folderRepository;
     private final PageRepository pageRepository;
     private final SpaceRepository spaceRepository;
-    private final PageDataRepository pageDataRepository;
 
 
     public CreateNoteResponseDto createNote(CreateNoteRequestDto request) {
@@ -38,14 +36,16 @@ public class NoteService {
 
         String formattedNoteId = IdCreator.create("n");
 //        UUID formattedNoteId = UUID.randomUUID();
-        note.setId(formattedNoteId);
+        note.setNoteId(formattedNoteId);
         // 새로운 페이지 생성
         Page page = new Page();
         String formattedPageId = IdCreator.create("p");
-        page.setId(formattedPageId);
+        page.setPageId(formattedPageId);
+        page.setNoteId(formattedNoteId);
         page.setTemplate(String.valueOf(request.getTemplate()));
         page.setColor(String.valueOf(request.getColor()));
         page.setDirection(request.getDirection());
+        page.setPageData("{\"paths\": [], \"figures\": [],\"textBoxes\": [], \"images\": []}");
 
         LocalDateTime now = LocalDateTime.now();
         page.setCreatedAt(now);
@@ -54,7 +54,7 @@ public class NoteService {
         note.setUpdatedAt(now);
 
         // 노트와 페이지 연결
-        note.setPages(page);
+        note.setPage(page);
 
         String parentFolderId = request.getParentFolderId();
 
@@ -84,16 +84,16 @@ public class NoteService {
 
         // mongodb에 데이터 만들기
         // 필기 데이터 저장
-        PageData pageData = PageData.builder()
-                .id(formattedPageId)
-                .build();
-
-        pageDataRepository.save(pageData);
+//        PageDataDto pageData = PageDataDto.builder()
+//                .id(formattedPageId)
+//                .build();
+//
+//        pageDataRepository.save(pageData);
 
 
         // 응답 DTO 구성
         CreateNoteResponseDto response = new CreateNoteResponseDto();
-        response.setNoteId(note.getId());
+        response.setNoteId(note.getNoteId());
         response.setTitle(note.getTitle());
         response.setTotalPageCnt(note.getTotalPageCnt());
         response.setLiked(false);
@@ -103,7 +103,7 @@ public class NoteService {
 
         // 페이지 DTO 설정
         CreateNoteResponseDto.PageDto pageDto = new CreateNoteResponseDto.PageDto();
-        pageDto.setPageId(page.getId());
+        pageDto.setPageId(page.getPageId());
         pageDto.setColor(request.getColor());
         pageDto.setTemplate(request.getTemplate());
         pageDto.setDirection(request.getDirection());
@@ -126,6 +126,10 @@ public class NoteService {
         noteRepository.updateNoteTitle(noteId, newTitle);
     }
 
+    public void relocateNote(RelocateNoteRequestDto request) {
+        noteRepository.relocateNote(request.getNoteId(), request.getParentFolderId());
+    }
+
     //노트 삭제
     public boolean deleteNote(String noteId) {
         Note note = noteRepository.findNoteById(noteId);
@@ -136,4 +140,5 @@ public class NoteService {
         }
         return false;
     }
+
 }

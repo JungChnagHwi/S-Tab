@@ -15,13 +15,17 @@ import java.util.UUID;
 public class Space extends BaseTimeEntity {
 
     @Id
-    private String id;
+    @Property("spaceId")
+    private String spaceId;
 
     @Property("title")
     private String title;
 
     @Property("isPublic")
     private Boolean isPublic;
+
+    @Property("spaceMd")
+    private String spaceMd;
 
     @Relationship(type = "Hierarchy")
     private List<Folder> folders;

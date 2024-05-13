@@ -1,16 +1,11 @@
 package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.FolderService;
-import com.sixb.note.dto.folder.CreateFolderRequestDto;
-import com.sixb.note.dto.folder.CreateFolderResponseDto;
-import com.sixb.note.dto.folder.FolderResponseDto;
-import com.sixb.note.dto.folder.UpdateFolderTitleRequestDto;
+import com.sixb.note.dto.folder.*;
 import com.sixb.note.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/folder")
@@ -23,6 +18,12 @@ public class FolderController {
     public ResponseEntity<FolderResponseDto> getFolderById(@PathVariable("folderId") String folderId) {
         FolderResponseDto folderInfo = folderService.getFolderDetail(folderId);
         return ResponseEntity.ok(folderInfo);
+    }
+
+    @GetMapping("/space/{spaceId}")
+    public ResponseEntity<FolderResponseDto> getSpaceById(@PathVariable("spaceId") String spaceId) {
+        FolderResponseDto spaceInfo = folderService.getSpaceDetail(spaceId);
+        return ResponseEntity.ok(spaceInfo);
     }
 
     @PostMapping
@@ -39,6 +40,12 @@ public class FolderController {
         } catch (NotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PatchMapping("/relocation")
+    public ResponseEntity<?> relocateFolder(@RequestBody RelocateFolderRequestDto request) {
+        folderService.relocateFolder(request);
+        return ResponseEntity.ok("폴더 위치 변경 완료");
     }
 
     @PatchMapping("/{folderId}")

@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.converter.scalars)
     implementation(libs.coil.compose)
     implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.commonmark)
     implementation(libs.c.crdtlib.jvm) {
         exclude(group = "com.github.ntrrgc", module = "ts-generator")
     }

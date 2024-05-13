@@ -34,11 +34,15 @@ import com.ssafy.stab.modals.PatchAuth
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.note.ShareNote
-import com.ssafy.stab.util.note.NoteControlViewModel
 import com.ssafy.stab.screens.space.personal.PersonalSpace
+import com.ssafy.stab.screens.space.share.ShareSpace
+import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
-fun SpaceRouters(onLogin: () -> Unit) {
+fun SpaceRouters(
+    onLogin: () -> Unit,
+    audioCallViewModel: AudioCallViewModel
+) {
     val navController = rememberNavController()
 
     // NavController의 현재 라우트를 추적
@@ -47,8 +51,9 @@ fun SpaceRouters(onLogin: () -> Unit) {
 
     Row(modifier = Modifier.fillMaxSize()) {
         // "personal-note"와 "share-note"가 아닐 때만 SideBar를 렌더링
+
         if (currentRoute != "personal-note/{noteId}" && currentRoute != "share-note") {
-            SideBar(navController, modifier = Modifier.weight(0.25f))
+            SideBar(navController, audioCallViewModel, modifier = Modifier.weight(0.25f))
         }
         Column(modifier = Modifier
             .weight(0.75f)
@@ -62,8 +67,13 @@ fun SpaceRouters(onLogin: () -> Unit) {
                     PersonalSpace(navController) { navController.navigate("personal-note/$it") }
                 }
                 composable("share-space/{spaceId}") { backStackEntry ->
+
                     backStackEntry.arguments?.getString("spaceId")?.let { spaceId ->
-                        ShareSpace(navController, spaceId) { navController.navigate("personal-note/$it") }
+                        ShareSpace(
+                            navController,
+                            spaceId,
+                            audioCallViewModel
+                        ) { navController.navigate("personal-note/$it") }
                     }
                 }
                 composable("book-mark") { BookMark() }

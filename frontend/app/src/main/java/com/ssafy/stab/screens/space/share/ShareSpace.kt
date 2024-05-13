@@ -1,5 +1,7 @@
-package com.ssafy.stab.screens.space
+package com.ssafy.stab.screens.space.share
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,10 +17,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,13 +37,21 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.R
+import com.ssafy.stab.apis.space.share.ShareSpaceList
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
+import com.ssafy.stab.webrtc.fragments.PermissionsDialog
+import com.ssafy.stab.webrtc.utils.PermissionManager
 
 @Composable
-fun ShareSpace(navController: NavController, spaceId: String, onNote: (String) -> Unit) {
-    // audioCallViewModel instance로 관리: 화면을 이동해도 계속 통화가 실행되게 하기 위함
-    val audioCallViewModel: AudioCallViewModel = viewModel()
+fun ShareSpace(
+    navController: NavController,
+    spaceId: String,
+    audioCallViewModel: AudioCallViewModel,
+    onNote: (String) -> Unit
+) {
+
     // 드롭다운 이미지와 드롭업 이미지 리소스를 로드합니다.
     val dropdownImg = painterResource(id = R.drawable.dropdown)
     val dropupImg = painterResource(id = R.drawable.dropup)
@@ -57,6 +70,9 @@ fun ShareSpace(navController: NavController, spaceId: String, onNote: (String) -
     val currentCallState = PreferencesUtil.callState.collectAsState()
     val isCurrentSpaceActive = currentCallState.value.callSpaceId == spaceId && currentCallState.value.isInCall
 
+    var shareSpaceList = remember { mutableStateListOf<ShareSpaceList>() }
+    val currentSpace = shareSpaceList.find { it.spaceId == spaceId }
+
     Column(
         modifier = Modifier
             .background(Color(0xFFE9ECF5))
@@ -65,7 +81,8 @@ fun ShareSpace(navController: NavController, spaceId: String, onNote: (String) -
         SpTitleBar(
             context = context,
             audioCallViewModel = audioCallViewModel,
-            isCurrentSpaceActive = isCurrentSpaceActive
+            isCurrentSpaceActive = isCurrentSpaceActive,
+            spaceId
         )
         Divider(
             color = Color.Gray,
@@ -107,9 +124,11 @@ fun ShareSpace(navController: NavController, spaceId: String, onNote: (String) -
 }
 
 @Composable
-fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurrentSpaceActive: Boolean) {
+fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurrentSpaceActive: Boolean, spaceId: String) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
+
+
 
     // 통화 방 참여 상태에 따른 이미지 리소스 결정
     val callActive = remember { mutableStateOf(isCurrentSpaceActive) }
@@ -122,6 +141,57 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
     val outImg = painterResource(id = R.drawable.out)
     val peopleImg = painterResource(id = R.drawable.people)
 
+    val showPopup = remember { mutableStateOf(false) }
+
+    fun copyToClipboard(context: Context, text: String) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("label", text)
+        clipboard.setPrimaryClip(clip)
+    }
+
+    if (showPopup.value) {
+        AlertDialog(
+            onDismissRequest = {
+                showPopup.value = false
+            },
+            title = {
+                Text(text = "공유 코드")
+            },
+            text = {
+                Text(text = spaceId)
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        copyToClipboard(context, "s-12344123431")
+                        showPopup.value = false // 팝업 닫기
+                    }
+                ) {
+                    Text("복사")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showPopup.value = false }) {
+                    Text("취소")
+                }}
+        )}
+    // 음성 권한 요청 dialog
+    val showDialog = remember { mutableStateOf(false) }
+
+    if (showDialog.value) {
+        PermissionsDialog(
+            onPermissionGranted = {
+                audioCallViewModel.buttonPressed(context)
+                !callActive.value
+            },
+            onPermissionDenied = {
+                // Handle permission denial, possibly notify user
+            },
+            onDialogDismiss = {
+                showDialog.value = false
+            }
+        )
+    }
 
     Row {
         Spacer(modifier = Modifier.width(30.dp))
@@ -166,8 +236,13 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
                             .height(30.dp)
                             .height(30.dp)
                             .clickable {
-                                callActive.value = !callActive.value
-                                audioCallViewModel.buttonPressed(context) }
+                                if (PermissionManager.arePermissionsGranted(context)) {
+                                    audioCallViewModel.buttonPressed(context)
+                                    callActive.value = !callActive.value
+                                } else {
+                                    showDialog.value = true
+                                }
+                            }
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
@@ -176,6 +251,9 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
                         modifier = Modifier
                             .height(30.dp)
                             .height(30.dp)
+                            .clickable {
+                                showPopup.value = true
+                            }
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
