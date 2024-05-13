@@ -22,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,10 +35,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.R
+import com.ssafy.stab.apis.space.share.ShareSpace
 import com.ssafy.stab.apis.space.share.ShareSpaceList
+import com.ssafy.stab.apis.space.share.getShareSpace
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
@@ -71,7 +73,16 @@ fun ShareSpace(
     val isCurrentSpaceActive = currentCallState.value.callSpaceId == spaceId && currentCallState.value.isInCall
 
     var shareSpaceList = remember { mutableStateListOf<ShareSpaceList>() }
-    val currentSpace = shareSpaceList.find { it.spaceId == spaceId }
+    // 현재 보고 있는 공유 스페이스 정보 가져오기
+    val (shareSpaceDetails, setShareSpaceDetails) = remember { mutableStateOf<ShareSpace?>(null) }
+    val (participants, setParticipants) = remember { mutableStateOf(listOf<String>()) }
+
+    LaunchedEffect(spaceId) {
+        getShareSpace(spaceId) { shareSpaceData ->
+            setShareSpaceDetails(shareSpaceData)
+            setParticipants(shareSpaceData.users.map { it.nickname })
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -82,7 +93,8 @@ fun ShareSpace(
             context = context,
             audioCallViewModel = audioCallViewModel,
             isCurrentSpaceActive = isCurrentSpaceActive,
-            spaceId
+            spaceId,
+            participantCount = shareSpaceDetails?.users?.size ?: 1
         )
         Divider(
             color = Color.Gray,
@@ -124,7 +136,13 @@ fun ShareSpace(
 }
 
 @Composable
-fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurrentSpaceActive: Boolean, spaceId: String) {
+fun SpTitleBar(
+    context: Context,
+    audioCallViewModel: AudioCallViewModel,
+    isCurrentSpaceActive: Boolean,
+    spaceId: String,
+    participantCount: Int
+) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
 
@@ -227,7 +245,7 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
                             .height(30.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = "( 2 / 6 )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "( 2 / $participantCount )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
                         painter = callButtonImage,

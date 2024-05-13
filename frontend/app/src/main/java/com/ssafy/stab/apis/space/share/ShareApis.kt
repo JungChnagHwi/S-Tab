@@ -34,6 +34,25 @@ fun getFileListShareSpace(spaceId: String, onFolderResult: (List<Folder>?) -> Un
     })
 }
 
+fun getShareSpace(spaceId: String, onResult: (ShareSpace) -> Unit) {
+    val call = apiService.getShareSpace(authorizationHeader, spaceId)
+
+    call.enqueue(object : Callback<ShareSpace> {
+        override fun onResponse(call: Call<ShareSpace>, response: Response<ShareSpace>) {
+            if (response.isSuccessful) {
+                Log.d("APIResponse", response.body().toString())
+                response.body()?.let { onResult(it) }
+            } else {
+                println("Response not successful: ${response.errorBody()?.string()}")
+            }
+        }
+
+        override fun onFailure(p0: Call<ShareSpace>, p1: Throwable) {
+            Log.d("APIResponse", "요청 실패")
+        }
+    })
+}
+
 fun getShareSpaceList(onResult: (List<ShareSpaceList>) -> Unit) {
     val call = apiService.getShareSpaceList(authorizationHeader)
 

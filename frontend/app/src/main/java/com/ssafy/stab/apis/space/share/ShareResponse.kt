@@ -12,6 +12,11 @@ data class ShareSpaceList(
     @SerializedName("updateAt") val updateAt: String
 )
 
+data class ShareSpace(
+    @SerializedName("spaceId") val spaceId: String,
+    @SerializedName("users") val users: List<User>
+)
+
 data class User(
     @SerializedName("nickname") val nickname: String,
     @SerializedName("profileImg") val profileImg: String
