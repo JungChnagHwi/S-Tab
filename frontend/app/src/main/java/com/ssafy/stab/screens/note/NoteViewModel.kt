@@ -1,9 +1,6 @@
 package com.ssafy.stab.screens.note
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.apis.note.createNewPage
@@ -11,15 +8,11 @@ import com.ssafy.stab.apis.note.fetchPageList
 import com.ssafy.stab.apis.note.savePageData
 import com.ssafy.stab.data.note.UserPagePathInfo
 import com.ssafy.stab.data.note.request.PageData
-import com.ssafy.stab.data.note.request.PageInfo
 import com.ssafy.stab.data.note.request.SavingPageData
-import com.ssafy.stab.data.note.request.convertPageInfoToPageData
 import com.ssafy.stab.data.note.response.PageDetail
-import com.ssafy.stab.util.note.NoteControlViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 class NoteViewModel(noteId: String) : ViewModel() {
     private val _noteId = MutableStateFlow(noteId)
@@ -68,18 +61,13 @@ class NoteViewModel(noteId: String) : ViewModel() {
             if (updatePathList.isNotEmpty()) {
                 pathList.addAll(updatePathList.map { it.pathInfo })
 
-                val pageData = convertPageInfoToPageData(
-                    PageInfo(
-                        pathList,
-                        pageDetail.figures ?: mutableStateListOf(),
-                        pageDetail.textBoxes ?: mutableStateListOf(),
-                        pageDetail.images ?: mutableStateListOf()
-                    )
+                val pageData = PageData(
+                    pathList
                 )
 
                 savePageData(SavingPageData(
                     pageDetail.pageId,
-                    pageData.toString()
+                    pageData
                 ))
 
             }
