@@ -34,7 +34,8 @@ public class NoteService {
 //        UUID formattedNoteId = UUID.randomUUID();
         note.setNoteId(formattedNoteId);
         // 새로운 페이지 생성
-        Page page = new Page();
+//        Page page = new Page();
+        Page page = Page.builder().build();
         String formattedPageId = IdCreator.create("p");
         page.setPageId(formattedPageId);
         page.setNoteId(formattedNoteId);
