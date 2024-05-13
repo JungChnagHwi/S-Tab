@@ -36,7 +36,7 @@ import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
-fun ShareSpace(navController: NavController, spaceId: String) {
+fun ShareSpace(navController: NavController, spaceId: String, onNote: (String) -> Unit) {
     // audioCallViewModel instance로 관리: 화면을 이동해도 계속 통화가 실행되게 하기 위함
     val audioCallViewModel: AudioCallViewModel = viewModel()
     // 드롭다운 이미지와 드롭업 이미지 리소스를 로드합니다.
@@ -102,7 +102,7 @@ fun ShareSpace(navController: NavController, spaceId: String) {
                 )
             }
         }
-        NoteListSpace(spaceId, navController)
+        NoteListSpace(spaceId, onNote)
     }
 }
 

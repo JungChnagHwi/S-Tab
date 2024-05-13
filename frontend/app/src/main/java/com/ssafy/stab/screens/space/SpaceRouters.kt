@@ -38,7 +38,7 @@ import com.ssafy.stab.util.note.NoteControlViewModel
 import com.ssafy.stab.screens.space.personal.PersonalSpace
 
 @Composable
-fun SpaceRouters(homeNavController: NavController) {
+fun SpaceRouters(onLogin: () -> Unit) {
     val navController = rememberNavController()
 
     // NavController의 현재 라우트를 추적
@@ -47,22 +47,31 @@ fun SpaceRouters(homeNavController: NavController) {
 
     Row(modifier = Modifier.fillMaxSize()) {
         // "personal-note"와 "share-note"가 아닐 때만 SideBar를 렌더링
-        if (currentRoute != "personal-note" && currentRoute != "share-note") {
+        if (currentRoute != "personal-note/{noteId}" && currentRoute != "share-note") {
             SideBar(navController, modifier = Modifier.weight(0.25f))
         }
-        Column(modifier = Modifier.weight(0.75f).background(color = Color(0xFFE9ECF5))) {
-            if (currentRoute != "personal-note" && currentRoute != "share-note") {
-                Header(homeNavController = homeNavController)
+        Column(modifier = Modifier
+            .weight(0.75f)
+            .background(color = Color(0xFFE9ECF5))
+        ) {
+            if (currentRoute != "personal-note/{noteId}" && currentRoute != "share-note") {
+                Header(onLogin)
             }
             NavHost(navController = navController, startDestination = "personal-space") {
-                composable("personal-space") { PersonalSpace(navController) }
+                composable("personal-space") {
+                    PersonalSpace(navController) { navController.navigate("personal-note/$it") }
+                }
                 composable("share-space/{spaceId}") { backStackEntry ->
-                    backStackEntry.arguments?.getString("spaceId")
-                        ?.let { ShareSpace(navController, spaceId = it) }
+                    backStackEntry.arguments?.getString("spaceId")?.let { spaceId ->
+                        ShareSpace(navController, spaceId) { navController.navigate("personal-note/$it") }
+                    }
                 }
                 composable("book-mark") { BookMark() }
                 composable("deleted") { Deleted() }
-                composable("personal-note") { PersonalNote(NoteViewModel(), navController) }
+                composable("personal-note/{noteId}") {backStackEntry ->
+                    backStackEntry.arguments?.getString("noteId")
+                        ?.let { PersonalNote(NoteViewModel(it), navController) }
+                }
                 composable("share-note") { ShareNote(navController) }
                 dialog("patch-auth") {
                     PatchAuth(onDismiss = { navController.popBackStack() })
@@ -73,7 +82,7 @@ fun SpaceRouters(homeNavController: NavController) {
 }
 
 @Composable
-fun Header(homeNavController: NavController) {
+fun Header(onLogin: () -> Unit) {
     val glassImg = painterResource(id = R.drawable.glass)
     val settingsImg = painterResource(id = R.drawable.settings)
     val profileImg = painterResource(id = R.drawable.profile)
@@ -110,7 +119,7 @@ fun Header(homeNavController: NavController) {
                     profileImg = "",
                     rootFolderId = ""
                 )
-                homeNavController.navigate("login")
+                onLogin()
             }, painter = profileImg, contentDescription = null)
         Spacer(modifier = Modifier.width(20.dp))
     }

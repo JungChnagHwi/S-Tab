@@ -9,21 +9,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ssafy.stab.modals.CreateNoteModal
 import com.ssafy.stab.screens.auth.Login
 import com.ssafy.stab.screens.auth.SignUp
-import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.space.SpaceRouters
 import com.ssafy.stab.ui.theme.STabTheme
 import com.kakao.sdk.common.util.Utility
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
-import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.space.NoteListViewModel
 
 class MainActivity : ComponentActivity() {
@@ -59,8 +55,7 @@ fun Routers(){
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { Login(navController = navController) }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
-        composable("space") { SpaceRouters(homeNavController = navController) }
-        composable("personal-note") { PersonalNote(NoteViewModel(), navController)}
+        composable("space") { SpaceRouters(onLogin = { navController.navigate("login") }) }
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }
 
