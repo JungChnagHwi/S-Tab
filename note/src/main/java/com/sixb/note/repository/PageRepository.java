@@ -34,4 +34,11 @@ public interface PageRepository extends Neo4jRepository<Page, String> {
 
     @Query("MATCH (p: Page {id: $pageId})-[r:NextPage]->(p1: Page) DELETE r")
     void deleteNextPageRelation(@Param("pageId") String pageId);
+
+    @Query("MATCH (note:Note {id: $noteId})-[:FirstPage]->(firstPage:Page)\n" +
+            "WITH note, firstPage\n" +
+            "MATCH path=(firstPage)-[:NextPage*]->(page:Page)\n" +
+            "WHERE NOT page.isDeleted\n" +
+            "RETURN collect(firstPage) + collect(page) AS allPages")
+    List<Page> findAllPagesByNoteId(@Param("noteId") String noteId);
 }

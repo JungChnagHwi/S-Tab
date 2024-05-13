@@ -39,12 +39,6 @@ fun Login(navController: NavController){
                 Button(onClick = { navController.navigate("space") }) {
                     Text(text = "개인 스페이스로 가기")
                 }
-                Button(onClick = { navController.navigate("personal-note") }) {
-                    Text(text = "개인 노트로 가기")
-                }
-                Button(onClick = { navController.navigate("audio-call") }) {
-                    Text(text = "음성 통화로 가기")
-                }
                 Button(onClick = {
                     Log.d("a", PreferencesUtil.getLoginDetails().accessToken.toString())
                 }) {

@@ -20,14 +20,11 @@ import com.ssafy.stab.screens.auth.SignUp
 import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.space.SpaceRouters
 import com.ssafy.stab.ui.theme.STabTheme
-import com.ssafy.stab.webrtc.audiocall.AudioCallScreen
-import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 import com.kakao.sdk.common.util.Utility
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.space.NoteListViewModel
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,12 +60,7 @@ fun Routers(){
         composable("login") { Login(navController = navController) }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
         composable("space") { SpaceRouters(homeNavController = navController) }
-        composable("personal-note") { PersonalNote(viewModel = NoteViewModel(), navController = navController)}
-        composable("audio-call") {
-            // ViewModel 초기화
-            val audioCallViewModel = viewModel<AudioCallViewModel>()
-            AudioCallScreen(viewModel = audioCallViewModel)
-        }
+        composable("personal-note") { PersonalNote(NoteViewModel(), navController)}
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }
 

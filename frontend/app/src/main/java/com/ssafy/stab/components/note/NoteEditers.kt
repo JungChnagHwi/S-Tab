@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,16 +27,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
-import com.ssafy.stab.util.note.NoteController
 import com.ssafy.stab.data.note.PenType
-import com.ssafy.stab.data.note.response.PageData
+import com.ssafy.stab.util.note.NoteControlViewModel
 
 @Composable
 fun ControlsBar(
-    pageList: MutableList<PageData>,
-    noteController: NoteController,
-    undoAvailable: MutableState<Boolean>,
-    redoAvailable: MutableState<Boolean>,
+    viewModel: NoteControlViewModel,
+    undoAvailable: Boolean,
+    redoAvailable: Boolean,
 ) {
     Row(
         modifier = Modifier
@@ -45,40 +42,40 @@ fun ControlsBar(
         horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
         EditIcons(
-            if (undoAvailable.value && pageList.isNotEmpty()) R.drawable.undo_abled else R.drawable.undo_disabled,
+            if (undoAvailable) R.drawable.undo_abled else R.drawable.undo_disabled,
             "undo",
             ) {
-                if (undoAvailable.value && pageList.isNotEmpty()) noteController.undo()
+                if (undoAvailable) viewModel.undo()
             }
         EditIcons(
-            if (redoAvailable.value) R.drawable.redo_abled else R.drawable.redo_disabled,
+            if (redoAvailable) R.drawable.redo_abled else R.drawable.redo_disabled,
             "redo"
             ) {
-                if (redoAvailable.value) noteController.redo()
+                if (redoAvailable) viewModel.redo()
             }
         EditIcons(
-            if (noteController.penType == PenType.Pen) R.drawable.pen_abled else R.drawable.pen_disabled,
+            if (viewModel.penType == PenType.Pen) R.drawable.pen_abled else R.drawable.pen_disabled,
             "pen"
         ) {
-            noteController.changePenType(PenType.Pen)
+            viewModel.changePenType(PenType.Pen)
         }
         EditIcons(
-            if (noteController.penType == PenType.Highlighter) R.drawable.highliter_abled else R.drawable.highliter_disabled,
+            if (viewModel.penType == PenType.Highlighter) R.drawable.highliter_abled else R.drawable.highliter_disabled,
             "highliter"
         ) {
-            noteController.changePenType(PenType.Highlighter)
+            viewModel.changePenType(PenType.Highlighter)
         }
         EditIcons(
-            if (noteController.penType == PenType.Eraser) R.drawable.eraser_abled else R.drawable.eraser_disabled,
+            if (viewModel.penType == PenType.Eraser) R.drawable.eraser_abled else R.drawable.eraser_disabled,
             "eraser"
         ) {
-            noteController.changePenType(PenType.Eraser)
+            viewModel.changePenType(PenType.Eraser)
         }
         EditIcons(
-            if (noteController.penType == PenType.Lasso) R.drawable.lasso_abled else R.drawable.lasso_disabled,
+            if (viewModel.penType == PenType.Lasso) R.drawable.lasso_abled else R.drawable.lasso_disabled,
             "lasso"
         ) {
-            noteController.changePenType(PenType.Lasso)
+            viewModel.changePenType(PenType.Lasso)
         }
         EditIcons(
             R.drawable.image_abled,
@@ -110,7 +107,7 @@ fun RowScope.EditIcons(
 
 @Composable
 fun OptionsBar(
-    noteController: NoteController
+    viewModel: NoteControlViewModel
 ) {
     Row(
         modifier = Modifier
@@ -123,16 +120,16 @@ fun OptionsBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ColorIcons(colorTint = "000000") {
-                noteController.changeColor("000000")
+                viewModel.changeColor("000000")
             }
             ColorIcons(colorTint = "FF0000") {
-                noteController.changeColor("FF0000")
+                viewModel.changeColor("FF0000")
             }
             ColorIcons(colorTint = "0000FF") {
-                noteController.changeColor("0000FF")
+                viewModel.changeColor("0000FF")
             }
             ColorIcons(colorTint = "00FF00") {
-                noteController.changeColor("00FF00")
+                viewModel.changeColor("00FF00")
             }
         }
         Spacer(modifier = Modifier.width(16.dp))
@@ -140,13 +137,13 @@ fun OptionsBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             StrokeWidthIcons(strokeWidth  = 10f) {
-                noteController.changeStrokeWidth(10f)
+                viewModel.changeStrokeWidth(10f)
             }
             StrokeWidthIcons(strokeWidth  = 20f) {
-                noteController.changeStrokeWidth(20f)
+                viewModel.changeStrokeWidth(20f)
             }
             StrokeWidthIcons(strokeWidth  = 30f) {
-                noteController.changeStrokeWidth(30f)
+                viewModel.changeStrokeWidth(30f)
             }
         }
     }

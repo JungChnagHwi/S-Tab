@@ -2,10 +2,6 @@ package com.ssafy.stab.data.note
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
-data class PathData(
-    val paths: List<PathInfo>
-)
-
 data class PathInfo(
     val penType: PenType,
     val strokeWidth: Float,
@@ -20,6 +16,6 @@ data class Coordinate(
 
 data class UserPagePathInfo(
     val userName: String,
-    var page: Int,
+    var pageId: String,
     val pathInfo: PathInfo
 )

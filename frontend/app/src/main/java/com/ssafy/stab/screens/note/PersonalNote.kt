@@ -14,47 +14,48 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.components.note.ControlsBar
 import com.ssafy.stab.components.note.OptionsBar
 import com.ssafy.stab.components.note.PageInterfaceBar
 import com.ssafy.stab.components.note.PageList
 import com.ssafy.stab.ui.theme.Background
-import com.ssafy.stab.util.note.rememberNoteController
+import com.ssafy.stab.util.note.NoteControlViewModel
 
 @Composable
 fun PersonalNote(
-    viewModel: NoteViewModel,
+    noteViewModel: NoteViewModel,
     navController: NavController
 ){
-    val pageList by viewModel.pageList.collectAsState()
+    val noteControlViewModel : NoteControlViewModel = viewModel()
 
-    val noteController = rememberNoteController()
-    val undoAvailable = remember { mutableStateOf(false) }
-    val redoAvailable = remember { mutableStateOf(false) }
+    val undoAvailable by noteControlViewModel.undoAvailable.collectAsState()
+    val redoAvailable by noteControlViewModel.redoAvailable.collectAsState()
 
-    val currentPageIndex = remember { mutableIntStateOf(0) }
-    val onPageChange = { index: Int -> currentPageIndex.intValue = index }
+    val currentPage = remember { mutableIntStateOf(0) }
+    val onPageChange = { page: Int -> currentPage.intValue = page }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
         Row {
-            Button(onClick = { navController.popBackStack() }) {
+            Button(onClick = {
+//                noteViewModel.savePage(noteControlViewModel.pathList)
+                navController.popBackStack()
+            }) {
                 Text(text = "뒤로가기")
             }
         }
 
         PageInterfaceBar(
-            currentPage = currentPageIndex.intValue,
-            pageList = pageList,
-            noteController = noteController
+            viewModel = noteViewModel,
+            currentPage = currentPage.intValue
         )
 
         Row(
@@ -65,20 +66,16 @@ fun PersonalNote(
             horizontalArrangement = Arrangement.Center,
         ) {
             ControlsBar(
-                pageList,
-                noteController,
+                noteControlViewModel,
                 undoAvailable,
                 redoAvailable,
             )
             Spacer(modifier = Modifier.width(16.dp))
-            OptionsBar(noteController = noteController)
+            OptionsBar(noteControlViewModel)
         }
 
         PageList(
-            pageList, noteController, onPageChange
-        ) { undoCount, redoCount ->
-            undoAvailable.value = undoCount != 0
-            redoAvailable.value = redoCount != 0
-        }
+            noteViewModel, noteControlViewModel, onPageChange
+        )
     }
 }

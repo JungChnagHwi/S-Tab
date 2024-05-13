@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.*;
 
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -29,6 +28,9 @@ public class Page extends BaseTimeEntity {
 
     @Property("pdfPage")
     private Integer pdfPage;
+
+    @Property("pageData")
+    private String pageData;
 
     @Relationship(type = "NextPage")
     private Page NextPage;

@@ -21,9 +21,9 @@ import com.ssafy.stab.data.note.PenType
 
 @Composable
 fun NoteArea(
-    currentPage: Int,
+    currentPageId: String,
     paths: SnapshotStateList<PathInfo>?,
-    noteController: NoteController,
+    viewModel: NoteControlViewModel
 ) = AndroidView(
     modifier = Modifier.fillMaxSize(),
     factory = {
@@ -34,9 +34,9 @@ fun NoteArea(
                         detectTapGestures(
                             onTap = { offset ->
                                 val coordinate = offsetToCoordinate(offset)
-                                noteController.insertNewPathInfo(currentPage, coordinate)
-                                noteController.updateLatestPath(coordinate)
-                                noteController.addNewPath()
+                                viewModel.insertNewPathInfo(currentPageId, coordinate)
+                                viewModel.updateLatestPath(coordinate)
+                                viewModel.addNewPath()
                             }
                         )
                     }
@@ -44,16 +44,16 @@ fun NoteArea(
                         detectDragGestures(
                             onDragStart = { offset ->
                                 val coordinate = offsetToCoordinate(offset)
-                                if (noteController.penType != PenType.Lasso) {
-                                    noteController.insertNewPathInfo(currentPage, coordinate)
+                                if (viewModel.penType != PenType.Lasso) {
+                                    viewModel.insertNewPathInfo(currentPageId, coordinate)
                                 } else {
                                     // 올가미
                                 }
                             },
                             onDrag = { change, _ ->
                                 val newPoint = change.position
-                                if (noteController.penType != PenType.Lasso) {
-                                    noteController
+                                if (viewModel.penType != PenType.Lasso) {
+                                    viewModel
                                         .updateLatestPath(
                                             offsetToCoordinate(newPoint)
                                         )
@@ -62,8 +62,8 @@ fun NoteArea(
                                 }
                             },
                             onDragEnd = {
-                                noteController.getLastPath()
-                                noteController.addNewPath()
+                                viewModel.getLastPath()
+                                viewModel.addNewPath()
                             }
                         )
                     }
@@ -114,8 +114,8 @@ fun NoteArea(
                                 }
                             }
                         }
-                        if (noteController.getCurrentPathList(currentPage).isNotEmpty()) {
-                            noteController.getCurrentPathList(currentPage)
+                        if (viewModel.getCurrentPathList(currentPageId).isNotEmpty()) {
+                            viewModel.getCurrentPathList(currentPageId)
                                 .forEach { userPagePathInfo ->
                                 val pathInfo = userPagePathInfo.pathInfo
                                 when (pathInfo.penType) {
@@ -158,9 +158,9 @@ fun NoteArea(
                                 }
                             }
                         }
-                        if (noteController.newPathList.isNotEmpty()) {
-                            noteController.newPathList.forEach { userPagePathInfo ->
-                                if (userPagePathInfo.page == currentPage) {
+                        if (viewModel.newPathList.isNotEmpty()) {
+                            viewModel.newPathList.forEach { userPagePathInfo ->
+                                if (userPagePathInfo.pageId == currentPageId) {
                                     val pathInfo = userPagePathInfo.pathInfo
                                     when (pathInfo.penType) {
                                         PenType.Pen -> {

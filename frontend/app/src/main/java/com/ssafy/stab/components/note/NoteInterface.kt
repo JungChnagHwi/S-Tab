@@ -15,14 +15,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
-import com.ssafy.stab.data.note.response.PageData
-import com.ssafy.stab.util.note.NoteController
+import com.ssafy.stab.screens.note.NoteViewModel
 
 @Composable
 fun PageInterfaceBar(
+    viewModel: NoteViewModel,
     currentPage: Int,
-    pageList: MutableList<PageData>,
-    noteController: NoteController
 ) {
     Row(
         modifier = Modifier
@@ -32,7 +30,7 @@ fun PageInterfaceBar(
             R.drawable.createpage,
             "create page"
         ) {
-            noteController.createPage(currentPage, pageList)
+            viewModel.addPage(currentPage)
         }
     }
 }
