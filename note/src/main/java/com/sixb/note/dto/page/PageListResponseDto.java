@@ -8,5 +8,6 @@ import java.util.List;
 @Data
 @Builder
 public class PageListResponseDto {
+    private String title;
     private List<PageInfoDto> data;
 }

@@ -1,13 +1,12 @@
 package com.sixb.note.api.service;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixb.note.dto.page.*;
-import com.sixb.note.dto.pageData.FigureDto;
-import com.sixb.note.dto.pageData.ImageDto;
-import com.sixb.note.dto.pageData.PathDto;
-import com.sixb.note.dto.pageData.TextBoxDto;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;
-import com.sixb.note.entity.PageData;
+import com.sixb.note.dto.pageData.PageDataDto;
 import com.sixb.note.exception.NoteNotFoundException;
 import com.sixb.note.exception.PageNotFoundException;
 import com.sixb.note.repository.NoteRepository;
@@ -156,25 +155,47 @@ public class PageService {
     }
 
     // 페이지 조회
-    public PageListResponseDto getPageList(long userId, String noteId) throws NoteNotFoundException, PageNotFoundException {
+    public PageListResponseDto getPageList(long userId, String noteId) throws NoteNotFoundException, PageNotFoundException, JsonProcessingException {
         Note note = noteRepository.findNoteById(noteId);
         if (note != null) {
             List<PageInfoDto> pageInfoList = new ArrayList<>();
 
-            // noteId에 연결되어있는 페이지 불러오기
+            // noteId에 연결되어있는 페이지 모두 불러오기
             List<Page> pageList = pageRepository.findAllPagesByNoteId(noteId);
+            System.out.println("noteId: "+noteId);
 
             System.out.println(pageList.size());
 
             for (Page page : pageList) {
                 // pageData 역직렬화
+                String pageDataString = page.getPageData();
+                ObjectMapper mapper = new ObjectMapper();
+                PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
+                String pageId = page.getId();
+
                 // pageInfoDto에 넣기
+                PageInfoDto pageInfoDto = PageInfoDto.builder()
+                        .pageId(pageId)
+                        .color(page.getColor())
+                        .template(page.getTemplate())
+                        .direction(page.getDirection())
+                        .pdfPage(page.getPdfPage())
+                        .pdfUrl(page.getPdfUrl())
+                        .updatedAt(page.getUpdatedAt())
+                        .isBookmarked(pageRepository.isLikedByPageId(userId, pageId))
+                        .paths(pageDataDto.getPaths())
+                        .figures(pageDataDto.getFigures())
+                        .images(pageDataDto.getImages())
+                        .textBoxes(pageDataDto.getTextBoxes())
+                        .build();
                 // pageInfoList에 넣기
+                pageInfoList.add(pageInfoDto);
             }
 
             PageListResponseDto pageListResponseDto = PageListResponseDto.builder()
-                                    .data(pageInfoList)
-                                    .build();
+                    .data(pageInfoList)
+                    .title(note.getTitle())
+                    .build();
 
             return pageListResponseDto;
         } else {
