@@ -35,7 +35,8 @@ public class PageService {
         // 이전 페이지 정보가 있다면
         if (beforePageOptional.isPresent()) {
             Page beforePage = beforePageOptional.get();
-            Page newPage = new Page();
+//            Page newPage = new Page(); // @Builder 때문에 이렇게 안됨
+            Page newPage = Page.builder().build();
             LocalDateTime now = LocalDateTime.now();
 
             // 이전페이지 정보로 새로운 page만들기
@@ -243,7 +244,8 @@ public class PageService {
             }
 
             // before 페이지에 이어서 페이지 만들기
-            Page newPage = new Page();
+//            Page newPage = new Page();
+            Page newPage = Page.builder().build();
             LocalDateTime now = LocalDateTime.now();
 
             // Integer니까 nullable?
@@ -315,6 +317,58 @@ public class PageService {
         } else {
             throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
         }
+    }
+    
+    // pdf 가져오기
+    public void pdfPage(PagePdfRequestDto request) throws PageNotFoundException {
+
+        String beforePageId = request.getBeforePageId();
+        Page beforePage = pageRepository.findPageById(beforePageId);
+        String pdfUrl = request.getPdfUrl();
+        int pdfPageCount = request.getPdfPageCount();
+
+        // 앞페이지에 이어진 페이지 찾기
+        Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
+
+        // 페이지가 있다면
+        if (connectPage!=null) {
+            // 앞페이지와 연결 삭제
+            pageRepository.deleteNextPageRelation(beforePageId);
+        }
+
+        if (beforePage != null) {
+            // pdfcount 만큼 for문 돌면서 페이지 생성하기
+            for (int i = pdfPageCount; i > 0; i--) {
+                String pageId = IdCreator.create("p");
+                Page page = Page.builder()
+                        .pageId(pageId)
+                        .noteId(beforePage.getNoteId())
+                        .direction(0)
+                        .template("basic")
+                        .color("white")
+                        .pdfUrl(pdfUrl)
+                        .pdfPage(i)
+                        .pageData("{\"paths\": [],\"figures\": [],\"textBoxes\": [],\"images\": []}")
+                        .build();
+
+                // 페이지 링크하기
+                if (connectPage!=null) {
+                    page.setNextPage(connectPage);
+                }
+                pageRepository.save(page);
+                connectPage = page; // 이렇게 재할당 해도 되나요?
+            }
+
+            // before페이지 링크하기
+            beforePage.setNextPage(connectPage);
+
+            // 페이지 저장
+            pageRepository.save(beforePage);
+
+        } else {
+            throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
+        }
+
     }
 
 }

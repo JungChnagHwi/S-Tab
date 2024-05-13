@@ -97,4 +97,14 @@ public class PageController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @PostMapping("/pdf")
+    public ResponseEntity<?> pdfPage(@RequestBody PagePdfRequestDto request) throws PageNotFoundException {
+        try {
+            pageService.pdfPage(request);
+            return ResponseEntity.ok("페이지 생성 완료");
+        } catch (PageNotFoundException e) {
+            throw new PageNotFoundException(e.getMessage());
+        }
+    }
 }
