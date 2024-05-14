@@ -2,6 +2,7 @@ package com.ssafy.stab.util
 
 import android.util.Log
 import com.google.gson.Gson
+import com.ssafy.stab.BuildConfig
 import io.socket.client.IO
 import io.socket.client.Socket
 import org.json.JSONObject
