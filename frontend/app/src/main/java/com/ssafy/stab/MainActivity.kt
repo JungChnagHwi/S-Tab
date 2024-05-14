@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -27,7 +28,7 @@ import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 class MainActivity : ComponentActivity() {
-    private lateinit var socketManager: SocketManager
+    private var socketManager: SocketManager?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         var keyHash = Utility.getKeyHash(this)
@@ -35,10 +36,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         PreferencesUtil.init(this)
         PreferencesUtil.saveCallState(false, null) // 앱 시작 시 callState 초기화
-
-        // 소켓 초기화 및 연결 설정
-        socketManager = SocketManager()
-        socketManager.connectToSocket(BuildConfig.SOCKET_URL)
 
         val loginDetails = PreferencesUtil.getLoginDetails()
         setContent {
@@ -49,7 +46,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Routers(audioCallViewModel, socketManager)
+                    Routers(audioCallViewModel) { socketManager = it }
                 }
             }
         }
@@ -57,13 +54,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        socketManager.disconnect()
+        socketManager?.disconnect()
     }
 
 }
 
 @Composable
-fun Routers(audioCallViewModel: AudioCallViewModel, socketManager: SocketManager) {
+fun Routers(
+    audioCallViewModel: AudioCallViewModel,
+    onSocketManagerReady: (SocketManager) -> Unit
+    ) {
 
     val navController = rememberNavController()
 
@@ -72,13 +72,21 @@ fun Routers(audioCallViewModel: AudioCallViewModel, socketManager: SocketManager
     }
 
     NavHost(navController = navController, startDestination = "login") {
-        composable("login") { Login(navController = navController) }
+        composable("login") {
+            Login(navController = navController) {
+                val socketManager = SocketManager()
+                socketManager.connectToSocket(BuildConfig.SOCKET_URL)
+                onSocketManagerReady(socketManager)
+                navigateTo("space")
+            }
+        }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
         composable("space") {
+            val socketManager = remember { SocketManager() }
             SpaceRouters(
                 onLogin = { navController.navigate("login") },
                 audioCallViewModel,
-                socketManager
+                socketManager ?: SocketManager().apply { connectToSocket(BuildConfig.SOCKET_URL) }
             ) }
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("f")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("f")) }
