@@ -30,15 +30,16 @@ public class PageService {
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
         String beforePageId = request.getBeforePageId();
-
-        Page newPage = createNewPage(beforePageId);
-
-        if (newPage == null) {
-            throw new PageNotFoundException("이전 페이지 정보가 없습니다.");
-        }
-
         Page beforePage = pageRepository.findPageById(beforePageId); // 이렇게 할지, 앞에서 받을지 고민
-
+        
+        if (beforePage == null) {
+            throw new PageNotFoundException("이전 페이지 정보가 없습니다.");
+        } else if (beforePage.getIsDeleted()) {
+            throw new PageNotFoundException("삭제된 페이지 입니다.");
+        }
+        
+        Page newPage = createNewPage(beforePage);
+        
         // 앞페이지에 이어진 페이지 찾기
         Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
         // 페이지가 있다면
@@ -186,7 +187,7 @@ public class PageService {
             }
 
             // before 페이지에 이어서 페이지 만들기
-            Page newPage = createNewPage(beforePageId);
+            Page newPage = createNewPage(beforePage);
 
             newPage.setPdfUrl(beforePage.getPdfUrl()); // nullPointException 안나나?
             newPage.setPdfPage(beforePage.getPdfPage());
@@ -221,7 +222,7 @@ public class PageService {
 
     // pdf 가져오기
     public void pdfPage(PagePdfRequestDto request) throws PageNotFoundException {
-
+        
         String beforePageId = request.getBeforePageId();
         Page beforePage = pageRepository.findPageById(beforePageId);
         String pdfUrl = request.getPdfUrl();
@@ -240,7 +241,7 @@ public class PageService {
             // pdfcount 만큼 for문 돌면서 페이지 생성하기
             for (int i = pdfPageCount; i > 0; i--) {
 
-                Page page = createNewPage(beforePageId);
+                Page page = createNewPage(beforePage);
                 // 추가 정보 저장
                 page.setTemplate("blank");
                 page.setColor("white");
@@ -267,11 +268,10 @@ public class PageService {
 
     }
 
-    private Page createNewPage(String beforePageId) {
-        // id로 이전 페이지 정보를 찾아
-        Optional<Page> pageOptional = Optional.ofNullable(pageRepository.findPageById(beforePageId));
-        Page beforePage = pageOptional.orElse(null);
+    private Page createNewPage(Page beforePage) {
+        
         if (beforePage != null && !beforePage.getIsDeleted()) { // 페이지를 찾았고, 삭제된 페이지가 아닌 경우
+            
             LocalDateTime now = LocalDateTime.now();
             String pageId = IdCreator.create("p");
 
@@ -292,12 +292,6 @@ public class PageService {
         }
     }
 
-    // 이렇게 함수를 만들어서 사용할지 그냥 쓸지 고민중
-//    private Page getPageById(String pageId) {
-//        Optional<Page> pageOptional = Optional.ofNullable(pageRepository.findPageById(pageId));
-//        // 이전 페이지 정보가 있다면
-//        return pageOptional.orElse(null);
-//    }
 
     private PageInfoDto setPageInfoDto (Page newPage) throws JsonProcessingException {
         String pageDataString = newPage.getPageData();
