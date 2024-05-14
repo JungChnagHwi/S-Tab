@@ -49,15 +49,15 @@ public class SpaceController {
         }
     }
 
-    @DeleteMapping("/{spaceId}")
-    public ResponseEntity<String> deleteSpace(@PathVariable String spaceId) {
-        boolean isUpdated = spaceService.deleteSpace(spaceId);
-        if (isUpdated) {
-            return ResponseEntity.ok("Space 삭제 완료");
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+//    @DeleteMapping("/{spaceId}")
+//    public ResponseEntity<String> deleteSpace(@PathVariable String spaceId) {
+//        boolean isUpdated = spaceService.deleteSpace(spaceId);
+//        if (isUpdated) {
+//            return ResponseEntity.ok("Space 삭제 완료");
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 
     @PostMapping("/join")
     public ResponseEntity<String> joinSpace(long userId, @RequestBody JoinSpaceRequestDto joinSpaceRequestDto) {
@@ -82,6 +82,16 @@ public class SpaceController {
             return ResponseEntity.ok("스페이스 표지 수정 성공");
         } catch (NotFoundException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/{spaceId}")
+    public ResponseEntity<String> leaveSpace(long userId, @PathVariable String spaceId) {
+        try {
+            spaceService.leaveSpace(userId, spaceId);
+            return ResponseEntity.ok("스페이스에서 성공적으로 탈퇴하였습니다.");
+        } catch (NotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
