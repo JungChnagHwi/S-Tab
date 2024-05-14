@@ -154,51 +154,15 @@ public class PageService {
             List<Page> pageList = pageRepository.findAllPagesByNoteId(noteId);
 
             for (Page page : pageList) {
-                // pageData 역직렬화
-                String pageDataString = page.getPageData();
-                ObjectMapper mapper = new ObjectMapper();
-                PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
-                String pageId = page.getPageId();
-
-                Optional<Integer> optionalPdfPage = Optional.ofNullable(page.getPdfPage());
-                Optional<String> optionalPdfUrl = Optional.ofNullable(page.getPdfUrl());
-
-                String pdfUrl;
-                Integer pdfPage;
-
-                if (optionalPdfUrl.isPresent() && optionalPdfPage.isPresent()) {
-                    pdfUrl = optionalPdfUrl.get();
-                    pdfPage = optionalPdfPage.get();
-                } else {
-                    pdfUrl = null;
-                    pdfPage = null;
-                }
-
-                // pageInfoDto에 넣기
-                PageInfoDto pageInfoDto = PageInfoDto.builder()
-                        .pageId(pageId)
-                        .color(page.getColor())
-                        .template(page.getTemplate())
-                        .direction(page.getDirection())
-                        .pdfPage(pdfPage)
-                        .pdfUrl(pdfUrl)
-                        .updatedAt(page.getUpdatedAt())
-                        .isBookmarked(pageRepository.isLikedByPageId(userId, pageId))
-                        .paths(pageDataDto.getPaths())
-                        .figures(pageDataDto.getFigures())
-                        .images(pageDataDto.getImages())
-                        .textBoxes(pageDataDto.getTextBoxes())
-                        .build();
+                PageInfoDto pageInfoDto = setPageInfoDto(page);
                 // pageInfoList에 넣기
                 pageInfoList.add(pageInfoDto);
             }
 
-            PageListResponseDto pageListResponseDto = PageListResponseDto.builder()
+            return PageListResponseDto.builder()
                     .data(pageInfoList)
                     .title(note.getTitle())
-                    .build();
-
-            return pageListResponseDto;
+                    .build();;
         } else {
             throw new NoteNotFoundException("노트를 찾을 수 없습니다.");
         }
@@ -224,7 +188,7 @@ public class PageService {
             // before 페이지에 이어서 페이지 만들기
             Page newPage = createNewPage(beforePageId);
 
-            newPage.setPdfUrl(beforePage.getPdfUrl());
+            newPage.setPdfUrl(beforePage.getPdfUrl()); // nullPointException 안나나?
             newPage.setPdfPage(beforePage.getPdfPage());
             newPage.setPageData(beforePage.getPageData());
 
@@ -242,23 +206,7 @@ public class PageService {
             beforePage.setNextPage(newPage);
 
             // responsedto에 넣기
-            String pageDataString = newPage.getPageData();
-            ObjectMapper mapper = new ObjectMapper();
-            PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
-            PageInfoDto response = PageInfoDto.builder()
-                    .pageId(newPage.getPageId())
-                    .color(newPage.getColor())
-                    .template(newPage.getTemplate())
-                    .direction(newPage.getDirection())
-                    .pdfPage(newPage.getPdfPage())
-                    .pdfUrl(newPage.getPdfUrl())
-                    .updatedAt(newPage.getUpdatedAt())
-                    .isBookmarked(false)
-                    .paths(pageDataDto.getPaths())
-                    .figures(pageDataDto.getFigures())
-                    .images(pageDataDto.getImages())
-                    .textBoxes(pageDataDto.getTextBoxes())
-                    .build();
+            PageInfoDto response = setPageInfoDto(newPage);
 
             // db에 저장하고 반환
             pageRepository.save(newPage);
@@ -350,4 +298,24 @@ public class PageService {
 //        // 이전 페이지 정보가 있다면
 //        return pageOptional.orElse(null);
 //    }
+
+    private PageInfoDto setPageInfoDto (Page newPage) throws JsonProcessingException {
+        String pageDataString = newPage.getPageData();
+        ObjectMapper mapper = new ObjectMapper();
+        PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
+        return PageInfoDto.builder()
+                .pageId(newPage.getPageId())
+                .color(newPage.getColor())
+                .template(newPage.getTemplate())
+                .direction(newPage.getDirection())
+                .pdfPage(newPage.getPdfPage())
+                .pdfUrl(newPage.getPdfUrl())
+                .updatedAt(newPage.getUpdatedAt())
+                .isBookmarked(false)
+                .paths(pageDataDto.getPaths())
+                .figures(pageDataDto.getFigures())
+                .images(pageDataDto.getImages())
+                .textBoxes(pageDataDto.getTextBoxes())
+                .build();
+    }
 }
