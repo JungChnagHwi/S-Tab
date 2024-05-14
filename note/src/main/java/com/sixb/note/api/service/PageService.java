@@ -162,7 +162,7 @@ public class PageService {
             return PageListResponseDto.builder()
                     .data(pageInfoList)
                     .title(note.getTitle())
-                    .build();;
+                    .build();
         } else {
             throw new NoteNotFoundException("노트를 찾을 수 없습니다.");
         }
