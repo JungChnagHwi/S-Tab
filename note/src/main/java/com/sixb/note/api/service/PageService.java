@@ -26,6 +26,8 @@ public class PageService {
     private final PageRepository pageRepository;
     private final NoteRepository noteRepository;
 
+    private final String initData = "{\"paths\": [], \"figures\": [], \"textBoxes\": [], \"images\": []}";
+
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
         String beforePageId = request.getBeforePageId();
 
@@ -47,7 +49,7 @@ public class PageService {
             newPage.setUpdatedAt(now);
             newPage.setColor(beforePage.getColor());
             newPage.setDirection(beforePage.getDirection());
-            newPage.setPageData("{\"paths\": [], \"figures\": [], \"textBoxes\": [], \"images\": []}");
+            newPage.setPageData(initData);
             // 만약 이전 페이지가 pdf페이지가 아니라면
             if (beforePage.getPdfUrl()==null) {
                 newPage.setTemplate(beforePage.getTemplate());
@@ -348,7 +350,7 @@ public class PageService {
                         .color("white")
                         .pdfUrl(pdfUrl)
                         .pdfPage(i)
-                        .pageData("{\"paths\": [],\"figures\": [],\"textBoxes\": [],\"images\": []}")
+                        .pageData(initData)
                         .build();
 
                 // 페이지 링크하기

@@ -3,19 +3,19 @@ package com.sixb.note.api.controller;
 import com.sixb.note.api.service.SpaceService;
 import com.sixb.note.dto.space.*;
 import com.sixb.note.exception.NotFoundException;
-import com.sixb.note.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/space")
+@RequiredArgsConstructor
 public class SpaceController {
-    @Autowired
-    private SpaceService spaceService;
+
+    private final SpaceService spaceService;
 
     @GetMapping("/list")
     public ResponseEntity<List<SpaceResponseDto>> getAllSpaceDetails(long userId) {
@@ -84,4 +84,5 @@ public class SpaceController {
             return ResponseEntity.notFound().build();
         }
     }
+
 }
