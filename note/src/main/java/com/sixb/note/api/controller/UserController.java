@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+	private final UserService userService;
 
-    @GetMapping
-    public ResponseEntity<?> getUserInfo(@RequestParam("userId") long userId) {
+	@GetMapping
+	public ResponseEntity<?> getUserInfo(@RequestParam("userId") long userId) {
 		try {
 			UserInfoResponseDto response = userService.getUserInfo(userId);
 			return ResponseEntity.ok(response);
 		} catch (UserNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
 		}
-    }
+	}
 
 	@PostMapping
 	public ResponseEntity<?> signup(@RequestParam("userId") long userId,
