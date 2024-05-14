@@ -42,7 +42,7 @@ public class PageService {
         // 앞페이지에 이어진 페이지 찾기
         Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
         // 페이지가 있다면
-        if (connectPage!=null) {
+        if (connectPage != null) {
             // 그 페이지와 새로운 페이지 연결
             newPage.setNextPage(connectPage);
             // 앞페이지와 연결 삭제
@@ -231,7 +231,7 @@ public class PageService {
             // 이전페이지에 이어진 페이지 찾기
             Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
             // 페이지가 있다면
-            if (connectPage!=null) {
+            if (connectPage != null) {
                 // 그 페이지와 새로운 페이지 연결
                 newPage.setNextPage(connectPage);
                 // 앞페이지와 연결 삭제
@@ -270,7 +270,7 @@ public class PageService {
             throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
         }
     }
-    
+
     // pdf 가져오기
     public void pdfPage(PagePdfRequestDto request) throws PageNotFoundException {
 
@@ -283,7 +283,7 @@ public class PageService {
         Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
 
         // 페이지가 있다면
-        if (connectPage!=null) {
+        if (connectPage != null) {
             // 앞페이지와 연결 삭제
             pageRepository.deleteNextPageRelation(beforePageId);
         }
@@ -291,8 +291,8 @@ public class PageService {
         if (beforePage != null) {
             // pdfcount 만큼 for문 돌면서 페이지 생성하기
             for (int i = pdfPageCount; i > 0; i--) {
+
                 Page page = createNewPage(beforePageId);
-                
                 // 추가 정보 저장
                 page.setTemplate("blank");
                 page.setColor("white");
@@ -300,7 +300,7 @@ public class PageService {
                 page.setPdfUrl(pdfUrl);
 
                 // 페이지 링크하기
-                if (connectPage!=null) {
+                if (connectPage != null) {
                     page.setNextPage(connectPage);
                 }
                 pageRepository.save(page);
@@ -319,17 +319,11 @@ public class PageService {
 
     }
 
-    public Page createNewPage(String beforePageId) {
+    private Page createNewPage(String beforePageId) {
         // id로 이전 페이지 정보를 찾아
-        Optional<Page> beforePageOptional = Optional.ofNullable(pageRepository.findPageById(beforePageId));
-        // 이전 페이지 정보가 있다면
-        if (beforePageOptional.isPresent()) {
-            Page beforePage = beforePageOptional.get();
-
-            if (beforePage.getIsDeleted()) {
-                return null;
-            }
-
+        Optional<Page> pageOptional = Optional.ofNullable(pageRepository.findPageById(beforePageId));
+        Page beforePage = pageOptional.orElse(null);
+        if (beforePage != null && !beforePage.getIsDeleted()) { // 페이지를 찾았고, 삭제된 페이지가 아닌 경우
             LocalDateTime now = LocalDateTime.now();
             String pageId = IdCreator.create("p");
 
@@ -343,10 +337,17 @@ public class PageService {
                     .build();
             newPage.setCreatedAt(now);
             newPage.setUpdatedAt(now);
+            
             return newPage;
         } else {
             return null;
         }
     }
 
+    // 이렇게 함수를 만들어서 사용할지 그냥 쓸지 고민중
+//    private Page getPageById(String pageId) {
+//        Optional<Page> pageOptional = Optional.ofNullable(pageRepository.findPageById(pageId));
+//        // 이전 페이지 정보가 있다면
+//        return pageOptional.orElse(null);
+//    }
 }
