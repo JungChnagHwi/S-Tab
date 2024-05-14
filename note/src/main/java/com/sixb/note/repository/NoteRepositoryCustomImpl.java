@@ -53,7 +53,7 @@ public class NoteRepositoryCustomImpl implements NoteRepositoryCustom {
 				.withProperties(
 						"pageId", literalOf(pageId),
 						"noteId", literalOf(noteId),
-						"template", literalOf(request.getTitle()),
+						"template", literalOf(request.getTemplate()),
 						"color", literalOf(request.getColor()),
 						"direction", literalOf(request.getDirection()),
 						"pdfUrl", literalOf(null),
