@@ -96,17 +96,8 @@ public class SpaceService {
         newSpace.setCreatedAt(now);
         newSpace.setUpdatedAt(now);
 
-        Folder newFolder = new Folder();
-        newFolder.setSpaceId(newSpace.getSpaceId());
-        newFolder.setTitle("root");
-        newFolder.setFolderId(IdCreator.create("f"));
-        newFolder.setCreatedAt(now);
-        newFolder.setUpdatedAt(now);
-
-        newSpace.setFolders(Arrays.asList(newFolder));
         newSpace.setUsers(Arrays.asList(user));
         Space savedSpace = spaceRepository.save(newSpace);
-//        userRepository.createJoinRelation(user.getId(), savedSpace.getId());
         return convertToSpaceResponseDto(savedSpace);
     }
 
@@ -132,14 +123,14 @@ public class SpaceService {
         spaceRepository.updateSpaceTitle(spaceId, newTitle);
     }
 
-    //스페이스 삭제
-    public boolean deleteSpace(String spaceId) {
-        if (spaceRepository.existsById(spaceId)) {
-            spaceRepository.deleteById(spaceId);
-            return true;
-        }
-        return false;
-    }
+//    //스페이스 삭제
+//    public boolean deleteSpace(String spaceId) {
+//        if (spaceRepository.existsById(spaceId)) {
+//            spaceRepository.deleteById(spaceId);
+//            return true;
+//        }
+//        return false;
+//    }
 
     //스페이스 참가
     public void joinSpace(long userId, String spaceId) {
@@ -169,4 +160,22 @@ public class SpaceService {
         space.setSpaceMd(requestDto.getData());
         spaceRepository.save(space);
     }
+
+    // 스페이스 탈퇴
+    public void leaveSpace(long userId, String spaceId) throws NotFoundException {
+        List<Space> userSpaces = spaceRepository.findSpaces(userId);
+        Space spaceToLeave = userSpaces.stream()
+                .filter(space -> space.getSpaceId().equals(spaceId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("스페이스를 찾을 수 없습니다."));
+
+
+        spaceRepository.removeUserFromSpace(userId, spaceId);
+
+        List<User> remainingUsers = userRepository.findUsersBySpaceId(spaceId);
+        if (remainingUsers.isEmpty()) {
+            spaceRepository.deleteById(spaceId);
+        }
+    }
+
 }
