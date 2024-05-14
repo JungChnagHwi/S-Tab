@@ -16,8 +16,12 @@ interface ApiService {
     @GET("api/folder/space/{spaceId}")
     fun getFileListShareSpace(@Header("Authorization") authorization: String, @Path("spaceId") spaceId: String): Call<FileListResponse>
 
+    @GET("api/space/{spaceId}") // 선택한 스페이스 내의 참여자(users) 정보 조회
+    fun getShareSpace(@Header("Authorization") authorization: String, @Path("spaceId") spaceId: String): Call<ShareSpace>
+
     @GET("api/space/list")
     fun getShareSpaceList(@Header("Authorization") authorization: String): Call<List<ShareSpaceList>>
+
 
     @POST("api/space")
     fun createShareSpace(@Header("Authorization") authorization: String, @Body createShareSpaceRequest: CreateShareSpaceRequest): Call<ShareSpaceList>

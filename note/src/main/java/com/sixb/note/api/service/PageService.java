@@ -3,9 +3,9 @@ package com.sixb.note.api.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixb.note.dto.page.*;
+import com.sixb.note.dto.pageData.*;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;
-import com.sixb.note.dto.pageData.PageDataDto;
 import com.sixb.note.exception.NoteNotFoundException;
 import com.sixb.note.exception.PageNotFoundException;
 import com.sixb.note.repository.NoteRepository;
@@ -35,7 +35,8 @@ public class PageService {
         // 이전 페이지 정보가 있다면
         if (beforePageOptional.isPresent()) {
             Page beforePage = beforePageOptional.get();
-            Page newPage = new Page();
+//            Page newPage = new Page(); // @Builder 때문에 이렇게 안됨
+            Page newPage = Page.builder().build();
             LocalDateTime now = LocalDateTime.now();
 
             // 이전페이지 정보로 새로운 page만들기
@@ -46,7 +47,7 @@ public class PageService {
             newPage.setUpdatedAt(now);
             newPage.setColor(beforePage.getColor());
             newPage.setDirection(beforePage.getDirection());
-            newPage.setPageData("{\"paths\": [], \"figures\": [],\"textBoxes\": [], \"images\": []}");
+            newPage.setPageData("{\"paths\": [], \"figures\": [], \"textBoxes\": [], \"images\": []}");
             // 만약 이전 페이지가 pdf페이지가 아니라면
             if (beforePage.getPdfUrl()==null) {
                 newPage.setTemplate(beforePage.getTemplate());
@@ -104,25 +105,36 @@ public class PageService {
         }
     }
 
-    public void saveData(SaveDataRequestDto request) throws PageNotFoundException {
-//        System.out.println("request:" + request);
+    // 데이터 저장
+    public void saveData(SaveDataRequestDto request) throws PageNotFoundException, JsonProcessingException {
+        System.out.println("request:" + request);
         String pageId = request.getPageId();
+        System.out.println(pageId);
         Page page = pageRepository.findPageById(pageId);
 
         LocalDateTime now = LocalDateTime.now();
 
         if (page != null) {
             Note note = noteRepository.findNoteById(page.getNoteId());
+            System.out.println(note.getNoteId());
             if (note == null) {
                 throw new PageNotFoundException("노트를 찾을 수 없습니다.");
             }
             if (page.getIsDeleted() == false) {
+                // 형식 검사?
+                PageDataDto pageData = request.getPageData();
+
+                System.out.println(pageData.toString());
+
+                ObjectMapper mapper = new ObjectMapper();
+
+                String pageDataString = mapper.writeValueAsString(pageData);
+
                 page.setUpdatedAt(now);
-                page.setPageData(request.getPageData());
+                page.setPageData(pageDataString);
                 note.setUpdatedAt(now);
                 pageRepository.save(page);
                 noteRepository.save(note);
-//                System.out.println("noteId: "+note.getNoteId());
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
@@ -162,9 +174,6 @@ public class PageService {
 
             // noteId에 연결되어있는 페이지 모두 불러오기
             List<Page> pageList = pageRepository.findAllPagesByNoteId(noteId);
-            System.out.println("noteId: "+noteId);
-
-            System.out.println(pageList.size());
 
             for (Page page : pageList) {
                 // pageData 역직렬화
@@ -173,14 +182,28 @@ public class PageService {
                 PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
                 String pageId = page.getPageId();
 
+                Optional<Integer> optionalPdfPage = Optional.ofNullable(page.getPdfPage());
+                Optional<String> optionalPdfUrl = Optional.ofNullable(page.getPdfUrl());
+
+                String pdfUrl;
+                Integer pdfPage;
+
+                if (optionalPdfUrl.isPresent() && optionalPdfPage.isPresent()) {
+                    pdfUrl = optionalPdfUrl.get();
+                    pdfPage = optionalPdfPage.get();
+                } else {
+                    pdfUrl = null;
+                    pdfPage = null;
+                }
+
                 // pageInfoDto에 넣기
                 PageInfoDto pageInfoDto = PageInfoDto.builder()
                         .pageId(pageId)
                         .color(page.getColor())
                         .template(page.getTemplate())
                         .direction(page.getDirection())
-                        .pdfPage(page.getPdfPage())
-                        .pdfUrl(page.getPdfUrl())
+                        .pdfPage(pdfPage)
+                        .pdfUrl(pdfUrl)
                         .updatedAt(page.getUpdatedAt())
                         .isBookmarked(pageRepository.isLikedByPageId(userId, pageId))
                         .paths(pageDataDto.getPaths())
@@ -203,4 +226,149 @@ public class PageService {
         }
 
     }
+
+    // 페이지 링크 - 보류
+//    public void linkPage(PageLinkRequestDto request) throws PageNotFoundException {
+//        Page linkPage = pageRepository.findPageById(request.getLinkPageId());
+//        Page targetPage = pageRepository.findPageById(request.getTargetPageId());
+//    }
+
+    public PageInfoDto copyPage(PageCopyRequestDto request) throws PageNotFoundException, JsonProcessingException {
+        String beforePageId = request.getBeforePageId();
+        Page beforePage = pageRepository.findPageById(beforePageId);
+        Page targetPage = pageRepository.findPageById(request.getTargetPageId());
+
+        if (beforePage != null && targetPage != null) {
+            if (noteRepository.findNoteById(beforePage.getNoteId()) == null) {
+                throw new PageNotFoundException("no note found.");
+            }
+
+            // before 페이지에 이어서 페이지 만들기
+//            Page newPage = new Page();
+            Page newPage = Page.builder().build();
+            LocalDateTime now = LocalDateTime.now();
+
+            // Integer니까 nullable?
+            Optional<Integer> optionalPdfPage = Optional.ofNullable(targetPage.getPdfPage());
+            Optional<String> optionalPdfUrl = Optional.ofNullable(targetPage.getPdfUrl());
+
+            String pdfUrl;
+            Integer pdfPage;
+
+            if (optionalPdfUrl.isPresent() && optionalPdfPage.isPresent()) {
+                pdfUrl = optionalPdfUrl.get();
+                pdfPage = optionalPdfPage.get();
+            } else {
+                pdfUrl = null;
+                pdfPage = null;
+            }
+
+            // 이전페이지 정보로 새로운 page만들기
+            String pageId = IdCreator.create("p");
+            newPage.setPageId(pageId);
+            newPage.setNoteId(beforePage.getNoteId());
+            newPage.setCreatedAt(now);
+            newPage.setUpdatedAt(now);
+            newPage.setColor(targetPage.getColor());
+            newPage.setDirection(targetPage.getDirection());
+            newPage.setPageData(targetPage.getPageData());
+            newPage.setTemplate(targetPage.getTemplate());
+            newPage.setPdfUrl(pdfUrl);
+            newPage.setPdfPage(pdfPage);
+
+            // 이전페이지에 이어진 페이지 찾기
+            Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
+            // 페이지가 있다면
+            if (connectPage!=null) {
+                // 그 페이지와 새로운 페이지 연결
+                newPage.setNextPage(connectPage);
+                // 앞페이지와 연결 삭제
+                pageRepository.deleteNextPageRelation(beforePageId);
+            }
+
+            // 페이지 링크하기
+            beforePage.setNextPage(newPage);
+
+            // responsedto에 넣기
+            String pageDataString = newPage.getPageData();
+            ObjectMapper mapper = new ObjectMapper();
+            PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
+            PageInfoDto response = PageInfoDto.builder()
+                    .pageId(pageId)
+                    .color(newPage.getColor())
+                    .template(newPage.getTemplate())
+                    .direction(newPage.getDirection())
+                    .pdfPage(pdfPage)
+                    .pdfUrl(pdfUrl)
+                    .updatedAt(newPage.getUpdatedAt())
+                    .isBookmarked(false)
+                    .paths(pageDataDto.getPaths())
+                    .figures(pageDataDto.getFigures())
+                    .images(pageDataDto.getImages())
+                    .textBoxes(pageDataDto.getTextBoxes())
+                    .build();
+
+            // db에 저장하고 반환
+            pageRepository.save(newPage);
+            pageRepository.save(beforePage);
+
+            return response;
+
+        } else {
+            throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
+        }
+    }
+    
+    // pdf 가져오기
+    public void pdfPage(PagePdfRequestDto request) throws PageNotFoundException {
+
+        String beforePageId = request.getBeforePageId();
+        Page beforePage = pageRepository.findPageById(beforePageId);
+        String pdfUrl = request.getPdfUrl();
+        int pdfPageCount = request.getPdfPageCount();
+
+        // 앞페이지에 이어진 페이지 찾기
+        Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
+
+        // 페이지가 있다면
+        if (connectPage!=null) {
+            // 앞페이지와 연결 삭제
+            pageRepository.deleteNextPageRelation(beforePageId);
+        }
+
+        if (beforePage != null) {
+            // pdfcount 만큼 for문 돌면서 페이지 생성하기
+            for (int i = pdfPageCount; i > 0; i--) {
+                String pageId = IdCreator.create("p");
+                Page page = Page.builder()
+                        .pageId(pageId)
+                        .noteId(beforePage.getNoteId())
+                        .direction(0)
+                        .template("basic")
+                        .color("white")
+                        .pdfUrl(pdfUrl)
+                        .pdfPage(i)
+                        .pageData("{\"paths\": [],\"figures\": [],\"textBoxes\": [],\"images\": []}")
+                        .build();
+
+                // 페이지 링크하기
+                if (connectPage!=null) {
+                    page.setNextPage(connectPage);
+                }
+                pageRepository.save(page);
+                connectPage = page; // 이렇게 재할당 해도 되나요?
+            }
+
+            // before페이지 링크하기
+            beforePage.setNextPage(connectPage);
+
+            // 페이지 저장
+            pageRepository.save(beforePage);
+
+        } else {
+            throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
+        }
+
+    }
+
 }

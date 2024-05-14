@@ -1,6 +1,7 @@
 package com.sixb.note.entity;
 
 import com.sixb.note.common.BaseTimeEntity;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.*;
@@ -9,6 +10,7 @@ import org.springframework.data.neo4j.core.schema.*;
 @Getter
 @Setter
 @Node("Page")
+@Builder
 public class Page extends BaseTimeEntity {
 
     @Id
@@ -22,6 +24,8 @@ public class Page extends BaseTimeEntity {
     private String template;
 
     @Property("color")
+
+    
     private String color;
 
     @Property("direction")

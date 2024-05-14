@@ -16,14 +16,12 @@ import androidx.navigation.compose.rememberNavController
 import com.ssafy.stab.modals.CreateNoteModal
 import com.ssafy.stab.screens.auth.Login
 import com.ssafy.stab.screens.auth.SignUp
-import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.space.SpaceRouters
 import com.ssafy.stab.ui.theme.STabTheme
 import com.kakao.sdk.common.util.Utility
 import com.ssafy.stab.components.MarkdownScreen
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
-import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.space.NoteListViewModel
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
@@ -61,8 +59,11 @@ fun Routers(audioCallViewModel: AudioCallViewModel) {
     NavHost(navController = navController, startDestination = "login") {
         composable("login") { Login(navController = navController) }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
-        composable("space") { SpaceRouters(homeNavController = navController, audioCallViewModel) }
-        composable("personal-note") { PersonalNote(NoteViewModel(), navController)}
+        composable("space") {
+            SpaceRouters(
+                onLogin = { navController.navigate("login") },
+                audioCallViewModel
+            ) }
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }
         composable("markdown") { MarkdownScreen("") }

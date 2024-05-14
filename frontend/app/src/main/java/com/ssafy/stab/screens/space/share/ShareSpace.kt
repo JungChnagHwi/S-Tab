@@ -22,10 +22,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,11 +40,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.R
+import com.ssafy.stab.apis.space.share.ShareSpace
 import com.ssafy.stab.apis.space.share.ShareSpaceList
 import com.ssafy.stab.components.MarkdownScreen
+import com.ssafy.stab.apis.space.share.User
+import com.ssafy.stab.apis.space.share.getShareSpace
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
+import com.ssafy.stab.webrtc.audiocall.AudioSessionViewModel
+import com.ssafy.stab.webrtc.audiocall.Connection
+import com.ssafy.stab.webrtc.audiocall.ParticipantListModal
 import com.ssafy.stab.webrtc.fragments.PermissionsDialog
 import com.ssafy.stab.webrtc.utils.PermissionManager
 
@@ -49,8 +58,10 @@ import com.ssafy.stab.webrtc.utils.PermissionManager
 fun ShareSpace(
     navController: NavController,
     spaceId: String,
-    audioCallViewModel: AudioCallViewModel
+    audioCallViewModel: AudioCallViewModel,
+    onNote: (String) -> Unit
 ) {
+
     // 드롭다운 이미지와 드롭업 이미지 리소스를 로드합니다.
     val dropdownImg = painterResource(id = R.drawable.dropdown)
     val dropupImg = painterResource(id = R.drawable.dropup)
@@ -70,7 +81,20 @@ fun ShareSpace(
     val isCurrentSpaceActive = currentCallState.value.callSpaceId == spaceId && currentCallState.value.isInCall
 
     var shareSpaceList = remember { mutableStateListOf<ShareSpaceList>() }
-    val currentSpace = shareSpaceList.find { it.spaceId == spaceId }
+    // 현재 보고 있는 공유 스페이스 정보 가져오기
+    val (shareSpaceDetails, setShareSpaceDetails) = remember { mutableStateOf<ShareSpace?>(null) }
+    val (totalUsers, setTotalUsers) = remember { mutableStateOf(listOf<String>()) }
+
+    val audioSessionViewModel: AudioSessionViewModel = viewModel()
+    val participants by audioSessionViewModel.participants.collectAsState()
+
+    LaunchedEffect(spaceId) {
+        getShareSpace(spaceId) { shareSpaceData ->
+            setShareSpaceDetails(shareSpaceData)
+            setTotalUsers(shareSpaceData.users.map { it.nickname })
+        }
+        audioSessionViewModel.getSessionConnection(spaceId)
+    }
 
     Column(
         modifier = Modifier
@@ -81,7 +105,9 @@ fun ShareSpace(
             context = context,
             audioCallViewModel = audioCallViewModel,
             isCurrentSpaceActive = isCurrentSpaceActive,
-            spaceId
+            spaceId,
+            users = shareSpaceDetails?.users ?: listOf(),
+            participants = participants
         )
         Divider(
             color = Color.Gray,
@@ -118,17 +144,21 @@ fun ShareSpace(
                 )
             }
         }
-        NoteListSpace(spaceId, navController)
+        NoteListSpace(spaceId, onNote)
     }
 }
 
 @Composable
-fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurrentSpaceActive: Boolean, spaceId: String) {
+fun SpTitleBar(
+    context: Context,
+    audioCallViewModel: AudioCallViewModel,
+    isCurrentSpaceActive: Boolean,
+    spaceId: String,
+    users: List<User>,
+    participants: List<Connection>,
+) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
-
-
-
     // 통화 방 참여 상태에 따른 이미지 리소스 결정
     val callActive = remember { mutableStateOf(isCurrentSpaceActive) }
     val callButtonImage = if (callActive.value) {
@@ -192,6 +222,15 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
         )
     }
 
+    var showParticipantListModal by remember { mutableStateOf(false) }
+
+    if (showParticipantListModal) {
+        ParticipantListModal(participants = participants) {
+            showParticipantListModal = false  // 모달 닫기
+        }
+    }
+
+
     Row {
         Spacer(modifier = Modifier.width(30.dp))
         Column {
@@ -218,15 +257,20 @@ fun SpTitleBar(context: Context, audioCallViewModel: AudioCallViewModel, isCurre
                 Spacer(modifier = Modifier.weight(1f))
                 Row(horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = peopleImg,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .height(30.dp)
-                            .height(30.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = "( 2 / 6 )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Row(
+                        modifier = Modifier.clickable {
+                            showParticipantListModal = true
+                        },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = peopleImg,
+                            contentDescription = null,
+                            modifier = Modifier.size(30.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(text = "( 2 / ${users.size} )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    }
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
                         painter = callButtonImage,

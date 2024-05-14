@@ -1,6 +1,5 @@
 package com.ssafy.stab.screens.note
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,17 +8,18 @@ import com.ssafy.stab.apis.note.fetchPageList
 import com.ssafy.stab.apis.note.savePageData
 import com.ssafy.stab.data.note.UserPagePathInfo
 import com.ssafy.stab.data.note.request.PageData
-import com.ssafy.stab.data.note.request.PageInfo
 import com.ssafy.stab.data.note.request.SavingPageData
-import com.ssafy.stab.data.note.request.convertPageInfoToPageData
 import com.ssafy.stab.data.note.response.PageDetail
-import com.ssafy.stab.util.note.NoteControlViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
-class NoteViewModel : ViewModel() {
+class NoteViewModel(noteId: String) : ViewModel() {
+    private val _noteId = MutableStateFlow(noteId)
+
+    private val _noteTitle = MutableStateFlow("")
+    val noteTitle = _noteTitle.asStateFlow()
+
     private val _pageList = MutableStateFlow<MutableList<PageDetail>>(mutableListOf())
     val pageList = _pageList.asStateFlow()
 
@@ -29,8 +29,9 @@ class NoteViewModel : ViewModel() {
 
     private fun loadPageList() {
         viewModelScope.launch {
-            fetchPageList("n-0704c37a-b857-45e2-89f0-04cb24d11f15") {
-                _pageList.value = it.data
+            fetchPageList(_noteId.value) {
+                _noteTitle.value = it.title
+                _pageList.value = it.data.toMutableList()
             }
         }
     }
@@ -60,18 +61,13 @@ class NoteViewModel : ViewModel() {
             if (updatePathList.isNotEmpty()) {
                 pathList.addAll(updatePathList.map { it.pathInfo })
 
-                val pageData = convertPageInfoToPageData(
-                    PageInfo(
-                        pathList,
-                        pageDetail.figures ?: mutableStateListOf(),
-                        pageDetail.textBoxes ?: mutableStateListOf(),
-                        pageDetail.images ?: mutableStateListOf()
-                    )
+                val pageData = PageData(
+                    pathList
                 )
 
                 savePageData(SavingPageData(
                     pageDetail.pageId,
-                    pageData.toString()
+                    pageData
                 ))
 
             }

@@ -169,7 +169,7 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     // 세션 떠나기
-    private fun leaveSession() {
+    fun leaveSession() {
         if (session != null) {
             session!!.leaveSession()
             // 참가자 제거

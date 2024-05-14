@@ -106,6 +106,15 @@ public class CustomHttpClient {
         call.enqueue(callback);
     }
 
+    public void httpGet(String url, String authorization, Callback callback) {
+        Request request = new Request.Builder()
+                .url(baseUrl + url)
+                .header("Authorization", authorization)
+                .get()
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
     public void dispose() {
         this.client.dispatcher().executorService().shutdown();
     }

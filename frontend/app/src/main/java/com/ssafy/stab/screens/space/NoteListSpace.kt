@@ -48,7 +48,7 @@ import com.ssafy.stab.screens.space.personal.LocalSelectedFileTitle
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun NoteListSpace(nowId: String, navController: NavController) {
+fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
 
     val folderIdState = remember { mutableStateOf(nowId) }
     val listImg = painterResource(id = R.drawable.list)
@@ -112,7 +112,7 @@ fun NoteListSpace(nowId: String, navController: NavController) {
         Spacer(modifier = Modifier.height(10.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))
-            ListGridScreen(folderIdState.value, navController) { newFolderId ->
+            ListGridScreen(folderIdState.value, onNote) { newFolderId ->
                 folderIdState.value = newFolderId
             }
         }
@@ -121,10 +121,14 @@ fun NoteListSpace(nowId: String, navController: NavController) {
 
 
 @Composable
-fun ListGridScreen(initfolderId: String, navController: NavController, onFolderChange: (String) -> Unit) {
+fun ListGridScreen(
+    initFolderId: String,
+    onNote: (String) -> Unit,
+    onFolderChange: (String) -> Unit,
+) {
     val selectedFileId = LocalSelectedFileId.current
     val selectedFileTitle = LocalSelectedFileTitle.current
-    val folderId by remember { mutableStateOf(initfolderId) }
+    val folderId by remember { mutableStateOf(initFolderId) }
     val showNoteModal = remember { mutableStateOf(false) }
     val showFolderModal = remember { mutableStateOf(false) }
     val showPatchDeleteModal = remember { mutableStateOf(false) }
@@ -134,7 +138,7 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
     val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(folderId))
     val combinedList by viewModel.combinedList.collectAsState()
 
-    val createnoteImg = painterResource(id = R.drawable.createnote)
+    val createNoteImg = painterResource(id = R.drawable.createnote)
     fun patchDeleteToggle(){
         showPatchDeleteModal.value = !showPatchDeleteModal.value
     }
@@ -186,7 +190,7 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
                         .weight(1f)
                         .padding(0.dp, 5.dp, 25.dp, 0.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Image(
-                            painter = createnoteImg,
+                            painter = createNoteImg,
                             contentDescription = "새 노트 만들기",
                             modifier = Modifier
                                 .width(120.dp)
@@ -205,7 +209,7 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
                                 is Folder -> FolderItem(folder = item, viewModel = viewModel, onFolderChange
                                 ) { patchDeleteToggle() }
 
-                                is Note -> NoteItem(note = item, navController
+                                is Note -> NoteItem(note = item, onNote
                                 ) { patchDeleteToggle() }
                             }
                         }
@@ -258,7 +262,7 @@ fun ListGridScreen(initfolderId: String, navController: NavController, onFolderC
                                 is Folder -> FolderItem(folder = item, viewModel, onFolderChange
                                 ) { patchDeleteToggle() }
 
-                                is Note -> NoteItem(note = item, navController
+                                is Note -> NoteItem(note = item, onNote
                                 ) { patchDeleteToggle() }
                             }
                         }
@@ -327,7 +331,11 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (St
 }
 
 @Composable
-fun NoteItem(note: Note, navController: NavController, patchDeleteToggle: () -> Unit) {
+fun NoteItem(
+    note: Note,
+    onNote: (String) -> Unit,
+    patchDeleteToggle: () -> Unit
+) {
     val notebookImg = painterResource(id = R.drawable.notebook)
     val modiImg = painterResource(id = R.drawable.modi)
     val staronImg = painterResource(id = R.drawable.eachstaron)
@@ -341,7 +349,7 @@ fun NoteItem(note: Note, navController: NavController, patchDeleteToggle: () -> 
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     Column(
-        modifier = Modifier.clickable { navController.navigate("personal-note") },
+        modifier = Modifier.clickable { onNote(note.noteId) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(contentAlignment = Alignment.TopEnd) {

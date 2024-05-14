@@ -45,12 +45,14 @@ public class SpaceService {
             dto.setCreatedAt(space.getCreatedAt());
             dto.setUpdatedAt(space.getUpdatedAt());
 
-            List<SpaceResponseDto.UserResponse> userResponses = space.getUsers().stream().map(user -> {
-                SpaceResponseDto.UserResponse userResponse = new SpaceResponseDto.UserResponse();
-                userResponse.setNickname(user.getNickname());
-                userResponse.setProfileImg(user.getProfileImg());
-                return userResponse;
-            }).collect(Collectors.toList());
+            List<User> user = userRepository.findUsersBySpaceId(space.getSpaceId());
+            List<SpaceResponseDto.UserResponse> userResponses = user.stream()
+                    .map(spaceUser -> {
+                        SpaceResponseDto.UserResponse userResponse = new SpaceResponseDto.UserResponse();
+                        userResponse.setNickname(spaceUser.getNickname());
+                        userResponse.setProfileImg(spaceUser.getProfileImg());
+                        return userResponse;
+                    }).collect(Collectors.toList());
 
             dto.setUsers(userResponses);
             return dto;
@@ -69,12 +71,14 @@ public class SpaceService {
         dto.setCreatedAt(space.getCreatedAt());
         dto.setUpdatedAt(space.getUpdatedAt());
 
-        List<SpaceResponseDto.UserResponse> userResponses = space.getUsers().stream().map(user -> {
-            SpaceResponseDto.UserResponse userResponse = new SpaceResponseDto.UserResponse();
-            userResponse.setNickname(user.getNickname());
-            userResponse.setProfileImg(user.getProfileImg());
-            return userResponse;
-        }).collect(Collectors.toList());
+        List<User> user = userRepository.findUsersBySpaceId(space.getSpaceId());
+        List<SpaceResponseDto.UserResponse> userResponses = user.stream()
+                .map(spaceUser -> {
+                    SpaceResponseDto.UserResponse userResponse = new SpaceResponseDto.UserResponse();
+                    userResponse.setNickname(spaceUser.getNickname());
+                    userResponse.setProfileImg(spaceUser.getProfileImg());
+                    return userResponse;
+                }).collect(Collectors.toList());
 
         dto.setUsers(userResponses);
         return dto;
