@@ -6,4 +6,4 @@ COPY ${JAR_FILE} gateway.jar
 
 EXPOSE 8000
 
-ENTRYPOINT ["java", "-jar", "/gateway.jar"]
+ENTRYPOINT ["java", "-jar", "-Duser.timezone=Asia/Seoul", "/gateway.jar"]

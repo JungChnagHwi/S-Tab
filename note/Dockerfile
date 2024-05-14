@@ -6,4 +6,4 @@ COPY ${JAR_FILE} note.jar
 
 EXPOSE 8001
 
-ENTRYPOINT ["java", "-jar", "/note.jar"]
+ENTRYPOINT ["java", "-jar", "-Duser.timezone=Asia/Seoul", "/note.jar"]
