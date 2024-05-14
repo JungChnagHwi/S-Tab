@@ -28,7 +28,7 @@ fun fetchPageList(
             if (response.isSuccessful) {
                 val responseBody = response.body()!!
                 onResponseSuccess(responseBody)
-                Log.i("fetchPageList", responseBody.toString())
+                Log.i("fetchPageList", "$noteId: $responseBody")
             } else {
                 Log.e("fetchPageList", "${response.code()}: ${response.errorBody()?.string()}")
             }
@@ -66,13 +66,12 @@ fun createNewPage(
 fun savePageData(
     pageData: SavingPageData
 ) {
-    Log.d("save api", pageData.toString())
     val call = apiService.updatePage(authorizationHeader, pageData)
 
     call.enqueue(object : Callback<String> {
         override fun onResponse(call: Call<String>, response: Response<String>) {
             if (response.isSuccessful) {
-                Log.i("savePage", "ok")
+                Log.i("savePage", response.body().toString())
             } else {
                 Log.e("savePage", "${response.code()}: ${response.errorBody()?.string()}")
             }

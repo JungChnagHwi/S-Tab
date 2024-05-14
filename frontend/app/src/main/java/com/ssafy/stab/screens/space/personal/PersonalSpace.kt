@@ -29,7 +29,7 @@ import com.ssafy.stab.screens.space.NoteListSpace
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun PersonalSpace(navController: NavController) {
+fun PersonalSpace(navController: NavController, onNote: (String) -> Unit) {
     val folderId = PreferencesUtil.getLoginDetails().rootFolderId
 
     CompositionLocalProvider(
@@ -43,7 +43,7 @@ fun PersonalSpace(navController: NavController) {
         ) {
             MyTitleBar(navController)
             Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp, horizontal = 20.dp))
-            NoteListSpace(folderId.toString(), navController)
+            NoteListSpace(folderId.toString(), onNote)
         }
     }
 }

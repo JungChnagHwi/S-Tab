@@ -70,20 +70,11 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(count(user).as("result"))
 				.build();
 
-		boolean ret = false;
-
 		try (Session session = driver.session()) {
 			Result result = session.run(statement.getCypher());
-			if (result.hasNext()) {
-				Record record = result.next();
-				int cnt = record.get("result").asInt();
-
-				if (cnt == 1) {
-					ret = true;
-				}
-			}
+			Record record = result.next();
+			return record.get("result").asInt() > 0;
 		}
-		return ret;
 	}
 
 	@Override
@@ -200,19 +191,13 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(count(user).as("result"))
 				.build();
 
-		NicknameResponseDto response = null;
-
 		try (Session session = driver.session()) {
 			Result result = session.run(statement.getCypher());
-			if (result.hasNext()) {
-				Record record = result.next();
-				response = NicknameResponseDto.builder()
-						.result(record.get("result").asInt())
-						.build();
-			}
+			Record record = result.next();
+			return NicknameResponseDto.builder()
+					.result(record.get("result").asInt())
+					.build();
 		}
-
-		return response;
 	}
 
 }

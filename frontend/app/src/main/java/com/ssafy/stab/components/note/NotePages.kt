@@ -46,7 +46,6 @@ fun PageList(
         snapshotFlow { state.settledPage }.collect { page ->
             onPageChange(page)
         }
-        Log.d("d", "${state.settledPage}")
     }
 
     if (pageCount > 0) {

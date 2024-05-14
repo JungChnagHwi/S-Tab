@@ -15,7 +15,7 @@ data class PageId(
     val beforePageId: String
 )
 
-data class PageInfo(
+data class PageData(
     @SerializedName("paths")
     val paths: SnapshotStateList<PathInfo> = mutableStateListOf(),
     @SerializedName("figures")
@@ -26,49 +26,9 @@ data class PageInfo(
     val images: SnapshotStateList<Image> = mutableStateListOf(),
 )
 
-data class PathData(
-    @SerializedName("penType")
-    val penType: PenType,
-    @SerializedName("strokeWidth")
-    val strokeWidth: Float,
-    @SerializedName("color")
-    val color: String,
-    @SerializedName("coordinates")
-    var coordinates: List<Coordinate>,
-)
-
-data class PageData(
-    @SerializedName("paths")
-    val paths: List<PathData> = listOf(),
-    @SerializedName("figures")
-    val figures: List<Figure>  = listOf(),
-    @SerializedName("textBoxes")
-    val textBoxes: List<TextBox> = listOf(),
-    @SerializedName("images")
-    val images: List<Image> = listOf()
-)
-
 data class SavingPageData(
     @SerializedName("pageId")
     val pageId: String,
     @SerializedName("pageData")
-    val pageData: String
+    val pageData: PageData
 )
-
-fun convertPathInfoToPathData(pathInfo: PathInfo): PathData {
-    return PathData(
-        pathInfo.penType,
-        pathInfo.strokeWidth,
-        pathInfo.color,
-        pathInfo.coordinates.toList()
-    )
-}
-
-fun convertPageInfoToPageData(pageInfo: PageInfo): PageData {
-    return PageData(
-        pageInfo.paths.map { convertPathInfoToPathData(it) },
-        pageInfo.figures.toList(),
-        pageInfo.textBoxes.toList(),
-        pageInfo.images.toList()
-    )
-}
