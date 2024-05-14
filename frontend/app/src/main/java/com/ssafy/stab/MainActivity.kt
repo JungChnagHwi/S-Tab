@@ -31,6 +31,8 @@ class MainActivity : ComponentActivity() {
         Log.d("Key Hash", "$keyHash")
         super.onCreate(savedInstanceState)
         PreferencesUtil.init(this)
+        PreferencesUtil.saveCallState(false, null) // 앱 시작 시 callState 초기화
+
         val loginDetails = PreferencesUtil.getLoginDetails()
         setContent {
             STabTheme {
@@ -45,6 +47,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
 }
 
 @Composable
