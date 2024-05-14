@@ -1,5 +1,6 @@
 package com.ssafy.stab.modals
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -24,9 +25,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.ShareSpaceList
+import com.ssafy.stab.apis.space.share.getShareSpaceList
+import com.ssafy.stab.apis.space.share.participateShareSpace
 
 @Composable
-fun ParticipateModal(closeModal: () -> Unit, onSpaceParticipated: (ShareSpaceList) -> Unit) {
+fun ParticipateModal(closeModal: () -> Unit, onParticipateSuccess: () -> Unit) {
     var shareSpaceCode by remember { mutableStateOf("") }
     val sharespImg = painterResource(id = R.drawable.sharesp)
 
@@ -50,10 +53,10 @@ fun ParticipateModal(closeModal: () -> Unit, onSpaceParticipated: (ShareSpaceLis
             }
             Spacer(modifier = Modifier.width(30.dp))
             Button(onClick = {
-//                createShareSpace(shareSpaceName) { newSpace ->
-//                    onSpaceCreated(newSpace)
-//                    closeModal()
-//                }
+                participateShareSpace(shareSpaceCode) {
+                    onParticipateSuccess()
+                    closeModal()
+                }
             }) {
                 Text(text = "참가")
             }

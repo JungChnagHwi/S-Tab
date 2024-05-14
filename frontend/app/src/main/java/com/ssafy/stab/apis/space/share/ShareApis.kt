@@ -97,7 +97,7 @@ fun createShareSpace(title: String, onResult: (ShareSpaceList) -> Unit) {
     })
 }
 
-fun participateShareSpace(spaceId: String) {
+fun participateShareSpace(spaceId: String, onSuccess: () -> Unit) {
     val participateShareSpaceRequest = ParticipateShareSpaceRequest(spaceId)
     val call = apiService.participateShareSpace(authorizationHeader, participateShareSpaceRequest)
 
@@ -105,6 +105,7 @@ fun participateShareSpace(spaceId: String) {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
             if (response.isSuccessful) {
                 Log.d("APIResponse", "참가 성공")
+                onSuccess()
             } else {
                 Log.d("APIResponse", "요청 실패")
             }
