@@ -31,7 +31,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.withProperties("userId", literalOf(userId));
 
 		Node space = node("Space").named("s")
-				.withProperties("public", literalOf(false));
+				.withProperties("public", literalFalse());
 
 		Node folder = node("Folder").named("f");
 
@@ -67,13 +67,13 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
 		Statement statement = match(user)
 				.where(user.property("userId").isEqualTo(literalOf(userId)))
-				.returning(count(user).as("result"))
+				.returning(count(user).gt(literalOf(0)).as("result"))
 				.build();
 
 		try (Session session = driver.session()) {
 			Result result = session.run(statement.getCypher());
 			Record record = result.next();
-			return record.get("result").asInt() > 0;
+			return record.get("result").asBoolean();
 		}
 	}
 
@@ -91,16 +91,16 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 						"profileImg", literalOf(request.getProfileImg()),
 						"createdAt", literalOf(now),
 						"updatedAt", literalOf(now),
-						"isDeleted", literalOf(false));
+						"isDeleted", literalFalse());
 
 		Node space = node("Space").named("s")
 				.withProperties(
 						"spaceId", literalOf(spaceId),
 						"title", literalOf("나의 스페이스"),
-						"public", literalOf(false),
+						"public", literalFalse(),
 						"createdAt", literalOf(now),
 						"updatedAt", literalOf(now),
-						"isDeleted", literalOf(false));
+						"isDeleted", literalFalse());
 
 		Node folder = node("Folder").named("f")
 				.withProperties(
@@ -109,7 +109,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 						"title", literalOf("root"),
 						"createdAt", literalOf(now),
 						"updatedAt", literalOf(now),
-						"isDeleted", literalOf(false));
+						"isDeleted", literalFalse());
 
 		Relationship join = user.relationshipTo(space, "Join");
 		Relationship hierarchy = space.relationshipTo(folder, "Hierarchy");

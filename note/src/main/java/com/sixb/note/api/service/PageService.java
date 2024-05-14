@@ -30,19 +30,20 @@ public class PageService {
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
         String beforePageId = request.getBeforePageId();
-
-        Page newPage = createNewPage(beforePageId);
-
-        if (newPage == null) {
-            throw new PageNotFoundException("이전 페이지 정보가 없습니다.");
-        }
-
         Page beforePage = pageRepository.findPageById(beforePageId); // 이렇게 할지, 앞에서 받을지 고민
-
+        
+        if (beforePage == null) {
+            throw new PageNotFoundException("이전 페이지 정보가 없습니다.");
+        } else if (beforePage.getIsDeleted()) {
+            throw new PageNotFoundException("삭제된 페이지 입니다.");
+        }
+        
+        Page newPage = createNewPage(beforePage);
+        
         // 앞페이지에 이어진 페이지 찾기
         Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
         // 페이지가 있다면
-        if (connectPage!=null) {
+        if (connectPage != null) {
             // 그 페이지와 새로운 페이지 연결
             newPage.setNextPage(connectPage);
             // 앞페이지와 연결 삭제
@@ -154,51 +155,15 @@ public class PageService {
             List<Page> pageList = pageRepository.findAllPagesByNoteId(noteId);
 
             for (Page page : pageList) {
-                // pageData 역직렬화
-                String pageDataString = page.getPageData();
-                ObjectMapper mapper = new ObjectMapper();
-                PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
-                String pageId = page.getPageId();
-
-                Optional<Integer> optionalPdfPage = Optional.ofNullable(page.getPdfPage());
-                Optional<String> optionalPdfUrl = Optional.ofNullable(page.getPdfUrl());
-
-                String pdfUrl;
-                Integer pdfPage;
-
-                if (optionalPdfUrl.isPresent() && optionalPdfPage.isPresent()) {
-                    pdfUrl = optionalPdfUrl.get();
-                    pdfPage = optionalPdfPage.get();
-                } else {
-                    pdfUrl = null;
-                    pdfPage = null;
-                }
-
-                // pageInfoDto에 넣기
-                PageInfoDto pageInfoDto = PageInfoDto.builder()
-                        .pageId(pageId)
-                        .color(page.getColor())
-                        .template(page.getTemplate())
-                        .direction(page.getDirection())
-                        .pdfPage(pdfPage)
-                        .pdfUrl(pdfUrl)
-                        .updatedAt(page.getUpdatedAt())
-                        .isBookmarked(pageRepository.isLikedByPageId(userId, pageId))
-                        .paths(pageDataDto.getPaths())
-                        .figures(pageDataDto.getFigures())
-                        .images(pageDataDto.getImages())
-                        .textBoxes(pageDataDto.getTextBoxes())
-                        .build();
+                PageInfoDto pageInfoDto = setPageInfoDto(page);
                 // pageInfoList에 넣기
                 pageInfoList.add(pageInfoDto);
             }
 
-            PageListResponseDto pageListResponseDto = PageListResponseDto.builder()
+            return PageListResponseDto.builder()
                     .data(pageInfoList)
                     .title(note.getTitle())
                     .build();
-
-            return pageListResponseDto;
         } else {
             throw new NoteNotFoundException("노트를 찾을 수 없습니다.");
         }
@@ -222,16 +187,16 @@ public class PageService {
             }
 
             // before 페이지에 이어서 페이지 만들기
-            Page newPage = createNewPage(beforePageId);
+            Page newPage = createNewPage(beforePage);
 
-            newPage.setPdfUrl(beforePage.getPdfUrl());
+            newPage.setPdfUrl(beforePage.getPdfUrl()); // nullPointException 안나나?
             newPage.setPdfPage(beforePage.getPdfPage());
             newPage.setPageData(beforePage.getPageData());
 
             // 이전페이지에 이어진 페이지 찾기
             Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
             // 페이지가 있다면
-            if (connectPage!=null) {
+            if (connectPage != null) {
                 // 그 페이지와 새로운 페이지 연결
                 newPage.setNextPage(connectPage);
                 // 앞페이지와 연결 삭제
@@ -242,23 +207,7 @@ public class PageService {
             beforePage.setNextPage(newPage);
 
             // responsedto에 넣기
-            String pageDataString = newPage.getPageData();
-            ObjectMapper mapper = new ObjectMapper();
-            PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
-            PageInfoDto response = PageInfoDto.builder()
-                    .pageId(newPage.getPageId())
-                    .color(newPage.getColor())
-                    .template(newPage.getTemplate())
-                    .direction(newPage.getDirection())
-                    .pdfPage(newPage.getPdfPage())
-                    .pdfUrl(newPage.getPdfUrl())
-                    .updatedAt(newPage.getUpdatedAt())
-                    .isBookmarked(false)
-                    .paths(pageDataDto.getPaths())
-                    .figures(pageDataDto.getFigures())
-                    .images(pageDataDto.getImages())
-                    .textBoxes(pageDataDto.getTextBoxes())
-                    .build();
+            PageInfoDto response = setPageInfoDto(newPage);
 
             // db에 저장하고 반환
             pageRepository.save(newPage);
@@ -270,10 +219,10 @@ public class PageService {
             throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
         }
     }
-    
+
     // pdf 가져오기
     public void pdfPage(PagePdfRequestDto request) throws PageNotFoundException {
-
+        
         String beforePageId = request.getBeforePageId();
         Page beforePage = pageRepository.findPageById(beforePageId);
         String pdfUrl = request.getPdfUrl();
@@ -283,7 +232,7 @@ public class PageService {
         Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
 
         // 페이지가 있다면
-        if (connectPage!=null) {
+        if (connectPage != null) {
             // 앞페이지와 연결 삭제
             pageRepository.deleteNextPageRelation(beforePageId);
         }
@@ -291,8 +240,8 @@ public class PageService {
         if (beforePage != null) {
             // pdfcount 만큼 for문 돌면서 페이지 생성하기
             for (int i = pdfPageCount; i > 0; i--) {
-                Page page = createNewPage(beforePageId);
-                
+
+                Page page = createNewPage(beforePage);
                 // 추가 정보 저장
                 page.setTemplate("blank");
                 page.setColor("white");
@@ -300,7 +249,7 @@ public class PageService {
                 page.setPdfUrl(pdfUrl);
 
                 // 페이지 링크하기
-                if (connectPage!=null) {
+                if (connectPage != null) {
                     page.setNextPage(connectPage);
                 }
                 pageRepository.save(page);
@@ -319,17 +268,10 @@ public class PageService {
 
     }
 
-    public Page createNewPage(String beforePageId) {
-        // id로 이전 페이지 정보를 찾아
-        Optional<Page> beforePageOptional = Optional.ofNullable(pageRepository.findPageById(beforePageId));
-        // 이전 페이지 정보가 있다면
-        if (beforePageOptional.isPresent()) {
-            Page beforePage = beforePageOptional.get();
-
-            if (beforePage.getIsDeleted()) {
-                return null;
-            }
-
+    private Page createNewPage(Page beforePage) {
+        
+        if (beforePage != null && !beforePage.getIsDeleted()) { // 페이지를 찾았고, 삭제된 페이지가 아닌 경우
+            
             LocalDateTime now = LocalDateTime.now();
             String pageId = IdCreator.create("p");
 
@@ -343,10 +285,31 @@ public class PageService {
                     .build();
             newPage.setCreatedAt(now);
             newPage.setUpdatedAt(now);
+            
             return newPage;
         } else {
             return null;
         }
     }
 
+
+    private PageInfoDto setPageInfoDto (Page newPage) throws JsonProcessingException {
+        String pageDataString = newPage.getPageData();
+        ObjectMapper mapper = new ObjectMapper();
+        PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
+        return PageInfoDto.builder()
+                .pageId(newPage.getPageId())
+                .color(newPage.getColor())
+                .template(newPage.getTemplate())
+                .direction(newPage.getDirection())
+                .pdfPage(newPage.getPdfPage())
+                .pdfUrl(newPage.getPdfUrl())
+                .updatedAt(newPage.getUpdatedAt())
+                .isBookmarked(false)
+                .paths(pageDataDto.getPaths())
+                .figures(pageDataDto.getFigures())
+                .images(pageDataDto.getImages())
+                .textBoxes(pageDataDto.getTextBoxes())
+                .build();
+    }
 }
