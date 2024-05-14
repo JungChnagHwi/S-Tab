@@ -32,4 +32,5 @@ public class Note extends BaseTimeEntity {
 
 	@Relationship(type = "NextPage")
 	private Page page;
+
 }
