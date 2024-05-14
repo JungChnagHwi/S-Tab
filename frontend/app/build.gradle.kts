@@ -11,7 +11,8 @@ rootProject.file("local.properties").inputStream().use {
 }
 val kakaoAppKey = localProperties.getProperty("kakao_native_app_key") ?: "default_key"
 val openviduUrl = localProperties.getProperty("openvidu_server") ?: "defalut_server"
-val openviduSecret = localProperties.getProperty("openvidu_secret") ?: "defalut_key"
+val openviduSecret = localProperties.getProperty("openvidu_secret") ?: "secret"
+val openviduTurn = localProperties.getProperty("openvidu_turn") ?: "turn"
 
 android {
     namespace = "com.ssafy.stab"
@@ -32,6 +33,7 @@ android {
         buildConfigField("String", "KAKAO_APP_KEY", "\"$kakaoAppKey\"")
         buildConfigField("String", "OPENVIDU_URL", "\"$openviduUrl\"")
         buildConfigField("String", "OPENVIDU_SECRET", "\"$openviduSecret\"")
+        buildConfigField("String", "OPENVIDU_TURN", "\"$openviduTurn\"")
         resValue("string", "kakao_oauth_host", "kakao\"$kakaoAppKey\"")
     }
 

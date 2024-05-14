@@ -3,6 +3,8 @@ package com.ssafy.stab.webrtc.openvidu;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.ssafy.stab.BuildConfig;
 import com.ssafy.stab.webrtc.observers.CustomPeerConnectionObserver;
 import com.ssafy.stab.webrtc.observers.CustomSdpObserver;
 import com.ssafy.stab.webrtc.websocket.CustomWebSocket;
@@ -34,7 +36,9 @@ public class Session {
     private String token;
 
     private final List<IceServer> iceServersDefault =
-            Arrays.asList(IceServer.builder("stun:stun.l.google.com:19302").createIceServer());
+            Arrays.asList(IceServer.builder("stun:stun.l.google.com:19302").createIceServer(),
+                    IceServer.builder("turn:"+BuildConfig.OPENVIDU_TURN).createIceServer());
+
     private List<IceServer> iceServers = new ArrayList();
     private PeerConnectionFactory peerConnectionFactory;
     private CustomWebSocket websocket;
