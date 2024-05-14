@@ -231,7 +231,7 @@ fun SpTitleBar(
     var showParticipantListModal by remember { mutableStateOf(false) }
 
     if (showParticipantListModal) {
-        ParticipantListModal(participants = participants) {
+        ParticipantListModal(users, participants) {
             showParticipantListModal = false  // 모달 닫기
         }
     }
