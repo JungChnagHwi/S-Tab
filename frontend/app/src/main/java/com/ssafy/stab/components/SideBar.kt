@@ -1,6 +1,5 @@
 package com.ssafy.stab.components
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import com.ssafy.stab.R
 import androidx.compose.foundation.background
@@ -24,10 +23,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,17 +34,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.apis.space.share.ShareSpaceList
-import com.ssafy.stab.apis.space.share.getShareSpaceList
 import com.ssafy.stab.data.PreferencesUtil
-import com.ssafy.stab.data.PreferencesUtil.callState
 import com.ssafy.stab.modals.CreateShareSpaceModal
+import com.ssafy.stab.modals.ParticipateModal
 import com.ssafy.stab.screens.space.personal.LocalNowFolderId
+import com.ssafy.stab.screens.space.share.SpaceViewModel
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
-fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel, modifier: Modifier = Modifier) {
+fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel, spaceViewModel: SpaceViewModel = viewModel(), modifier: Modifier = Modifier) {
     val starImg = painterResource(id = R.drawable.star)
     val trashImg = painterResource(id = R.drawable.trash)
     val myspImg = painterResource(id = R.drawable.mysp)
@@ -59,18 +58,16 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
     val plusImg = painterResource(id = R.drawable.plus)
     val participateImg = painterResource(id = R.drawable.participate)
 
-    val  soundImg = if (audioCallViewModel.isMuted.value) soundOffImg else soundOnImg
+    val soundImg = if (audioCallViewModel.isMuted.value) soundOffImg else soundOnImg
 
     val showCreateModal = remember { mutableStateOf(false) }
-    var shareSpaceList = remember { mutableStateListOf<ShareSpaceList>() }
+    val showParticipateModal = remember { mutableStateOf(false) }
+    val shareSpaceList by spaceViewModel.shareSpaceList.collectAsState()
     // 현재 통화 중인 스페이스의 이름 찾기
-    val currentCallSpaceName = shareSpaceList.find { it.spaceId == callState.value.callSpaceId }?.title ?: "Unknown Space"
+    val currentCallSpaceName = shareSpaceList.find { it.spaceId == PreferencesUtil.callState.value.callSpaceId }?.title ?: "Unknown Space"
 
     LaunchedEffect(key1 = true) {
-        getShareSpaceList { res ->
-            shareSpaceList.clear()
-            shareSpaceList.addAll(res)
-        }
+        spaceViewModel.updateShareSpaceList()
     }
 
     val callState = PreferencesUtil.callState.collectAsState()
@@ -80,7 +77,18 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
             CreateShareSpaceModal(
                 closeModal = { showCreateModal.value = false },
                 onSpaceCreated = { newSpace ->
-                    shareSpaceList.add(newSpace)
+                    spaceViewModel.addShareSpace(newSpace)
+                }
+            )
+        }
+    }
+
+    if (showParticipateModal.value) {
+        Dialog(onDismissRequest = { showParticipateModal.value = false }) {
+            ParticipateModal(
+                closeModal = { showParticipateModal.value = false },
+                onParticipateSuccess = {
+                    spaceViewModel.updateShareSpaceList()
                 }
             )
         }
@@ -159,7 +167,8 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
                     Text(text = "생성하기")
                 }
                 Spacer(modifier = Modifier.width(12.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(modifier = Modifier.clickable { showParticipateModal.value = true },
+                    verticalAlignment = Alignment.CenterVertically) {
                     Image(painter = participateImg, contentDescription = null)
                     Text(text = "참가하기")
                 }
@@ -233,7 +242,6 @@ fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<Shar
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val callingImg = painterResource(id = R.drawable.calling)
     val nowFolderId = LocalNowFolderId.current
-
 
     LazyColumn(modifier = Modifier.fillMaxHeight(0.6f)) {
         items(shareSpaceList) { shareSpace ->

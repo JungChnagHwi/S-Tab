@@ -3,6 +3,7 @@ package com.ssafy.stab.screens.space.share
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,6 +46,7 @@ import com.ssafy.stab.apis.space.share.ShareSpaceList
 import com.ssafy.stab.components.MarkdownScreen
 import com.ssafy.stab.apis.space.share.User
 import com.ssafy.stab.apis.space.share.getShareSpace
+import com.ssafy.stab.apis.space.share.leaveShareSpace
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
@@ -59,6 +61,7 @@ fun ShareSpace(
     navController: NavController,
     spaceId: String,
     audioCallViewModel: AudioCallViewModel,
+    spaceViewModel: SpaceViewModel,
     onNote: (String) -> Unit
 ) {
 
@@ -107,7 +110,8 @@ fun ShareSpace(
             isCurrentSpaceActive = isCurrentSpaceActive,
             spaceId,
             users = shareSpaceDetails?.users ?: listOf(),
-            participants = participants
+            participants = participants,
+            spaceViewModel = spaceViewModel,
         )
         Divider(
             color = Color.Gray,
@@ -156,6 +160,7 @@ fun SpTitleBar(
     spaceId: String,
     users: List<User>,
     participants: List<Connection>,
+    spaceViewModel: SpaceViewModel
 ) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
@@ -171,6 +176,7 @@ fun SpTitleBar(
     val peopleImg = painterResource(id = R.drawable.people)
 
     val showPopup = remember { mutableStateOf(false) }
+
 
     fun copyToClipboard(context: Context, text: String) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -192,7 +198,7 @@ fun SpTitleBar(
             confirmButton = {
                 Button(
                     onClick = {
-                        copyToClipboard(context, "s-12344123431")
+                        copyToClipboard(context, spaceId)
                         showPopup.value = false // 팝업 닫기
                     }
                 ) {
@@ -305,6 +311,11 @@ fun SpTitleBar(
                         modifier = Modifier
                             .height(30.dp)
                             .height(30.dp)
+                            .clickable {
+                                leaveShareSpace(spaceId) {
+                                    spaceViewModel.removeShareSpace(spaceId)
+                                }
+                            }
                     )
                     Spacer(modifier = Modifier.width(20.dp))
                 }

@@ -28,7 +28,7 @@ class NoteListViewModel(initialFolderId: String) : ViewModel() {
         viewModelScope.launch {
             Log.d("B", folderId)
             _combinedList.value = emptyList()
-            if (folderId[0] == 'f') {
+            if (folderId!="" && folderId[0] == 'f') {
                 getFileList(
                     folderId,
                     { folders ->
@@ -40,7 +40,7 @@ class NoteListViewModel(initialFolderId: String) : ViewModel() {
                         updateCombinedList(updatedNotes)
                     }
                 )
-            } else if (folderId[0] == 's') {
+            } else if (folderId!="" && folderId[0] == 's') {
                 getFileListShareSpace(
                     folderId,
                     { folders ->
