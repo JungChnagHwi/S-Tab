@@ -30,7 +30,7 @@ fun fetchPageList(
                 onResponseSuccess(responseBody)
                 Log.i("fetchPageList", "$noteId: $responseBody")
             } else {
-                Log.e("fetchPageList", "${response.code()}: ${response.errorBody()?.string()}")
+                Log.e("fetchPageList", "${response.code()}: $response / $noteId")
             }
         }
 

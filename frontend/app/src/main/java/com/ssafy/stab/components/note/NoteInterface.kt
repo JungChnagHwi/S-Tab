@@ -19,8 +19,8 @@ import com.ssafy.stab.screens.note.NoteViewModel
 
 @Composable
 fun PageInterfaceBar(
-    viewModel: NoteViewModel,
     currentPage: Int,
+    viewModel: NoteViewModel,
 ) {
     Row(
         modifier = Modifier

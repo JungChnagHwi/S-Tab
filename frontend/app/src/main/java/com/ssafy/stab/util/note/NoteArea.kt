@@ -23,9 +23,10 @@ import com.ssafy.stab.data.note.PenType
 fun NoteArea(
     currentPageId: String,
     paths: SnapshotStateList<PathInfo>?,
+    modifier: Modifier,
     viewModel: NoteControlViewModel
 ) = AndroidView(
-    modifier = Modifier.fillMaxSize(),
+    modifier = modifier,
     factory = {
         ComposeView(it).apply {
             setContent {
