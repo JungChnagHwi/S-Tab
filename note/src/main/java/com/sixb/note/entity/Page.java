@@ -4,8 +4,10 @@ import com.sixb.note.common.BaseTimeEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.neo4j.core.schema.*;
-
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Property;
+import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Getter
 @Setter
@@ -24,8 +26,6 @@ public class Page extends BaseTimeEntity {
     private String template;
 
     @Property("color")
-
-    
     private String color;
 
     @Property("direction")
@@ -42,4 +42,5 @@ public class Page extends BaseTimeEntity {
 
     @Relationship(type = "NextPage")
     private Page NextPage;
+
 }

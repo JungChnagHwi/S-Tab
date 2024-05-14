@@ -1,6 +1,5 @@
 package com.sixb.note.api.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sixb.note.api.service.PageService;
 import com.sixb.note.dto.page.*;
 import com.sixb.note.exception.NoteNotFoundException;
@@ -17,13 +16,13 @@ public class PageController {
 
     private final PageService pageService;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<?> createPage(@RequestBody PageCreateRequestDto request) {
         try {
             PageCreateResponseDto response = pageService.createPage(request);
             return ResponseEntity.ok(response);
         } catch (PageNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -33,31 +32,31 @@ public class PageController {
             pageService.deletePage(pageId);
             return ResponseEntity.ok("페이지 삭제 완료");
         } catch (PageNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     // 페이지 양식 수정
-    @PatchMapping("")
+    @PatchMapping
     public ResponseEntity<?> updatePage(@RequestBody PageUpdateDto request) {
         try {
             PageUpdateDto response = pageService.updatePage(request);
             return ResponseEntity.ok(response);
         } catch (PageNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     // 필기데이터 저장
-    @PutMapping("")
+    @PutMapping
     public ResponseEntity<?> saveData(@RequestBody SaveDataRequestDto request) {
         try {
             pageService.saveData(request);
             return ResponseEntity.ok("데이터 저장완료");
         } catch (PageNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -66,12 +65,10 @@ public class PageController {
         try {
             PageListResponseDto response = pageService.getPageList(userId, noteId);
             return ResponseEntity.ok(response);
-        } catch (NoteNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (PageNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (JsonProcessingException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        } catch (NoteNotFoundException | PageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -87,24 +84,25 @@ public class PageController {
 //    }
 
     @PostMapping("/copy")
-    public ResponseEntity<?> copyPage(@RequestBody PageCopyRequestDto request) throws PageNotFoundException {
+    public ResponseEntity<?> copyPage(@RequestBody PageCopyRequestDto request) {
         try {
             PageInfoDto response = pageService.copyPage(request);
             return ResponseEntity.ok(response);
         } catch (PageNotFoundException e) {
-            throw new PageNotFoundException(e.getMessage());
-        } catch (JsonProcessingException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PostMapping("/pdf")
-    public ResponseEntity<?> pdfPage(@RequestBody PagePdfRequestDto request) throws PageNotFoundException {
+    public ResponseEntity<?> pdfPage(@RequestBody PagePdfRequestDto request) {
         try {
             pageService.pdfPage(request);
             return ResponseEntity.ok("페이지 생성 완료");
         } catch (PageNotFoundException e) {
-            throw new PageNotFoundException(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
 }
