@@ -19,6 +19,9 @@ public class Space extends BaseTimeEntity {
     @Property("spaceId")
     private String spaceId;
 
+    @Property("rootFolderId")
+    private String rootFolderId;
+
     @Property("title")
     private String title;
 

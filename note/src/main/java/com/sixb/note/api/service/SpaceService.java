@@ -40,6 +40,7 @@ public class SpaceService {
         return spaces.stream().map(space -> {
             SpaceResponseDto dto = new SpaceResponseDto();
             dto.setSpaceId(space.getSpaceId());
+            dto.setRootFolderId(space.getRootFolderId());
             dto.setTitle(space.getTitle());
             dto.setIsPublic(space.getIsPublic());
             dto.setCreatedAt(space.getCreatedAt());
@@ -88,8 +89,10 @@ public class SpaceService {
     public SpaceResponseDto createSpace(SpaceRequestDto requestDto, long userId) {
         User user = userRepository.findUserById(userId);
         Space newSpace = new Space();
+        String folderId = IdCreator.create("f");
         newSpace.setTitle(requestDto.getTitle());
         newSpace.setSpaceId(IdCreator.create("s"));
+        newSpace.setRootFolderId(folderId);
         newSpace.setIsPublic(true);
         newSpace.setSpaceMd("SSAFY");
         LocalDateTime now = LocalDateTime.now();
@@ -97,7 +100,6 @@ public class SpaceService {
         newSpace.setUpdatedAt(now);
 
         Folder newFolder = new Folder();
-        String folderId = IdCreator.create("f");
         newFolder.setSpaceId(newSpace.getSpaceId());
         newFolder.setTitle("root");
         newFolder.setFolderId(folderId);
