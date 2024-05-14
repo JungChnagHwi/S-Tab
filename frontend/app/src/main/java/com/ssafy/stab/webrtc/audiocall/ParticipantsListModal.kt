@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,15 +26,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.google.gson.JsonParser
 import com.ssafy.stab.R
 
 
 @Composable
-fun ParticipantList(participants: List<String>) {
+fun ParticipantListModal(participants: List<Connection>, function: () -> Unit) {
 //    val onlineUsers = listOf("참가자1", "참가자2")
 //    val offlineUsers = listOf("참가자3", "참가자4", "참가자5", "참가자6")
     Log.d("ParticipantList", "Current participants: $participants")  // 디버그 로그 추가
@@ -45,8 +48,9 @@ fun ParticipantList(participants: List<String>) {
 
     Column(
         modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
             .background(Color(0xFF7591C6))
-            .width(300.dp)
+            .width(250.dp)
             .height(400.dp)
             .padding(16.dp)
     ) {
@@ -54,7 +58,11 @@ fun ParticipantList(participants: List<String>) {
             item {
                 SectionTitle(title = "통화중")
             }
-            items(participants) { user ->
+            items(participants) { connection ->
+                val clientDataJson = connection.clientData ?: "{}" // clientData가 null이면 빈 JSON 객체를 사용
+                val clientDataObj = JsonParser.parseString(clientDataJson).asJsonObject
+                val user = if (clientDataObj.has("clientData")) clientDataObj.get("clientData").asString else "Unknown"
+                Log.d("user", user)
                 UserRow(user, profileImg, muteImg, micImg)
             }
             item {
@@ -94,25 +102,26 @@ fun UserRow(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 16.dp)
+                .padding(end = 8.dp)
         ) {
             Text(text = user)
-            Spacer(modifier = Modifier.height(8.dp))
-            Slider(
-                value = volume,
-                onValueChange = { newVolume ->
-                    if (!isMuted) {
-                        volume = newVolume
-                    }
-                },
-                enabled = !isMuted
-            )
-        }
-        IconButton(onClick = { isMuted = !isMuted }) {
-            Icon(
-                painter = if (isMuted) muteImg else micImg,
-                contentDescription = if (isMuted) "음소거" else "음소거 해제"
-            )
+//            Spacer(modifier = Modifier.height(8.dp))
+//            Slider(
+//                value = volume,
+//                onValueChange = { newVolume ->
+//                    if (!isMuted) {
+//                        volume = newVolume
+//                    }
+//                },
+//                enabled = !isMuted
+//            )
+//        }
+//        IconButton(onClick = { isMuted = !isMuted }) {
+//            Icon(
+//                painter = if (isMuted) muteImg else micImg,
+//                contentDescription = if (isMuted) "음소거" else "음소거 해제"
+//            )
+//        }
         }
     }
 }

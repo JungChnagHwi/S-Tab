@@ -4,7 +4,6 @@ import com.sixb.note.api.service.UserService;
 import com.sixb.note.dto.request.UserInfoRequestDto;
 import com.sixb.note.dto.response.NicknameResponseDto;
 import com.sixb.note.dto.response.UserInfoResponseDto;
-import com.sixb.note.entity.User;
 import com.sixb.note.exception.ExistUserException;
 import com.sixb.note.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;

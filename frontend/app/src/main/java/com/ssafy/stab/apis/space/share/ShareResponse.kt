@@ -12,6 +12,11 @@ data class ShareSpaceList(
     @SerializedName("updateAt") val updateAt: String
 )
 
+data class ShareSpace(
+    @SerializedName("spaceId") val spaceId: String,
+    @SerializedName("users") val users: List<User>
+)
+
 data class User(
     @SerializedName("nickname") val nickname: String,
     @SerializedName("profileImg") val profileImg: String
@@ -28,4 +33,13 @@ data class ParticipateShareSpaceRequest(
 data class RenameShareSpaceRequest(
     @SerializedName("spaceId") val spaceId: String,
     @SerializedName("title") val title: String
+)
+
+data class MarkdownDataResponse(
+    @SerializedName("data") val data: String
+)
+
+data class MarkdownDataPatchRequest(
+    @SerializedName("spaceId") val spaceId: String,
+    @SerializedName("data") val data: String
 )

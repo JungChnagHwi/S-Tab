@@ -1,12 +1,10 @@
 package com.sixb.note.repository;
 
-import com.sixb.note.entity.Space;
+import com.sixb.note.entity.User;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.neo4j.repository.query.Query;
-
-import com.sixb.note.entity.User;
 
 import java.util.*;
 
