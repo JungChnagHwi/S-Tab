@@ -68,8 +68,8 @@ fun Routers(audioCallViewModel: AudioCallViewModel) {
                 onLogin = { navController.navigate("login") },
                 audioCallViewModel
             ) }
-        composable("create-note") { CreateNoteModal({}, NoteListViewModel("")) }
-        composable("create-folder") { CreateFolderModal({}, NoteListViewModel("")) }
+        composable("create-note") { CreateNoteModal({}, NoteListViewModel("f")) }
+        composable("create-folder") { CreateFolderModal({}, NoteListViewModel("f")) }
         composable("markdown") { MarkdownScreen("") }
     }
 }
