@@ -166,6 +166,7 @@ fun getMarkdown(spaceId: String, onResult: (MarkdownDataResponse) -> Unit) {
                 response.body()?.let { onResult(it) }
             } else {
                 Log.d("APIResponse", "요청 실패")
+                onResult(MarkdownDataResponse(""))
             }
         }
 

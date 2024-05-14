@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -37,13 +36,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.getMarkdown
+import com.ssafy.stab.apis.space.share.patchMarkdown
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 
 
-fun parseMarkdownToHtml(markdown: String, textAlign: String): String {
+fun parseMarkdownToHtml(markdown: String?, textAlign: String): String {
+    val nonNullMarkdown = markdown ?: ""
     val parser = Parser.builder().build()
-    val document = parser.parse(markdown)
+    val document = parser.parse(nonNullMarkdown)
     val renderer = HtmlRenderer.builder().build()
     val htmlContent = renderer.render(document)
     return "<div style='text-align:$textAlign;'>$htmlContent</div>"
@@ -72,11 +73,12 @@ fun MarkdownScreen(spaceId: String) {
     val leftImg = painterResource(id = R.drawable.left_align)
     val centerImg = painterResource(id = R.drawable.center_align)
     val rightImg = painterResource(id = R.drawable.right_align)
-    
-    LaunchedEffect(key1 = true) {
-        getMarkdown(spaceId){
-            res -> Log.d("BB", res.data)
-            markdownText = res.data
+
+    LaunchedEffect(key1 = 1) {
+        getMarkdown(spaceId) { res ->
+            val markdownData = res.data ?: ""
+            Log.d("BB", markdownData)
+            markdownText = markdownData
         }
     }
 
@@ -97,7 +99,10 @@ fun MarkdownScreen(spaceId: String) {
                     .padding(5.dp),
                     horizontalArrangement = Arrangement.End) {
                     Box(modifier = Modifier
-                        .clickable { isEditing = false }
+                        .clickable {
+                            patchMarkdown(spaceId, markdownText)
+                            isEditing = false
+                        }
                         .clip(RoundedCornerShape(10.dp))
                         .background(color = Color(0xFFDCE3F1))
                         .padding(5.dp)
@@ -142,7 +147,7 @@ fun MarkdownScreen(spaceId: String) {
                     .height(300.dp) // 높이 고정
                     .verticalScroll(scrollState)
                 ) {
-                    MarkdownViewer(htmlContent = parseMarkdownToHtml(markdownText, textAlign),)
+                    MarkdownViewer(htmlContent = parseMarkdownToHtml(markdownText, textAlign))
                 }
             }
         }
