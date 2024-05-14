@@ -10,6 +10,7 @@ import com.sixb.note.exception.NoteNotFoundException;
 import com.sixb.note.exception.PageNotFoundException;
 import com.sixb.note.repository.NoteRepository;
 import com.sixb.note.repository.PageRepository;
+import com.sixb.note.util.Const;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,8 +26,6 @@ public class PageService {
 
     private final PageRepository pageRepository;
     private final NoteRepository noteRepository;
-
-    private final String initData = "{\"paths\": [], \"figures\": [], \"textBoxes\": [], \"images\": []}";
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
         String beforePageId = request.getBeforePageId();
@@ -281,7 +280,7 @@ public class PageService {
                     .template(beforePage.getTemplate())
                     .direction(beforePage.getDirection())
                     .noteId(beforePage.getNoteId())
-                    .pageData(initData)
+                    .pageData(Const.INIT_PAGE_DATA)
                     .build();
             newPage.setCreatedAt(now);
             newPage.setUpdatedAt(now);
