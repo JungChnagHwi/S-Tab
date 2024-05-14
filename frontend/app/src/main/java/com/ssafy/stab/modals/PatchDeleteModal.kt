@@ -65,7 +65,7 @@ fun PatchDeleteModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileI
                     closeModal()
                 } else if (fileId[0] == 'n') {
                     deleteNote(fileId)
-                    viewModel.deleteFolder(fileId)
+                    viewModel.deleteNote(fileId)
                     closeModal()
                 }
             }) {

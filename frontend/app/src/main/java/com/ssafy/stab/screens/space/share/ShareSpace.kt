@@ -58,8 +58,8 @@ import com.ssafy.stab.webrtc.utils.PermissionManager
 
 @Composable
 fun ShareSpace(
-    navController: NavController,
     spaceId: String,
+    rootFolderId: String,
     audioCallViewModel: AudioCallViewModel,
     spaceViewModel: SpaceViewModel,
     onNote: (String) -> Unit
@@ -108,7 +108,7 @@ fun ShareSpace(
             context = context,
             audioCallViewModel = audioCallViewModel,
             isCurrentSpaceActive = isCurrentSpaceActive,
-            spaceId,
+            spaceId = spaceId,
             users = shareSpaceDetails?.users ?: listOf(),
             participants = participants,
             spaceViewModel = spaceViewModel,
@@ -148,7 +148,7 @@ fun ShareSpace(
                 )
             }
         }
-        NoteListSpace(spaceId, onNote)
+        NoteListSpace(rootFolderId, onNote)
     }
 }
 

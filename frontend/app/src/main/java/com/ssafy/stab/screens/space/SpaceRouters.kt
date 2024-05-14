@@ -29,6 +29,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.ssafy.stab.R
+import com.ssafy.stab.apis.space.share.ShareSpaceList
 import com.ssafy.stab.components.SideBar
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.PatchAuth
@@ -69,14 +70,15 @@ fun SpaceRouters(
                 composable("personal-space") {
                     PersonalSpace(navController) { navController.navigate("personal-note/$it") }
                 }
-                composable("share-space/{spaceId}") { backStackEntry ->
-
-                    backStackEntry.arguments?.getString("spaceId")?.let { spaceId ->
+                composable("share-space/{spaceId}/{rootFolderId}") { backStackEntry ->
+                    val spaceId = backStackEntry.arguments?.getString("spaceId")
+                    val rootFolderId = backStackEntry.arguments?.getString("rootFolderId")
+                    if (spaceId != null && rootFolderId != null) {
                         ShareSpace(
-                            navController,
                             spaceId,
+                            rootFolderId,  // rootFolderId 전달
                             audioCallViewModel,
-                            spaceViewModel = spaceViewModel
+                            spaceViewModel
                         ) { navController.navigate("personal-note/$it") }
                     }
                 }

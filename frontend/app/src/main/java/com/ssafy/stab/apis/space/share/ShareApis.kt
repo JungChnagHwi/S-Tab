@@ -14,25 +14,6 @@ private val apiService: ApiService = RetrofitClient.instance.create(ApiService::
 private val accessToken = PreferencesUtil.getLoginDetails().accessToken
 private val authorizationHeader = "Bearer $accessToken"
 
-fun getFileListShareSpace(spaceId: String, onFolderResult: (List<Folder>?) -> Unit, onNoteResult: (List<Note>?) -> Unit) {
-    val call = apiService.getFileListShareSpace(authorizationHeader, spaceId)
-
-    call.enqueue(object : Callback<FileListResponse> {
-        override fun onResponse(call: Call<FileListResponse>, response: Response<FileListResponse>) {
-            if (response.isSuccessful) {
-                val fileListResponse = response.body()
-                onFolderResult(fileListResponse?.folders)
-                onNoteResult(fileListResponse?.notes)
-            } else {
-                println("Response not successful: ${response.errorBody()?.string()}")
-            }
-        }
-        override fun onFailure(call: Call<FileListResponse>, t: Throwable) {
-            println("Error fetching file list: ${t.message}")
-
-        }
-    })
-}
 
 fun getShareSpace(spaceId: String, onResult: (ShareSpace) -> Unit) {
     val call = apiService.getShareSpace(authorizationHeader, spaceId)

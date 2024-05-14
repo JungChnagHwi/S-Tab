@@ -248,7 +248,7 @@ fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<Shar
             Row {
                 Spacer(modifier = Modifier.width(70.dp))
                 Row(modifier = Modifier.clickable {
-                    navController.navigate("share-space/${shareSpace.spaceId}")
+                    navController.navigate("share-space/${shareSpace.spaceId}/${shareSpace.rootFolderId}")
                     nowFolderId.value = shareSpace.spaceId
                 }) {
                     Image(painter = sharespImg, contentDescription = null)

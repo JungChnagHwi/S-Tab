@@ -2,6 +2,7 @@ package com.ssafy.stab.apis.space.share
 
 import com.google.gson.annotations.SerializedName
 
+
 data class ShareSpaceList(
     @SerializedName("spaceId") val spaceId: String,
     @SerializedName("title") val title: String,

@@ -7,7 +7,6 @@ import com.ssafy.stab.apis.space.folder.FileEntity
 import com.ssafy.stab.apis.space.folder.Folder
 import com.ssafy.stab.apis.space.folder.Note
 import com.ssafy.stab.apis.space.folder.getFileList
-import com.ssafy.stab.apis.space.share.getFileListShareSpace
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,20 +27,8 @@ class NoteListViewModel(initialFolderId: String) : ViewModel() {
         viewModelScope.launch {
             Log.d("B", folderId)
             _combinedList.value = emptyList()
-            if (folderId!="" && folderId[0] == 'f') {
+            if (folderId!="") {
                 getFileList(
-                    folderId,
-                    { folders ->
-                        val updatedFolders = folders ?: emptyList<Folder>()
-                        updateCombinedList(updatedFolders)
-                    },
-                    { notes ->
-                        val updatedNotes = notes ?: emptyList<Note>()
-                        updateCombinedList(updatedNotes)
-                    }
-                )
-            } else if (folderId!="" && folderId[0] == 's') {
-                getFileListShareSpace(
                     folderId,
                     { folders ->
                         val updatedFolders = folders ?: emptyList<Folder>()
