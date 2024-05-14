@@ -117,13 +117,14 @@ fun participateShareSpace(spaceId: String, onSuccess: () -> Unit) {
     })
 }
 
-fun leaveShareSpace(spaceId: String) {
+fun leaveShareSpace(spaceId: String, onSuccess: () -> Unit) {
     val call = apiService.leaveShareSpace(authorizationHeader, spaceId)
 
     call.enqueue(object : Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
             if (response.isSuccessful) {
                 Log.d("APIResponse", "나가기 성공")
+                onSuccess()
             } else {
                 Log.d("APIResponse", "요청 실패")
             }

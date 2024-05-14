@@ -61,6 +61,7 @@ fun ShareSpace(
     navController: NavController,
     spaceId: String,
     audioCallViewModel: AudioCallViewModel,
+    spaceViewModel: SpaceViewModel,
     onNote: (String) -> Unit
 ) {
 
@@ -110,7 +111,7 @@ fun ShareSpace(
             spaceId,
             users = shareSpaceDetails?.users ?: listOf(),
             participants = participants,
-            spaceViewModel = SpaceViewModel()
+            spaceViewModel = spaceViewModel,
         )
         Divider(
             color = Color.Gray,
@@ -175,7 +176,6 @@ fun SpTitleBar(
     val peopleImg = painterResource(id = R.drawable.people)
 
     val showPopup = remember { mutableStateOf(false) }
-    val shareSpaceList by spaceViewModel.shareSpaceList.collectAsState()
 
 
     fun copyToClipboard(context: Context, text: String) {
@@ -312,8 +312,9 @@ fun SpTitleBar(
                             .height(30.dp)
                             .height(30.dp)
                             .clickable {
-                                leaveShareSpace(spaceId)
-                                spaceViewModel.updateShareSpaceList()
+                                leaveShareSpace(spaceId) {
+                                    spaceViewModel.removeShareSpace(spaceId)
+                                }
                             }
                     )
                     Spacer(modifier = Modifier.width(20.dp))
