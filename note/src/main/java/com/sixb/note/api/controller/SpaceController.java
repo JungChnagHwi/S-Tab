@@ -85,7 +85,7 @@ public class SpaceController {
         }
     }
 
-    @PostMapping("/{spaceId}")
+    @DeleteMapping("/{spaceId}")
     public ResponseEntity<String> leaveSpace(long userId, @PathVariable String spaceId) {
         try {
             spaceService.leaveSpace(userId, spaceId);

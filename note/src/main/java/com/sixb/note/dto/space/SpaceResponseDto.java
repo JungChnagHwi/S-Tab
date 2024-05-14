@@ -11,6 +11,7 @@ import java.util.UUID;
 @Setter
 public class SpaceResponseDto {
     private String spaceId;
+    private String rootFolderId;
     private String title;
     private Boolean isPublic;
     private String spaceMd;

@@ -96,14 +96,24 @@ public class SpaceService {
         newSpace.setCreatedAt(now);
         newSpace.setUpdatedAt(now);
 
+        Folder newFolder = new Folder();
+        String folderId = IdCreator.create("f");
+        newFolder.setSpaceId(newSpace.getSpaceId());
+        newFolder.setTitle("root");
+        newFolder.setFolderId(folderId);
+        newFolder.setCreatedAt(now);
+        newFolder.setUpdatedAt(now);
+
+        newSpace.setFolders(Arrays.asList(newFolder));
         newSpace.setUsers(Arrays.asList(user));
         Space savedSpace = spaceRepository.save(newSpace);
-        return convertToSpaceResponseDto(savedSpace);
+        return convertToSpaceResponseDto(savedSpace, folderId);
     }
 
-    private SpaceResponseDto convertToSpaceResponseDto(Space space) {
+    private SpaceResponseDto convertToSpaceResponseDto(Space space, String folderId) {
         SpaceResponseDto responseDto = new SpaceResponseDto();
         responseDto.setSpaceId(space.getSpaceId());
+        responseDto.setRootFolderId(folderId);
         responseDto.setTitle(space.getTitle());
         responseDto.setIsPublic(true);
         responseDto.setSpaceMd("SSAFY");
