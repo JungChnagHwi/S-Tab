@@ -2,6 +2,7 @@ package com.ssafy.stab.apis.space.folder
 
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PATCH
@@ -22,6 +23,6 @@ interface ApiService {
     @PATCH("api/folder/relocation")
     fun relocateFolder(@Header("Authorization") authorization: String, @Body renameFolderRequest: RelocateFolderRequest): Call<Void>
 
-    @PATCH("api/folder/{folderId}")
+    @DELETE("api/folder/{folderId}")
     fun deleteFolder(@Header("Authorization") authorization: String, @Path("folderId") folderId: String): Call<Void>
 }
