@@ -6,4 +6,4 @@ COPY ${JAR_FILE} auth.jar
 
 EXPOSE 8002
 
-ENTRYPOINT ["java", "-jar", "/auth.jar"]
+ENTRYPOINT ["java", "-jar", "-Duser.timezone=Asia/Seoul", "/auth.jar"]

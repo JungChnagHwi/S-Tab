@@ -6,4 +6,4 @@ COPY ${JAR_FILE} eureka.jar
 
 EXPOSE 8761
 
-ENTRYPOINT ["java", "-jar", "/eureka.jar"]
+ENTRYPOINT ["java", "-jar", "-Duser.timezone=Asia/Seoul", "/eureka.jar"]

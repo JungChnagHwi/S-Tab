@@ -6,4 +6,4 @@ COPY ${JAR_FILE} config.jar
 
 EXPOSE 8888
 
-ENTRYPOINT ["java", "-jar", "/config.jar"]
+ENTRYPOINT ["java", "-jar", "-Duser.timezone=Asia/Seoul", "/config.jar"]

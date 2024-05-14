@@ -6,4 +6,4 @@ COPY ${JAR_FILE} ocr.jar
 
 EXPOSE 8005
 
-ENTRYPOINT ["java", "-jar", "/ocr.jar"]
+ENTRYPOINT ["java", "-jar", "-Duser.timezone=Asia/Seoul", "/ocr.jar"]

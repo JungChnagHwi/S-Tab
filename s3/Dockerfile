@@ -6,4 +6,4 @@ COPY ${JAR_FILE} s3.jar
 
 EXPOSE 8004
 
-ENTRYPOINT ["java", "-jar", "/s3.jar"]
+ENTRYPOINT ["java", "-jar", "-Duser.timezone=Asia/Seoul", "/s3.jar"]
