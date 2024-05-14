@@ -3,7 +3,6 @@ package com.ssafy.stab.screens.space.share
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,7 +39,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.ShareSpace
 import com.ssafy.stab.apis.space.share.ShareSpaceList
@@ -49,6 +48,7 @@ import com.ssafy.stab.apis.space.share.getShareSpace
 import com.ssafy.stab.apis.space.share.leaveShareSpace
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListSpace
+import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 import com.ssafy.stab.webrtc.audiocall.AudioSessionViewModel
 import com.ssafy.stab.webrtc.audiocall.Connection
@@ -62,6 +62,7 @@ fun ShareSpace(
     rootFolderId: String,
     audioCallViewModel: AudioCallViewModel,
     spaceViewModel: SpaceViewModel,
+    socketManager: SocketManager,
     onNote: (String) -> Unit
 ) {
 
@@ -99,6 +100,17 @@ fun ShareSpace(
         audioSessionViewModel.getSessionConnection(spaceId)
     }
 
+    // 소켓 통신 연결 - 공유 스페이스가 바뀌면 소켓 연결 실행
+    LaunchedEffect(spaceId) {
+        socketManager.joinSpace(spaceId, userName ?: "Unknown") // space room 연결
+    }
+    DisposableEffect(spaceId) {
+        // Composable이 해제될 때, 스페이스 룸을 연결 종료
+        onDispose {
+            socketManager.leaveSpace(spaceId)
+        }
+    }
+
     Column(
         modifier = Modifier
             .background(Color(0xFFE9ECF5))
@@ -112,6 +124,7 @@ fun ShareSpace(
             users = shareSpaceDetails?.users ?: listOf(),
             participants = participants,
             spaceViewModel = spaceViewModel,
+            socketManager = socketManager
         )
         Divider(
             color = Color.Gray,
@@ -160,7 +173,8 @@ fun SpTitleBar(
     spaceId: String,
     users: List<User>,
     participants: List<Connection>,
-    spaceViewModel: SpaceViewModel
+    spaceViewModel: SpaceViewModel,
+    socketManager: SocketManager
 ) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)

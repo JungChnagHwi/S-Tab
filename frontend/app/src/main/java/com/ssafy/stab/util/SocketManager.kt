@@ -2,7 +2,6 @@ package com.ssafy.stab.util
 
 import android.util.Log
 import com.google.gson.Gson
-import com.ssafy.stab.BuildConfig
 import io.socket.client.IO
 import io.socket.client.Socket
 import org.json.JSONObject
@@ -16,22 +15,32 @@ import java.net.URISyntaxException
 class SocketManager {
     private var socket: Socket? = null
     private val gson = Gson()
+    private var isConnected = false
 
     // 소켓 연결 설정
     fun connectToSocket(serverUrl: String) {
+        if (isConnected) {
+            Log.d("SocketManager", "Already connected")
+            return
+        }
+
         try {
-            socket = IO.socket(BuildConfig.SOCKET_URL) // 소켓 서버 주소 설정
+            socket = IO.socket(serverUrl) // 소켓 서버 주소 설정
+            Log.d("SocketConnection", "Socket initialized")
         } catch (e: URISyntaxException) {
             e.printStackTrace()
+            Log.e("SocketManager", "URISyntaxException: ${e.message}")
             return
         }
         // 소켓 연결
         socket?.on(Socket.EVENT_CONNECT) {
             Log.d("SocketConnection", "Connected")
+            isConnected = true
         }
         // 소켓 연결 끊기
         socket?.on(Socket.EVENT_DISCONNECT) {
             Log.d("SocketConnection", "Disconnected")
+            isConnected = false
         }
         // socketId에 연결됨을 확인
         socket?.on("connectionSuccess") { data ->
@@ -46,6 +55,7 @@ class SocketManager {
 
     fun disconnect() {
         socket?.disconnect() // 소켓 연결 끊기
+        isConnected = false
     }
 
     // 스페이스 room 참여/떠나기

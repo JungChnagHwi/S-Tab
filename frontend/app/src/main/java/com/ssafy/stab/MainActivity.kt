@@ -23,15 +23,22 @@ import com.ssafy.stab.components.MarkdownScreen
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.screens.space.NoteListViewModel
+import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 class MainActivity : ComponentActivity() {
+    private lateinit var socketManager: SocketManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         var keyHash = Utility.getKeyHash(this)
         Log.d("Key Hash", "$keyHash")
         super.onCreate(savedInstanceState)
         PreferencesUtil.init(this)
         PreferencesUtil.saveCallState(false, null) // 앱 시작 시 callState 초기화
+
+        // 소켓 초기화 및 연결 설정
+        socketManager = SocketManager()
+        socketManager.connectToSocket(BuildConfig.SOCKET_URL)
 
         val loginDetails = PreferencesUtil.getLoginDetails()
         setContent {
@@ -42,17 +49,21 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Routers(audioCallViewModel)
+                    Routers(audioCallViewModel, socketManager)
                 }
             }
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        socketManager.disconnect()
+    }
 
 }
 
 @Composable
-fun Routers(audioCallViewModel: AudioCallViewModel) {
+fun Routers(audioCallViewModel: AudioCallViewModel, socketManager: SocketManager) {
 
     val navController = rememberNavController()
 
@@ -66,7 +77,8 @@ fun Routers(audioCallViewModel: AudioCallViewModel) {
         composable("space") {
             SpaceRouters(
                 onLogin = { navController.navigate("login") },
-                audioCallViewModel
+                audioCallViewModel,
+                socketManager
             ) }
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("f")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("f")) }
