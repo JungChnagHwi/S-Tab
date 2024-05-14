@@ -27,6 +27,8 @@ public class NoteController {
 			return ResponseEntity.status(HttpStatus.CREATED).body(response);
 		} catch (FolderNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
 
