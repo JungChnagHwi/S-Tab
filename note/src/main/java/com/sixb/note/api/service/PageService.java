@@ -222,37 +222,11 @@ public class PageService {
             }
 
             // before 페이지에 이어서 페이지 만들기
-//            Page newPage = new Page();
-            Page newPage = Page.builder().build();
-            LocalDateTime now = LocalDateTime.now();
+            Page newPage = createNewPage(beforePageId);
 
-            // Integer니까 nullable?
-            Optional<Integer> optionalPdfPage = Optional.ofNullable(targetPage.getPdfPage());
-            Optional<String> optionalPdfUrl = Optional.ofNullable(targetPage.getPdfUrl());
-
-            String pdfUrl;
-            Integer pdfPage;
-
-            if (optionalPdfUrl.isPresent() && optionalPdfPage.isPresent()) {
-                pdfUrl = optionalPdfUrl.get();
-                pdfPage = optionalPdfPage.get();
-            } else {
-                pdfUrl = null;
-                pdfPage = null;
-            }
-
-            // 이전페이지 정보로 새로운 page만들기
-            String pageId = IdCreator.create("p");
-            newPage.setPageId(pageId);
-            newPage.setNoteId(beforePage.getNoteId());
-            newPage.setCreatedAt(now);
-            newPage.setUpdatedAt(now);
-            newPage.setColor(targetPage.getColor());
-            newPage.setDirection(targetPage.getDirection());
-            newPage.setPageData(targetPage.getPageData());
-            newPage.setTemplate(targetPage.getTemplate());
-            newPage.setPdfUrl(pdfUrl);
-            newPage.setPdfPage(pdfPage);
+            newPage.setPdfUrl(beforePage.getPdfUrl());
+            newPage.setPdfPage(beforePage.getPdfPage());
+            newPage.setPageData(beforePage.getPageData());
 
             // 이전페이지에 이어진 페이지 찾기
             Page connectPage = pageRepository.getNextPageByPageId(beforePageId);
@@ -272,12 +246,12 @@ public class PageService {
             ObjectMapper mapper = new ObjectMapper();
             PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
             PageInfoDto response = PageInfoDto.builder()
-                    .pageId(pageId)
+                    .pageId(newPage.getPageId())
                     .color(newPage.getColor())
                     .template(newPage.getTemplate())
                     .direction(newPage.getDirection())
-                    .pdfPage(pdfPage)
-                    .pdfUrl(pdfUrl)
+                    .pdfPage(newPage.getPdfPage())
+                    .pdfUrl(newPage.getPdfUrl())
                     .updatedAt(newPage.getUpdatedAt())
                     .isBookmarked(false)
                     .paths(pageDataDto.getPaths())
@@ -317,17 +291,13 @@ public class PageService {
         if (beforePage != null) {
             // pdfcount 만큼 for문 돌면서 페이지 생성하기
             for (int i = pdfPageCount; i > 0; i--) {
-                String pageId = IdCreator.create("p");
-                Page page = Page.builder()
-                        .pageId(pageId)
-                        .noteId(beforePage.getNoteId())
-                        .direction(0)
-                        .template("basic")
-                        .color("white")
-                        .pdfUrl(pdfUrl)
-                        .pdfPage(i)
-                        .pageData(initData)
-                        .build();
+                Page page = createNewPage(beforePageId);
+                
+                // 추가 정보 저장
+                page.setTemplate("blank");
+                page.setColor("white");
+                page.setPdfPage(i);
+                page.setPdfUrl(pdfUrl);
 
                 // 페이지 링크하기
                 if (connectPage!=null) {
