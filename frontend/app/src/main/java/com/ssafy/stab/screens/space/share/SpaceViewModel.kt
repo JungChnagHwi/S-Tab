@@ -1,6 +1,5 @@
 package com.ssafy.stab.screens.space.share
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.apis.space.share.ShareSpaceList
@@ -9,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class SpaceViewModel: ViewModel() {
+class SpaceViewModel : ViewModel() {
     private val _shareSpaceList = MutableStateFlow<List<ShareSpaceList>>(emptyList())
     val shareSpaceList: StateFlow<List<ShareSpaceList>> = _shareSpaceList
 
@@ -25,4 +24,7 @@ class SpaceViewModel: ViewModel() {
         _shareSpaceList.value = _shareSpaceList.value + newSpace
     }
 
+    fun removeShareSpace(spaceId: String) {
+        _shareSpaceList.value = _shareSpaceList.value.filter { it.spaceId != spaceId }
+    }
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,6 +37,7 @@ import com.ssafy.stab.screens.note.PersonalNote
 import com.ssafy.stab.screens.note.ShareNote
 import com.ssafy.stab.screens.space.personal.PersonalSpace
 import com.ssafy.stab.screens.space.share.ShareSpace
+import com.ssafy.stab.screens.space.share.SpaceViewModel
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
@@ -44,6 +46,7 @@ fun SpaceRouters(
     audioCallViewModel: AudioCallViewModel
 ) {
     val navController = rememberNavController()
+    val spaceViewModel: SpaceViewModel = viewModel()
 
     // NavController의 현재 라우트를 추적
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
@@ -53,7 +56,7 @@ fun SpaceRouters(
         // "personal-note"와 "share-note"가 아닐 때만 SideBar를 렌더링
 
         if (currentRoute != "personal-note/{noteId}" && currentRoute != "share-note") {
-            SideBar(navController, audioCallViewModel, modifier = Modifier.weight(0.25f))
+            SideBar(navController, audioCallViewModel, spaceViewModel, modifier = Modifier.weight(0.25f))
         }
         Column(modifier = Modifier
             .weight(0.75f)
@@ -72,7 +75,8 @@ fun SpaceRouters(
                         ShareSpace(
                             navController,
                             spaceId,
-                            audioCallViewModel
+                            audioCallViewModel,
+                            spaceViewModel = spaceViewModel
                         ) { navController.navigate("personal-note/$it") }
                     }
                 }
