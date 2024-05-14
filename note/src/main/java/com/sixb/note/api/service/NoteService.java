@@ -45,6 +45,8 @@ public class NoteService {
 				.template(request.getTemplate())
 				.color(request.getColor())
 				.direction(request.getDirection())
+				.createdAt(now)
+				.updatedAt(now)
 				.pageData(Const.INIT_PAGE_DATA)
 				.build();
 
