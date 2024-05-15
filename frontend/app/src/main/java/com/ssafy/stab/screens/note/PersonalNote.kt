@@ -71,7 +71,7 @@ fun PersonalNote(
                     Modifier
                         .size(36.dp)
                         .clickable {
-//                            noteViewModel.savePage(noteControlViewModel.pathList)
+                            noteViewModel.savePage(noteControlViewModel.pathList)
                             navController.popBackStack()
                         }
                 )

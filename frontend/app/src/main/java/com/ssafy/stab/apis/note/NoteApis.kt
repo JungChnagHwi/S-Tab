@@ -28,7 +28,7 @@ fun fetchPageList(
             if (response.isSuccessful) {
                 val responseBody = response.body()!!
                 onResponseSuccess(responseBody)
-                Log.i("fetchPageList", "$noteId: $responseBody")
+                Log.i("fetchPageList", "$noteId: fetchPageList")
             } else {
                 Log.e("fetchPageList", "${response.code()}: $response / $noteId")
             }
@@ -53,7 +53,7 @@ fun createNewPage(
                 onResponseSuccess(responseBody)
                 Log.i("createPage", responseBody.toString())
             } else {
-                Log.e("createPage", "${response.code()}: ${response.errorBody()?.string()}, before: $beforePageId")
+                Log.e("createPage", "${response.code()}: $response, before: $beforePageId")
             }
         }
 
@@ -73,7 +73,7 @@ fun savePageData(
             if (response.isSuccessful) {
                 Log.i("savePage", response.body().toString())
             } else {
-                Log.e("savePage", "${response.code()}: ${response.errorBody()?.string()}")
+                Log.e("savePage", "${response.code()}: $response / ${pageData.pageId}")
             }
         }
 
