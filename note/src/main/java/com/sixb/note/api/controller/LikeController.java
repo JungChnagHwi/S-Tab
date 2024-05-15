@@ -41,7 +41,7 @@ public class LikeController {
 	}
 
 	@GetMapping
-	public ResponseEntity<LikeResponseDto> getFavorites(long userId) {
+	public ResponseEntity<LikeResponseDto> getLikes(long userId) {
 		LikeResponseDto likes = likeService.getLikes(userId);
 		return ResponseEntity.ok(likes);
 	}

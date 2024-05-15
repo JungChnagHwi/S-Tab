@@ -1,5 +1,6 @@
-package com.ssafy.stab.screens.space
+package com.ssafy.stab.screens.space.bookmark
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,9 +29,39 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.stab.R
+import com.ssafy.stab.apis.space.bookmark.BookmardFolder
+import com.ssafy.stab.apis.space.bookmark.BookmardNote
+import com.ssafy.stab.apis.space.bookmark.BookmardPage
+import com.ssafy.stab.apis.space.bookmark.getBookMarkList
 
 @Composable
 fun BookMark(){
+    val folders = remember { mutableStateOf<List<BookmardFolder>>(emptyList()) }
+    val notes = remember { mutableStateOf<List<BookmardNote>>(emptyList()) }
+    val pages = remember { mutableStateOf<List<BookmardPage>>(emptyList()) }
+
+    LaunchedEffect(key1 = true) {
+        getBookMarkList(
+            { res ->
+                Log.d("즐찾1", res.toString())
+                if (res != null) {
+                    folders.value = res
+                }
+            },
+            { res ->
+                Log.d("즐찾2", res.toString())
+                if (res != null) {
+                    notes.value = res
+                }
+            },
+            { res ->
+                Log.d("즐찾3", res.toString())
+                if (res != null) {
+                    pages.value = res
+                }
+            })
+    }
+
     Column(
         modifier = Modifier
             .background(Color(0xFFE9ECF5))
@@ -41,7 +73,7 @@ fun BookMark(){
             thickness = 1.dp, // 선의 두께 설정
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 20.dp) // 선 주변에 수직 패딩 추가
         )
-        BookMarkUnder()
+        BookMarkUnder(folders.value, notes.value, pages.value)
     }
 }
 
@@ -70,7 +102,11 @@ fun BookMarkTitleBar() {
 }
 
 @Composable
-fun BookMarkUnder(){
+fun BookMarkUnder(
+    folders: List<BookmardFolder>,
+    notes: List<BookmardNote>,
+    pages: List<BookmardPage>
+){
     val isPageSort = remember { mutableStateOf(false) }
     val isNameSort = remember { mutableStateOf(false) }
     val listImg = painterResource(id = R.drawable.list)
@@ -83,47 +119,6 @@ fun BookMarkUnder(){
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
-            Row(
-                modifier = Modifier
-                    .background(color = Color.LightGray, shape = RoundedCornerShape(10.dp))
-                    .clickable { isPageSort.value = !isPageSort.value }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (!isPageSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
-                        .align(Alignment.CenterVertically),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "폴더/노트",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (isPageSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
-                        .align(Alignment.CenterVertically),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "페이지",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(15.dp))
             Row(
                 modifier = Modifier
                     .background(color = Color.LightGray, shape = RoundedCornerShape(10.dp))
@@ -174,7 +169,7 @@ fun BookMarkUnder(){
         Spacer(modifier = Modifier.height(10.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))
-//            ListGridScreen()
+            BookMarkListGridScreen(folders, notes, pages)
         }
     }
 }

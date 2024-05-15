@@ -2,6 +2,7 @@ package com.ssafy.stab.apis.space.note
 
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -24,6 +25,6 @@ interface ApiService {
     @PATCH("api/note/relocation")
     fun relocateNote(@Header("Authorization") authorization: String, @Body relocateRequest: RelocateRequest): Call<Void>
 
-    @PATCH("api/note/{noteId}")
+    @DELETE("api/note/{noteId}")
     fun deleteNote(@Header("Authorization") authorization: String, @Path("noteId") noteId: String): Call<Void>
 }

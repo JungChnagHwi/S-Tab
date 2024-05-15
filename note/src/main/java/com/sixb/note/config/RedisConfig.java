@@ -1,16 +1,11 @@
 package com.sixb.note.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sixb.note.util.RedisInfo;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,8 +16,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -35,7 +30,6 @@ import static com.sixb.note.util.Const.PAGE_CACHE_EXPIRE_TIME;
 
 @Configuration
 @EnableCaching
-@EnableRedisRepositories
 @RequiredArgsConstructor
 public class RedisConfig {
 
@@ -69,19 +63,7 @@ public class RedisConfig {
 	}
 
 	@Bean
-	public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-		ObjectMapper mapper = new ObjectMapper();
-
-		mapper.activateDefaultTyping(
-				BasicPolymorphicTypeValidator
-						.builder()
-						.allowIfSubType(Object.class)
-						.build(),
-				ObjectMapper.DefaultTyping.NON_FINAL
-		);
-		mapper.registerModule(new JavaTimeModule());
-		mapper.disable(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS);
-
+	public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
 		RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
 				.disableCachingNullValues()
 				.serializeKeysWith(
@@ -89,22 +71,25 @@ public class RedisConfig {
 								.fromSerializer(new StringRedisSerializer()))
 				.serializeValuesWith(
 						RedisSerializationContext.SerializationPair
-						.fromSerializer(new GenericJackson2JsonRedisSerializer(mapper)))
+						.fromSerializer(new GenericJackson2JsonRedisSerializer()))
 				.entryTtl(PAGE_CACHE_EXPIRE_TIME);
+
 		Map<String, RedisCacheConfiguration> configurations = new HashMap<>();
+		configurations.put(PAGE, cacheConfiguration.entryTtl(PAGE_CACHE_EXPIRE_TIME));
 
-		configurations.put(PAGE, cacheConfiguration);
-
-		return RedisCacheManager.builder(redisConnectionFactory)
+		return RedisCacheManager.RedisCacheManagerBuilder
+				.fromConnectionFactory(redisConnectionFactory)
+				.cacheDefaults(cacheConfiguration)
 				.withInitialCacheConfigurations(configurations)
 				.build();
 	}
 
 	@Bean
-	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+	public RedisTemplate<String, Object> redisTemplate() {
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setConnectionFactory(redisConnectionFactory);
-		redisTemplate.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+		redisTemplate.setConnectionFactory(redisConnectionFactory());
 		return redisTemplate;
 	}
 

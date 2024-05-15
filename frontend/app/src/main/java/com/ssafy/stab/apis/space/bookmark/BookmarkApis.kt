@@ -10,7 +10,7 @@ import retrofit2.Response
 private val apiService: ApiService = RetrofitClient.instance.create(ApiService::class.java)
 private val accessToken = PreferencesUtil.getLoginDetails().accessToken
 private val authorizationHeader = "Bearer $accessToken"
-fun getBookMarkList() {
+fun getBookMarkList(onFolderResult: (List<BookmardFolder>?) -> Unit, onNoteResult: (List<BookmardNote>?) -> Unit, onPageResult: (List<BookmardPage>?) -> Unit) {
     val apiService = RetrofitClient.instance.create(ApiService::class.java)
     val call = apiService.getBookmarkList(authorizationHeader)
 
@@ -18,6 +18,10 @@ fun getBookMarkList() {
         override fun onResponse(call: Call<BookmarkListResponse>, response: Response<BookmarkListResponse>) {
             if (response.isSuccessful) {
                 Log.d("APIResponse", response.body().toString())
+                val fileListResponse = response.body()
+                onFolderResult(fileListResponse?.folders)
+                onNoteResult(fileListResponse?.notes)
+                onPageResult(fileListResponse?.pages)
             } else {
                 println("Response not successful: ${response.errorBody()?.string()}")
             }

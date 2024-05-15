@@ -6,12 +6,14 @@ import com.sixb.note.dto.pageData.PathDto;
 import com.sixb.note.dto.pageData.TextBoxDto;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
+@Cacheable
 public class PageInfoDto {
     private String pageId;
     private String color;

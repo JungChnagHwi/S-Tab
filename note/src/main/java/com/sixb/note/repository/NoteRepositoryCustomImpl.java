@@ -13,6 +13,7 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
+import org.neo4j.driver.exceptions.NoSuchRecordException;
 import org.neo4j.driver.types.MapAccessor;
 import org.springframework.stereotype.Repository;
 
@@ -31,8 +32,7 @@ public class NoteRepositoryCustomImpl implements NoteRepositoryCustom {
 	public Optional<CreateNoteResponseDto> createNote(CreateNoteRequestDto request) throws FolderNotFoundException {
 		LocalDateTime now = LocalDateTime.now();
 
-		String spaceId = getSpaceId(request.getParentFolderId())
-				.orElseThrow(() -> new FolderNotFoundException("존재하지 않는 폴더입니다."));
+		String spaceId = getSpaceId(request.getParentFolderId());
 		String noteId = IdCreator.create("n");
 		String pageId = IdCreator.create("p");
 
@@ -108,7 +108,7 @@ public class NoteRepositoryCustomImpl implements NoteRepositoryCustom {
 		return Optional.ofNullable(response);
 	}
 
-	private Optional<String> getSpaceId(String folderId) {
+	private String getSpaceId(String folderId) throws FolderNotFoundException {
 		Node folder = node("Folder").named("f")
 				.withProperties("folderId", literalOf(folderId));
 
@@ -118,8 +118,9 @@ public class NoteRepositoryCustomImpl implements NoteRepositoryCustom {
 
 		try (Session session = driver.session()) {
 			Result result = session.run(statement.getCypher());
-			String ret = result.single().get("spaceId").asString();
-			return Optional.ofNullable(ret);
+			return result.single().get("spaceId").asString();
+		} catch (NoSuchRecordException e) {
+			throw new FolderNotFoundException("존재하지 않는 폴더입니다.");
 		}
 	}
 
