@@ -2,6 +2,7 @@ package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.TrashService;
 import com.sixb.note.dto.Trash.TrashRequestDto;
+import com.sixb.note.dto.Trash.TrashResponseDto;
 import com.sixb.note.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,8 +19,8 @@ public class TrashController {
 	private final TrashService trashService;
 
 	@GetMapping
-	public ResponseEntity<List<Object>> getDeletedItems(long userId) {
-		List<Object> deletedItems = trashService.findDeletedItems(userId);
+	public ResponseEntity<TrashResponseDto> getDeletedItems(long userId) {
+		TrashResponseDto deletedItems = trashService.findDeletedItems(userId);
 		return ResponseEntity.ok(deletedItems);
 	}
 

@@ -1,18 +1,16 @@
 package com.sixb.note.entity;
 
 import com.sixb.note.common.BaseTimeEntity;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-@Getter
-@Setter
+@Data
 @Node("Page")
-@Builder
+@SuperBuilder
 public class Page extends BaseTimeEntity {
 
     @Id
