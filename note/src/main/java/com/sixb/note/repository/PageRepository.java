@@ -21,7 +21,7 @@ public interface PageRepository extends Neo4jRepository<Page, String> {
     @Query("MATCH (p:Page) WHERE p.pageId = $pageId RETURN p")
     Page findPageById(@Param("pageId") String pageId);
 
-    @Query("MATCH (u:User {userId: $userId})-[:Like]->(p:Page) RETURN p")
+    @Query("MATCH (u:User {userId: $userId})-[:Like]->(p:Page) WHERE p.isDeleted = false RETURN p")
     List<Page> findAllLikedPagesByUserId(@Param("userId") long userId);
 
     @Query("MATCH (u:User {userId: $userId})-[r:Like]->(p:Page {pageId: $itemId}) DELETE r")

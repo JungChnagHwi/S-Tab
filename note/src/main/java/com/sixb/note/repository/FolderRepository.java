@@ -16,16 +16,13 @@ public interface FolderRepository extends Neo4jRepository<Folder, String> {
     @Query("MATCH (s:Space {spaceId: $spaceId})-[:Hierarchy]->(f:Folder) WHERE f.isDeleted = false RETURN f")
     List<Folder> findFoldersBySpaceId(@Param("spaceId") String spaceId);
 
-    @Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE c.folderId = $folderId RETURN p")
-    Folder findParentFolderByFolderId(@Param("folderId") String folderId);
-
     @Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space)-[:Hierarchy*]->(f:Folder) WHERE f.isDeleted = true RETURN f")
     List<Folder> findDeletedFolders(@Param("userId") long userId);
 
     @Query("MATCH (f:Folder) WHERE f.folderId = $folderId RETURN f")
     Folder findFolderById(@Param("folderId") String folderId);
 
-    @Query("MATCH (u:User {userId: $userId})-[:Like]->(f:Folder) RETURN f")
+    @Query("MATCH (u:User {userId: $userId})-[:Like]->(f:Folder) WHERE f.isDeleted = false RETURN f")
     List<Folder> findAllLikedFoldersByUserId(@Param("userId") long userId);
 
     @Query("MATCH (u:User {userId: $userId})-[r:Like]->(f:Folder {folderId: $itemId}) DELETE r")
