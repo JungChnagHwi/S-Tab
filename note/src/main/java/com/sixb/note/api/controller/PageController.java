@@ -5,13 +5,17 @@ import com.sixb.note.dto.page.*;
 import com.sixb.note.exception.NoteNotFoundException;
 import com.sixb.note.exception.PageNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.*;
+
 @RestController
 @RequestMapping("/api/page")
 @RequiredArgsConstructor
+@Slf4j
 public class PageController {
 
     private final PageService pageService;
@@ -44,6 +48,9 @@ public class PageController {
             return ResponseEntity.ok(response);
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("페이지 저장에 실패했습니다.");
         }
     }
 
@@ -56,19 +63,21 @@ public class PageController {
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("Error: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("페이지 저장에 실패했습니다.");
         }
     }
 
     @GetMapping("/{note-id}")
-    public ResponseEntity<?> getPageList(@RequestParam("userId") long userId, @PathVariable("note-id") String noteId) {
+    public ResponseEntity<?> getPageList(@PathVariable("note-id") String noteId) {
         try {
-            PageListResponseDto response = pageService.getPageList(userId, noteId);
+            PageListResponseDto response = pageService.getPageList(noteId);
             return ResponseEntity.ok(response);
         } catch (NoteNotFoundException | PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("Error: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("페이지를 불러오는데 실패했습니다.");
         }
     }
 
@@ -91,17 +100,21 @@ public class PageController {
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("Error: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("페이지 생성에 실패했습니다.");
         }
     }
 
     @PostMapping("/pdf")
     public ResponseEntity<?> pdfPage(@RequestBody PagePdfRequestDto request) {
         try {
-            pageService.pdfPage(request);
-            return ResponseEntity.ok("페이지 생성 완료");
+            List<PageInfoDto> response = pageService.pdfPage(request);
+            return ResponseEntity.ok(response);
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("페이지 생성에 실패했습니다.");
         }
     }
 
