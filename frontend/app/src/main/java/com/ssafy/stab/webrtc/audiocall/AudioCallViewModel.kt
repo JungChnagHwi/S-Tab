@@ -37,6 +37,7 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     private var session: Session? = null
     private var httpClient: CustomHttpClient? = null
     var isMuted = mutableStateOf(false)
+    var isSpeakerMuted = mutableStateOf(false)  // 스피커 음소거 상태를 저장하는 변수
 
     // 오디오 권한 체크 후, 세션 id와 서버 url이 유효한지 확인하고 session 입장 요청
     fun buttonPressed(context: Context) {
@@ -161,11 +162,18 @@ class AudioCallViewModel(application: Application) : AndroidViewModel(applicatio
     // 미디어스트림 받기
     override fun onStreamReceived(stream: MediaStream, participant: RemoteParticipant) {
         val audioTrack = stream.audioTracks.firstOrNull()
+        // 실제 스피커 음량 조절 기능 구현 영역
     }
     // 마이크 토글 함수
     fun toggleMic() {
         isMuted.value = !isMuted.value
         session?.localParticipant?.muteMic(isMuted.value)
+    }
+
+    // 스피커 토글 함수
+    fun toggleSpeaker() {
+        isSpeakerMuted.value = !isSpeakerMuted.value
+        // 실제 스피커 음량 조절 기능 구현 필요
     }
 
     // 세션 떠나기

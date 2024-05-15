@@ -173,10 +173,12 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
         }
         Spacer(modifier = Modifier.weight(1f))
         CallStateBox(
-            isInCall = callState.value.isInCall,
             currentCallSpaceName = currentCallSpaceName,
+            isInCall = callState.value.isInCall,
             isMuted = audioCallViewModel.isMuted.value,
+            isSpeakerMuted = audioCallViewModel.isSpeakerMuted.value,
             toggleMic = { audioCallViewModel.toggleMic() },
+            toggleSpeaker = { audioCallViewModel.toggleSpeaker() },
             leaveSession = { audioCallViewModel.leaveSession() },
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
@@ -208,10 +210,12 @@ fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<Shar
 
 @Composable
 fun CallStateBox(
-    isInCall: Boolean,
     currentCallSpaceName: String,
+    isInCall: Boolean,
     isMuted: Boolean,
+    isSpeakerMuted: Boolean,
     toggleMic: () -> Unit,
+    toggleSpeaker: () -> Unit,
     leaveSession: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -219,8 +223,11 @@ fun CallStateBox(
     val noWifiImg = painterResource(id = R.drawable.no_connection)
     val soundOnImg = painterResource(id = R.drawable.soundon)
     val soundOffImg = painterResource(id = R.drawable.soundoff)
-    val speakerImg = painterResource(id = R.drawable.speaker)
+    val speakerOnImg = painterResource(id = R.drawable.speaker)
+    val speakerOffImg = painterResource(id = R.drawable.speaker_off)
     val phoneImg = painterResource(id = R.drawable.phone)
+
+    val speakerImg = if (isSpeakerMuted) speakerOffImg else speakerOnImg
     val soundImg = if (isMuted) soundOffImg else soundOnImg
 
 
@@ -265,7 +272,11 @@ fun CallStateBox(
                 Image(
                     painter = speakerImg,
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            toggleSpeaker()
+                        }
                 )
                 Image(
                     painter = phoneImg,
