@@ -1,4 +1,4 @@
-package com.ssafy.stab.screens.space
+package com.ssafy.stab.screens.space.trash
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

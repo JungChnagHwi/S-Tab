@@ -38,6 +38,7 @@ import com.ssafy.stab.screens.space.bookmark.BookMark
 import com.ssafy.stab.screens.space.personal.PersonalSpace
 import com.ssafy.stab.screens.space.share.ShareSpace
 import com.ssafy.stab.screens.space.share.SpaceViewModel
+import com.ssafy.stab.screens.space.trash.Deleted
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
