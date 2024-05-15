@@ -33,16 +33,21 @@ fun BookMarkListGridScreen(
     notes: List<BookmardNote>,
     pages: List<BookmardPage>
 ) {
+
+    val sortedFolders = folders.sortedByDescending { it.updatedAt }
+    val sortedNotes = notes.sortedByDescending { it.updatedAt }
+    val sortedPages = pages.sortedByDescending { it.updatedAt }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp, 0.dp)
     ) {
         item {
-            Text(text = "폴더(${folders.size})", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5584FD),modifier = Modifier.padding(20.dp, 0.dp))
+            Text(text = "폴더(${sortedFolders.size})", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5584FD),modifier = Modifier.padding(20.dp, 0.dp))
         }
 
-        items(folders.chunked(5)) { rowItems ->
+        items(sortedFolders.chunked(5)) { rowItems ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -64,10 +69,10 @@ fun BookMarkListGridScreen(
         }
 
         item {
-            Text(text = "노트(${notes.size})", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5584FD),modifier = Modifier.padding(20.dp, 0.dp))
+            Text(text = "노트(${sortedNotes.size})", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5584FD),modifier = Modifier.padding(20.dp, 0.dp))
         }
 
-        items(notes.chunked(5)) { rowItems ->
+        items(sortedNotes.chunked(5)) { rowItems ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -89,10 +94,10 @@ fun BookMarkListGridScreen(
         }
 
         item {
-            Text(text = "페이지(${pages.size})", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5584FD),modifier = Modifier.padding(20.dp, 0.dp))
+            Text(text = "페이지(${sortedPages.size})", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5584FD),modifier = Modifier.padding(20.dp, 0.dp))
         }
 
-        items(pages.chunked(5)) { rowItems ->
+        items(sortedPages.chunked(5)) { rowItems ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -113,6 +118,7 @@ fun BookMarkListGridScreen(
             }
         }
     }
+    Spacer(modifier = Modifier.height(20.dp))
 }
 
 @Composable
