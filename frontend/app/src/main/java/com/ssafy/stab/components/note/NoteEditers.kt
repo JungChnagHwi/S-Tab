@@ -196,14 +196,14 @@ fun StrokeOptions(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        StrokeWidthIcons(strokeWidth  = 4f, viewModel) {
+            viewModel.changeStrokeWidth(4f)
+        }
         StrokeWidthIcons(strokeWidth  = 8f, viewModel) {
             viewModel.changeStrokeWidth(8f)
         }
         StrokeWidthIcons(strokeWidth  = 12f, viewModel) {
             viewModel.changeStrokeWidth(12f)
-        }
-        StrokeWidthIcons(strokeWidth  = 16f, viewModel) {
-            viewModel.changeStrokeWidth(16f)
         }
     }
 }
