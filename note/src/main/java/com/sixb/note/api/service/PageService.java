@@ -292,9 +292,9 @@ public class PageService {
                     .direction(beforePage.getDirection())
                     .noteId(beforePage.getNoteId())
                     .pageData(Const.INIT_PAGE_DATA)
+                    .createdAt(now)
+                    .updatedAt(now)
                     .build();
-            newPage.setCreatedAt(now);
-            newPage.setUpdatedAt(now);
             
             return newPage;
         } else {
@@ -306,7 +306,11 @@ public class PageService {
     @Cacheable(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
     private PageInfoDto getPageInfoDto(Page page) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
+        PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
+        
+        // 데이터가 올바른 형식이면 이렇게 보내고
+        // 아니면 pageData를 안넣는 방식으로 고칠 예정
+
         return PageInfoDto.builder()
                 .pageId(page.getPageId())
                 .color(page.getColor())
