@@ -182,6 +182,64 @@ fun ShareSpace(
                         onClick = { showParticipantListModal = false }
                     )
             ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 112.dp, end = 20.dp) // 패딩을 통해 위치 조정
+                ) {
+                    ParticipantListModal(
+                        totalusers = shareSpaceDetails?.users ?: listOf(),
+                        participants = participants,
+                        sessionId = spaceId,
+                        onDismiss = { showParticipantListModal = false }
+                    )
+                }
+                Image(
+                    painter = if (boxHeightState.value == 320.dp) dropupImg else dropdownImg,
+                    contentDescription = if (boxHeightState.value == 320.dp) "드롭다운" else "드롭업",
+                    modifier = Modifier
+                        .size(48.dp)
+                        .padding(10.dp)
+                        .clickable {
+                            // 높이 상태를 토글합니다.
+                            boxHeightState.value =
+                                if (boxHeightState.value == 320.dp) 80.dp else 320.dp
+                        }
+                // TextField 등 입력란을 여기에 배치할 수 있습니다.
+                MarkdownScreen(spaceId)
+                // 드롭다운/드롭업 버튼을 배치합니다.
+                // Box의 contentAlignment를 사용하여 버튼의 위치를 오른쪽 하단에 배치합니다.
+                Box(
+                    contentAlignment = Alignment.BottomEnd,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Image(
+                        painter = if (boxHeightState.value == 320.dp) dropupImg else dropdownImg,
+                        contentDescription = if (boxHeightState.value == 320.dp) "드롭다운" else "드롭업",
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(10.dp)
+                            .clickable {
+                                // 높이 상태를 토글합니다.
+                                boxHeightState.value =
+                                    if (boxHeightState.value == 320.dp) 80.dp else 320.dp
+                            }
+                    )
+                }
+            }
+            NoteListSpace(rootFolderId, onNote)
+        }
+
+        if (showParticipantListModal) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = { showParticipantListModal = false }
+                    )
+            ) {
                 ParticipantListModal(
                     totalusers = shareSpaceDetails?.users ?: listOf(),
                     participants = participants,
