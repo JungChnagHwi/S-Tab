@@ -231,7 +231,7 @@ fun SpTitleBar(
     var showParticipantListModal by remember { mutableStateOf(false) }
 
     if (showParticipantListModal) {
-        ParticipantListModal(participants = participants) {
+        ParticipantListModal(users, participants) {
             showParticipantListModal = false  // 모달 닫기
         }
     }
@@ -275,7 +275,7 @@ fun SpTitleBar(
                             modifier = Modifier.size(30.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = "( 2 / ${users.size} )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "(${participants.size} / ${users.size} )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
