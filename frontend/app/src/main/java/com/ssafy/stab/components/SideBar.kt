@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+//import androidx.compose.foundation.layout.FlowRowScopeInstance.align
+//import androidx.compose.foundation.layout.ColumnScopeInstance.align
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -50,15 +52,8 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
     val trashImg = painterResource(id = R.drawable.trash)
     val myspImg = painterResource(id = R.drawable.mysp)
     val sharespImg = painterResource(id = R.drawable.sharesp)
-    val wifiImg = painterResource(id = R.drawable.connection)
-    val soundOnImg = painterResource(id = R.drawable.soundon)
-    val soundOffImg = painterResource(id = R.drawable.soundoff)
-    val speakerImg = painterResource(id = R.drawable.speaker)
-    val phoneImg = painterResource(id = R.drawable.phone)
     val plusImg = painterResource(id = R.drawable.plus)
     val participateImg = painterResource(id = R.drawable.participate)
-
-    val soundImg = if (audioCallViewModel.isMuted.value) soundOffImg else soundOnImg
 
     val showCreateModal = remember { mutableStateOf(false) }
     val showParticipateModal = remember { mutableStateOf(false) }
@@ -177,63 +172,14 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
             ShareSpaceListScreen(navController, shareSpaceList)
         }
         Spacer(modifier = Modifier.weight(1f))
-        if (callState.value.isInCall) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(72.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(color = Color(0xFF7591C6))
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 15.dp)
-                        .align(Alignment.Center),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Image(
-                        painter = wifiImg,
-                        contentDescription = null,
-                        modifier = Modifier.size(30.dp)
-                    )
-                    Column {
-                        Text(
-                            text = "음성 연결됨",
-                            color = Color(0xff4ADE80),
-                            fontSize = 16.sp
-                        )
-                        Text(text = currentCallSpaceName)
-                    }
-                    Image(
-                        painter = soundImg,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable {
-                                audioCallViewModel.toggleMic()
-                            }
-                    )
-                    Image(
-                        painter = speakerImg,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Image(
-                        painter = phoneImg,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable {
-                                audioCallViewModel.leaveSession()
-                            }
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(30.dp))
-        }
+        CallStateBox(
+            isInCall = callState.value.isInCall,
+            currentCallSpaceName = currentCallSpaceName,
+            isMuted = audioCallViewModel.isMuted.value,
+            toggleMic = { audioCallViewModel.toggleMic() },
+            leaveSession = { audioCallViewModel.leaveSession() },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
 
@@ -258,5 +204,101 @@ fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<Shar
             }
         }
     }
+}
+
+@Composable
+fun CallStateBox(
+    isInCall: Boolean,
+    currentCallSpaceName: String,
+    isMuted: Boolean,
+    toggleMic: () -> Unit,
+    leaveSession: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val wifiImg = painterResource(id = R.drawable.connection)
+    val noWifiImg = painterResource(id = R.drawable.no_connection)
+    val soundOnImg = painterResource(id = R.drawable.soundon)
+    val soundOffImg = painterResource(id = R.drawable.soundoff)
+    val speakerImg = painterResource(id = R.drawable.speaker)
+    val phoneImg = painterResource(id = R.drawable.phone)
+    val soundImg = if (isMuted) soundOffImg else soundOnImg
+
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth(0.8f)
+            .height(72.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(color = Color(0xFF7591C6))
+    ) {
+        if (isInCall) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp)
+                    .align(Alignment.Center),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Image(
+                    painter = wifiImg,
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp)
+                )
+                Column {
+                    Text(
+                        text = "음성 연결됨",
+                        color = Color(0xff4ADE80),
+                        fontSize = 16.sp
+                    )
+                    Text(text = currentCallSpaceName)
+                }
+                Image(
+                    painter = soundImg,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            toggleMic()
+                        }
+                )
+                Image(
+                    painter = speakerImg,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Image(
+                    painter = phoneImg,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            leaveSession()
+                        }
+                )
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp)
+                    .align(Alignment.Center),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Image(
+                    painter = noWifiImg,
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp)
+                )
+                Text(
+                    text = "참여 중인 통화가 없습니다.",
+                    color = Color(0xFFE9ECF5)
+                )
+            }
+
+        }
+    }
+    Spacer(modifier = Modifier.height(30.dp))
 }
 
