@@ -71,7 +71,8 @@ public class RedisConfig {
 								.fromSerializer(new StringRedisSerializer()))
 				.serializeValuesWith(
 						RedisSerializationContext.SerializationPair
-						.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+						.fromSerializer(new GenericJackson2JsonRedisSerializer()))
+				.entryTtl(PAGE_CACHE_EXPIRE_TIME);
 
 		Map<String, RedisCacheConfiguration> configurations = new HashMap<>();
 		configurations.put(PAGE, cacheConfiguration.entryTtl(PAGE_CACHE_EXPIRE_TIME));
