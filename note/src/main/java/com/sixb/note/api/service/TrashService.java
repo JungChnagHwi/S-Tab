@@ -1,6 +1,7 @@
 package com.sixb.note.api.service;
 
 import com.sixb.note.dto.Trash.TrashRequestDto;
+import com.sixb.note.dto.Trash.TrashResponseDto;
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;
@@ -22,12 +23,12 @@ public class TrashService {
 	private final PageRepository pageRepository;
 
 	//휴지통 조회
-	public List<Object> findDeletedItems(long userId) {
-		List<Object> deletedItems = new ArrayList<>();
-		deletedItems.addAll(folderRepository.findDeletedFolders(userId));
-		deletedItems.addAll(noteRepository.findDeletedNotes(userId));
-		deletedItems.addAll(pageRepository.findDeletedPages(userId));
-		return deletedItems;
+	public TrashResponseDto findDeletedItems(long userId) {
+		List<Folder> deletedFolders = folderRepository.findDeletedFolders(userId);
+		List<Note> deletedNotes = noteRepository.findDeletedNotes(userId);
+		List<Page> deletedPages = pageRepository.findDeletedPages(userId);
+
+		return new TrashResponseDto(deletedFolders, deletedNotes, deletedPages);
 	}
 
 	// 휴지통 복원

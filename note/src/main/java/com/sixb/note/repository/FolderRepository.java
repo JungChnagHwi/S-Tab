@@ -19,7 +19,7 @@ public interface FolderRepository extends Neo4jRepository<Folder, String> {
     @Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE c.folderId = $folderId RETURN p")
     Folder findParentFolderByFolderId(@Param("folderId") String folderId);
 
-    @Query("MATCH (f:Folder) WHERE f.isDeleted = true RETURN f")
+    @Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space)-[:Hierarchy*]->(f:Folder) WHERE f.isDeleted = true RETURN f")
     List<Folder> findDeletedFolders(@Param("userId") long userId);
 
     @Query("MATCH (f:Folder) WHERE f.folderId = $folderId RETURN f")
