@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.data.PreferencesUtil
@@ -41,7 +40,7 @@ class NoteControlViewModel : ViewModel() {
 
     var penType by mutableStateOf(PenType.Pen)
         private set
-    var strokeWidth by mutableFloatStateOf(10f)
+    var strokeWidth by mutableFloatStateOf(8f)
         private set
     var color by mutableStateOf("000000")
         private set
