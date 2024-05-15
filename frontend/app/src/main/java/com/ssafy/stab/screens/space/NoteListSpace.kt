@@ -34,6 +34,8 @@ import com.ssafy.stab.R
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ssafy.stab.apis.space.bookmark.addBookMark
+import com.ssafy.stab.apis.space.bookmark.deleteBookMark
 import com.ssafy.stab.apis.space.folder.Folder
 import com.ssafy.stab.apis.space.folder.Note
 import com.ssafy.stab.modals.CreateFolderModal
@@ -307,7 +309,14 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (St
             Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)
-                .clickable { isLiked = !isLiked }
+                .clickable {
+                    if (isLiked) {
+                        deleteBookMark(folder.folderId)
+                    } else {
+                        addBookMark(folder.folderId)
+                    }
+                    isLiked = !isLiked
+                }
                 .align(Alignment.TopEnd))
         }
         Row(
@@ -355,7 +364,14 @@ fun NoteItem(
             Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)
-                .clickable { isLiked = !isLiked }
+                .clickable {
+                    if (isLiked) {
+                        deleteBookMark(note.noteId)
+                    } else {
+                        addBookMark(note.noteId)
+                    }
+                    isLiked = !isLiked
+                }
                 .align(Alignment.TopEnd))
         }
         Row(

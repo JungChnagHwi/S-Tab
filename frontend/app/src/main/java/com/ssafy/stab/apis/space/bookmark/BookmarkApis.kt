@@ -2,8 +2,6 @@ package com.ssafy.stab.apis.space.bookmark
 
 import android.util.Log
 import com.ssafy.stab.apis.RetrofitClient
-import com.ssafy.stab.apis.space.folder.Folder
-import com.ssafy.stab.apis.space.folder.Note
 import com.ssafy.stab.data.PreferencesUtil
 import retrofit2.Call
 import retrofit2.Callback
