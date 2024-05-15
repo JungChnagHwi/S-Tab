@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface NoteRepository extends Neo4jRepository<Note, String> {
+public interface NoteRepository extends Neo4jRepository<Note, String>, NoteRepositoryCustom {
     @Query("MATCH (f:Folder)-[:Hierarchy]->(n:Note) WHERE f.folderId = $folderId AND n.isDeleted = false RETURN n")
     List<Note> findNotesByFolderId(@Param("folderId") String folderId);
 

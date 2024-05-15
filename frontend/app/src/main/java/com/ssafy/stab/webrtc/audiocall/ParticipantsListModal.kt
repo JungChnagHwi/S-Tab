@@ -33,18 +33,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.google.gson.JsonParser
 import com.ssafy.stab.R
+import com.ssafy.stab.apis.space.share.User
 
 
 @Composable
-fun ParticipantListModal(participants: List<Connection>, function: () -> Unit) {
-//    val onlineUsers = listOf("참가자1", "참가자2")
-//    val offlineUsers = listOf("참가자3", "참가자4", "참가자5", "참가자6")
-    Log.d("ParticipantList", "Current participants: $participants")  // 디버그 로그 추가
-
+fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>, function: () -> Unit) {
 
     val profileImg = painterResource(id = R.drawable.profile)
     val muteImg = painterResource(id = R.drawable.soundoff)
     val micImg = painterResource(id = R.drawable.soundon)
+
+    // participants에 있는 nickname들을 추출
+    val participantNames = participants.map { connection ->
+        val clientDataJson = connection.clientData ?: "{}"
+        val clientDataObj = JsonParser.parseString(clientDataJson).asJsonObject
+        if (clientDataObj.has("clientData")) clientDataObj.get("clientData").asString else "Unknown"
+    }
+
+    // 통화중인 사용자와 오프라인 사용자를 필터링
+    val onlineUsers = totalusers.filter { user -> participantNames.contains(user.nickname) }
+    val offlineUsers = totalusers.filter { user -> !participantNames.contains(user.nickname) }
 
     Column(
         modifier = Modifier
@@ -58,19 +66,15 @@ fun ParticipantListModal(participants: List<Connection>, function: () -> Unit) {
             item {
                 SectionTitle(title = "통화중")
             }
-            items(participants) { connection ->
-                val clientDataJson = connection.clientData ?: "{}" // clientData가 null이면 빈 JSON 객체를 사용
-                val clientDataObj = JsonParser.parseString(clientDataJson).asJsonObject
-                val user = if (clientDataObj.has("clientData")) clientDataObj.get("clientData").asString else "Unknown"
-                Log.d("user", user)
-                UserRow(user, profileImg, muteImg, micImg)
+            items(onlineUsers) { user ->
+                UserRow(user.nickname, profileImg, muteImg, micImg)
             }
             item {
                 SectionTitle(title = "오프라인")
             }
-//            items(offlineUsers) { user ->
-//                UserRow(user, profileImg, muteImg, micImg)
-//            }
+            items(offlineUsers) { user ->
+                UserRow(user.nickname, profileImg, muteImg, micImg)
+            }
         }
     }
 }
