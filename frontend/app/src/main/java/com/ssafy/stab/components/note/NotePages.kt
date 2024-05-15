@@ -1,7 +1,6 @@
 package com.ssafy.stab.components.note
 
 import android.graphics.BitmapFactory
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -20,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,11 +27,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.data.note.Direction
@@ -85,14 +81,14 @@ fun Page(
     page: PageDetail,
     viewModel: NoteControlViewModel
 ) {
-    var scale by remember { mutableFloatStateOf(1f) }
+    val scale by remember { viewModel.scale }
     var offset by remember { mutableStateOf(Offset.Zero) }
 
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .clipToBounds()
-            .background(Color.Yellow),
+            .background(NoteBackground),
         contentAlignment = Alignment.Center
     ) {
         val isLandscape = page.direction == 0
@@ -112,13 +108,13 @@ fun Page(
         val templateHeight = imageBitmap.height.toFloat()
 
         // modifier 적용된 템플릿 크기
-        var templateSize by remember { mutableStateOf(IntSize(1, 1)) }
+        var displaySize by remember { mutableStateOf(IntSize(1, 1)) }
 
         val state = rememberTransformableState { zoomChange, panChange, _ ->
-            scale = (scale * zoomChange).coerceIn(1f, null)
+            viewModel.setScale((scale * zoomChange).coerceIn(1f, null))
 
-            val scaledWidth = scale * templateSize.width.toFloat()
-            val scaledHeight = scale * templateSize.height.toFloat()
+            val scaledWidth = scale * displaySize.width.toFloat()
+            val scaledHeight = scale * displaySize.height.toFloat()
 
             val canPanHorizontally = scaledWidth > constraints.maxWidth
             val canPanVertically = scaledHeight > constraints.maxHeight
@@ -128,7 +124,6 @@ fun Page(
 
             val extraHeight =
                 if (canPanVertically) (scaledHeight - constraints.maxHeight) / 2 else 0f
-
 
             offset = Offset(
                 x = (offset.x + scale * panChange.x).coerceIn(-extraWidth, extraWidth),
@@ -151,10 +146,14 @@ fun Page(
                 .transformable(state)
                 .aspectRatio(templateWidth / templateHeight)
 
-        Template(resId = templateResId, modifier = modifier
-            .onGloballyPositioned { layoutCoordinates ->
-                templateSize = layoutCoordinates.size
-            }.background(Color.Blue))
+        Template(
+            resId = templateResId,
+            modifier = modifier
+                .onGloballyPositioned { layoutCoordinates ->
+                    displaySize = layoutCoordinates.size
+                }
+        )
+
         NoteArea(
             page.pageId,
             page.paths,
@@ -162,5 +161,4 @@ fun Page(
             viewModel
         )
     }
-
 }

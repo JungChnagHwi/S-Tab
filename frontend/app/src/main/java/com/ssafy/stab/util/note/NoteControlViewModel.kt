@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.data.PreferencesUtil
@@ -35,6 +36,9 @@ class NoteControlViewModel : ViewModel() {
     private val _historyTracker = MutableSharedFlow<String>(extraBufferCapacity = 1)
     private val historyTracker = _historyTracker.asSharedFlow()
 
+    var scale = mutableFloatStateOf(1f)
+        private set
+
     var penType by mutableStateOf(PenType.Pen)
         private set
     var strokeWidth by mutableFloatStateOf(10f)
@@ -62,6 +66,10 @@ class NoteControlViewModel : ViewModel() {
         historyTracker
             .onEach { trackHistory(_undoPathList.size, _redoPathList.size) }
             .launchIn(scope)
+    }
+
+    fun setScale(value: Float) {
+        scale.floatValue = value
     }
 
     fun changePenType(value: PenType) {
