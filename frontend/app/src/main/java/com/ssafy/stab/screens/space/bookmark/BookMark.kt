@@ -36,6 +36,7 @@ import com.ssafy.stab.apis.space.bookmark.getBookMarkList
 
 @Composable
 fun BookMark(){
+
     val folders = remember { mutableStateOf<List<BookmardFolder>>(emptyList()) }
     val notes = remember { mutableStateOf<List<BookmardNote>>(emptyList()) }
     val pages = remember { mutableStateOf<List<BookmardPage>>(emptyList()) }

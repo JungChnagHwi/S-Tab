@@ -11,7 +11,7 @@ private val apiService: ApiService = RetrofitClient.instance.create(ApiService::
 private val accessToken = PreferencesUtil.getLoginDetails().accessToken
 private val authorizationHeader = "Bearer $accessToken"
 
-fun getTrashList() {
+fun getTrashList(onFolderResult: (List<TrashFolder>?) -> Unit, onNoteResult: (List<TrashNote>?) -> Unit, onPageResult: (List<TrashPage>?) -> Unit) {
     val call = apiService.getTrashList(authorizationHeader)
 
     call.enqueue(object: Callback<GetTrashListResponse>{
@@ -21,6 +21,10 @@ fun getTrashList() {
         ) {
             if (response.isSuccessful) {
                 Log.d("APIResponse", response.body().toString())
+                val fileListResponse = response.body()
+                onFolderResult(fileListResponse?.folders)
+                onNoteResult(fileListResponse?.notes)
+                onPageResult(fileListResponse?.pages)
             } else {
                 println("Response not successful: ${response.errorBody()?.string()}")
             }
