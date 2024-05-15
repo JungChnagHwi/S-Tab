@@ -15,7 +15,6 @@ fun Template(
     Image(
         painterResource(id = resId),
         contentDescription = null,
-        modifier = modifier,
-        contentScale = ContentScale.Crop
+        modifier = modifier
     )
 }

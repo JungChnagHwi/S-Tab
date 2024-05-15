@@ -45,7 +45,7 @@ class NoteViewModel(noteId: String) : ViewModel() {
                 it.direction,
                 false,
                 null,
-                null,
+                0,
             )
             val newPageList = _pageList.value.toMutableList()
             newPageList.add(currentPage + 1, newPageDetail)
@@ -69,7 +69,6 @@ class NoteViewModel(noteId: String) : ViewModel() {
                     pageDetail.pageId,
                     pageData
                 ))
-
             }
         }
     }
