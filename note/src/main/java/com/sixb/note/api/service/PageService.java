@@ -139,7 +139,7 @@ public class PageService {
 
                 pageRepository.save(page);
 
-//                setPageInfoDto(page);
+                setPageInfoDto(page);
 
                 return request;
             } else {
