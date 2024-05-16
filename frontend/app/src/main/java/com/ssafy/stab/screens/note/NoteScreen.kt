@@ -1,6 +1,6 @@
 package com.ssafy.stab.screens.note
 
-import android.util.Log
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -43,16 +44,25 @@ import com.ssafy.stab.components.note.PageInterfaceBar
 import com.ssafy.stab.components.note.PageList
 import com.ssafy.stab.components.note.StrokeOptions
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.screens.space.NoteListViewModel
 import com.ssafy.stab.ui.theme.Background
+import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.util.gpt.ChatBotViewModel
 import com.ssafy.stab.util.note.NoteControlViewModel
+import com.ssafy.stab.util.note.NoteControlViewModelFactory
 
+@SuppressLint("MutableCollectionMutableState")
 @Composable
-fun PersonalNote(
-    noteViewModel: NoteViewModel,
+fun NoteScreen(
+    noteId: String,
+    spaceId: String,
+    socketManager: SocketManager,
     navController: NavController
 ){
-    val noteControlViewModel : NoteControlViewModel = viewModel()
+    val noteViewModel: NoteViewModel = viewModel(factory = NoteViewModelFactory(noteId))
+    val userName = PreferencesUtil.getLoginDetails().userName ?: ""
+
+    val noteControlViewModel : NoteControlViewModel = viewModel(factory = NoteControlViewModelFactory(Pair(noteId, socketManager)))
     val chatBotViewModel = remember { ChatBotViewModel.getInstance() }
 
     val undoAvailable by noteControlViewModel.undoAvailable.collectAsState()
@@ -62,6 +72,21 @@ fun PersonalNote(
     val onPageChange = { page: Int -> currentPage.intValue = page }
     var showChatBot by remember { mutableStateOf(false) }
     val chatBotImg = painterResource(id = R.drawable.assistance_icon)
+
+    LaunchedEffect(spaceId) {
+        // 개인 스페이스 아이디가 아닐 때로 로직 수정필요
+        if (spaceId != "spaceId") {
+            socketManager.joinNote(noteId, userName, "FFFFFF")
+        }
+    }
+
+    DisposableEffect(spaceId) {
+        onDispose {
+            if (spaceId != "spaceId") {
+                socketManager.leaveNote(noteId)
+            }
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -128,6 +153,10 @@ fun PersonalNote(
                 )
                 StrokeOptions(noteControlViewModel)
                 Spacer(modifier = Modifier.weight(1f))
+                // 참여 유저 리스트 UI 업데이트 필요
+                socketManager.userList.forEach { user ->
+                    Text(text = "Nickname: ${user.nickname}, Color: ${user.color}")
+                }
                 Image(
                     painter = chatBotImg,
                     contentDescription = "ChatBot",

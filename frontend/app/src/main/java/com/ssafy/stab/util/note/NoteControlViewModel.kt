@@ -10,10 +10,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.data.note.Action
 import com.ssafy.stab.data.note.Coordinate
+import com.ssafy.stab.data.note.PageOrderPathInfo
 import com.ssafy.stab.data.note.PathInfo
 import com.ssafy.stab.data.note.PenType
+import com.ssafy.stab.data.note.SocketPathInfo
 import com.ssafy.stab.data.note.UserPagePathInfo
+import com.ssafy.stab.util.SocketManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,16 +26,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class NoteControlViewModel : ViewModel() {
-    private val userName = PreferencesUtil.getLoginDetails().userName ?: "unknown"
+class NoteControlViewModel(private val socketManager: Pair<String, SocketManager>) : ViewModel() {
+    private val user = PreferencesUtil.getLoginDetails().userName ?: "unknown"
 
-    private val _undoPathList = mutableStateListOf<UserPagePathInfo>()
-    val pathList: SnapshotStateList<UserPagePathInfo> = _undoPathList
+    private val _undoPathList = mutableStateListOf<PageOrderPathInfo>()
+    val pathList: SnapshotStateList<PageOrderPathInfo> = _undoPathList
 
     private val _newPathList = mutableStateListOf<UserPagePathInfo>()
     val newPathList: SnapshotStateList<UserPagePathInfo> = _newPathList
 
-    private val _redoPathList = mutableStateListOf<UserPagePathInfo>()
+    private val _redoPathList = mutableStateListOf<PageOrderPathInfo>()
 
     private val _historyTracker = MutableSharedFlow<String>(extraBufferCapacity = 1)
     private val historyTracker = _historyTracker.asSharedFlow()
@@ -60,6 +64,8 @@ class NoteControlViewModel : ViewModel() {
             _undoAvailable.value = undoCount != 0
             _redoAvailable.value = redoCount != 0
         }
+
+        socketManager.second.setNoteControlViewModel(this)
     }
 
     fun trackHistory(
@@ -100,11 +106,10 @@ class NoteControlViewModel : ViewModel() {
         )
 
         val userPagePathInfo = UserPagePathInfo(
-            userName, currentPageId, pathInfo
+            user, currentPageId, pathInfo
         )
 
         _newPathList.add(userPagePathInfo)
-
         _redoPathList.clear()
     }
 
@@ -127,28 +132,66 @@ class NoteControlViewModel : ViewModel() {
         }
     }
 
-    fun getLastPath(): UserPagePathInfo {
-        return _newPathList[0]
+    fun getLastPath(): UserPagePathInfo? {
+        return if (_newPathList.isNotEmpty()) {
+            _newPathList[0]
+        } else null
     }
 
     fun addNewPath() {
-        _undoPathList.add(_newPathList[0])
-        _newPathList.clear()
-        _historyTracker.tryEmit("insert path")
+        if (_newPathList.isNotEmpty()) {
+            val data = _newPathList[0]
+            val order = if (_undoPathList.isNotEmpty()) { _undoPathList.last().order + 1 } else 0
+            val pageOrderPathInfo = PageOrderPathInfo(order, data.userName, data.pageId, data.pathInfo)
+            if (socketManager.second.isConnected) {
+                socketManager.second.updatePath(socketManager.first, SocketPathInfo(Action.Add, pageOrderPathInfo))
+            }
+            _undoPathList.add(pageOrderPathInfo)
+            _newPathList.clear()
+            _historyTracker.tryEmit("insert path")
+        }
     }
 
-    fun addOthersPath(userPagePathInfo: UserPagePathInfo) {
-        _undoPathList.add(userPagePathInfo)
+    private fun addOthersPath(othersData: PageOrderPathInfo) {
+        if (_undoPathList.isEmpty()) {
+            _undoPathList.add(othersData)
+        } else {
+            val index = _undoPathList.withIndex().filter { it.value.order <= othersData.order }
+                .maxByOrNull { it.value.order }?.index ?: 0
+
+            _undoPathList.add(index, othersData)
+        }
     }
 
-    fun undo() {
+    fun updatePathsFromSocket(socketPathInfo: SocketPathInfo) {
+        val pageOrderPathInfo = socketPathInfo.pageOrderPathInfo
+
+        when (socketPathInfo.type) {
+            Action.Add -> {
+                addOthersPath(pageOrderPathInfo)
+            }
+            Action.Undo -> {
+                undo(pageOrderPathInfo.userName)
+            }
+        }
+    }
+
+    fun undo(userName: String) {
         val userPathList = _undoPathList.filter { it.userName == userName }
         if (userPathList.isNotEmpty()) {
             val last = userPathList.last()
             val index = _undoPathList.indexOfLast { it.userName == userName }
 
             // redo 경로 정보 저장
-            _redoPathList.add(last)
+            if (userName == user) {
+                if (socketManager.second.isConnected) {
+                    socketManager.second.updatePath(
+                        socketManager.first,
+                        SocketPathInfo(Action.Undo, last)
+                    )
+                }
+                _redoPathList.add(last)
+            }
 
             // 현재 경로에서 삭제
             _undoPathList.removeAt(index)
@@ -175,7 +218,7 @@ class NoteControlViewModel : ViewModel() {
         _historyTracker.tryEmit("reset")
     }
 
-    fun getCurrentPathList(currentPageId: String): List<UserPagePathInfo> {
+    fun getCurrentPathList(currentPageId: String): List<PageOrderPathInfo> {
         return pathList.filter { it.pageId == currentPageId }
     }
 

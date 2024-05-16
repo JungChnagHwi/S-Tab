@@ -23,13 +23,14 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import com.ssafy.stab.data.note.PathInfo
 import com.ssafy.stab.data.note.PenType
+import com.ssafy.stab.util.SocketManager
 
 @Composable
 fun NoteArea(
     currentPageId: String,
     paths: SnapshotStateList<PathInfo>?,
     modifier: Modifier,
-    viewModel: NoteControlViewModel
+    viewModel: NoteControlViewModel,
 ) {
     Box(
         modifier = modifier

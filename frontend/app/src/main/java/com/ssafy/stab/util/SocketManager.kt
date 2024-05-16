@@ -1,7 +1,14 @@
 package com.ssafy.stab.util
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
+import com.ssafy.stab.data.note.SocketPathInfo
+import com.ssafy.stab.data.note.User
+import com.ssafy.stab.util.note.NoteControlViewModel
 import io.socket.client.IO
 import io.socket.client.Socket
 import org.json.JSONObject
@@ -15,7 +22,12 @@ import java.net.URISyntaxException
 class SocketManager private constructor() {
     private var socket: Socket? = null
     private val gson = Gson()
-    private var isConnected = false
+    var isConnected = false
+
+    private var noteControlViewModel: NoteControlViewModel? = null
+
+    private val _userList = mutableStateListOf<User>()
+    val userList: SnapshotStateList<User> = _userList
 
     companion object {
         private var instance: SocketManager? = null
@@ -26,6 +38,11 @@ class SocketManager private constructor() {
             }
             return instance!!
         }
+    }
+
+    // NoteControlViewModel 설정 메서드
+    fun setNoteControlViewModel(viewModel: NoteControlViewModel) {
+        this.noteControlViewModel = viewModel
     }
 
     // 소켓 연결
@@ -94,8 +111,27 @@ class SocketManager private constructor() {
     fun leaveNote(noteId: String) {
         socket?.emit("leaveNote", noteId)
     }
+
+    private fun updateUserList(data: Array<Any>) {
+        userList.clear()
+        val jsonString = gson.toJson(data[0])
+        val jsonObject = JsonParser.parseString(jsonString).asJsonObject
+        val nameValuePairs = jsonObject.getAsJsonObject("nameValuePairs")
+
+        for ((_, value) in nameValuePairs.entrySet()) {
+            if (value is JsonObject) {
+                val nestedObject = value.asJsonObject
+                val innerNameValuePairs = nestedObject.getAsJsonObject("nameValuePairs")
+                val nickname = innerNameValuePairs.get("nickname").asString
+                val color = innerNameValuePairs.get("color").asString
+                val user = User(nickname, color)
+                userList.add(user)
+            }
+        }
+    }
+
     // 노트 이벤트 업데이트 공유
-    fun updateDrawing(noteId: String, message: Any) {
+    fun updatePath(noteId: String, message: Any) {
         val jsonData = gson.toJson(message)
         socket?.emit("updateDrawing", noteId, jsonData )
     }
@@ -137,7 +173,8 @@ class SocketManager private constructor() {
 
         // note 관련 서버 이벤트 수신
         socket?.on("noteConnectUser") { data ->
-            Log.d("NoteConnection", "$data")
+            updateUserList(data)
+            Log.d("NoteConnection", userList.toList().toString())
         }
         // note room에 입장한 사용자 닉네임 받기
         socket?.on("notifyNote") { data ->
@@ -148,8 +185,10 @@ class SocketManager private constructor() {
         // -> 여기서 받은 데이터를 데이터 타입에 맞게 직접 처리하는 함수 구현해 추가해야 합니다
         socket?.on("receiveDrawing") { message ->
             val data = message[0]
+            val socketPathInfo = gson.fromJson(data.toString(), SocketPathInfo::class.java)
+            noteControlViewModel?.updatePathsFromSocket(socketPathInfo)
             // 아래에 데이터 다루는 함수 처리 필요!
-            Log.d("ReceiveNoteData", "$data")
+            Log.d("ReceiveNoteData", "ok")
         }
 
         // followUser 이벤트 핸들러 - 보류
