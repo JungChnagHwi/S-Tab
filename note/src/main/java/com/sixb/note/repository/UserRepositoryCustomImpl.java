@@ -148,7 +148,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.withProperties("userId", literalOf(userId));
 
 		Node space = node("Space").named("s")
-				.withProperties("public", literalOf(false));
+				.withProperties("isPublic", literalFalse());
 
 		Node folder = node("Folder").named("f");
 
