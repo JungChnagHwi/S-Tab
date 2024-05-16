@@ -31,7 +31,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.withProperties("userId", literalOf(userId));
 
 		Node space = node("Space").named("s")
-				.withProperties("public", literalFalse());
+				.withProperties("isPublic", literalFalse());
 
 		Node folder = node("Folder").named("f");
 
@@ -97,7 +97,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.withProperties(
 						"spaceId", literalOf(spaceId),
 						"title", literalOf("나의 스페이스"),
-						"public", literalFalse(),
+						"isPublic", literalFalse(),
 						"createdAt", literalOf(now),
 						"updatedAt", literalOf(now),
 						"isDeleted", literalFalse());
