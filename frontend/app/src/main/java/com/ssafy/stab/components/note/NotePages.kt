@@ -139,7 +139,7 @@ fun Page(
             val canPanVertically = scaledHeight > constraints.maxHeight
 
             val extraWidth =
-                if (canPanHorizontally) (scaledWidth - constraints.maxWidth - 30f) / 2 else 0f
+                if (canPanHorizontally) (scaledWidth - constraints.maxWidth) / 2 else 0f
 
             val extraHeight =
                 if (canPanVertically) (scaledHeight - constraints.maxHeight) / 2 else 0f
