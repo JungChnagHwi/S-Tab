@@ -85,44 +85,11 @@ fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>,
                 items(offlineUsers) { user ->
                     UserRow(user.nickname, profileImg, muteImg, micImg)
                 }
-        LazyColumn {
-            item {
-                SectionTitle(title = "통화중")
-            }
-            items(onlineUsers) { user ->
-                UserRow(user.nickname, profileImg, muteImg, micImg)
-            }
-            item {
-                SectionTitle(title = "오프라인")
-            }
-            items(offlineUsers) { user ->
-                UserRow(user.nickname, profileImg, muteImg, micImg)
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopEnd) // 오른쪽 위에 배치
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color(0xFF7591C6))
-                .width(250.dp)
-                .height(400.dp)
-                .padding(16.dp)
-        ) {
-            LazyColumn {
-                item {
-                    SectionTitle(title = "통화중")
-                }
-                items(onlineUsers) { user ->
-                    UserRow(user.nickname, profileImg, muteImg, micImg)
-                }
-                item {
-                    SectionTitle(title = "오프라인")
-                }
-                items(offlineUsers) { user ->
-                    UserRow(user.nickname, profileImg, muteImg, micImg)
-                }
             }
         }
     }
 }
+
 
 @Composable
 fun SectionTitle(title: String) {

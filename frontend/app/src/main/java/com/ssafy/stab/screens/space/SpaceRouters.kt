@@ -38,11 +38,8 @@ import com.ssafy.stab.screens.space.bookmark.BookMark
 import com.ssafy.stab.screens.space.personal.PersonalSpace
 import com.ssafy.stab.screens.space.share.ShareSpace
 import com.ssafy.stab.screens.space.share.SpaceViewModel
-<<<<<<< PATCH SET (66b76d feat: MainActivity에서 소켓 연결 및 하위로 prop 전달)
 import com.ssafy.stab.util.SocketManager
-=======
 import com.ssafy.stab.screens.space.deleted.Deleted
->>>>>>> BASE      (ec2b42 fix: Buildconfig import문 추가)
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
