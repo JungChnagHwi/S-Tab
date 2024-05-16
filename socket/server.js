@@ -212,7 +212,7 @@ io.on("connection", (socket) => {
   // Room 나가기
   const leaveRoom = (room, roomId, type) => {
     if (room[roomId] && room[roomId][socket.id]) {
-      capType = toCapitalize(type);
+      let capType = toCapitalize(type);
 
       console.log(`${socket.id} left the ${capType} Room ${roomId}`);
 
