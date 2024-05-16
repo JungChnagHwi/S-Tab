@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.bookmark.BookmardFolder
 import com.ssafy.stab.apis.space.bookmark.BookmardNote
@@ -31,7 +32,8 @@ import java.time.format.DateTimeFormatter
 fun BookMarkListGridScreen(
     folders: List<BookmardFolder>,
     notes: List<BookmardNote>,
-    pages: List<BookmardPage>
+    pages: List<BookmardPage>,
+    navController: NavController
 ) {
 
     val sortedFolders = folders.sortedByDescending { it.updatedAt }

@@ -2,7 +2,6 @@ package com.ssafy.stab.screens.space.personal
 
 import NoteListViewModelFactory
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -102,8 +101,6 @@ fun MyTitleBar(navController: NavController, viewModel: NoteListViewModel) {
                             } else {
                                 navController.navigate("personal-space")
                             }
-                        } else {
-                            navController.popBackStack()
                         }
                     }
                     .height(30.dp)

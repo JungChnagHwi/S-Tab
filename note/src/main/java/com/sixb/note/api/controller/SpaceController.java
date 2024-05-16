@@ -2,7 +2,9 @@ package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.SpaceService;
 import com.sixb.note.dto.space.*;
+import com.sixb.note.exception.ExistUserException;
 import com.sixb.note.exception.NotFoundException;
+import com.sixb.note.exception.SpaceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,8 +63,14 @@ public class SpaceController {
 
     @PostMapping("/join")
     public ResponseEntity<String> joinSpace(@RequestParam long userId, @RequestBody JoinSpaceRequestDto joinSpaceRequestDto) {
-        spaceService.joinSpace(userId, joinSpaceRequestDto.getSpaceId());
-        return ResponseEntity.ok("스페이스 참여 성공");
+		try {
+			spaceService.joinSpace(userId, joinSpaceRequestDto.getSpaceId());
+            return ResponseEntity.ok("스페이스 참여 성공");
+		} catch (ExistUserException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (SpaceNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
     }
 
     @GetMapping("/cover/{spaceId}")
