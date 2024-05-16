@@ -155,7 +155,6 @@ fun ShareSpace(
                     title = spaceTitle.value,
                     participants = participants,
                     spaceViewModel = spaceViewModel,
-                    socketManager = socketManager,
                     viewModel = viewModel,
                     onShowParticipants = { showParticipantListModal = true }
                 )
@@ -239,7 +238,6 @@ fun SpTitleBar(
     title: String,
     participants: List<Connection>,
     spaceViewModel: SpaceViewModel,
-    socketManager: SocketManager,
     viewModel: NoteListViewModel,
     onShowParticipants: () -> Unit
 ) {
@@ -317,14 +315,6 @@ fun SpTitleBar(
             }
         )
     }
-
-//    var showParticipantListModal by remember { mutableStateOf(false) }
-//
-//    if (showParticipantListModal) {
-//        ParticipantListModal(users, participants) {
-//            showParticipantListModal = false  // 모달 닫기
-//        }
-//    }
 
 
     Row {
@@ -429,6 +419,9 @@ fun SpTitleBar(
                                     spaceViewModel.removeShareSpace(spaceId)
                                 }
                                 navController.navigate("personal-space")
+                                if (isCurrentSpaceActive) {
+                                    audioCallViewModel.leaveSession()
+                                }
                             }
                     )
                     Spacer(modifier = Modifier.width(20.dp))
