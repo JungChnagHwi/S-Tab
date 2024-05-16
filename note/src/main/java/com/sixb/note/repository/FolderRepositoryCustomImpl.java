@@ -35,7 +35,8 @@ public class FolderRepositoryCustomImpl implements FolderRepositoryCustom {
 		Relationship likeNote = user.relationshipTo(note, "Like");
 
 		Statement folderStatement = match(folder)
-				.where(folder.property("title").contains(parameter("name")))
+				.where(folder.property("title").contains(parameter("name"))
+						.and(folder.property("isDeleted").isFalse()))
 				.optionalMatch(likeFolder)
 				.returning(folder.property("folderId").as("folderId"),
 						folder.property("title").as("title"),
@@ -48,7 +49,8 @@ public class FolderRepositoryCustomImpl implements FolderRepositoryCustom {
 				.build();
 
 		Statement noteStatement = match(note)
-				.where(note.property("title").contains(parameter("name")))
+				.where(note.property("title").contains(parameter("name"))
+						.and(note.property("isDeleted").isFalse()))
 				.optionalMatch(likeNote)
 				.returning(note.property("noteId").as("noteId"),
 						note.property("title").as("title"),
