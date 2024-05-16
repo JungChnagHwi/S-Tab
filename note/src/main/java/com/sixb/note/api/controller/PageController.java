@@ -56,9 +56,9 @@ public class PageController {
 
     // 필기데이터 저장
     @PutMapping
-    public ResponseEntity<?> saveData(@RequestBody SaveDataRequestDto request) {
+    public ResponseEntity<?> saveData(@RequestBody SaveDataRequestDto request, @RequestParam long userId) {
         try {
-            pageService.saveData(request);
+            pageService.saveData(request, userId);
             return ResponseEntity.ok("데이터 저장완료");
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -69,9 +69,9 @@ public class PageController {
     }
 
     @GetMapping("/{note-id}")
-    public ResponseEntity<?> getPageList(@PathVariable("note-id") String noteId) {
+    public ResponseEntity<?> getPageList(@PathVariable("note-id") String noteId, @RequestParam long userId) {
         try {
-            PageListResponseDto response = pageService.getPageList(noteId);
+            PageListResponseDto response = pageService.getPageList(noteId, userId);
             return ResponseEntity.ok(response);
         } catch (NoteNotFoundException | PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
