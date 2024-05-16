@@ -104,7 +104,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
 		Node folder = node("Folder").named("f")
 				.withProperties(
-						"folerId", literalOf(folderId),
+						"folderId", literalOf(folderId),
 						"spaceId", literalOf(spaceId),
 						"title", literalOf("root"),
 						"createdAt", literalOf(now),
