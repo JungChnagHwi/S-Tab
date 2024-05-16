@@ -1,8 +1,8 @@
 package com.sixb.note.entity;
 
-import com.sixb.note.common.BaseTimeEntity;
-import lombok.Getter;
-import lombok.Setter;
+import com.sixb.note.entity.common.BaseTimeEntity;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
@@ -10,8 +10,11 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.*;
 
-@Getter
-@Setter
+@EqualsAndHashCode(callSuper = true)
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @Node("Space")
 public class Space extends BaseTimeEntity {
 
