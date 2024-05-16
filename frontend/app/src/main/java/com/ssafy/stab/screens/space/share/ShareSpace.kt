@@ -1,5 +1,7 @@
 package com.ssafy.stab.screens.space.share
 
+import NoteListViewModelFactory
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -24,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,7 +43,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.ShareSpace
 import com.ssafy.stab.apis.space.share.ShareSpaceList
@@ -50,6 +55,11 @@ import com.ssafy.stab.apis.space.share.getShareSpace
 import com.ssafy.stab.apis.space.share.leaveShareSpace
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListSpace
+import com.ssafy.stab.screens.space.NoteListViewModel
+import com.ssafy.stab.screens.space.personal.LocalNavigationStackId
+import com.ssafy.stab.screens.space.personal.LocalNavigationStackTitle
+import com.ssafy.stab.screens.space.personal.LocalNowFolderId
+import com.ssafy.stab.screens.space.personal.LocalNowFolderTitle
 import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 import com.ssafy.stab.webrtc.audiocall.AudioSessionViewModel
@@ -58,8 +68,10 @@ import com.ssafy.stab.webrtc.audiocall.ParticipantListModal
 import com.ssafy.stab.webrtc.fragments.PermissionsDialog
 import com.ssafy.stab.webrtc.utils.PermissionManager
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun ShareSpace(
+    navController: NavController,
     spaceId: String,
     rootFolderId: String,
     audioCallViewModel: AudioCallViewModel,
@@ -94,11 +106,14 @@ fun ShareSpace(
 
     val audioSessionViewModel: AudioSessionViewModel = viewModel()
     val participants by audioSessionViewModel.participants.collectAsState()
+    val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(rootFolderId))
 
+    val spaceTitle = remember { mutableStateOf("") }
     LaunchedEffect(spaceId) {
         getShareSpace(spaceId) { shareSpaceData ->
             setShareSpaceDetails(shareSpaceData)
             setTotalUsers(shareSpaceData.users.map { it.nickname })
+            spaceTitle.value = shareSpaceData.title
         }
         audioSessionViewModel.getSessionConnection(spaceId)
         audioSessionViewModel.startFetchingSessionData(spaceId)
@@ -112,102 +127,121 @@ fun ShareSpace(
             audioSessionViewModel.stopFetchingSessionData()
         }
     }
+    val nowFolderId = remember { mutableStateOf(rootFolderId) }
+    val navigationStackId = remember { mutableStateListOf<String>() }
+    val navigationStackTitle = remember { mutableStateListOf<String>() }
 
-    Box(
-        modifier = Modifier
-            .background(Color(0xFFE9ECF5))
-            .fillMaxSize()
+    CompositionLocalProvider(
+        LocalNavigationStackId provides navigationStackId,
+        LocalNavigationStackTitle provides navigationStackTitle,
+        LocalNowFolderId provides mutableStateOf(nowFolderId.value),
+        LocalNowFolderTitle provides  mutableStateOf("")
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+        Box(
+            modifier = Modifier
+                .background(Color(0xFFE9ECF5))
+                .fillMaxSize()
         ) {
-            SpTitleBar(
-                context = context,
-                audioCallViewModel = audioCallViewModel,
-                isCurrentSpaceActive = isCurrentSpaceActive,
-                spaceId = spaceId,
-                users = shareSpaceDetails?.users ?: listOf(),
-                participants = participants,
-                spaceViewModel = spaceViewModel,
-                socketManager = socketManager,
-                onShowParticipants = { showParticipantListModal = true }
-            )
-            Divider(
-                color = Color.Gray,
-                thickness = 1.dp,
-                modifier = Modifier.padding(vertical = 8.dp, horizontal = 20.dp)
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    // boxHeightState를 사용하여 Box의 높이를 동적으로 조절합니다.
-                    .height(boxHeightState.value)
-                    .padding(20.dp)
-                    .background(color = Color.White)
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                // TextField 등 입력란을 여기에 배치할 수 있습니다.
-                MarkdownScreen(spaceId)
-                // 드롭다운/드롭업 버튼을 배치합니다.
-                // Box의 contentAlignment를 사용하여 버튼의 위치를 오른쪽 하단에 배치합니다.
-                Box(
-                    contentAlignment = Alignment.BottomEnd,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Image(
-                        painter = if (boxHeightState.value == 320.dp) dropupImg else dropdownImg,
-                        contentDescription = if (boxHeightState.value == 320.dp) "드롭다운" else "드롭업",
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(10.dp)
-                            .clickable {
-                                // 높이 상태를 토글합니다.
-                                boxHeightState.value =
-                                    if (boxHeightState.value == 320.dp) 80.dp else 320.dp
-                            }
-                    )
-                }
-            }
-            NoteListSpace(rootFolderId, onNote)
-        }
-
-        if (showParticipantListModal) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                        onClick = { showParticipantListModal = false }
-                    )
-            ) {
+                SpTitleBar(
+                    navController = navController,
+                    context = context,
+                    audioCallViewModel = audioCallViewModel,
+                    isCurrentSpaceActive = isCurrentSpaceActive,
+                    spaceId = spaceId,
+                    rootFolderId = rootFolderId,
+                    users = shareSpaceDetails?.users ?: listOf(),
+                    title = spaceTitle.value,
+                    participants = participants,
+                    spaceViewModel = spaceViewModel,
+                    socketManager = socketManager,
+                    viewModel = viewModel,
+                    onShowParticipants = { showParticipantListModal = true }
+                )
+                Divider(
+                    color = Color.Gray,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 20.dp)
+                )
                 Box(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = 112.dp, end = 20.dp) // 패딩을 통해 위치 조정
+                        .fillMaxWidth()
+                        // boxHeightState를 사용하여 Box의 높이를 동적으로 조절합니다.
+                        .height(boxHeightState.value)
+                        .padding(20.dp)
+                        .background(color = Color.White)
                 ) {
-                    ParticipantListModal(
-                        totalusers = shareSpaceDetails?.users ?: listOf(),
-                        participants = participants,
-                        sessionId = spaceId,
-                        onDismiss = { showParticipantListModal = false }
-                    )
+                    // TextField 등 입력란을 여기에 배치할 수 있습니다.
+                    MarkdownScreen(spaceId)
+                    // 드롭다운/드롭업 버튼을 배치합니다.
+                    // Box의 contentAlignment를 사용하여 버튼의 위치를 오른쪽 하단에 배치합니다.
+                    Box(
+                        contentAlignment = Alignment.BottomEnd,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Image(
+                            painter = if (boxHeightState.value == 320.dp) dropupImg else dropdownImg,
+                            contentDescription = if (boxHeightState.value == 320.dp) "드롭다운" else "드롭업",
+                            modifier = Modifier
+                                .size(48.dp)
+                                .padding(10.dp)
+                                .clickable {
+                                    // 높이 상태를 토글합니다.
+                                    boxHeightState.value =
+                                        if (boxHeightState.value == 320.dp) 80.dp else 320.dp
+                                }
+                        )
+                    }
+                }
+                NoteListSpace(rootFolderId, onNote)
+            }
+
+            if (showParticipantListModal) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = { showParticipantListModal = false }
+                        )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 112.dp, end = 20.dp) // 패딩을 통해 위치 조정
+                    ) {
+                        ParticipantListModal(
+                            totalusers = shareSpaceDetails?.users ?: listOf(),
+                            participants = participants,
+                            sessionId = spaceId,
+                            onDismiss = { showParticipantListModal = false }
+                        )
+                    }
                 }
             }
-        }
 
+        }
     }
+
 }
 
 @Composable
 fun SpTitleBar(
+    navController: NavController,
     context: Context,
     audioCallViewModel: AudioCallViewModel,
     isCurrentSpaceActive: Boolean,
     spaceId: String,
+    rootFolderId: String,
     users: List<User>,
+    title: String,
     participants: List<Connection>,
     spaceViewModel: SpaceViewModel,
     socketManager: SocketManager,
+    viewModel: NoteListViewModel,
     onShowParticipants: () -> Unit
 ) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
@@ -225,6 +259,10 @@ fun SpTitleBar(
 
     val showPopup = remember { mutableStateOf(false) }
 
+    val nowFolderId = LocalNowFolderId.current
+    val nowFolderTitle = LocalNowFolderTitle.current
+    val navigationStackId = LocalNavigationStackId.current
+    val navigationStackTitle = LocalNavigationStackTitle.current
 
     fun copyToClipboard(context: Context, text: String) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -295,18 +333,41 @@ fun SpTitleBar(
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(text = "공유 스페이스")
                 Spacer(modifier = Modifier.width(5.dp))
-                Text(text = "> ··· >")
-                Spacer(modifier = Modifier.width(5.dp))
-                Text(text = "상위 폴더명")
+                if (navigationStackTitle.size > 1) {
+                    Text(text = "> ··· >")
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(text= navigationStackTitle[navigationStackTitle.size - 2])
+                }
             }
             Spacer(modifier = Modifier.height(10.dp))
             Row {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(modifier = Modifier
+                        .clickable {
+                            if (navigationStackId.isNotEmpty()) {
+                                val previousFolderId =
+                                    navigationStackId.removeAt(navigationStackId.size - 1)
+                                val previousFolderTitle =
+                                    navigationStackTitle.removeAt(navigationStackTitle.size - 1)
+                                nowFolderId.value = previousFolderId
+                                nowFolderTitle.value = previousFolderTitle
+                                if (navigationStackId.size != 0) {
+                                    viewModel.updateFolderId(navigationStackId[navigationStackId.size - 1])
+                                } else {
+                                    navController.navigate("share-space/${spaceId}/${rootFolderId}")
+                                }
+                            } else {
+                                navController.popBackStack()
+                            }
+                        }
                         .height(30.dp)
                         .width(30.dp), painter = leftImg, contentDescription = null)
                     Spacer(modifier = Modifier.width(5.dp))
-                    Text(fontSize = 24.sp, text="현재 폴더명")
+                    if (navigationStackTitle.size != 0) {
+                        Text(fontSize = 24.sp, text= navigationStackTitle[navigationStackTitle.size - 1])
+                    } else {
+                        Text(text = title, fontSize = 24.sp)
+                    }
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Row(horizontalArrangement = Arrangement.End,
