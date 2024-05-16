@@ -33,7 +33,7 @@ class AudioSessionViewModel : ViewModel() {
         fetchJob = viewModelScope.launch {
             while (isActive) {
                 getSessionConnection(sessionId)
-                delay(15000) // 15초마다 데이터 가져오기
+                delay(1000) // 1초마다 데이터 가져오기
             }
         }
     }
