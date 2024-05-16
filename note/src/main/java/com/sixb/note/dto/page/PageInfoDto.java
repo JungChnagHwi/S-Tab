@@ -16,6 +16,7 @@ import java.util.List;
 @Cacheable
 public class PageInfoDto {
     private String pageId;
+    private String noteId;
     private String color;
     private String template;
     private int direction;
