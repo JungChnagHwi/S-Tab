@@ -37,6 +37,9 @@ class MainActivity : ComponentActivity() {
         PreferencesUtil.init(this)
         PreferencesUtil.saveCallState(false, null) // 앱 시작 시 callState 초기화
 
+        socketManager = SocketManager.getInstance()
+        socketManager?.connectToSocket(BuildConfig.SOCKET_URL)
+
         val loginDetails = PreferencesUtil.getLoginDetails()
         setContent {
             STabTheme {
@@ -46,7 +49,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Routers(audioCallViewModel) { socketManager = it }
+                    Routers(audioCallViewModel)
                 }
             }
         }
@@ -61,11 +64,11 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Routers(
-    audioCallViewModel: AudioCallViewModel,
-    onSocketManagerReady: (SocketManager) -> Unit
+    audioCallViewModel: AudioCallViewModel
     ) {
 
     val navController = rememberNavController()
+    val socketManager = SocketManager.getInstance()
 
     fun navigateTo(destination: String) {
         navController.navigate(destination)
@@ -74,19 +77,16 @@ fun Routers(
     NavHost(navController = navController, startDestination = "login") {
         composable("login") {
             Login(navController = navController) {
-                val socketManager = SocketManager()
                 socketManager.connectToSocket(BuildConfig.SOCKET_URL)
-                onSocketManagerReady(socketManager)
                 navigateTo("space")
             }
         }
         composable("sign-up") { SignUp(onNavigate = { navigateTo(it) }) }
         composable("space") {
-            val socketManager = remember { SocketManager() }
             SpaceRouters(
                 onLogin = { navController.navigate("login") },
                 audioCallViewModel,
-                socketManager ?: SocketManager().apply { connectToSocket(BuildConfig.SOCKET_URL) }
+                socketManager
             ) }
         composable("create-note") { CreateNoteModal({}, NoteListViewModel("f")) }
         composable("create-folder") { CreateFolderModal({}, NoteListViewModel("f")) }

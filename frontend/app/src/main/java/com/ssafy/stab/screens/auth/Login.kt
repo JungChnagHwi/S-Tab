@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.util.SocketManager
 
 
 @Composable
@@ -57,7 +58,7 @@ fun Login(navController: NavController, onLoginSuccess: () -> Unit){
 fun KakaoLoginView(viewModel: KakaoAuthViewModel, navController: NavController) {
 
     val isLoggedIn = viewModel.isLoggedIn.collectAsState()
-
+    val socketManager = SocketManager.getInstance()
     val loginStatusInfoTitle = if (isLoggedIn.value) "로그인 상태" else "로그아웃 상태"
 
     Column(
@@ -72,6 +73,7 @@ fun KakaoLoginView(viewModel: KakaoAuthViewModel, navController: NavController) 
         }
         Button(onClick = {
             viewModel.kakaoLogout()
+            socketManager.disconnect()
         }) {
             Text(text = "로그아웃 하기")
         }
