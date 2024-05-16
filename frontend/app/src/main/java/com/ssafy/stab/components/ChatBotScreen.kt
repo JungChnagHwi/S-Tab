@@ -5,10 +5,10 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -35,7 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.stab.R
@@ -129,7 +131,6 @@ fun ChatBotScreen (viewModel: ChatBotViewModel, onDismiss: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MessageBubble(message: Message) {
     val backgroundColor = if (message.isUser) Color(0xFF5584FD) else Color(0xFFE9ECF5)
@@ -167,25 +168,33 @@ fun MessageBubble(message: Message) {
             }
         }
 
-        Surface(
-            color = backgroundColor,
-            shape = shape,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
         ) {
-            Box(
+            Surface(
+                color = backgroundColor,
+                shape = shape,
                 modifier = Modifier
-                    .padding(12.dp)
-                    .widthIn(max = if (message.text == "...") 50.dp else Dp.Unspecified) // ...일 때 가로 너비 작게 설정
+                    .wrapContentSize() // 텍스트 길이에 따라 가로 크기 조정
+                    .padding(vertical = 4.dp)
             ) {
-                AnimatedContent(
-                    targetState = message.text,
-                    transitionSpec = {
-                        fadeIn() togetherWith fadeOut()
+                Box(
+                    modifier = Modifier
+                        .padding(12.dp)
+                ) {
+                    AnimatedContent(
+                        targetState = message.text,
+                        transitionSpec = {
+                            fadeIn() togetherWith fadeOut()
+                        }
+                    ) { targetText ->
+                        Text(
+                            targetText,
+                            color = textColor,
+                            textAlign = TextAlign.Start // 왼쪽 정렬
+                        )
                     }
-                ) { targetText ->
-                    Text(targetText, color = textColor)
                 }
             }
         }

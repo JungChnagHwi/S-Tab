@@ -28,7 +28,7 @@ class ChatBotViewModel : ViewModel() {
     fun sendMessage(question: String) {
         addUserMessage(question)
         val botMessageIndex = messages.size
-        addBotMessage("...")
+        addBotMessage("AI가 열심히 답변을 준비 하고 있어요...! ")
 
         viewModelScope.launch {
             sendQuestion(question) { response ->
