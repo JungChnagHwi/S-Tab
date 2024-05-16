@@ -85,7 +85,7 @@ fun SpaceRouters(
                         ) { navController.navigate("personal-note/$it") }
                     }
                 }
-                composable("book-mark") { BookMark() }
+                composable("book-mark") { BookMark(navController) }
                 composable("deleted") { Deleted(navController) }
                 composable("personal-note/{noteId}") {backStackEntry ->
                     backStackEntry.arguments?.getString("noteId")

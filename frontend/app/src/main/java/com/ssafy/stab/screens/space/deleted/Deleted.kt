@@ -69,7 +69,7 @@ fun Deleted(navController: NavController){
             .background(Color(0xFFE9ECF5))
             .fillMaxSize()
     ) {
-        DeletedTitleBar()
+        DeletedTitleBar(navController)
         Divider(
             color = Color.Gray, // 선의 색상 설정
             thickness = 1.dp, // 선의 두께 설정
@@ -80,7 +80,7 @@ fun Deleted(navController: NavController){
 }
 
 @Composable
-fun DeletedTitleBar(){
+fun DeletedTitleBar(navController: NavController){
     val trashImg = painterResource(id = R.drawable.trash)
     val leftImg = painterResource(id = R.drawable.left)
     Row {
@@ -89,6 +89,7 @@ fun DeletedTitleBar(){
             Spacer(modifier = Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(modifier = Modifier
+                    .clickable { navController.popBackStack() }
                     .height(40.dp)
                     .width(40.dp), painter = leftImg, contentDescription = null)
                 Spacer(modifier = Modifier.width(5.dp))

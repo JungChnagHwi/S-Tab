@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.bookmark.BookmardFolder
 import com.ssafy.stab.apis.space.bookmark.BookmardNote
@@ -35,7 +36,7 @@ import com.ssafy.stab.apis.space.bookmark.BookmardPage
 import com.ssafy.stab.apis.space.bookmark.getBookMarkList
 
 @Composable
-fun BookMark(){
+fun BookMark(navController: NavController){
 
     val folders = remember { mutableStateOf<List<BookmardFolder>>(emptyList()) }
     val notes = remember { mutableStateOf<List<BookmardNote>>(emptyList()) }
@@ -68,7 +69,7 @@ fun BookMark(){
             .background(Color(0xFFE9ECF5))
             .fillMaxSize()
     ) {
-        BookMarkTitleBar()
+        BookMarkTitleBar(navController)
         Divider(
             color = Color.Gray, // 선의 색상 설정
             thickness = 1.dp, // 선의 두께 설정
@@ -79,15 +80,16 @@ fun BookMark(){
 }
 
 @Composable
-fun BookMarkTitleBar() {
+fun BookMarkTitleBar(navController: NavController) {
     val bookMarkImg = painterResource(id = R.drawable.star)
     val leftImg = painterResource(id = R.drawable.left)
-    Row() {
+    Row {
         Spacer(modifier = Modifier.width(30.dp))
         Column {
             Spacer(modifier = Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(modifier = Modifier
+                    .clickable { navController.popBackStack() }
                     .height(40.dp)
                     .width(40.dp), painter = leftImg, contentDescription = null)
                 Spacer(modifier = Modifier.width(5.dp))
