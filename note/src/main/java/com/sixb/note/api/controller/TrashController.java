@@ -19,7 +19,7 @@ public class TrashController {
 	private final TrashService trashService;
 
 	@GetMapping
-	public ResponseEntity<TrashResponseDto> getDeletedItems(long userId) {
+	public ResponseEntity<TrashResponseDto> getDeletedItems(@RequestParam long userId) {
 		TrashResponseDto deletedItems = trashService.findDeletedItems(userId);
 		return ResponseEntity.ok(deletedItems);
 	}
