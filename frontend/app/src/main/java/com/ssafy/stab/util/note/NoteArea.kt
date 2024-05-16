@@ -34,31 +34,8 @@ fun NoteArea(
     Box(
         modifier = modifier
     ) {
-        var isStylus by remember { mutableStateOf(false) }
-
-        val touchAwareModifier = Modifier
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        event.changes.forEach {change ->
-                            isStylus = change.type != PointerType.Touch
-                        }
-                    }
-                }
-            }
-
         val canvasModifier = Modifier
-//            .pointerInput(Unit) {
-//                detectTapGestures(
-//                    onTap = { offset ->
-//                        val coordinate = offsetToCoordinate(offset)
-//                        viewModel.insertNewPathInfo(currentPageId, coordinate)
-//                        viewModel.updateLatestPath(coordinate)
-//                        viewModel.addNewPath()
-//                    }
-//                )
-//            }
+            .fillMaxSize()
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
@@ -93,164 +70,48 @@ fun NoteArea(
             }
 
         Canvas(
-            modifier = Modifier
-                .fillMaxSize()
-                .then(touchAwareModifier)
-                .then(if (isStylus) canvasModifier else Modifier)
+            modifier = canvasModifier
         ) {
             with(drawContext.canvas.nativeCanvas) {
                 val checkPoint = saveLayer(null, null)
 
+                val drawPathInfo: (PathInfo) -> Unit = { pathInfo ->
+                    val colorPrefix = when (pathInfo.penType) {
+                        PenType.Pen -> "FF"
+                        PenType.Highlighter -> "40"
+                        else -> "00"
+                    }
+
+                    val strokeStyle = Stroke(
+                        width = pathInfo.strokeWidth,
+                        cap = if (pathInfo.penType == PenType.Highlighter) StrokeCap.Square else StrokeCap.Round,
+                        join = StrokeJoin.Round
+                    )
+
+                    val blendMode = if (pathInfo.penType == PenType.Eraser) BlendMode.Clear else BlendMode.SrcOver
+
+                    drawPath(
+                        path = createPath(pathInfo.coordinates),
+                        color = Color(color = (colorPrefix + pathInfo.color).toLong(16)),
+                        style = strokeStyle,
+                        blendMode = blendMode
+                    )
+                }
+
                 paths?.forEach { pathInfo ->
-                    when (pathInfo.penType) {
-                        PenType.Pen -> {
-                            drawPath(
-                                path = createPath(pathInfo.coordinates),
-                                color = Color(color = ("FF" + pathInfo.color).toLong(16)),
-                                style = Stroke(
-                                    width = pathInfo.strokeWidth,
-                                    cap = StrokeCap.Round,
-                                    join = StrokeJoin.Round
-                                )
-                            )
-                        }
+                    drawPathInfo(pathInfo)
+                }
 
-                        PenType.Highlighter -> {
-                            drawPath(
-                                path = createPath(pathInfo.coordinates),
-                                color = Color(color = ("40" + pathInfo.color).toLong(16)),
-                                style = Stroke(
-                                    width = pathInfo.strokeWidth,
-                                    cap = StrokeCap.Square,
-                                    join = StrokeJoin.Round
-                                )
-                            )
-                        }
-
-                        else -> {
-                            drawPath(
-                                path = createPath(pathInfo.coordinates),
-                                color = Color(color = ("00" + pathInfo.color).toLong(16)),
-                                style = Stroke(
-                                    width = pathInfo.strokeWidth,
-                                    cap = StrokeCap.Round,
-                                    join = StrokeJoin.Round
-                                ),
-                                blendMode = BlendMode.Clear
-                            )
-                        }
+                if (viewModel.getCurrentPathList(currentPageId).isNotEmpty()) {
+                    viewModel.getCurrentPathList(currentPageId).forEach { userPagePathInfo ->
+                        drawPathInfo(userPagePathInfo.pathInfo)
                     }
                 }
-                if (viewModel.getCurrentPathList(currentPageId).isNotEmpty()) {
-                    viewModel.getCurrentPathList(currentPageId)
-                        .forEach { userPagePathInfo ->
-                            val pathInfo = userPagePathInfo.pathInfo
-                            when (pathInfo.penType) {
-                                PenType.Pen -> {
-                                    drawPath(
-                                        path = createPath(pathInfo.coordinates),
-                                        color = Color(
-                                            color = ("FF" + pathInfo.color).toLong(
-                                                16
-                                            )
-                                        ),
-                                        style = Stroke(
-                                            width = pathInfo.strokeWidth,
-                                            cap = StrokeCap.Round,
-                                            join = StrokeJoin.Round
-                                        )
-                                    )
-                                }
 
-                                PenType.Highlighter -> {
-                                    drawPath(
-                                        path = createPath(pathInfo.coordinates),
-                                        color = Color(
-                                            color = ("40" + pathInfo.color).toLong(
-                                                16
-                                            )
-                                        ),
-                                        style = Stroke(
-                                            width = pathInfo.strokeWidth,
-                                            cap = StrokeCap.Square,
-                                            join = StrokeJoin.Round
-                                        )
-                                    )
-                                }
-
-                                else -> {
-                                    drawPath(
-                                        path = createPath(pathInfo.coordinates),
-                                        color = Color(
-                                            color = ("00" + pathInfo.color).toLong(
-                                                16
-                                            )
-                                        ),
-                                        style = Stroke(
-                                            width = pathInfo.strokeWidth,
-                                            cap = StrokeCap.Round,
-                                            join = StrokeJoin.Round
-                                        ),
-                                        blendMode = BlendMode.Clear
-                                    )
-                                }
-                            }
-                        }
-                }
                 if (viewModel.newPathList.isNotEmpty()) {
                     viewModel.newPathList.forEach { userPagePathInfo ->
                         if (userPagePathInfo.pageId == currentPageId) {
-                            val pathInfo = userPagePathInfo.pathInfo
-                            when (pathInfo.penType) {
-                                PenType.Pen -> {
-                                    drawPath(
-                                        path = createPath(pathInfo.coordinates),
-                                        color = Color(
-                                            color = ("FF" + pathInfo.color).toLong(
-                                                16
-                                            )
-                                        ),
-                                        style = Stroke(
-                                            width = pathInfo.strokeWidth,
-                                            cap = StrokeCap.Round,
-                                            join = StrokeJoin.Round
-                                        )
-                                    )
-                                }
-
-                                PenType.Highlighter -> {
-                                    drawPath(
-                                        path = createPath(pathInfo.coordinates),
-                                        color = Color(
-                                            color = ("40" + pathInfo.color).toLong(
-                                                16
-                                            )
-                                        ),
-                                        style = Stroke(
-                                            width = pathInfo.strokeWidth,
-                                            cap = StrokeCap.Square,
-                                            join = StrokeJoin.Round
-                                        )
-                                    )
-                                }
-
-                                else -> {
-                                    drawPath(
-                                        path = createPath(pathInfo.coordinates),
-                                        color = Color(
-                                            color = ("00" + pathInfo.color).toLong(
-                                                16
-                                            )
-                                        ),
-                                        style = Stroke(
-                                            width = pathInfo.strokeWidth,
-                                            cap = StrokeCap.Round,
-                                            join = StrokeJoin.Round
-                                        ),
-                                        blendMode = BlendMode.Clear
-                                    )
-                                }
-                            }
+                            drawPathInfo(userPagePathInfo.pathInfo)
                         }
                     }
                 }
