@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class RedisDataListener {
@@ -50,7 +52,7 @@ public class RedisDataListener {
 				.pdfUrl(pageInfo.getPdfUrl())
 				.pdfPage(pageInfo.getPdfPage())
 				.pageData(pageDataJson)
-				.updatedAt(pageInfo.getUpdatedAt())
+				.updatedAt(LocalDateTime.parse(pageInfo.getUpdatedAt()))
 				.build();
 
 		pageRepository.save(page);
