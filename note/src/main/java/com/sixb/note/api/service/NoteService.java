@@ -68,7 +68,7 @@ public class NoteService {
 
 		Note newNote = Note.builder()
 				.noteId(formattedNoteId)
-				.spaceId(existingNote.getSpaceId())
+				.spaceId(parentFolder.getSpaceId())
 				.title(requestDto.getTitle())
 				.totalPageCnt(existingNote.getTotalPageCnt())
 				.page(newPageHead)  // 복사된 페이지의 첫 번째 페이지

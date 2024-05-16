@@ -20,6 +20,12 @@ public class FolderController {
 		return ResponseEntity.ok(folderInfo);
 	}
 
+	@GetMapping("/name")
+	public ResponseEntity<FolderResponseDto> getFolderByName(@RequestParam long userId, @RequestParam String name, @RequestParam String spaceId) {
+		FolderResponseDto response = folderService.getFolderByName(userId, name, spaceId);
+		return ResponseEntity.ok(response);
+	}
+
 	@GetMapping("/space/{spaceId}")
 	public ResponseEntity<FolderResponseDto> getSpaceById(@PathVariable("spaceId") String spaceId) {
 		FolderResponseDto spaceInfo = folderService.getSpaceDetail(spaceId);

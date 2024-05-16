@@ -190,4 +190,8 @@ public class FolderService {
 		return responseDto;
 	}
 
+	public FolderResponseDto getFolderByName(long userId, String name, String spaceId) {
+		return folderRepository.getFolderByName(userId, name, spaceId);
+	}
+
 }
