@@ -24,7 +24,6 @@ public class PageInfoDto {
     private Boolean isBookmarked;
     private String pdfUrl;
     private Integer pdfPage;
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
     private List<PathDto> paths;
     private List<FigureDto> figures;
