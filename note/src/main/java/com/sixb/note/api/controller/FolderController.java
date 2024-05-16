@@ -57,4 +57,10 @@ public class FolderController {
 			return ResponseEntity.notFound().build();
 		}
 	}
+
+	@PostMapping("/list")
+	public ResponseEntity<FolderListResponseDto> getFoldersBetween(@RequestBody FolderListRequestDto requestDto) {
+		FolderListResponseDto responseDto = folderService.getFoldersBetween(requestDto);
+		return ResponseEntity.ok(responseDto);
+	}
 }

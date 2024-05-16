@@ -1,10 +1,7 @@
 package com.sixb.note.api.service;
 
 
-import com.sixb.note.dto.folder.CreateFolderRequestDto;
-import com.sixb.note.dto.folder.CreateFolderResponseDto;
-import com.sixb.note.dto.folder.FolderResponseDto;
-import com.sixb.note.dto.folder.RelocateFolderRequestDto;
+import com.sixb.note.dto.folder.*;
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Space;
@@ -176,6 +173,21 @@ public class FolderService {
 			return true;
 		}
 		return false;
+	}
+
+	public FolderListResponseDto getFoldersBetween(FolderListRequestDto requestDto) {
+		List<Folder> folders = folderRepository.findFoldersBetween(requestDto.getParentFolderId(), requestDto.getFolderId());
+
+		List<FolderListResponseDto.FolderInfo> folderInfos = folders.stream().map(folder -> {
+			FolderListResponseDto.FolderInfo info = new FolderListResponseDto.FolderInfo();
+			info.setFolderId(folder.getFolderId());
+			info.setTitle(folder.getTitle());
+			return info;
+		}).collect(Collectors.toList());
+
+		FolderListResponseDto responseDto = new FolderListResponseDto();
+		responseDto.setFolders(folderInfos);
+		return responseDto;
 	}
 
 }
