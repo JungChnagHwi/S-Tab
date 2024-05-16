@@ -309,7 +309,7 @@ public class PageService {
     }
 
 
-    @Cacheable(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
+    @Cacheable(value = "page", key = "#page.pageId", cacheManager = "redisCacheManager")
     private PageInfoDto getPageInfoDto(Page page) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
@@ -335,7 +335,7 @@ public class PageService {
         return pageInfo;
     }
 
-    @CachePut(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
+    @CachePut(value = "page", key = "#page.pageId", cacheManager = "redisCacheManager")
     private PageInfoDto setPageInfoDto(Page page) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
