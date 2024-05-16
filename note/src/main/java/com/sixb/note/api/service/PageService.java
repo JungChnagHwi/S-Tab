@@ -112,8 +112,8 @@ public class PageService {
                 pageRepository.save(page);
                 noteRepository.save(note);
 
-                boolean isLiked = pageRepository.isLikedByPageId(userId, page.getPageId());
-                setPageInfoDto(page, isLiked);
+                setPageInfoDto(page);
+
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
@@ -157,8 +157,8 @@ public class PageService {
             List<Page> pageList = pageRepository.findAllPagesByNoteId(noteId);
 
             for (Page page : pageList) {
-                boolean isLiked = pageRepository.isLikedByPageId(userId, page.getPageId());
-                PageInfoDto pageInfoDto = getPageInfoDto(page, isLiked);
+                PageInfoDto pageInfoDto = getPageInfoDto(page);
+                pageInfoDto.setIsBookmarked(pageRepository.isLikedByPageId(userId, page.getPageId()));
                 // pageInfoList에 넣기
                 pageInfoList.add(pageInfoDto);
             }
@@ -210,7 +210,8 @@ public class PageService {
             beforePage.setNextPage(newPage);
 
             // responsedto에 넣기
-            PageInfoDto response = getPageInfoDto(newPage, false);
+            PageInfoDto response = getPageInfoDto(newPage);
+            response.setIsBookmarked(false);
 
             // db에 저장하고 반환
             pageRepository.save(newPage);
@@ -259,7 +260,10 @@ public class PageService {
                 }
                 pageRepository.save(page);
 
-                response.add(0, getPageInfoDto(page, false));
+                PageInfoDto pageInfoDto = getPageInfoDto(page);
+                pageInfoDto.setIsBookmarked(false);
+
+                response.add(0, pageInfoDto);
 
                 connectPage = page; // 이렇게 재할당 해도 되나요?
             }
@@ -303,7 +307,7 @@ public class PageService {
 
 
     @Cacheable(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
-    private PageInfoDto getPageInfoDto(Page page, boolean isLiked) throws JsonProcessingException {
+    private PageInfoDto getPageInfoDto(Page page) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
         
@@ -318,7 +322,6 @@ public class PageService {
                 .pdfPage(page.getPdfPage())
                 .pdfUrl(page.getPdfUrl())
                 .updatedAt(page.getUpdatedAt())
-                .isBookmarked(isLiked)
                 .paths(pageDataDto.getPaths())
                 .figures(pageDataDto.getFigures())
                 .images(pageDataDto.getImages())
@@ -327,7 +330,7 @@ public class PageService {
     }
 
     @CachePut(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
-    private PageInfoDto setPageInfoDto(Page page, boolean isLiked) throws JsonProcessingException {
+    private PageInfoDto setPageInfoDto(Page page) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
         return PageInfoDto.builder()
@@ -338,7 +341,6 @@ public class PageService {
                 .pdfPage(page.getPdfPage())
                 .pdfUrl(page.getPdfUrl())
                 .updatedAt(page.getUpdatedAt())
-                .isBookmarked(isLiked)
                 .paths(pageDataDto.getPaths())
                 .figures(pageDataDto.getFigures())
                 .images(pageDataDto.getImages())
