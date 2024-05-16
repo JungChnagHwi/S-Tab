@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,16 +32,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.R
+import com.ssafy.stab.components.ChatBotScreen
 import com.ssafy.stab.components.note.ColorOptions
 import com.ssafy.stab.components.note.ControlsBar
 import com.ssafy.stab.components.note.PageInterfaceBar
 import com.ssafy.stab.components.note.PageList
 import com.ssafy.stab.components.note.StrokeOptions
 import com.ssafy.stab.data.PreferencesUtil
-import com.ssafy.stab.modals.ChatBotModal
 import com.ssafy.stab.ui.theme.Background
 import com.ssafy.stab.util.gpt.ChatBotViewModel
 import com.ssafy.stab.util.note.NoteControlViewModel
@@ -59,12 +61,12 @@ fun PersonalNote(
     val currentPage = remember { mutableIntStateOf(0) }
     val onPageChange = { page: Int -> currentPage.intValue = page }
     var showChatBot by remember { mutableStateOf(false) }
-
-    val chatbotImg = painterResource(id = R.drawable.assistance_icon)
+    val chatBotImg = painterResource(id = R.drawable.assistance_icon)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
         ) {
             Row(
                 modifier = Modifier
@@ -127,8 +129,8 @@ fun PersonalNote(
                 StrokeOptions(noteControlViewModel)
                 Spacer(modifier = Modifier.weight(1f))
                 Image(
-                    painter = chatbotImg,
-                    contentDescription = "챗봇 버튼",
+                    painter = chatBotImg,
+                    contentDescription = "ChatBot",
                     modifier = Modifier
                         .size(44.dp)
                         .clickable { showChatBot = true }
@@ -136,14 +138,28 @@ fun PersonalNote(
                 )
             }
 
-            PageList(noteViewModel, noteControlViewModel, onPageChange)
-        }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+            ) {
+                PageList(noteViewModel, noteControlViewModel, onPageChange)
 
-        if (showChatBot) {
-            ChatBotModal(
-                viewModel = chatBotViewModel,
-                onDismiss = { showChatBot = false }
-            )
+                if (showChatBot) {
+                    Box(
+                        modifier = Modifier
+                            .width(400.dp)
+                            .height(1400.dp)
+                            .align(Alignment.TopEnd) // 오른쪽 끝에 정렬
+                            .zIndex(2f) // 챗봇 화면의 zIndex를 높게 설정
+                    ) {
+                        ChatBotScreen(
+                            viewModel = chatBotViewModel,
+                            onDismiss = { showChatBot = false }
+                        )
+                    }
+                }
+            }
         }
     }
 }
