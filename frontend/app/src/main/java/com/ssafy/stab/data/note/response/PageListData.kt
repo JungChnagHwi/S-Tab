@@ -25,7 +25,7 @@ data class PageDetail(
     @SerializedName("pdfUrl")
     val pdfUrl: String?,
     @SerializedName("pdfPage")
-    val pdfPage: Int?,
+    val pdfPage: Int = 0,
     @SerializedName("updatedAt")
     val updatedAt: LocalDateTime = LocalDateTime.now(),
     @SerializedName("paths")

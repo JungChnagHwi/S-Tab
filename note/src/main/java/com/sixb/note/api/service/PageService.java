@@ -13,12 +13,13 @@ import com.sixb.note.repository.PageRepository;
 import com.sixb.note.util.Const;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -113,6 +114,8 @@ public class PageService {
                 note.setUpdatedAt(now);
                 pageRepository.save(page);
                 noteRepository.save(note);
+
+                setPageInfoDto(page);
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
@@ -122,7 +125,7 @@ public class PageService {
         }
     }
 
-    public PageUpdateDto updatePage(PageUpdateDto request) throws PageNotFoundException {
+    public PageUpdateDto updatePage(PageUpdateDto request) throws PageNotFoundException, JsonProcessingException {
         String pageId = request.getPageId();
         Page page = pageRepository.findPageById(pageId);
         if (page != null) {
@@ -135,6 +138,8 @@ public class PageService {
 
                 pageRepository.save(page);
 
+                setPageInfoDto(page);
+
                 return request;
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
@@ -145,7 +150,7 @@ public class PageService {
     }
 
     // 페이지 조회
-    public PageListResponseDto getPageList(long userId, String noteId) throws NoteNotFoundException, PageNotFoundException, JsonProcessingException {
+    public PageListResponseDto getPageList(String noteId) throws NoteNotFoundException, PageNotFoundException, JsonProcessingException {
         Note note = noteRepository.findNoteById(noteId);
         if (note != null) {
             List<PageInfoDto> pageInfoList = new ArrayList<>();
@@ -154,7 +159,7 @@ public class PageService {
             List<Page> pageList = pageRepository.findAllPagesByNoteId(noteId);
 
             for (Page page : pageList) {
-                PageInfoDto pageInfoDto = setPageInfoDto(page);
+                PageInfoDto pageInfoDto = getPageInfoDto(page);
                 // pageInfoList에 넣기
                 pageInfoList.add(pageInfoDto);
             }
@@ -206,7 +211,7 @@ public class PageService {
             beforePage.setNextPage(newPage);
 
             // responsedto에 넣기
-            PageInfoDto response = setPageInfoDto(newPage);
+            PageInfoDto response = getPageInfoDto(newPage);
 
             // db에 저장하고 반환
             pageRepository.save(newPage);
@@ -220,7 +225,7 @@ public class PageService {
     }
 
     // pdf 가져오기
-    public void pdfPage(PagePdfRequestDto request) throws PageNotFoundException {
+    public List<PageInfoDto> pdfPage(PagePdfRequestDto request) throws PageNotFoundException, JsonProcessingException {
         
         String beforePageId = request.getBeforePageId();
         Page beforePage = pageRepository.findPageById(beforePageId);
@@ -237,6 +242,8 @@ public class PageService {
         }
 
         if (beforePage != null) {
+            List<PageInfoDto> response = new ArrayList<>();
+
             // pdfcount 만큼 for문 돌면서 페이지 생성하기
             for (int i = pdfPageCount; i > 0; i--) {
 
@@ -252,6 +259,9 @@ public class PageService {
                     page.setNextPage(connectPage);
                 }
                 pageRepository.save(page);
+
+                response.add(0, getPageInfoDto(page));
+
                 connectPage = page; // 이렇게 재할당 해도 되나요?
             }
 
@@ -261,6 +271,7 @@ public class PageService {
             // 페이지 저장
             pageRepository.save(beforePage);
 
+            return response;
         } else {
             throw new PageNotFoundException("페이지를 찾을 수 없습니다.");
         }
@@ -292,18 +303,18 @@ public class PageService {
     }
 
 
-    private PageInfoDto setPageInfoDto (Page newPage) throws JsonProcessingException {
-        String pageDataString = newPage.getPageData();
+    @Cacheable(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
+    private PageInfoDto getPageInfoDto(Page page) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
+        PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
         return PageInfoDto.builder()
-                .pageId(newPage.getPageId())
-                .color(newPage.getColor())
-                .template(newPage.getTemplate())
-                .direction(newPage.getDirection())
-                .pdfPage(newPage.getPdfPage())
-                .pdfUrl(newPage.getPdfUrl())
-                .updatedAt(newPage.getUpdatedAt())
+                .pageId(page.getPageId())
+                .color(page.getColor())
+                .template(page.getTemplate())
+                .direction(page.getDirection())
+                .pdfPage(page.getPdfPage())
+                .pdfUrl(page.getPdfUrl())
+                .updatedAt(page.getUpdatedAt())
                 .isBookmarked(false)
                 .paths(pageDataDto.getPaths())
                 .figures(pageDataDto.getFigures())
@@ -311,4 +322,25 @@ public class PageService {
                 .textBoxes(pageDataDto.getTextBoxes())
                 .build();
     }
+
+    @CachePut(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
+    private PageInfoDto setPageInfoDto(Page page) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
+        return PageInfoDto.builder()
+                .pageId(page.getPageId())
+                .color(page.getColor())
+                .template(page.getTemplate())
+                .direction(page.getDirection())
+                .pdfPage(page.getPdfPage())
+                .pdfUrl(page.getPdfUrl())
+                .updatedAt(page.getUpdatedAt())
+                .isBookmarked(false)
+                .paths(pageDataDto.getPaths())
+                .figures(pageDataDto.getFigures())
+                .images(pageDataDto.getImages())
+                .textBoxes(pageDataDto.getTextBoxes())
+                .build();
+    }
+
 }

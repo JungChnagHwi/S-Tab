@@ -38,6 +38,7 @@ import com.ssafy.stab.screens.space.bookmark.BookMark
 import com.ssafy.stab.screens.space.personal.PersonalSpace
 import com.ssafy.stab.screens.space.share.ShareSpace
 import com.ssafy.stab.screens.space.share.SpaceViewModel
+import com.ssafy.stab.screens.space.deleted.Deleted
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
@@ -82,7 +83,7 @@ fun SpaceRouters(
                     }
                 }
                 composable("book-mark") { BookMark() }
-                composable("deleted") { Deleted() }
+                composable("deleted") { Deleted(navController) }
                 composable("personal-note/{noteId}") {backStackEntry ->
                     backStackEntry.arguments?.getString("noteId")
                         ?.let { PersonalNote(NoteViewModel(it), navController) }

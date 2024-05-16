@@ -13,8 +13,8 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 @Data
 @Node("Page")
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Page extends BaseTimeEntity {
 
     @Id

@@ -40,6 +40,7 @@ fun addBookMark(id: String) {
     call.enqueue(object: Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
             if (response.isSuccessful) {
+                Log.d("제발", id)
                 Log.d("APIResponse", "요청 성공")
             } else {
                 println("Response not successful: ${response.errorBody()?.string()}")
@@ -59,6 +60,7 @@ fun deleteBookMark(fileId: String) {
     call.enqueue(object: Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
             if (response.isSuccessful) {
+                Log.d("제발", fileId)
                 Log.d("APIResponse", "요청 성공")
             } else {
                 println("Response not successful: ${response.errorBody()?.string()}")

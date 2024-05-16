@@ -3,10 +3,10 @@ package com.ssafy.stab.util.note
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -23,9 +23,10 @@ import com.ssafy.stab.data.note.PenType
 fun NoteArea(
     currentPageId: String,
     paths: SnapshotStateList<PathInfo>?,
+    modifier: Modifier,
     viewModel: NoteControlViewModel
 ) = AndroidView(
-    modifier = Modifier.fillMaxSize(),
+    modifier = modifier,
     factory = {
         ComposeView(it).apply {
             setContent {
@@ -33,7 +34,8 @@ fun NoteArea(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = { offset ->
-                                val coordinate = offsetToCoordinate(offset)
+                                val adjustedOffset = adjustScale(offset , viewModel.scale.floatValue)
+                                val coordinate = offsetToCoordinate(adjustedOffset)
                                 viewModel.insertNewPathInfo(currentPageId, coordinate)
                                 viewModel.updateLatestPath(coordinate)
                                 viewModel.addNewPath()
@@ -43,7 +45,8 @@ fun NoteArea(
                     .pointerInput(Unit) {
                         detectDragGestures(
                             onDragStart = { offset ->
-                                val coordinate = offsetToCoordinate(offset)
+                                val adjustedOffset = adjustScale(offset , viewModel.scale.floatValue)
+                                val coordinate = offsetToCoordinate(adjustedOffset)
                                 if (viewModel.penType != PenType.Lasso) {
                                     viewModel.insertNewPathInfo(currentPageId, coordinate)
                                 } else {
@@ -52,10 +55,11 @@ fun NoteArea(
                             },
                             onDrag = { change, _ ->
                                 val newPoint = change.position
+                                val adjustedOffset = adjustScale(newPoint, viewModel.scale.floatValue)
                                 if (viewModel.penType != PenType.Lasso) {
                                     viewModel
                                         .updateLatestPath(
-                                            offsetToCoordinate(newPoint)
+                                            offsetToCoordinate(adjustedOffset)
                                         )
                                 } else {
                                     // 올가미
@@ -208,3 +212,10 @@ fun NoteArea(
         }
     }
 )
+
+fun adjustScale(offset: Offset, scale: Float): Offset {
+    return Offset(
+        x = (offset.x) / scale,
+        y = (offset.y) / scale
+    )
+}

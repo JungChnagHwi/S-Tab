@@ -4,10 +4,10 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +23,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
@@ -37,13 +36,12 @@ fun ControlsBar(
     redoAvailable: Boolean,
 ) {
     Row(
-        modifier = Modifier
-            .padding(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         EditIcons(
             if (undoAvailable) R.drawable.undo_abled else R.drawable.undo_disabled,
-            "undo",
+            "undo"
             ) {
                 if (undoAvailable) viewModel.undo()
             }
@@ -53,27 +51,33 @@ fun ControlsBar(
             ) {
                 if (redoAvailable) viewModel.redo()
             }
-        EditIcons(
+        Spacer(modifier = Modifier.width(4.dp))
+        Divider(
+            color = Color(0xFFCCD7ED),
+            modifier = Modifier.height(28.dp).width(2.dp)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        PenIcons(
             if (viewModel.penType == PenType.Pen) R.drawable.pen_abled else R.drawable.pen_disabled,
-            "pen"
+            "pen", PenType.Pen, viewModel
         ) {
             viewModel.changePenType(PenType.Pen)
         }
-        EditIcons(
+        PenIcons(
             if (viewModel.penType == PenType.Highlighter) R.drawable.highliter_abled else R.drawable.highliter_disabled,
-            "highliter"
+            "highliter", PenType.Highlighter, viewModel
         ) {
             viewModel.changePenType(PenType.Highlighter)
         }
-        EditIcons(
+        PenIcons(
             if (viewModel.penType == PenType.Eraser) R.drawable.eraser_abled else R.drawable.eraser_disabled,
-            "eraser"
+            "eraser", PenType.Eraser, viewModel
         ) {
             viewModel.changePenType(PenType.Eraser)
         }
-        EditIcons(
+        PenIcons(
             if (viewModel.penType == PenType.Lasso) R.drawable.lasso_abled else R.drawable.lasso_disabled,
-            "lasso"
+            "lasso", PenType.Lasso, viewModel
         ) {
             viewModel.changePenType(PenType.Lasso)
         }
@@ -87,78 +91,97 @@ fun ControlsBar(
 }
 
 @Composable
-fun RowScope.EditIcons(
+fun EditIcons(
     @DrawableRes resId:  Int,
     desc: String,
     onClick: () -> Unit
 ) {
-    val modifier = Modifier.size(40.dp)
-    IconButton(onClick = onClick, modifier = modifier) {
+    val modifier = Modifier
+        .size(32.dp)
+        .padding(2.dp)
+        .clickable { onClick() }
+
+    Image(
+        painterResource(id = resId),
+        contentDescription = desc,
+        modifier = modifier,
+        )
+}
+
+@Composable
+fun PenIcons(
+    @DrawableRes resId:  Int,
+    desc: String,
+    penType: PenType,
+    viewModel: NoteControlViewModel,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = if (penType == viewModel.penType) {
+            Modifier
+                .clip(CircleShape)
+                .background(Color(0xFFBADAFF))
+        } else {
+            Modifier
+        }
+            .size(38.dp)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
         Image(
             painterResource(id = resId),
             contentDescription = desc,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            contentScale = ContentScale.Fit
-            )
+                .size(32.dp)
+                .padding(4.dp)
+        )
     }
 }
 
 @Composable
-fun OptionsBar(
+fun ColorOptions(
     viewModel: NoteControlViewModel
 ) {
     Row(
-        modifier = Modifier
-            .padding(10.dp)
-            .height(40.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            ColorIcons(colorTint = "000000") {
-                viewModel.changeColor("000000")
-            }
-            ColorIcons(colorTint = "FF0000") {
-                viewModel.changeColor("FF0000")
-            }
-            ColorIcons(colorTint = "0000FF") {
-                viewModel.changeColor("0000FF")
-            }
-            ColorIcons(colorTint = "00FF00") {
-                viewModel.changeColor("00FF00")
-            }
+        ColorIcons("000000", viewModel) {
+            viewModel.changeColor("000000")
         }
-        Spacer(modifier = Modifier.width(16.dp))
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            StrokeWidthIcons(strokeWidth  = 10f) {
-                viewModel.changeStrokeWidth(10f)
-            }
-            StrokeWidthIcons(strokeWidth  = 20f) {
-                viewModel.changeStrokeWidth(20f)
-            }
-            StrokeWidthIcons(strokeWidth  = 30f) {
-                viewModel.changeStrokeWidth(30f)
-            }
+        ColorIcons("FF0000", viewModel) {
+            viewModel.changeColor("FF0000")
+        }
+        ColorIcons("0000FF", viewModel) {
+            viewModel.changeColor("0000FF")
+        }
+        ColorIcons("31BC47", viewModel) {
+            viewModel.changeColor("31BC47")
         }
     }
 }
 
 @Composable
-fun RowScope.ColorIcons(
+fun ColorIcons(
     colorTint: String,
+    viewModel: NoteControlViewModel,
     onClick: () -> Unit
 ) {
-    val modifier = Modifier.size(28.dp)
-    IconButton(onClick = onClick, modifier = modifier) {
+    Box(
+        modifier = if (colorTint == viewModel.color) {
+            Modifier
+                .clip(CircleShape)
+                .background(Color(0xFFBADAFF))
+        } else {
+            Modifier
+        }
+            .size(38.dp)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .size(24.dp)
                 .clip(CircleShape)
                 .background(Color(color = "FF$colorTint".toLong(16)))
         )
@@ -166,26 +189,54 @@ fun RowScope.ColorIcons(
 }
 
 @Composable
-fun RowScope.StrokeWidthIcons(
+fun StrokeOptions(
+    viewModel: NoteControlViewModel
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        StrokeWidthIcons(strokeWidth  = 8f, viewModel) {
+            viewModel.changeStrokeWidth(8f)
+        }
+        StrokeWidthIcons(strokeWidth  = 12f, viewModel) {
+            viewModel.changeStrokeWidth(12f)
+        }
+        StrokeWidthIcons(strokeWidth  = 16f, viewModel) {
+            viewModel.changeStrokeWidth(16f)
+        }
+    }
+}
+
+@Composable
+fun StrokeWidthIcons(
     strokeWidth : Float,
+    viewModel: NoteControlViewModel,
     onClick: () -> Unit
 ) {
-    val modifier = Modifier
-        .width(60.dp)
-        .height(40.dp)
-    IconButton(onClick = onClick, modifier = modifier) {
+    Box(
+        modifier = if (strokeWidth == viewModel.strokeWidth) {
+            Modifier
+                .clip(CircleShape)
+                .background(Color(0xFFBADAFF))
+        } else {
+            Modifier
+        }
+            .size(38.dp)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .padding(10.dp)
         ) {
             drawLine(
-                color = Color.Black,
+                color = Color.DarkGray,
                 start = Offset(0f, size.height / 2),
                 end = Offset(size.width, size.height / 2),
-                strokeWidth = strokeWidth,
+                strokeWidth = strokeWidth * 0.9f,
                 cap = StrokeCap.Round,
-
                 )
         }
     }
