@@ -28,6 +28,7 @@ class SocketManager private constructor() {
         }
     }
 
+    // 소켓 연결
     fun connectToSocket(serverUrl: String) {
         if (isConnected) {
             Log.d("SocketManager", "Already connected")
@@ -64,60 +65,102 @@ class SocketManager private constructor() {
         socket?.connect()
     }
 
+    // 소켓 연결 종료
     fun disconnect() {
         socket?.disconnect()
         isConnected = false
     }
 
+    // 스페이스 room 참여/떠나기
     fun joinSpace(spaceId: String, nickname: String) {
-        if (isConnected) {
-            Log.d("SocketManager", "Joining space with ID: $spaceId and nickname: $nickname")
-            socket?.emit("joinSpace", spaceId, nickname)
-        } else {
-            Log.e("SocketManager", "Socket is not connected")
-        }
+        socket?.emit("joinSpace", spaceId, nickname)
     }
 
     fun leaveSpace(spaceId: String) {
-        if (isConnected) {
-            Log.d("SocketManager", "Leaving space with ID: $spaceId")
-            socket?.emit("leaveSpace", spaceId)
-        } else {
-            Log.e("SocketManager", "Socket is not connected")
-        }
+        socket?.emit("leaveSpace", spaceId)
     }
 
+    // 스페이스 이벤트 업데이트 공유
+    fun updateSpace(spaceId: String, message: Any) {
+        val jsonData = gson.toJson(message)
+        socket?.emit("updateSpace", spaceId, jsonData )
+    }
+
+    // 노트 room 참여/떠나기
+    fun joinNote(noteId: String, nickName: String, color: String) {
+        socket?.emit("joinNote", noteId, nickName, color)
+    }
+
+    fun leaveNote(noteId: String) {
+        socket?.emit("leaveNote", noteId)
+    }
+    // 노트 이벤트 업데이트 공유
+    fun updateDrawing(noteId: String, message: Any) {
+        val jsonData = gson.toJson(message)
+        socket?.emit("updateDrawing", noteId, jsonData )
+    }
+
+    // 화면 따라가기 시작
+    fun displayFollowing(socketId: String, nickname: String, color: String) {
+        socket?.emit("displayFollowing", socketId, nickname, color)
+    }
+
+    // 화면 따라가기 종료
+    fun stopFollowing(socketId: String) {
+        socket?.emit("stopFollowing", socketId)
+    }
+
+    // 화면 이동
+    fun positionMove(data: Any) {
+        // 데이터를 JSON으로 변환해 전송
+        val jsonData = gson.toJson(data)
+        socket?.emit("positionMove", jsonData)
+    }
+
+
+    // 이벤트 수신 핸들러 - 서버로부터 받아오는 이벤트(데이터) 정리: 데이터는 배열의 형태로 들어옵니다 args[0]
     private fun registerEventHandlers() {
+        // space 관련 서버 이벤트 수신
         socket?.on("spaceConnectUser") { data ->
             Log.d("SpaceConnection", "SpaceRoom[spaceId] : $data")
         }
+        // space room에 입장한 사용자 닉네임 받기
         socket?.on("notifySpace") { data ->
             val remoteNickname = data[0]
             Log.d("SpaceConnection", "$remoteNickname just joined the Space Room")
         }
+        // space 이벤트 받기
         socket?.on("receiveSpace") { message ->
             val data = message[0]
             Log.d("ReceiveSpaceData", "$data")
         }
 
+        // note 관련 서버 이벤트 수신
         socket?.on("noteConnectUser") { data ->
             Log.d("NoteConnection", "$data")
         }
+        // note room에 입장한 사용자 닉네임 받기
         socket?.on("notifyNote") { data ->
             val remoteNickname = data[0]
             Log.d("SpaceConnection", "$remoteNickname just joined the Note Room")
         }
+        // note 이벤트 받기
+        // -> 여기서 받은 데이터를 데이터 타입에 맞게 직접 처리하는 함수 구현해 추가해야 합니다
         socket?.on("receiveDrawing") { message ->
             val data = message[0]
+            // 아래에 데이터 다루는 함수 처리 필요!
             Log.d("ReceiveNoteData", "$data")
         }
 
-        socket?.on("followUser") { data ->
+        // followUser 이벤트 핸들러 - 보류
+        socket?.on("followUser") {data ->
             Log.d("FollowUser", "$data")
         }
 
+        // 화면 이동 위치 전송 받기 - 보류 (사유: data가 어떻게 오는지, 사용법을 잘 모르겠음)
         socket?.on("position") { data ->
             Log.d("Position", "$data")
         }
+
     }
 }
