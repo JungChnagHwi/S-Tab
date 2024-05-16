@@ -28,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
@@ -47,6 +49,8 @@ fun PageList(
     noteControlViewModel: NoteControlViewModel,
     onPageChange: (Int) -> Unit,
 ) {
+    var isTouching by remember { mutableStateOf(false) }
+
     val pageList by noteViewModel.pageList.collectAsState()
     val pageCount = pageList.size
     val state = rememberPagerState { pageCount }
@@ -58,9 +62,23 @@ fun PageList(
         }
     }
 
+    val touchAwareModifier = Modifier
+        .pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    event.changes.forEach {change ->
+                        isTouching = change.type == PointerType.Touch
+                    }
+                }
+            }
+        }
+
     if (pageCount > 0) {
         HorizontalPager(
-            state = state
+            state = state,
+            modifier = touchAwareModifier,
+            userScrollEnabled = isTouching
         ) {
             page ->
             Box {
@@ -68,7 +86,7 @@ fun PageList(
                 Text(
                     text = "$pageIndex / $pageCount",
                     Modifier
-                        .padding(8.dp)
+                        .padding(16.dp)
                         .align(Alignment.BottomEnd)
                 )
             }
@@ -82,7 +100,8 @@ fun Page(
     viewModel: NoteControlViewModel
 ) {
     val scale by remember { viewModel.scale }
-    var offset by remember { mutableStateOf(Offset.Zero) }
+    val offset by remember { viewModel.offset }
+    var isTouching by remember { mutableStateOf(false) }
 
     BoxWithConstraints(
         modifier = Modifier
@@ -111,7 +130,7 @@ fun Page(
         var displaySize by remember { mutableStateOf(IntSize(1, 1)) }
 
         val state = rememberTransformableState { zoomChange, panChange, _ ->
-            viewModel.setScale((scale * zoomChange).coerceIn(1f, null))
+            viewModel.setScale((scale * zoomChange).coerceIn(1f, 3f))
 
             val scaledWidth = scale * displaySize.width.toFloat()
             val scaledHeight = scale * displaySize.height.toFloat()
@@ -120,35 +139,52 @@ fun Page(
             val canPanVertically = scaledHeight > constraints.maxHeight
 
             val extraWidth =
-                if (canPanHorizontally) (scaledWidth - constraints.maxWidth) / 2 else 0f
+                if (canPanHorizontally) (scaledWidth - constraints.maxWidth - 30f) / 2 else 0f
 
             val extraHeight =
                 if (canPanVertically) (scaledHeight - constraints.maxHeight) / 2 else 0f
 
-            offset = Offset(
-                x = (offset.x + scale * panChange.x).coerceIn(-extraWidth, extraWidth),
-                y = (offset.y + scale * panChange.y).coerceIn(-extraHeight, extraHeight),
+            viewModel.setOffset(
+                Offset(
+                    x = (offset.x + scale * panChange.x).coerceIn(-extraWidth, extraWidth),
+                    y = (offset.y + scale * panChange.y).coerceIn(-extraHeight, extraHeight))
             )
         }
 
-        val modifier =
+        val baseModifier = Modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+                translationX = offset.x
+                translationY = offset.y
+            }
+            .aspectRatio(templateWidth / templateHeight)
+
+        val touchAwareModifier = Modifier
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        event.changes.forEach {change ->
+                            isTouching = change.type == PointerType.Touch
+                        }
+                    }
+                }
+            }
+
+        val finalModifier =
             if (templateWidth * constraints.maxHeight > templateHeight * constraints.maxWidth) {
                 Modifier.fillMaxWidth()
             } else {
                 Modifier.fillMaxHeight()
             }
-                .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                    translationX = offset.x
-                    translationY = offset.y
-                }
-                .transformable(state)
-                .aspectRatio(templateWidth / templateHeight)
+                .then(baseModifier)
+                .then(if (isTouching) Modifier.transformable(state) else Modifier)
+                .then(touchAwareModifier)
 
         Template(
             resId = templateResId,
-            modifier = modifier
+            modifier = finalModifier
                 .onGloballyPositioned { layoutCoordinates ->
                     displaySize = layoutCoordinates.size
                 }
@@ -157,7 +193,7 @@ fun Page(
         NoteArea(
             page.pageId,
             page.paths,
-            modifier,
+            finalModifier,
             viewModel
         )
     }

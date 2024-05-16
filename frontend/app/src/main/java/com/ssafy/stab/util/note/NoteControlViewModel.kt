@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.data.PreferencesUtil
@@ -38,9 +39,12 @@ class NoteControlViewModel : ViewModel() {
     var scale = mutableFloatStateOf(1f)
         private set
 
+    var offset = mutableStateOf(Offset.Zero)
+        private set
+
     var penType by mutableStateOf(PenType.Pen)
         private set
-    var strokeWidth by mutableFloatStateOf(8f)
+    var strokeWidth by mutableFloatStateOf(4f)
         private set
     var color by mutableStateOf("000000")
         private set
@@ -69,6 +73,10 @@ class NoteControlViewModel : ViewModel() {
 
     fun setScale(value: Float) {
         scale.floatValue = value
+    }
+
+    fun setOffset(value: Offset) {
+        offset.value = value
     }
 
     fun changePenType(value: PenType) {
@@ -101,7 +109,22 @@ class NoteControlViewModel : ViewModel() {
     }
 
     fun updateLatestPath(newCoordinate: Coordinate) {
-        _newPathList[0].pathInfo.coordinates.add(newCoordinate)
+        if (_newPathList.isNotEmpty()) {
+            _newPathList[0].pathInfo.coordinates.add(newCoordinate)
+        }
+    }
+
+    fun cancelPath() {
+        _newPathList.clear()
+    }
+
+    fun onTapPath() {
+        if (_newPathList.isNotEmpty()) {
+            val coordinates = _newPathList[0].pathInfo.coordinates
+            if (coordinates.size == 1) {
+                _newPathList[0].pathInfo.coordinates.add(coordinates[0])
+            }
+        }
     }
 
     fun getLastPath(): UserPagePathInfo {
