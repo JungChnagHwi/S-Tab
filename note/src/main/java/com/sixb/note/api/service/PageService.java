@@ -115,7 +115,7 @@ public class PageService {
                 pageRepository.save(page);
                 noteRepository.save(note);
 
-                setPageInfoDto(page);
+                setPageInfoDto(page, page.getPageId());
 
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
@@ -139,7 +139,7 @@ public class PageService {
 
                 pageRepository.save(page);
 
-//                setPageInfoDto(page);
+                setPageInfoDto(page, page.getPageId());
 
                 return request;
             } else {
@@ -160,7 +160,7 @@ public class PageService {
             List<Page> pageList = pageRepository.findAllPagesByNoteId(noteId);
 
             for (Page page : pageList) {
-                PageInfoDto pageInfoDto = getPageInfoDto(page);
+                PageInfoDto pageInfoDto = getPageInfoDto(page, page.getPageId());
                 pageInfoDto.setIsBookmarked(pageRepository.isLikedByPageId(userId, page.getPageId()));
                 // pageInfoList에 넣기
                 pageInfoList.add(pageInfoDto);
@@ -213,7 +213,7 @@ public class PageService {
             beforePage.setNextPage(newPage);
 
             // responsedto에 넣기
-            PageInfoDto response = getPageInfoDto(newPage);
+            PageInfoDto response = getPageInfoDto(newPage, newPage.getPageId());
             response.setIsBookmarked(false);
 
             // db에 저장하고 반환
@@ -263,7 +263,7 @@ public class PageService {
                 }
                 pageRepository.save(page);
 
-                PageInfoDto pageInfoDto = getPageInfoDto(page);
+                PageInfoDto pageInfoDto = getPageInfoDto(page, page.getPageId());
                 pageInfoDto.setIsBookmarked(false);
 
                 response.add(0, pageInfoDto);
@@ -309,13 +309,13 @@ public class PageService {
     }
 
 
-    @Cacheable(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
-    private PageInfoDto getPageInfoDto(Page page) throws JsonProcessingException {
+    @Cacheable(value = "page", key = "#pageId", cacheManager = "redisCacheManager")
+    private PageInfoDto getPageInfoDto(Page page, String pageId) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
 
         PageInfoDto pageInfo =  PageInfoDto.builder()
-                .pageId(page.getPageId())
+                .pageId(pageId)
                 .noteId(page.getNoteId())
                 .color(page.getColor())
                 .template(page.getTemplate())
@@ -329,19 +329,19 @@ public class PageService {
                 .textBoxes(pageDataDto.getTextBoxes())
                 .build();
 
-        String redisExpireKey = "page::" + page.getPageId() + ":expired";
+        String redisExpireKey = "page::" + pageId + ":expired";
         redisTemplate.opsForValue().set(redisExpireKey, pageInfo, Const.PAGE_CACHE_EXPIRE_KEY_TIME);
 
         return pageInfo;
     }
 
-    @CachePut(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
-    private PageInfoDto setPageInfoDto(Page page) throws JsonProcessingException {
+    @CachePut(value = "page", key = "#pageId", cacheManager = "redisCacheManager")
+    private PageInfoDto setPageInfoDto(Page page, String pageId) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
 
         PageInfoDto pageInfo =  PageInfoDto.builder()
-                .pageId(page.getPageId())
+                .pageId(pageId)
                 .noteId(page.getNoteId())
                 .color(page.getColor())
                 .template(page.getTemplate())
@@ -355,7 +355,7 @@ public class PageService {
                 .textBoxes(pageDataDto.getTextBoxes())
                 .build();
 
-        String redisExpireKey = "page::" + page.getPageId() + ":expired";
+        String redisExpireKey = "page::" + pageId + ":expired";
         redisTemplate.opsForValue().set(redisExpireKey, pageInfo, Const.PAGE_CACHE_EXPIRE_KEY_TIME);
 
         return pageInfo;

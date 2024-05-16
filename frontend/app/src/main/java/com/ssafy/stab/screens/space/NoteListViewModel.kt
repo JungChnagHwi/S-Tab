@@ -25,7 +25,6 @@ class NoteListViewModel(initialFolderId: String) : ViewModel() {
 
     private fun loadFiles(folderId: String) {
         viewModelScope.launch {
-            Log.d("B", folderId)
             _combinedList.value = emptyList()
             if (folderId!="") {
                 getFileList(
@@ -40,7 +39,6 @@ class NoteListViewModel(initialFolderId: String) : ViewModel() {
                     }
                 )
             }
-            Log.d("C", _combinedList.value.size.toString())
         }
     }
 

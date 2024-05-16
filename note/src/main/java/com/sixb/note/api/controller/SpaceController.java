@@ -18,13 +18,13 @@ public class SpaceController {
     private final SpaceService spaceService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<SpaceResponseDto>> getAllSpaceDetails(long userId) {
+    public ResponseEntity<List<SpaceResponseDto>> getAllSpaceDetails(@RequestParam long userId) {
         List<SpaceResponseDto> spaces = spaceService.findAllSpaceDetails(userId);
         return ResponseEntity.ok(spaces);
     }
 
     @GetMapping("/{spaceId}")
-    public ResponseEntity<SpaceResponseDto> getSpaceDetails(long userId, @PathVariable String spaceId) {
+    public ResponseEntity<SpaceResponseDto> getSpaceDetails(@RequestParam long userId, @PathVariable String spaceId) {
         try {
             SpaceResponseDto spaceDetails = spaceService.findSpaceDetails(userId, spaceId);
             return ResponseEntity.ok(spaceDetails);
@@ -60,7 +60,7 @@ public class SpaceController {
 //    }
 
     @PostMapping("/join")
-    public ResponseEntity<String> joinSpace(long userId, @RequestBody JoinSpaceRequestDto joinSpaceRequestDto) {
+    public ResponseEntity<String> joinSpace(@RequestParam long userId, @RequestBody JoinSpaceRequestDto joinSpaceRequestDto) {
         spaceService.joinSpace(userId, joinSpaceRequestDto.getSpaceId());
         return ResponseEntity.ok("스페이스 참여 성공");
     }
@@ -86,7 +86,7 @@ public class SpaceController {
     }
 
     @DeleteMapping("/{spaceId}")
-    public ResponseEntity<String> leaveSpace(long userId, @PathVariable String spaceId) {
+    public ResponseEntity<String> leaveSpace(@RequestParam long userId, @PathVariable String spaceId) {
         try {
             spaceService.leaveSpace(userId, spaceId);
             return ResponseEntity.ok("스페이스에서 성공적으로 탈퇴하였습니다.");

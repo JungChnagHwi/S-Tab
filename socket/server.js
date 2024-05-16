@@ -162,6 +162,11 @@ io.on("connection", (socket) => {
     leaveRoom(noteRoom, noteId, "note");
     socket.noteId = null;
 
+    // 화면 따라가기 종료
+    if (socket.followId) {
+      leaveDisplayRoom(socket.followId);
+    }
+
     // 내 화면 따라가기 종료
     deleteDisplayRoom(displayId);
   });
@@ -212,7 +217,7 @@ io.on("connection", (socket) => {
   // Room 나가기
   const leaveRoom = (room, roomId, type) => {
     if (room[roomId] && room[roomId][socket.id]) {
-      capType = toCapitalize(type);
+      let capType = toCapitalize(type);
 
       console.log(`${socket.id} left the ${capType} Room ${roomId}`);
 

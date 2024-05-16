@@ -12,12 +12,23 @@ import java.net.URISyntaxException
     이벤트 보내기 : node.js와 데이터 호환성을 위해 json 형태로 데이터를 보냅니다.
     이벤트 받기 : json으로 보냈던 데이터를 받아 본인이 사용할 데이터 형태로 바꿉니다.
 */
-class SocketManager {
+class SocketManager private constructor() {
     private var socket: Socket? = null
     private val gson = Gson()
     private var isConnected = false
 
-    // 소켓 연결 설정
+    companion object {
+        private var instance: SocketManager? = null
+
+        fun getInstance(): SocketManager {
+            if (instance == null) {
+                instance = SocketManager()
+            }
+            return instance!!
+        }
+    }
+
+    // 소켓 연결
     fun connectToSocket(serverUrl: String) {
         if (isConnected) {
             Log.d("SocketManager", "Already connected")
@@ -25,36 +36,38 @@ class SocketManager {
         }
 
         try {
-            socket = IO.socket(serverUrl) // 소켓 서버 주소 설정
-            Log.d("SocketConnection", "Socket initialized")
+            socket = IO.socket(serverUrl)
+            Log.d("SocketManager", "Socket initialized with server URL: $serverUrl")
         } catch (e: URISyntaxException) {
             e.printStackTrace()
             Log.e("SocketManager", "URISyntaxException: ${e.message}")
             return
         }
-        // 소켓 연결
+
         socket?.on(Socket.EVENT_CONNECT) {
             Log.d("SocketConnection", "Connected")
             isConnected = true
         }
-        // 소켓 연결 끊기
+        socket?.on(Socket.EVENT_CONNECT_ERROR) { error ->
+            Log.e("SocketConnection", "Connection error: ${error[0]}")
+        }
         socket?.on(Socket.EVENT_DISCONNECT) {
             Log.d("SocketConnection", "Disconnected")
             isConnected = false
         }
-        // socketId에 연결됨을 확인
         socket?.on("connectionSuccess") { data ->
             val socketId = data[0]
-            Log.d("SocketConnection",  "Connection successful with ID: $socketId")
+            Log.d("SocketConnection", "Connection successful with ID: $socketId")
         }
 
-        registerEventHandlers() // 추가 이벤트 핸들러 등록
+        registerEventHandlers()
 
-        socket?.connect() // 실제 소켓과 연결
+        socket?.connect()
     }
 
+    // 소켓 연결 종료
     fun disconnect() {
-        socket?.disconnect() // 소켓 연결 끊기
+        socket?.disconnect()
         isConnected = false
     }
 
@@ -104,6 +117,8 @@ class SocketManager {
         socket?.emit("positionMove", jsonData)
     }
 
+
+    // 이벤트 수신 핸들러 - 서버로부터 받아오는 이벤트(데이터) 정리: 데이터는 배열의 형태로 들어옵니다 args[0]
     private fun registerEventHandlers() {
         // space 관련 서버 이벤트 수신
         socket?.on("spaceConnectUser") { data ->
@@ -130,8 +145,10 @@ class SocketManager {
             Log.d("SpaceConnection", "$remoteNickname just joined the Note Room")
         }
         // note 이벤트 받기
+        // -> 여기서 받은 데이터를 데이터 타입에 맞게 직접 처리하는 함수 구현해 추가해야 합니다
         socket?.on("receiveDrawing") { message ->
             val data = message[0]
+            // 아래에 데이터 다루는 함수 처리 필요!
             Log.d("ReceiveNoteData", "$data")
         }
 
@@ -145,9 +162,5 @@ class SocketManager {
             Log.d("Position", "$data")
         }
 
-    }
-
-    // 화면 따라가는 로직 구현 필요 - 근데 백 서버에서 좌표 계속 받아야 할 것 같은데 구현되어 있는지 모르겠음
-    private fun handleFollowUser(data: JSONObject) {
     }
 }

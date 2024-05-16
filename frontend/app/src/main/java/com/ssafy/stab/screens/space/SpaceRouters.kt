@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,7 +47,8 @@ import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 fun SpaceRouters(
     onLogin: () -> Unit,
     audioCallViewModel: AudioCallViewModel,
-    socketManager: SocketManager
+    socketManager: SocketManager,
+    inviteCode: String
 ) {
     val navController = rememberNavController()
     val spaceViewModel: SpaceViewModel = viewModel()
@@ -59,7 +61,7 @@ fun SpaceRouters(
         // "personal-note"와 "share-note"가 아닐 때만 SideBar를 렌더링
 
         if (currentRoute != "personal-note/{noteId}" && currentRoute != "share-note") {
-            SideBar(navController, audioCallViewModel, spaceViewModel, modifier = Modifier.weight(0.25f))
+            SideBar(navController, audioCallViewModel, spaceViewModel, modifier = Modifier.weight(0.25f), inviteCode)
         }
         Column(modifier = Modifier
             .weight(0.75f)
@@ -77,6 +79,7 @@ fun SpaceRouters(
                     val rootFolderId = backStackEntry.arguments?.getString("rootFolderId")
                     if (spaceId != null && rootFolderId != null) {
                         ShareSpace(
+                            navController,
                             spaceId,
                             rootFolderId,  // rootFolderId 전달
                             audioCallViewModel,
@@ -85,7 +88,7 @@ fun SpaceRouters(
                         ) { navController.navigate("personal-note/$it") }
                     }
                 }
-                composable("book-mark") { BookMark() }
+                composable("book-mark") { BookMark(navController) }
                 composable("deleted") { Deleted(navController) }
                 composable("personal-note/{noteId}") {backStackEntry ->
                     backStackEntry.arguments?.getString("noteId")

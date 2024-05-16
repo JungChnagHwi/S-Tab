@@ -66,7 +66,7 @@ public class RedisConfig {
 	}
 
 	@Bean
-	public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+	public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
 		RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
 				.disableCachingNullValues()
 				.serializeKeysWith(

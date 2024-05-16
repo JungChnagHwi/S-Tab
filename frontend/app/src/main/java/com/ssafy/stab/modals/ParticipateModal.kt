@@ -29,8 +29,8 @@ import com.ssafy.stab.apis.space.share.getShareSpaceList
 import com.ssafy.stab.apis.space.share.participateShareSpace
 
 @Composable
-fun ParticipateModal(closeModal: () -> Unit, onParticipateSuccess: () -> Unit) {
-    var shareSpaceCode by remember { mutableStateOf("") }
+fun ParticipateModal(closeModal: () -> Unit, onParticipateSuccess: () -> Unit, initialInviteCode: String="") {
+    var shareSpaceCode by remember { mutableStateOf(initialInviteCode) }
     val sharespImg = painterResource(id = R.drawable.sharesp)
 
     Column(
