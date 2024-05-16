@@ -1,15 +1,11 @@
 package com.sixb.note.entity;
 
 import com.sixb.note.entity.common.BaseTimeEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.neo4j.core.schema.*;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
