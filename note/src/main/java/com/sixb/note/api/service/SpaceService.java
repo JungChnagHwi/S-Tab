@@ -8,7 +8,9 @@ import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Space;
 import com.sixb.note.entity.User;
+import com.sixb.note.exception.ExistUserException;
 import com.sixb.note.exception.NotFoundException;
+import com.sixb.note.exception.SpaceNotFoundException;
 import com.sixb.note.repository.SpaceRepository;
 import com.sixb.note.repository.UserRepository;
 import com.sixb.note.util.IdCreator;
@@ -145,9 +147,17 @@ public class SpaceService {
 //    }
 
     //스페이스 참가
-    public void joinSpace(long userId, String spaceId) {
+    public void joinSpace(long userId, String spaceId) throws ExistUserException, SpaceNotFoundException {
+        if (spaceRepository.isJoinedUser(userId, spaceId)) {
+            throw new ExistUserException("이미 가입된 유저입니다.");
+        }
+
         User user = userRepository.findUserById(userId);
         Space space = spaceRepository.findSpaceById(spaceId);
+
+        if (space == null) {
+            throw new SpaceNotFoundException("존재하지 않는 스페이스입니다.");
+        }
 
         user.getSpaces().add(space);
         userRepository.save(user);

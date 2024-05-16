@@ -1,6 +1,5 @@
 package com.ssafy.stab.screens.space.bookmark
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,19 +44,16 @@ fun BookMark(navController: NavController){
     LaunchedEffect(key1 = true) {
         getBookMarkList(
             { res ->
-                Log.d("즐찾1", res.toString())
                 if (res != null) {
                     folders.value = res
                 }
             },
             { res ->
-                Log.d("즐찾2", res.toString())
                 if (res != null) {
                     notes.value = res
                 }
             },
             { res ->
-                Log.d("즐찾3", res.toString())
                 if (res != null) {
                     pages.value = res
                 }
@@ -75,7 +71,7 @@ fun BookMark(navController: NavController){
             thickness = 1.dp, // 선의 두께 설정
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 20.dp) // 선 주변에 수직 패딩 추가
         )
-        BookMarkUnder(folders.value, notes.value, pages.value)
+        BookMarkUnder(folders.value, notes.value, pages.value, navController)
     }
 }
 
@@ -108,7 +104,8 @@ fun BookMarkTitleBar(navController: NavController) {
 fun BookMarkUnder(
     folders: List<BookmardFolder>,
     notes: List<BookmardNote>,
-    pages: List<BookmardPage>
+    pages: List<BookmardPage>,
+    navController: NavController
 ){
     val isPageSort = remember { mutableStateOf(false) }
     val isNameSort = remember { mutableStateOf(false) }
@@ -172,7 +169,7 @@ fun BookMarkUnder(
         Spacer(modifier = Modifier.height(10.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))
-            BookMarkListGridScreen(folders, notes, pages)
+            BookMarkListGridScreen(folders, notes, pages, navController)
         }
     }
 }

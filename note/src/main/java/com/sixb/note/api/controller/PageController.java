@@ -27,6 +27,9 @@ public class PageController {
             return ResponseEntity.ok(response);
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("페이지 생성에 실패했습니다.");
         }
     }
 
@@ -56,9 +59,9 @@ public class PageController {
 
     // 필기데이터 저장
     @PutMapping
-    public ResponseEntity<?> saveData(@RequestBody SaveDataRequestDto request, @RequestParam long userId) {
+    public ResponseEntity<?> saveData(@RequestBody SaveDataRequestDto request) {
         try {
-            pageService.saveData(request, userId);
+            pageService.saveData(request);
             return ResponseEntity.ok("데이터 저장완료");
         } catch (PageNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

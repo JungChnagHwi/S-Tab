@@ -29,9 +29,9 @@ public class PageService {
     private final PageRepository pageRepository;
     private final NoteRepository noteRepository;
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, PageInfoDto> redisTemplate;
 
-    public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
+    public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException, JsonProcessingException {
         String beforePageId = request.getBeforePageId();
         Page beforePage = pageRepository.findPageById(beforePageId); // 이렇게 할지, 앞에서 받을지 고민
         
@@ -76,7 +76,7 @@ public class PageService {
         Page page = pageRepository.findPageById(pageId);
         if (page != null) {
             Boolean deleteStatus = page.getIsDeleted();
-            if (deleteStatus == false) {
+            if (!deleteStatus) {
                 page.setIsDeleted(true);
                 pageRepository.save(page);
             } else {
@@ -88,7 +88,7 @@ public class PageService {
     }
 
     // 데이터 저장
-    public void saveData(SaveDataRequestDto request, long userId) throws PageNotFoundException, JsonProcessingException {
+    public void saveData(SaveDataRequestDto request) throws PageNotFoundException, JsonProcessingException {
         String pageId = request.getPageId();
         Page page = pageRepository.findPageById(pageId);
 
@@ -99,11 +99,8 @@ public class PageService {
             if (note == null) {
                 throw new PageNotFoundException("노트를 찾을 수 없습니다.");
             }
-            if (page.getIsDeleted() == false) {
-                // 형식 검사?
+            if (!page.getIsDeleted()) {
                 PageDataDto pageData = request.getPageData();
-
-//                System.out.println(pageData.toString());
 
                 ObjectMapper mapper = new ObjectMapper();
 
@@ -111,12 +108,12 @@ public class PageService {
 
                 page.setUpdatedAt(now);
                 page.setPageData(pageDataString);
+
                 note.setUpdatedAt(now);
-                pageRepository.save(page);
+
                 noteRepository.save(note);
 
                 setPageInfoDto(page);
-
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
             }
@@ -131,13 +128,11 @@ public class PageService {
         Page page = pageRepository.findPageById(pageId);
         if (page != null) {
             Boolean deleteStatus = page.getIsDeleted();
-            if (deleteStatus == false) {
+            if (!deleteStatus) {
                 // 양식 정보 수정
                 page.setTemplate(request.getTemplate());
                 page.setColor(request.getColor());
                 page.setDirection(request.getDirection());
-
-                pageRepository.save(page);
 
                 setPageInfoDto(page);
 
@@ -284,14 +279,14 @@ public class PageService {
 
     }
 
-    private Page createNewPage(Page beforePage) {
+    private Page createNewPage(Page beforePage) throws JsonProcessingException {
         
         if (beforePage != null && !beforePage.getIsDeleted()) { // 페이지를 찾았고, 삭제된 페이지가 아닌 경우
             
             LocalDateTime now = LocalDateTime.now();
             String pageId = IdCreator.create("p");
 
-            Page newPage = Page.builder()// pdf 부분은 나가서 지정
+			return Page.builder()// pdf 부분은 나가서 지정
                     .pageId(pageId)
                     .color(beforePage.getColor())
                     .template(beforePage.getTemplate())
@@ -301,20 +296,26 @@ public class PageService {
                     .createdAt(now)
                     .updatedAt(now)
                     .build();
-            
-            return newPage;
         } else {
             return null;
         }
     }
 
 
-    @Cacheable(value = "page", key = "#page.pageId", cacheManager = "redisCacheManager")
+//    @Cacheable(value = "page", key = "#page.pageId", cacheManager = "redisCacheManager")
     private PageInfoDto getPageInfoDto(Page page) throws JsonProcessingException {
+        String redisKey = "page:" + page.getPageId();
+
+        PageInfoDto pageInfo = redisTemplate.opsForValue().get(redisKey);
+
+        if (pageInfo != null) {
+            return pageInfo;
+        }
+
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
 
-        PageInfoDto pageInfo =  PageInfoDto.builder()
+        pageInfo = PageInfoDto.builder()
                 .pageId(page.getPageId())
                 .noteId(page.getNoteId())
                 .color(page.getColor())
@@ -329,14 +330,16 @@ public class PageService {
                 .textBoxes(pageDataDto.getTextBoxes())
                 .build();
 
-        String redisExpireKey = "page::" + page.getPageId() + ":expired";
-        redisTemplate.opsForValue().set(redisExpireKey, pageInfo, Const.PAGE_CACHE_EXPIRE_KEY_TIME);
+        redisTemplate.opsForValue().set(redisKey, pageInfo);
+
+        String redisExpireKey = redisKey + ":expired";
+        redisTemplate.opsForValue().set(redisExpireKey, pageInfo, Const.PAGE_CACHE_EXPIRE_TIME);
 
         return pageInfo;
     }
 
-    @CachePut(value = "page", key = "#page.pageId", cacheManager = "redisCacheManager")
-    private PageInfoDto setPageInfoDto(Page page) throws JsonProcessingException {
+//    @CachePut(value = "page", key = "#page.pageId", cacheManager = "redisCacheManager")
+    private void setPageInfoDto(Page page) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
 
@@ -355,10 +358,11 @@ public class PageService {
                 .textBoxes(pageDataDto.getTextBoxes())
                 .build();
 
-        String redisExpireKey = "page::" + page.getPageId() + ":expired";
-        redisTemplate.opsForValue().set(redisExpireKey, pageInfo, Const.PAGE_CACHE_EXPIRE_KEY_TIME);
+        String redisKey = "page:" + page.getPageId();
+        redisTemplate.opsForValue().set(redisKey, pageInfo);
 
-        return pageInfo;
+        String redisExpireKey = redisKey + ":expired";
+        redisTemplate.opsForValue().set(redisExpireKey, pageInfo, Const.PAGE_CACHE_EXPIRE_TIME);
     }
 
 }

@@ -4,16 +4,17 @@ import com.sixb.note.dto.pageData.FigureDto;
 import com.sixb.note.dto.pageData.ImageDto;
 import com.sixb.note.dto.pageData.PathDto;
 import com.sixb.note.dto.pageData.TextBoxDto;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.cache.annotation.Cacheable;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Data
 @Builder
-@Cacheable
+@NoArgsConstructor
+@AllArgsConstructor
 public class PageInfoDto {
     private String pageId;
     private String noteId;

@@ -15,7 +15,8 @@ data class ShareSpaceList(
 
 data class ShareSpace(
     @SerializedName("spaceId") val spaceId: String,
-    @SerializedName("users") val users: List<User>
+    @SerializedName("users") val users: List<User>,
+    @SerializedName("title") val title: String
 )
 
 data class User(

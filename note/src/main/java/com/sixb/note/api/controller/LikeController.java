@@ -17,7 +17,7 @@ public class LikeController {
 	private final LikeService likeService;
 
 	@PostMapping
-	public ResponseEntity<String> addLike(long userId, @RequestBody LikeRequestDto likeRequestDto) {
+	public ResponseEntity<String> addLike(@RequestParam long userId, @RequestBody LikeRequestDto likeRequestDto) {
 		try {
 			likeService.addLike(userId, likeRequestDto.getId());
 			return ResponseEntity.ok("즐겨찾기 추가 완료");
@@ -29,7 +29,7 @@ public class LikeController {
 	}
 
 	@DeleteMapping("/{itemId}")
-	public ResponseEntity<String> removeLike(long userId, @PathVariable String itemId) {
+	public ResponseEntity<String> removeLike(@RequestParam long userId, @PathVariable String itemId) {
 		try {
 			likeService.removeLike(userId, itemId);
 			return ResponseEntity.ok("즐겨찾기 삭제 완료");
@@ -41,7 +41,7 @@ public class LikeController {
 	}
 
 	@GetMapping
-	public ResponseEntity<LikeResponseDto> getLikes(long userId) {
+	public ResponseEntity<LikeResponseDto> getLikes(@RequestParam long userId) {
 		LikeResponseDto likes = likeService.getLikes(userId);
 		return ResponseEntity.ok(likes);
 	}

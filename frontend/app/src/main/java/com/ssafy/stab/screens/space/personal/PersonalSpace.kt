@@ -2,7 +2,6 @@ package com.ssafy.stab.screens.space.personal
 
 import NoteListViewModelFactory
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,11 +16,9 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -82,9 +79,9 @@ fun MyTitleBar(navController: NavController, viewModel: NoteListViewModel) {
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(text = "내 스페이스", modifier = Modifier.clickable { navController.navigate("personal-space") })
                 Spacer(modifier = Modifier.width(5.dp))
-                Text(text = "> ··· >")
-                Spacer(modifier = Modifier.width(5.dp))
                 if (navigationStackTitle.size > 1) {
+                    Text(text = "> ··· >")
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(text= navigationStackTitle[navigationStackTitle.size - 2])
                 }
             }
@@ -104,8 +101,6 @@ fun MyTitleBar(navController: NavController, viewModel: NoteListViewModel) {
                             } else {
                                 navController.navigate("personal-space")
                             }
-                        } else {
-                            navController.popBackStack()
                         }
                     }
                     .height(30.dp)

@@ -15,7 +15,7 @@ public class FolderController {
 	private final FolderService folderService;
 
 	@GetMapping("/{folderId}")
-	public ResponseEntity<FolderResponseDto> getFolderById(@PathVariable("folderId") String folderId, long userId) {
+	public ResponseEntity<FolderResponseDto> getFolderById(@PathVariable("folderId") String folderId, @RequestParam long userId) {
 		FolderResponseDto folderInfo = folderService.getFolderDetail(folderId, userId);
 		return ResponseEntity.ok(folderInfo);
 	}
@@ -56,5 +56,11 @@ public class FolderController {
 		} else {
 			return ResponseEntity.notFound().build();
 		}
+	}
+
+	@PostMapping("/list")
+	public ResponseEntity<FolderListResponseDto> getFoldersBetween(@RequestBody FolderListRequestDto requestDto) {
+		FolderListResponseDto responseDto = folderService.getFoldersBetween(requestDto);
+		return ResponseEntity.ok(responseDto);
 	}
 }
