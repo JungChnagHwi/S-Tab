@@ -29,7 +29,7 @@ public class PageService {
     private final PageRepository pageRepository;
     private final NoteRepository noteRepository;
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, PageInfoDto> redisTemplate;
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException, JsonProcessingException {
         String beforePageId = request.getBeforePageId();
@@ -306,16 +306,16 @@ public class PageService {
     private PageInfoDto getPageInfoDto(Page page) throws JsonProcessingException {
         String redisKey = "page:" + page.getPageId();
 
-        Object value = redisTemplate.opsForValue().get(redisKey);
+        PageInfoDto pageInfo = redisTemplate.opsForValue().get(redisKey);
 
-        if (value instanceof PageInfoDto pageInfo) {
+        if (pageInfo != null) {
             return pageInfo;
         }
 
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
 
-        PageInfoDto pageInfo =  PageInfoDto.builder()
+        pageInfo = PageInfoDto.builder()
                 .pageId(page.getPageId())
                 .noteId(page.getNoteId())
                 .color(page.getColor())
@@ -333,7 +333,7 @@ public class PageService {
         redisTemplate.opsForValue().set(redisKey, pageInfo);
 
         String redisExpireKey = redisKey + ":expired";
-        redisTemplate.opsForValue().set(redisExpireKey, "", Const.PAGE_CACHE_EXPIRE_TIME);
+        redisTemplate.opsForValue().set(redisExpireKey, pageInfo, Const.PAGE_CACHE_EXPIRE_TIME);
 
         return pageInfo;
     }
@@ -362,7 +362,7 @@ public class PageService {
         redisTemplate.opsForValue().set(redisKey, pageInfo);
 
         String redisExpireKey = redisKey + ":expired";
-        redisTemplate.opsForValue().set(redisExpireKey, "", Const.PAGE_CACHE_EXPIRE_TIME);
+        redisTemplate.opsForValue().set(redisExpireKey, pageInfo, Const.PAGE_CACHE_EXPIRE_TIME);
     }
 
 }

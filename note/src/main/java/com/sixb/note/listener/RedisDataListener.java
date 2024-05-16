@@ -7,6 +7,7 @@ import com.sixb.note.dto.pageData.PageDataDto;
 import com.sixb.note.entity.Page;
 import com.sixb.note.repository.PageRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +15,12 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RedisDataListener {
 
 	private final PageRepository pageRepository;
 
-	private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, PageInfoDto> redisTemplate;
 
 	public void messageReceived(String expiredKey) throws JsonProcessingException {
 		if (!expiredKey.contains(":expired")) {
@@ -26,13 +28,7 @@ public class RedisDataListener {
 		}
 
 		String key = expiredKey.replace(":expired", "");
-		Object value = redisTemplate.opsForValue().get(key);
-
-		if (!(value instanceof PageInfoDto)) {
-			return;
-		}
-
-		PageInfoDto pageInfo = (PageInfoDto) redisTemplate.opsForValue().get(key);
+		PageInfoDto pageInfo = redisTemplate.opsForValue().get(key);
 
 		ObjectMapper mapper = new ObjectMapper();
 		PageDataDto pageData = PageDataDto.builder()
@@ -57,6 +53,8 @@ public class RedisDataListener {
 
 		pageRepository.save(page);
 		redisTemplate.delete(key);
+
+		log.info("RedisDataListener: {}", pageInfo.getPageId());
 	}
 
 }

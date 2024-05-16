@@ -14,7 +14,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
+import org.springframework.data.redis.connection.RedisConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -75,7 +77,7 @@ public class RedisConfig {
 //								.fromSerializer(new StringRedisSerializer()))
 //				.serializeValuesWith(
 //						RedisSerializationContext.SerializationPair
-//								.fromSerializer(new Jackson2JsonRedisSerializer<>(String.class)))
+//								.fromSerializer(new Jackson2JsonRedisSerializer<>(PageInfoDto.class)))
 //				.entryTtl(PAGE_CACHE_EXPIRE_TIME);
 //
 //		Map<String, RedisCacheConfiguration> configurations = new HashMap<>();
@@ -89,10 +91,10 @@ public class RedisConfig {
 //	}
 
 	@Bean
-	public RedisTemplate<String, Object> redisTemplate() {
-		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+	public RedisTemplate<String, PageInfoDto> redisTemplate() {
+		RedisTemplate<String, PageInfoDto> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(PageInfoDto.class));
 		redisTemplate.setConnectionFactory(redisConnectionFactory());
 		return redisTemplate;
 	}
