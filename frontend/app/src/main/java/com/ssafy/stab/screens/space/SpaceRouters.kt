@@ -77,6 +77,7 @@ fun SpaceRouters(
                     val rootFolderId = backStackEntry.arguments?.getString("rootFolderId")
                     if (spaceId != null && rootFolderId != null) {
                         ShareSpace(
+                            navController,
                             spaceId,
                             rootFolderId,  // rootFolderId 전달
                             audioCallViewModel,
