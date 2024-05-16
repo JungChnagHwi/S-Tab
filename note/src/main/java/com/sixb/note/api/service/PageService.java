@@ -78,6 +78,7 @@ public class PageService {
             Boolean deleteStatus = page.getIsDeleted();
             if (!deleteStatus) {
                 page.setIsDeleted(true);
+                page.setUpdatedAt(LocalDateTime.now());
                 pageRepository.save(page);
             } else {
                 throw new PageNotFoundException("이미 삭제된 페이지입니다.");
@@ -323,6 +324,7 @@ public class PageService {
                 .direction(page.getDirection())
                 .pdfPage(page.getPdfPage())
                 .pdfUrl(page.getPdfUrl())
+                .createdAt(page.getCreatedAt().toString())
                 .updatedAt(page.getUpdatedAt().toString())
                 .paths(pageDataDto.getPaths())
                 .figures(pageDataDto.getFigures())
@@ -351,6 +353,7 @@ public class PageService {
                 .direction(page.getDirection())
                 .pdfPage(page.getPdfPage())
                 .pdfUrl(page.getPdfUrl())
+                .createdAt(page.getCreatedAt().toString())
                 .updatedAt(page.getUpdatedAt().toString())
                 .paths(pageDataDto.getPaths())
                 .figures(pageDataDto.getFigures())

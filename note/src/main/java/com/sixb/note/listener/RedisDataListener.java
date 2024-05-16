@@ -48,6 +48,7 @@ public class RedisDataListener {
 				.pdfUrl(pageInfo.getPdfUrl())
 				.pdfPage(pageInfo.getPdfPage())
 				.pageData(pageDataJson)
+				.createdAt(LocalDateTime.parse(pageInfo.getCreatedAt()))
 				.updatedAt(LocalDateTime.parse(pageInfo.getUpdatedAt()))
 				.build();
 

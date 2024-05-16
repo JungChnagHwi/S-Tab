@@ -24,6 +24,7 @@ public class PageInfoDto {
     private Boolean isBookmarked;
     private String pdfUrl;
     private Integer pdfPage;
+    private String createdAt;
     private String updatedAt;
     private List<PathDto> paths;
     private List<FigureDto> figures;
