@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface SpaceRepository extends Neo4jRepository<Space, String> {
+public interface SpaceRepository extends Neo4jRepository<Space, String>, SpaceRepositoryCustom {
 
     @Query("MATCH (s:Space) WHERE s.spaceId = $spaceId RETURN s")
     Space findSpaceById(@Param("spaceId") String spaceId);
@@ -31,5 +31,8 @@ public interface SpaceRepository extends Neo4jRepository<Space, String> {
             "OPTIONAL MATCH (u)-[j:Join]->(s) " +
             "RETURN count(j) > 0 AS joined")
     boolean isJoinedUser(long userId, String spaceId);
+
+    @Query("MATCH (s:Space {spaceId: $spaceId}) RETURN s.isPublic")
+    boolean isPublicSpace(String spaceId);
 
 }

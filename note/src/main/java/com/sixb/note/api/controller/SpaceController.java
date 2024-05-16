@@ -98,8 +98,8 @@ public class SpaceController {
         try {
             spaceService.leaveSpace(userId, spaceId);
             return ResponseEntity.ok("스페이스에서 성공적으로 탈퇴하였습니다.");
-        } catch (NotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (SpaceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
