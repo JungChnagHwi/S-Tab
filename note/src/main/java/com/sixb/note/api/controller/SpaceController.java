@@ -34,7 +34,7 @@ public class SpaceController {
     }
 
     @PostMapping
-    public ResponseEntity<SpaceResponseDto> createSpace(@RequestBody SpaceRequestDto requestDto, long userId) {
+    public ResponseEntity<SpaceResponseDto> createSpace(@RequestBody SpaceRequestDto requestDto, @RequestParam long userId) {
         SpaceResponseDto createdSpace = spaceService.createSpace(requestDto, userId);
         return new ResponseEntity<>(createdSpace, HttpStatus.CREATED);
     }

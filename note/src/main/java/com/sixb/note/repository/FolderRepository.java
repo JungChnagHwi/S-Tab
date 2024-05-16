@@ -39,5 +39,10 @@ public interface FolderRepository extends Neo4jRepository<Folder, String> {
             "CREATE (f)<-[nr:Hierarchy]-(nf) " +
             "DELETE or")
     void relocateFolder(String folderId, String parentFolderId);
+
+    @Query("MATCH path=(p:Folder {folderId: $parentFolderId})-[:Hierarchy*]->(c:Folder {folderId: $endFolderId}) " +
+            "WHERE ALL(n IN nodes(path) WHERE n.isDeleted = false) " +
+            "RETURN nodes(path) AS folders")
+    List<Folder> findFoldersBetween(@Param("parentFolderId") String parentFolderId, @Param("endFolderId") String endFolderId);
 }
 
