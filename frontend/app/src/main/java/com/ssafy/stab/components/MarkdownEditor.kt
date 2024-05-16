@@ -82,11 +82,11 @@ fun MarkdownScreen(spaceId: String) {
     }
 
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         if (isEditing) {
             Column(
                 modifier = Modifier
-                    .height(500.dp) // 높이 고정
+                    .height(200.dp) // 높이 고정
                     .verticalScroll(scrollState) // 세로 스크롤 활성화
             ) {
                 MarkdownEditor(
@@ -145,6 +145,7 @@ fun MarkdownScreen(spaceId: String) {
                     .clickable { isEditing = true }
                     .height(300.dp) // 높이 고정
                     .verticalScroll(scrollState)
+                    .padding(20.dp, 0.dp)
                 ) {
                     MarkdownViewer(htmlContent = parseMarkdownToHtml(markdownText, textAlign))
                 }
@@ -162,7 +163,7 @@ fun MarkdownEditor(onMarkdownChange: (String) -> Unit, markdownText: String) {
         label = { Text("표지 작성") },
         modifier = Modifier
             .fillMaxWidth()
-            .height(240.dp)
+            .height(200.dp)
     )
 }
 
