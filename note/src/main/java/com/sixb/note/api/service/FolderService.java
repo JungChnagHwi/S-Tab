@@ -29,9 +29,17 @@ public class FolderService {
 	private final NoteRepository noteRepository;
 
 	// 폴더 조회
-	public FolderResponseDto getFolderDetail(String folderId) {
+	public FolderResponseDto getFolderDetail(String folderId, long userId) {
 		List<Folder> folders = folderRepository.findSubFoldersByFolderId(folderId);
 		List<Note> notes = noteRepository.findNotesByFolderId(folderId);
+
+		// 폴더와 노트 ID 목록을 추출
+		List<String> folderIds = folders.stream().map(Folder::getFolderId).collect(Collectors.toList());
+		List<String> noteIds = notes.stream().map(Note::getNoteId).collect(Collectors.toList());
+
+		// 좋아요 상태를 가져옴
+		List<String> likedFolderIds = folderRepository.findLikedFolderIdsByUserId(userId, folderIds);
+		List<String> likedNoteIds = noteRepository.findLikedNoteIdsByUserId(userId, noteIds);
 
 		List<FolderResponseDto.FolderInfo> folderInfos = folders.stream().map(folder -> {
 			FolderResponseDto.FolderInfo info = new FolderResponseDto.FolderInfo();
@@ -40,7 +48,7 @@ public class FolderService {
 			info.setCreatedAt(folder.getCreatedAt());
 			info.setUpdatedAt(folder.getUpdatedAt());
 			info.setIsDeleted(folder.getIsDeleted());
-			info.setIsLiked(false);
+			info.setIsLiked(likedFolderIds.contains(folder.getFolderId()));
 			return info;
 		}).collect(Collectors.toList());
 
@@ -52,7 +60,7 @@ public class FolderService {
 			info.setCreatedAt(note.getCreatedAt());
 			info.setUpdatedAt(note.getUpdatedAt());
 			info.setIsDeleted(note.getIsDeleted());
-			info.setIsLiked(false);
+			info.setIsLiked(likedNoteIds.contains(note.getNoteId()));
 			return info;
 		}).collect(Collectors.toList());
 
