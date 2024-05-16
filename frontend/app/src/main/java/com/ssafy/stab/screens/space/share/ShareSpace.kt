@@ -101,6 +101,7 @@ fun ShareSpace(
             setTotalUsers(shareSpaceData.users.map { it.nickname })
         }
         audioSessionViewModel.getSessionConnection(spaceId)
+        audioSessionViewModel.startFetchingSessionData(spaceId)
         socketManager.joinSpace(spaceId, userName ?: "Unknown") // 소켓 통신 연결 - 공유 스페이스가 바뀌면 space room 연결
     }
 
@@ -108,11 +109,8 @@ fun ShareSpace(
         // Composable이 해제될 때, 스페이스 룸을 연결 종료
         onDispose {
             socketManager.leaveSpace(spaceId)
+            audioSessionViewModel.stopFetchingSessionData()
         }
-    }
-
-    LaunchedEffect(showParticipantListModal) {
-        Log.d("ShareSpace", "showParticipantListModal: $showParticipantListModal")
     }
 
     Box(

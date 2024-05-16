@@ -6,8 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.webrtc.utils.CustomHttpClient
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
@@ -21,6 +24,23 @@ class AudioSessionViewModel : ViewModel() {
 
     private val _participants = MutableStateFlow<List<Connection>>(emptyList())
     val participants: StateFlow<List<Connection>> = _participants
+
+    // 서버에 주기적으로 참여자 목록 데이터를 요청하는 기능
+    private var fetchJob: Job? = null
+
+    fun startFetchingSessionData(sessionId: String) {
+        fetchJob?.cancel() // 기존 작업이 있으면 취소
+        fetchJob = viewModelScope.launch {
+            while (isActive) {
+                getSessionConnection(sessionId)
+                delay(15000) // 15초마다 데이터 가져오기
+            }
+        }
+    }
+    fun stopFetchingSessionData() {
+        fetchJob?.cancel() // 데이터 가져오기 작업 취소
+    }
+
 
     fun getSessionConnection(sessionId: String) {
         val url = "api/sessions/$sessionId/connection"
@@ -42,7 +62,15 @@ class AudioSessionViewModel : ViewModel() {
                         }
                     }
                 } else {
-                    Log.e("HTTP Error", "Failed to fetch session info, Status code: ${response.code}, Message: ${response}")
+                    Log.e(
+                        "HTTP Error",
+                        "현재 세션에서 진행 중인 통화가 없습니다. ${response.code}"
+                    )
+                    if (response.code == 404) {
+                        viewModelScope.launch {
+                            _participants.value = emptyList() // 404 에러일 경우 참가자 목록을 초기화
+                        }
+                    }
                 }
             }
 
@@ -51,6 +79,7 @@ class AudioSessionViewModel : ViewModel() {
             }
         })
     }
+
 }
 
 data class ConnectionsResponse(
