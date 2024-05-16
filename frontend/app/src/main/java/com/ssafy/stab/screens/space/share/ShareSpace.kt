@@ -270,6 +270,11 @@ fun SpTitleBar(
         clipboard.setPrimaryClip(clip)
     }
 
+    fun createDeepLinkUrl(shareCode: String): String {
+        return "https://s-tab.online/invite?code=$shareCode"
+    }
+
+    val deepLinkUrl = createDeepLinkUrl(spaceId)
     if (showPopup.value) {
         AlertDialog(
             onDismissRequest = {
@@ -279,12 +284,12 @@ fun SpTitleBar(
                 Text(text = "공유 코드")
             },
             text = {
-                Text(text = spaceId)
+                Text(text = deepLinkUrl)
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        copyToClipboard(context, spaceId)
+                        copyToClipboard(context, deepLinkUrl)
                         showPopup.value = false // 팝업 닫기
                     }
                 ) {

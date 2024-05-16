@@ -47,7 +47,7 @@ import com.ssafy.stab.screens.space.share.SpaceViewModel
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
-fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel, spaceViewModel: SpaceViewModel = viewModel(), modifier: Modifier = Modifier) {
+fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel, spaceViewModel: SpaceViewModel = viewModel(), modifier: Modifier = Modifier, inviteCode: String) {
     val starImg = painterResource(id = R.drawable.star)
     val trashImg = painterResource(id = R.drawable.trash)
     val myspImg = painterResource(id = R.drawable.mysp)
@@ -84,7 +84,8 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
                 closeModal = { showParticipateModal.value = false },
                 onParticipateSuccess = {
                     spaceViewModel.updateShareSpaceList()
-                }
+                },
+                inviteCode
             )
         }
     }
@@ -171,6 +172,13 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
             Spacer(modifier = Modifier.height(7.dp))
             ShareSpaceListScreen(navController, shareSpaceList)
         }
+        // 딥링크로 전달받은 초대 코드가 있을 경우 모달을 열기
+        LaunchedEffect(inviteCode) {
+            if (inviteCode.isNotEmpty()) {
+                showParticipateModal.value = true
+            }
+        }
+
         Spacer(modifier = Modifier.weight(1f))
         CallStateBox(
             currentCallSpaceName = currentCallSpaceName,
