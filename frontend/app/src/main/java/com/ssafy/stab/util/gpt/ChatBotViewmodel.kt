@@ -21,11 +21,18 @@ class ChatBotViewModel : ViewModel() {
         messages.add(Message(text, false))
     }
 
+    fun updateBotMessage(index: Int, newText: String) {
+        messages[index] = messages[index].copy(text = newText)
+    }
+
     fun sendMessage(question: String) {
         addUserMessage(question)
+        val botMessageIndex = messages.size
+        addBotMessage("...")
+
         viewModelScope.launch {
             sendQuestion(question) { response ->
-                addBotMessage(response.answer)
+                updateBotMessage(botMessageIndex, response.answer)
                 Log.d("GPTResponse", response.question + response.answer)
             }
         }
