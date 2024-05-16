@@ -38,12 +38,15 @@ import com.ssafy.stab.screens.space.bookmark.BookMark
 import com.ssafy.stab.screens.space.personal.PersonalSpace
 import com.ssafy.stab.screens.space.share.ShareSpace
 import com.ssafy.stab.screens.space.share.SpaceViewModel
+import com.ssafy.stab.util.SocketManager
+import com.ssafy.stab.screens.space.deleted.Deleted
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @Composable
 fun SpaceRouters(
     onLogin: () -> Unit,
-    audioCallViewModel: AudioCallViewModel
+    audioCallViewModel: AudioCallViewModel,
+    socketManager: SocketManager
 ) {
     val navController = rememberNavController()
     val spaceViewModel: SpaceViewModel = viewModel()
@@ -77,12 +80,13 @@ fun SpaceRouters(
                             spaceId,
                             rootFolderId,  // rootFolderId 전달
                             audioCallViewModel,
-                            spaceViewModel
+                            spaceViewModel,
+                            socketManager,
                         ) { navController.navigate("personal-note/$it") }
                     }
                 }
-                composable("book-mark") { BookMark() }
-                composable("deleted") { Deleted() }
+                composable("book-mark") { BookMark(navController) }
+                composable("deleted") { Deleted(navController) }
                 composable("personal-note/{noteId}") {backStackEntry ->
                     backStackEntry.arguments?.getString("noteId")
                         ?.let { PersonalNote(NoteViewModel(it), navController) }

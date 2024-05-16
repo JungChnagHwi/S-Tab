@@ -21,10 +21,11 @@ import com.ssafy.stab.data.PreferencesUtil
 
 
 @Composable
-fun Login(navController: NavController){
+fun Login(navController: NavController, onLoginSuccess: () -> Unit){
     val loginDetails =  PreferencesUtil.getLoginDetails()
 
     if (loginDetails.isLoggedIn){
+        onLoginSuccess()  // 로그인된 상태일 때 소켓 초기화 및 연결
         navController.navigate("space")
     } else {
         val kakaoAuthViewModel : KakaoAuthViewModel = viewModel()

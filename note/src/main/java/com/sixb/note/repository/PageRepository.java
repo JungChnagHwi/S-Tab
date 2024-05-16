@@ -43,4 +43,7 @@ public interface PageRepository extends Neo4jRepository<Page, String> {
             "WHERE NOT page.isDeleted\n" +
             "RETURN collect(page) AS allPages")
     List<Page> findAllPagesByNoteId(@Param("noteId") String noteId);
+
+    @Query("MATCH (n:Note {noteId: $noteId})-[:NextPage*]->(p:Page) RETURN p")
+    List<Page> findAllByNoteId(String noteId);
 }

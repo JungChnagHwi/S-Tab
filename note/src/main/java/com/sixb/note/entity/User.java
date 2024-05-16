@@ -1,14 +1,19 @@
 package com.sixb.note.entity;
 
-import lombok.Data;
+import com.sixb.note.entity.common.BaseTimeEntity;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.neo4j.core.schema.*;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @Node("User")
-public class User {
+public class User extends BaseTimeEntity {
 
     @Id
     @Property("userId")

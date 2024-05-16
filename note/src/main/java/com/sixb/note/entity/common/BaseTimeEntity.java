@@ -1,4 +1,4 @@
-package com.sixb.note.common;
+package com.sixb.note.entity.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

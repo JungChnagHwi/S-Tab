@@ -15,8 +15,8 @@ public class FolderController {
 	private final FolderService folderService;
 
 	@GetMapping("/{folderId}")
-	public ResponseEntity<FolderResponseDto> getFolderById(@PathVariable("folderId") String folderId) {
-		FolderResponseDto folderInfo = folderService.getFolderDetail(folderId);
+	public ResponseEntity<FolderResponseDto> getFolderById(@PathVariable("folderId") String folderId, long userId) {
+		FolderResponseDto folderInfo = folderService.getFolderDetail(folderId, userId);
 		return ResponseEntity.ok(folderInfo);
 	}
 

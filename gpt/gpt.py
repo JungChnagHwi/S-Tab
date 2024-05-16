@@ -6,7 +6,7 @@ from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from py_eureka_client import eureka_client
 from dotenv import load_dotenv
-from urllib import parse
+from pydantic import BaseModel
 
 import os
 
@@ -57,10 +57,13 @@ with_message_history = (
     )
 )
 
+class Question(BaseModel):
+    question: str
 
-@app.get("/api/gpt")
-async def chat(q: str = Query(...), user_id: int = Query(..., alias="userId")):
-    question = parse.unquote(q)
+
+@app.post("/api/gpt")
+async def chat(q: Question, user_id: int = Query(..., alias="userId")):
+    question = q.question
 
     result = with_message_history.invoke(
         {"question": question},

@@ -1,10 +1,7 @@
 package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.NoteService;
-import com.sixb.note.dto.note.CreateNoteRequestDto;
-import com.sixb.note.dto.note.CreateNoteResponseDto;
-import com.sixb.note.dto.note.RelocateNoteRequestDto;
-import com.sixb.note.dto.note.UpdateNoteTitleRequestDto;
+import com.sixb.note.dto.note.*;
 import com.sixb.note.exception.FolderNotFoundException;
 import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.exception.NoteNotFoundException;
@@ -58,4 +55,9 @@ public class NoteController {
 		}
 	}
 
+	@PostMapping("/copy")
+	public ResponseEntity<NoteCopyResponseDto> copyNote(@RequestBody NoteCopyRequestDto requestDto) {
+		NoteCopyResponseDto responseDto = noteService.copyNote(requestDto);
+		return ResponseEntity.ok(responseDto);
+	}
 }

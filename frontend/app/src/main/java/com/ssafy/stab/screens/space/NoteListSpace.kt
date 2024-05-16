@@ -1,28 +1,15 @@
 package com.ssafy.stab.screens.space
 
 import NoteListViewModelFactory
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,10 +17,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ssafy.stab.R
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.bookmark.addBookMark
 import com.ssafy.stab.apis.space.bookmark.deleteBookMark
 import com.ssafy.stab.apis.space.folder.Folder
@@ -41,15 +28,11 @@ import com.ssafy.stab.apis.space.folder.Note
 import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.modals.CreateNoteModal
 import com.ssafy.stab.modals.PatchDeleteModal
-import com.ssafy.stab.screens.space.personal.LocalNowFolderTitle
-import com.ssafy.stab.screens.space.personal.LocalPrevFolderTitle
-import com.ssafy.stab.screens.space.personal.LocalSelectedFileId
-import com.ssafy.stab.screens.space.personal.LocalSelectedFileTitle
+import com.ssafy.stab.screens.space.personal.*
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
-
     val folderIdState = remember { mutableStateOf(nowId) }
     val listImg = painterResource(id = R.drawable.list)
     val isNameSort = remember { mutableStateOf(false) }
@@ -112,19 +95,15 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
         Spacer(modifier = Modifier.height(10.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))
-            ListGridScreen(folderIdState.value, onNote) { newFolderId ->
-                folderIdState.value = newFolderId
-            }
+            ListGridScreen(folderIdState.value, onNote)
         }
     }
 }
 
-
 @Composable
 fun ListGridScreen(
     initFolderId: String,
-    onNote: (String) -> Unit,
-    onFolderChange: (String) -> Unit,
+    onNote: (String) -> Unit
 ) {
     val selectedFileId = LocalSelectedFileId.current
     val selectedFileTitle = LocalSelectedFileTitle.current
@@ -134,18 +113,17 @@ fun ListGridScreen(
     val showPatchDeleteModal = remember { mutableStateOf(false) }
     val showCreateOptions = remember { mutableStateOf(false) }
 
-
     val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(folderId))
     val combinedList by viewModel.combinedList.collectAsState()
 
     val createNoteImg = painterResource(id = R.drawable.createnote)
-    fun patchDeleteToggle(){
+    fun patchDeleteToggle() {
         showPatchDeleteModal.value = !showPatchDeleteModal.value
     }
 
     if (showNoteModal.value) {
         Dialog(onDismissRequest = { showNoteModal.value = false }) {
-            val closeModal = { showNoteModal.value = false}
+            val closeModal = { showNoteModal.value = false }
             Box(
                 modifier = Modifier
                     .width(1000.dp)
@@ -206,7 +184,7 @@ fun ListGridScreen(
                             .weight(1f)
                             .padding(8.dp)) {
                             when (item) {
-                                is Folder -> FolderItem(folder = item, viewModel = viewModel, onFolderChange
+                                is Folder -> FolderItem(folder = item, viewModel = viewModel
                                 ) { patchDeleteToggle() }
 
                                 is Note -> NoteItem(note = item, onNote
@@ -259,7 +237,7 @@ fun ListGridScreen(
                             .weight(1f)
                             .padding(8.dp)) {
                             when (item) {
-                                is Folder -> FolderItem(folder = item, viewModel, onFolderChange
+                                is Folder -> FolderItem(folder = item, viewModel
                                 ) { patchDeleteToggle() }
 
                                 is Note -> NoteItem(note = item, onNote
@@ -280,28 +258,27 @@ fun ListGridScreen(
 }
 
 @Composable
-fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (String) -> Unit, patchDeleteToggle: () -> Unit) {
+fun FolderItem(folder: Folder, viewModel: NoteListViewModel, patchDeleteToggle: () -> Unit) {
     val folderImg = painterResource(id = R.drawable.folder)
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val modiImg = painterResource(id = R.drawable.modi)
     val staronImg = painterResource(id = R.drawable.eachstaron)
     val staroffImg = painterResource(id = R.drawable.eachstaroff)
-    val nowFolderTitle = LocalNowFolderTitle.current
-    val prevFolderTitle = LocalPrevFolderTitle.current
     val selectedFileId = LocalSelectedFileId.current
     val selectedFileTitle = LocalSelectedFileTitle.current
+    val navigationStackId = LocalNavigationStackId.current
+    val navigationStackTitle = LocalNavigationStackTitle.current
 
 
-    var isLiked by remember{ mutableStateOf( folder.isLiked ) }
+    var isLiked by remember { mutableStateOf(folder.isLiked) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
     Column(
         modifier = Modifier.clickable {
             viewModel.updateFolderId(folder.folderId)
-            onFolderChange(folder.folderId)
-            prevFolderTitle.value = nowFolderTitle.value
-            nowFolderTitle.value = folder.title ?: "untitled"
-                                      },
+            navigationStackId.add(folder.folderId)
+            navigationStackTitle.add(folder.title)
+        },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(contentAlignment = Alignment.TopEnd) {
@@ -323,11 +300,11 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, onFolderChange: (St
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.clickable {
                 selectedFileId.value = folder.folderId
-                selectedFileTitle.value = folder.title ?: "untitled"
+                selectedFileTitle.value = folder.title
                 patchDeleteToggle()
             }
         ) {
-            Text(text = folder.title ?: "untitled")
+            Text(text = folder.title)
             Spacer(modifier = Modifier.width(3.dp))
             Image(painter = modiImg, contentDescription = null, modifier = Modifier
                 .height(20.dp)
@@ -350,9 +327,8 @@ fun NoteItem(
 
     val selectedFileId = LocalSelectedFileId.current
     val selectedFileTitle = LocalSelectedFileTitle.current
-    var isLiked by remember{ mutableStateOf( note.isLiked ) }
+    var isLiked by remember { mutableStateOf(note.isLiked) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
-
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     Column(

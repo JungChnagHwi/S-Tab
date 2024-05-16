@@ -1,15 +1,17 @@
 package com.sixb.note.entity;
 
-import com.sixb.note.common.BaseTimeEntity;
-import lombok.Getter;
-import lombok.Setter;
+import com.sixb.note.entity.common.BaseTimeEntity;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.neo4j.core.schema.*;
 
 import java.util.List;
-import java.util.UUID;
 
-@Getter
-@Setter
+@EqualsAndHashCode(callSuper = true)
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @Node("Folder")
 public class Folder extends BaseTimeEntity {
 
