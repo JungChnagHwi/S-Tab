@@ -85,8 +85,8 @@ fun ShareSpace(
     val dropupImg = painterResource(id = R.drawable.dropup)
 
     // 높이 상태를 관리하기 위한 상태 변수입니다.
-    // 초기값은 최대 높이인 320.dp로 설정합니다.
-    val boxHeightState = remember { mutableStateOf(320.dp) }
+    // 초기값은 최대 높이인 280.dp로 설정합니다.
+    val boxHeightState = remember { mutableStateOf(280.dp) }
 
     // webRTC에 필요한 정보 설정(context, sessionId, participantName)
     val context = LocalContext.current
@@ -182,15 +182,15 @@ fun ShareSpace(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         Image(
-                            painter = if (boxHeightState.value == 320.dp) dropupImg else dropdownImg,
-                            contentDescription = if (boxHeightState.value == 320.dp) "드롭다운" else "드롭업",
+                            painter = if (boxHeightState.value == 280.dp) dropupImg else dropdownImg,
+                            contentDescription = if (boxHeightState.value == 280.dp) "드롭다운" else "드롭업",
                             modifier = Modifier
                                 .size(48.dp)
                                 .padding(10.dp)
                                 .clickable {
                                     // 높이 상태를 토글합니다.
                                     boxHeightState.value =
-                                        if (boxHeightState.value == 320.dp) 80.dp else 320.dp
+                                        if (boxHeightState.value == 280.dp) 80.dp else 280.dp
                                 }
                         )
                     }
@@ -429,6 +429,7 @@ fun SpTitleBar(
                                 leaveShareSpace(spaceId) {
                                     spaceViewModel.removeShareSpace(spaceId)
                                 }
+                                navController.navigate("personal-space")
                             }
                     )
                     Spacer(modifier = Modifier.width(20.dp))
