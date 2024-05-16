@@ -19,7 +19,7 @@ fun sendQuestion(question: String, onResult: (GPTResponse) -> Unit) {
         override fun onResponse(call: Call<GPTResponse>, response: Response<GPTResponse>) {
             if (response.isSuccessful) {
                 response.body()?.let {
-                    answer -> Log.d("APIResponse", answer.toString())
+                    answer -> 
                     onResult(answer)
                 }
             } else {
