@@ -1,5 +1,6 @@
 package com.sixb.note.config;
 
+import com.sixb.note.listener.RedisDataListener;
 import com.sixb.note.util.RedisInfo;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.ReadFrom;
@@ -16,7 +17,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -71,7 +74,7 @@ public class RedisConfig {
 								.fromSerializer(new StringRedisSerializer()))
 				.serializeValuesWith(
 						RedisSerializationContext.SerializationPair
-						.fromSerializer(new GenericJackson2JsonRedisSerializer()))
+								.fromSerializer(new Jackson2JsonRedisSerializer<>(String.class)))
 				.entryTtl(PAGE_CACHE_EXPIRE_TIME);
 
 		Map<String, RedisCacheConfiguration> configurations = new HashMap<>();
@@ -91,6 +94,20 @@ public class RedisConfig {
 		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
 		redisTemplate.setConnectionFactory(redisConnectionFactory());
 		return redisTemplate;
+	}
+
+	@Bean
+	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
+											MessageListenerAdapter listenerAdapter) {
+		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+		container.setConnectionFactory(connectionFactory);
+		container.addMessageListener(listenerAdapter, new PatternTopic("__keyevent@*__:expired"));
+		return container;
+	}
+
+	@Bean
+	MessageListenerAdapter listenerAdapter(RedisDataListener listener) {
+		return new MessageListenerAdapter(listener, "messageReceived");
 	}
 
 }

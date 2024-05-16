@@ -15,6 +15,7 @@ import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,6 +28,8 @@ public class PageService {
 
     private final PageRepository pageRepository;
     private final NoteRepository noteRepository;
+
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException {
         String beforePageId = request.getBeforePageId();
@@ -309,13 +312,11 @@ public class PageService {
     @Cacheable(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
     private PageInfoDto getPageInfoDto(Page page) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        PageDataDto pageDataDto = mapper.readValue(pageDataString, PageDataDto.class);
-        
-        // 데이터가 올바른 형식이면 이렇게 보내고
-        // 아니면 pageData를 안넣는 방식으로 고칠 예정
+        PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
 
-        return PageInfoDto.builder()
+        PageInfoDto pageInfo =  PageInfoDto.builder()
                 .pageId(page.getPageId())
+                .noteId(page.getNoteId())
                 .color(page.getColor())
                 .template(page.getTemplate())
                 .direction(page.getDirection())
@@ -327,14 +328,21 @@ public class PageService {
                 .images(pageDataDto.getImages())
                 .textBoxes(pageDataDto.getTextBoxes())
                 .build();
+
+        String redisExpireKey = "page::" + page.getPageId() + ":expired";
+        redisTemplate.opsForValue().set(redisExpireKey, pageInfo, Const.PAGE_CACHE_EXPIRE_KEY_TIME);
+
+        return pageInfo;
     }
 
     @CachePut(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
     private PageInfoDto setPageInfoDto(Page page) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
-        return PageInfoDto.builder()
+
+        PageInfoDto pageInfo =  PageInfoDto.builder()
                 .pageId(page.getPageId())
+                .noteId(page.getNoteId())
                 .color(page.getColor())
                 .template(page.getTemplate())
                 .direction(page.getDirection())
@@ -346,6 +354,11 @@ public class PageService {
                 .images(pageDataDto.getImages())
                 .textBoxes(pageDataDto.getTextBoxes())
                 .build();
+
+        String redisExpireKey = "page::" + page.getPageId() + ":expired";
+        redisTemplate.opsForValue().set(redisExpireKey, pageInfo, Const.PAGE_CACHE_EXPIRE_KEY_TIME);
+
+        return pageInfo;
     }
 
 }
