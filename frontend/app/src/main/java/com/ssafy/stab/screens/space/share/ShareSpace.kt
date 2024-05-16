@@ -271,7 +271,7 @@ fun SpTitleBar(
     }
 
     fun createDeepLinkUrl(shareCode: String): String {
-        return "https://s-tab.online/invite?code=$shareCode"
+        return "s-tab://invite?code=$shareCode"
     }
 
     val deepLinkUrl = createDeepLinkUrl(spaceId)
