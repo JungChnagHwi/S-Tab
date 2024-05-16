@@ -184,19 +184,26 @@ public class SpaceService {
     }
 
     // 스페이스 탈퇴
-    public void leaveSpace(long userId, String spaceId) throws NotFoundException {
-        List<Space> userSpaces = spaceRepository.findSpaces(userId);
-        Space spaceToLeave = userSpaces.stream()
-                .filter(space -> space.getSpaceId().equals(spaceId))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("스페이스를 찾을 수 없습니다."));
+    public void leaveSpace(long userId, String spaceId) throws SpaceNotFoundException {
+        Space space = spaceRepository.findSpaceById(spaceId);
 
+        if (space == null) {
+            throw new SpaceNotFoundException("존재하지 않는 스페이스입니다.");
+        }
+
+        if (!spaceRepository.isJoinedUser(userId, spaceId)) {
+            throw new SpaceNotFoundException("스페이스에 가입되지 않았습니다.");
+        }
+
+        if (!spaceRepository.isPublicSpace(spaceId)) {
+            throw new SpaceNotFoundException("개인 스페이스는 탈퇴할 수 없습니다.");
+        }
 
         spaceRepository.removeUserFromSpace(userId, spaceId);
 
         List<User> remainingUsers = userRepository.findUsersBySpaceId(spaceId);
         if (remainingUsers.isEmpty()) {
-            spaceRepository.deleteById(spaceId);
+            spaceRepository.deleteSpace(spaceId);
         }
     }
 
