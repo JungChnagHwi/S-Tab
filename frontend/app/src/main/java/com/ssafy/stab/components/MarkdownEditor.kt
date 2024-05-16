@@ -77,7 +77,6 @@ fun MarkdownScreen(spaceId: String) {
     LaunchedEffect(key1 = 1) {
         getMarkdown(spaceId) { res ->
             val markdownData = res.data ?: ""
-            Log.d("BB", markdownData)
             markdownText = markdownData
         }
     }

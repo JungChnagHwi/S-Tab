@@ -12,14 +12,13 @@ data class BookmarkListResponse(
 )
 
 data class BookmardFolder(
-    @SerializedName("spaceTitle") val spaceTitle: String,
     @SerializedName("folderId") val folderId: String,
     @SerializedName("title") val title: String,
-    @SerializedName("updatedAt") val updatedAt: LocalDateTime
+    @SerializedName("updatedAt") val updatedAt: LocalDateTime,
+    @SerializedName("rootFolderId") val rootFolderId: String
 )
 
 data class BookmardNote(
-    @SerializedName("spaceTitle") val spaceTitle: String,
     @SerializedName("noteId") val noteId: String,
     @SerializedName("title") val title: String,
     @SerializedName("totalPageCnt") val totalPageCnt: Int,
