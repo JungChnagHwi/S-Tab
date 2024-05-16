@@ -26,4 +26,10 @@ public interface SpaceRepository extends Neo4jRepository<Space, String> {
 
     @Query("MATCH (u:User {userId: $userId})-[r:Join]->(s:Space {spaceId: $spaceId}) DELETE r")
     void removeUserFromSpace(@Param("userId") long userId, @Param("spaceId") String spaceId);
+
+    @Query("MATCH (u:User {userId: $userId}), (s:Space {spaceId: $spaceId}) " +
+            "OPTIONAL MATCH (u)-[j:Join]->(s) " +
+            "RETURN count(j) > 0 AS joined")
+    boolean isJoinedUser(long userId, String spaceId);
+
 }
