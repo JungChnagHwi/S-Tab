@@ -86,16 +86,13 @@ public class PageService {
 
     // 데이터 저장
     public void saveData(SaveDataRequestDto request) throws PageNotFoundException, JsonProcessingException {
-        System.out.println("request:" + request);
         String pageId = request.getPageId();
-        System.out.println(pageId);
         Page page = pageRepository.findPageById(pageId);
 
         LocalDateTime now = LocalDateTime.now();
 
         if (page != null) {
             Note note = noteRepository.findNoteById(page.getNoteId());
-            System.out.println(note.getNoteId());
             if (note == null) {
                 throw new PageNotFoundException("노트를 찾을 수 없습니다.");
             }
@@ -304,7 +301,7 @@ public class PageService {
 
 
     @Cacheable(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
-    private PageInfoDto getPageInfoDto(Page page) throws JsonProcessingException {
+    private PageInfoDto getPageInfoDto(Page page, long userId) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
         return PageInfoDto.builder()
@@ -315,7 +312,7 @@ public class PageService {
                 .pdfPage(page.getPdfPage())
                 .pdfUrl(page.getPdfUrl())
                 .updatedAt(page.getUpdatedAt())
-                .isBookmarked(false)
+                .isBookmarked(pageRepository.isLikedByPageId(userId, page.getPageId()))
                 .paths(pageDataDto.getPaths())
                 .figures(pageDataDto.getFigures())
                 .images(pageDataDto.getImages())
@@ -324,7 +321,7 @@ public class PageService {
     }
 
     @CachePut(value = "page", key = "#page.pageId", cacheManager = "cacheManager")
-    private PageInfoDto setPageInfoDto(Page page) throws JsonProcessingException {
+    private PageInfoDto setPageInfoDto(Page page, long userId) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         PageDataDto pageDataDto = mapper.readValue(page.getPageData(), PageDataDto.class);
         return PageInfoDto.builder()
@@ -335,7 +332,7 @@ public class PageService {
                 .pdfPage(page.getPdfPage())
                 .pdfUrl(page.getPdfUrl())
                 .updatedAt(page.getUpdatedAt())
-                .isBookmarked(false)
+                .isBookmarked(pageRepository.isLikedByPageId(userId, page.getPageId()))
                 .paths(pageDataDto.getPaths())
                 .figures(pageDataDto.getFigures())
                 .images(pageDataDto.getImages())
