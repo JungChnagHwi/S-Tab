@@ -56,14 +56,14 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
                             if (!isNameSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
                             shape = RoundedCornerShape(10.dp)
                         )
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
+                        .padding(horizontal = 10.dp, vertical = 3.dp)
                         .align(Alignment.CenterVertically),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "날짜",
                         color = Color.White,
-                        fontSize = 16.sp,
+                        fontSize = 12.sp,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -73,14 +73,14 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
                             if (isNameSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
                             shape = RoundedCornerShape(10.dp)
                         )
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
+                        .padding(horizontal = 10.dp, vertical = 3.dp)
                         .align(Alignment.CenterVertically),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "이름",
                         color = Color.White,
-                        fontSize = 16.sp,
+                        fontSize = 12.sp,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -92,7 +92,7 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
                     .width(30.dp))
             Spacer(modifier = Modifier.width(20.dp))
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(5.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))
             ListGridScreen(folderIdState.value, onNote)
@@ -171,8 +171,8 @@ fun ListGridScreen(
                             painter = createNoteImg,
                             contentDescription = "새 노트 만들기",
                             modifier = Modifier
-                                .width(120.dp)
-                                .height(160.dp)
+                                .width(102.dp)
+                                .height(136.dp)
                                 .clip(RoundedCornerShape(20))
                                 .clickable { showCreateOptions.value = !showCreateOptions.value }
                         )
@@ -282,7 +282,7 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, patchDeleteToggle: 
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(contentAlignment = Alignment.TopEnd) {
-            Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(120.dp, 160.dp))
+            Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(102.dp, 136.dp))
             Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)
@@ -336,7 +336,7 @@ fun NoteItem(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(contentAlignment = Alignment.TopEnd) {
-            Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier.size(120.dp, 160.dp))
+            Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier.size(102.dp, 136.dp))
             Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)
