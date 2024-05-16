@@ -162,6 +162,11 @@ io.on("connection", (socket) => {
     leaveRoom(noteRoom, noteId, "note");
     socket.noteId = null;
 
+    // 화면 따라가기 종료
+    if (socket.followId) {
+      leaveDisplayRoom(socket.followId);
+    }
+
     // 내 화면 따라가기 종료
     deleteDisplayRoom(displayId);
   });
