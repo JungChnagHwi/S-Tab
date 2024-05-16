@@ -56,6 +56,7 @@ public class RedisDataListener {
 				.build();
 
 		pageRepository.save(page);
+		redisTemplate.delete(key);
 	}
 
 }

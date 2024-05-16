@@ -1,5 +1,6 @@
 package com.sixb.note.config;
 
+import com.sixb.note.dto.page.PageInfoDto;
 import com.sixb.note.listener.RedisDataListener;
 import com.sixb.note.util.RedisInfo;
 import io.lettuce.core.ClientOptions;
@@ -32,7 +33,7 @@ import static com.sixb.note.util.Const.PAGE;
 import static com.sixb.note.util.Const.PAGE_CACHE_EXPIRE_TIME;
 
 @Configuration
-@EnableCaching
+//@EnableCaching
 @RequiredArgsConstructor
 public class RedisConfig {
 
@@ -65,27 +66,27 @@ public class RedisConfig {
 		return new LettuceConnectionFactory(redisClusterConfiguration, clientConfiguration);
 	}
 
-	@Bean
-	public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
-		RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-				.disableCachingNullValues()
-				.serializeKeysWith(
-						RedisSerializationContext.SerializationPair
-								.fromSerializer(new StringRedisSerializer()))
-				.serializeValuesWith(
-						RedisSerializationContext.SerializationPair
-								.fromSerializer(new Jackson2JsonRedisSerializer<>(String.class)))
-				.entryTtl(PAGE_CACHE_EXPIRE_TIME);
-
-		Map<String, RedisCacheConfiguration> configurations = new HashMap<>();
-		configurations.put(PAGE, cacheConfiguration.entryTtl(PAGE_CACHE_EXPIRE_TIME));
-
-		return RedisCacheManager.RedisCacheManagerBuilder
-				.fromConnectionFactory(redisConnectionFactory)
-				.cacheDefaults(cacheConfiguration)
-				.withInitialCacheConfigurations(configurations)
-				.build();
-	}
+//	@Bean
+//	public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+//		RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+//				.disableCachingNullValues()
+//				.serializeKeysWith(
+//						RedisSerializationContext.SerializationPair
+//								.fromSerializer(new StringRedisSerializer()))
+//				.serializeValuesWith(
+//						RedisSerializationContext.SerializationPair
+//								.fromSerializer(new Jackson2JsonRedisSerializer<>(String.class)))
+//				.entryTtl(PAGE_CACHE_EXPIRE_TIME);
+//
+//		Map<String, RedisCacheConfiguration> configurations = new HashMap<>();
+//		configurations.put(PAGE, cacheConfiguration.entryTtl(PAGE_CACHE_EXPIRE_TIME));
+//
+//		return RedisCacheManager.RedisCacheManagerBuilder
+//				.fromConnectionFactory(redisConnectionFactory)
+//				.cacheDefaults(cacheConfiguration)
+//				.withInitialCacheConfigurations(configurations)
+//				.build();
+//	}
 
 	@Bean
 	public RedisTemplate<String, Object> redisTemplate() {
