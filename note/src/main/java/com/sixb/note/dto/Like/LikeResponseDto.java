@@ -6,16 +6,28 @@ import com.sixb.note.entity.Page;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Setter
 public class LikeResponseDto {
-    private List<Folder> folders;
+    private List<FolderInfo> folders;
     private List<Note> notes;
     private List<Page> pages;
 
-    public LikeResponseDto(List<Folder> folders, List<Note> notes, List<Page> pages) {
+    @Getter
+    @Setter
+    public static class FolderInfo {
+        private String spaceTitle;
+        private String folderId;
+        private String rootFolderId;
+        private String title;
+        private LocalDateTime updatedAt;
+        private LocalDateTime createdAt;
+    }
+
+    public LikeResponseDto(List<FolderInfo> folders, List<Note> notes, List<Page> pages) {
         this.folders = folders;
         this.notes = notes;
         this.pages = pages;

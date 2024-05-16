@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -93,7 +94,19 @@ public class LikeService {
 		List<Note> likedNotes = noteRepository.findAllLikedNotesByUserId(userId);
 		List<Page> likedPages = pageRepository.findAllLikedPagesByUserId(userId);
 
-		return new LikeResponseDto(likedFolders, likedNotes, likedPages);
+		List<LikeResponseDto.FolderInfo> folderInfos = likedFolders.stream().map(folder -> {
+			String rootFolderId = folderRepository.findRootFolderByFolderId(folder.getFolderId());
+			LikeResponseDto.FolderInfo folderInfo = new LikeResponseDto.FolderInfo();
+			folderInfo.setSpaceTitle(folder.getSpaceId());
+			folderInfo.setFolderId(folder.getFolderId());
+			folderInfo.setRootFolderId(rootFolderId);
+			folderInfo.setTitle(folder.getTitle());
+			folderInfo.setUpdatedAt(folder.getUpdatedAt());
+			folderInfo.setCreatedAt(folder.getCreatedAt());
+			return folderInfo;
+		}).collect(Collectors.toList());
+
+		return new LikeResponseDto(folderInfos, likedNotes, likedPages);
 	}
 
 }
