@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class PageLinkRequestDto {
-    private String linkPageId;
-    private String targetPageId;
+	private String linkPageId;
+	private String targetPageId;
 }

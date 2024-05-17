@@ -1,4 +1,4 @@
-package com.sixb.note.dto.Trash;
+package com.sixb.note.dto.trash;
 
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;

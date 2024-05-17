@@ -1,8 +1,8 @@
 package com.sixb.note.repository;
 
-import com.sixb.note.dto.request.UserInfoRequestDto;
-import com.sixb.note.dto.response.NicknameResponseDto;
-import com.sixb.note.dto.response.UserInfoResponseDto;
+import com.sixb.note.dto.user.UserInfoRequestDto;
+import com.sixb.note.dto.user.NicknameResponseDto;
+import com.sixb.note.dto.user.UserInfoResponseDto;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
 import org.neo4j.cypherdsl.core.Node;

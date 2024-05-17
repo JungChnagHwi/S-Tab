@@ -13,9 +13,9 @@ import java.util.*;
 @AllArgsConstructor
 public class PageDataDto {
 
-    private List<PathDto> paths;
-    private List<FigureDto> figures;
-    private List<TextBoxDto> textBoxes;
-    private List<ImageDto> images;
+	private List<PathDto> paths;
+	private List<FigureDto> figures;
+	private List<TextBoxDto> textBoxes;
+	private List<ImageDto> images;
 
 }

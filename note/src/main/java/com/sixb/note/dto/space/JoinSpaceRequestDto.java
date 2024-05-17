@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class JoinSpaceRequestDto {
-    private String spaceId;
+	private String spaceId;
 }

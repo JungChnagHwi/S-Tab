@@ -1,7 +1,7 @@
 package com.sixb.note.api.service;
 
-import com.sixb.note.dto.Trash.TrashRequestDto;
-import com.sixb.note.dto.Trash.TrashResponseDto;
+import com.sixb.note.dto.trash.TrashRequestDto;
+import com.sixb.note.dto.trash.TrashResponseDto;
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;

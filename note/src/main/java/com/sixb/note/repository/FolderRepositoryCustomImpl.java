@@ -2,12 +2,11 @@ package com.sixb.note.repository;
 
 import com.sixb.note.dto.folder.FolderResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.neo4j.cypherdsl.core.Condition;
 import org.neo4j.cypherdsl.core.Node;
 import org.neo4j.cypherdsl.core.Relationship;
 import org.neo4j.cypherdsl.core.Statement;
-import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -22,7 +21,7 @@ public class FolderRepositoryCustomImpl implements FolderRepositoryCustom {
 
 	@Override
 	public FolderResponseDto getFolderByName(long userId, String name, String spaceId) {
-		Node user  = node("User").named("u")
+		Node user = node("User").named("u")
 				.withProperties("userId", parameter("userId"));
 
 		Node folder = node("Folder").named("f")
@@ -41,11 +40,11 @@ public class FolderRepositoryCustomImpl implements FolderRepositoryCustom {
 				.returning(folder.property("folderId").as("folderId"),
 						folder.property("title").as("title"),
 						folder.property("createdAt").as("createdAt"),
-                        folder.property("updatedAt").as("updatedAt"),
-                        folder.property("isDeleted").as("isDeleted"),
-                        caseExpression()
-		                        .when(exists(likeFolder)).then(literalTrue())
-		                        .elseDefault(literalFalse()).as("isLiked"))
+						folder.property("updatedAt").as("updatedAt"),
+						folder.property("isDeleted").as("isDeleted"),
+						caseExpression()
+								.when(exists(likeFolder)).then(literalTrue())
+								.elseDefault(literalFalse()).as("isLiked"))
 				.build();
 
 		Statement noteStatement = match(note)
@@ -54,14 +53,14 @@ public class FolderRepositoryCustomImpl implements FolderRepositoryCustom {
 				.optionalMatch(likeNote)
 				.returning(note.property("noteId").as("noteId"),
 						note.property("title").as("title"),
-                        note.property("totalPageCnt").as("totalPageCnt"),
-                        note.property("createdAt").as("createdAt"),
-                        note.property("updatedAt").as("updatedAt"),
-                        note.property("isDeleted").as("isDeleted"),
+						note.property("totalPageCnt").as("totalPageCnt"),
+						note.property("createdAt").as("createdAt"),
+						note.property("updatedAt").as("updatedAt"),
+						note.property("isDeleted").as("isDeleted"),
 						caseExpression()
 								.when(exists(likeNote)).then(literalTrue())
 								.elseDefault(literalFalse()).as("isLiked"))
-                .build();
+				.build();
 
 		try (Session session = driver.session()) {
 			FolderResponseDto response = new FolderResponseDto();
@@ -88,7 +87,7 @@ public class FolderRepositoryCustomImpl implements FolderRepositoryCustom {
 			response.setFolders(folders);
 
 			Result noteResult = session.run(noteStatement.getCypher(),
-                    Values.parameters("userId", userId, "spaceId", spaceId, "name", name));
+					Values.parameters("userId", userId, "spaceId", spaceId, "name", name));
 
 			List<FolderResponseDto.NoteInfo> notes = new ArrayList<>();
 
@@ -97,14 +96,14 @@ public class FolderRepositoryCustomImpl implements FolderRepositoryCustom {
 
 				FolderResponseDto.NoteInfo noteInfo = FolderResponseDto.NoteInfo.builder()
 						.noteId(record.get("noteId").asString())
-                        .title(record.get("title").asString())
-                        .totalPageCnt(record.get("totalPageCnt").asInt())
-                        .createdAt(record.get("createdAt").asLocalDateTime())
-                        .updatedAt(record.get("updatedAt").asLocalDateTime())
-                        .isDeleted(record.get("isDeleted").asBoolean())
-                        .isLiked(record.get("isLiked").asBoolean())
-                        .build();
-                notes.add(noteInfo);
+						.title(record.get("title").asString())
+						.totalPageCnt(record.get("totalPageCnt").asInt())
+						.createdAt(record.get("createdAt").asLocalDateTime())
+						.updatedAt(record.get("updatedAt").asLocalDateTime())
+						.isDeleted(record.get("isDeleted").asBoolean())
+						.isLiked(record.get("isLiked").asBoolean())
+						.build();
+				notes.add(noteInfo);
 			}
 
 			response.setNotes(notes);

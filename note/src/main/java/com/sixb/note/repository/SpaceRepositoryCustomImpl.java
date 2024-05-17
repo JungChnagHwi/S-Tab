@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.neo4j.cypherdsl.core.Node;
 import org.neo4j.cypherdsl.core.Relationship;
 import org.neo4j.cypherdsl.core.Statement;
-import org.neo4j.cypherdsl.core.internal.RelationshipTypes;
-import org.neo4j.driver.*;
-import org.neo4j.driver.types.Path;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Values;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -44,7 +44,7 @@ public class SpaceRepositoryCustomImpl implements SpaceRepositoryCustom {
 						n.property("updatedAt"), literalOf(now),
 						p.property("isDeleted"), literalTrue(),
 						p.property("updatedAt"), literalOf(now))
-                .build();
+				.build();
 
 		try (Session session = driver.session()) {
 			session.run(statement.getCypher(),

@@ -11,10 +11,10 @@ import java.util.*;
 @AllArgsConstructor
 public class TextBoxDto {
 
-    private List<TextDto> texts;
-    private Float width;
-    private Float height;
-    private Float x;
-    private Float y;
+	private List<TextDto> texts;
+	private Float width;
+	private Float height;
+	private Float x;
+	private Float y;
 
 }

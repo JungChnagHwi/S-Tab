@@ -1,6 +1,6 @@
 package com.sixb.note.api.service;
 
-import com.sixb.note.dto.Like.LikeResponseDto;
+import com.sixb.note.dto.like.LikeResponseDto;
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 @Service
 @RequiredArgsConstructor

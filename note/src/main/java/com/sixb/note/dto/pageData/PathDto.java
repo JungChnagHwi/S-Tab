@@ -11,9 +11,9 @@ import java.util.*;
 @AllArgsConstructor
 public class PathDto {
 
-    private String penType;
-    private Float strokeWidth;
-    private String color;
-    private List<CoordinateDto> coordinates;
+	private String penType;
+	private Float strokeWidth;
+	private String color;
+	private List<CoordinateDto> coordinates;
 
 }

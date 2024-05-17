@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SpaceMdResponseDto {
-    private String data;
+	private String data;
 
 }

@@ -16,8 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -84,7 +83,7 @@ public class NoteService {
 		NoteCopyResponseDto responseDto = new NoteCopyResponseDto();
 		responseDto.setNoteId(newNote.getNoteId());
 		responseDto.setTitle(newNote.getTitle());
-		responseDto.setLiked(false);  
+		responseDto.setLiked(false);
 		responseDto.setCreatedAt(newNote.getCreatedAt());
 		responseDto.setUpdatedAt(newNote.getUpdatedAt());
 
