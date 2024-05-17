@@ -55,7 +55,7 @@ public interface NoteRepository extends Neo4jRepository<Note, String>, NoteRepos
 			"    n.updatedAt = $now, " +
 			"    p.isDeleted = true, " +
 			"    p.updatedAt = $now")
-	void deleteNote(String noteId);
+	void deleteNote(String noteId, LocalDateTime now);
 
 	@Query("MATCH (n:Note {noteId: $noteId})-[:NextPage*]->(p:Page) " +
 			"WHERE p.updatedAt = n.updatedAt " +

@@ -46,7 +46,7 @@ public class NoteService {
 
 	//노트 삭제
 	public void deleteNote(String noteId) {
-		noteRepository.deleteNote(noteId);
+		noteRepository.deleteNote(noteId, LocalDateTime.now());
 	}
 
 	public NoteCopyResponseDto copyNote(NoteCopyRequestDto requestDto) throws FolderNotFoundException, NoteNotFoundException {
