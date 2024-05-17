@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.yaml.snakeyaml.util.UriEncoder;
 
 @RestController
 @RequestMapping("/api/user")
@@ -50,9 +51,9 @@ public class UserController {
 		}
 	}
 
-	@GetMapping("/nickname")
-	public ResponseEntity<NicknameResponseDto> checkNickname(@RequestParam String nickname) {
-		NicknameResponseDto response = userService.checkNickname(nickname);
+	@GetMapping("/{nickname}")
+	public ResponseEntity<NicknameResponseDto> checkNickname(@PathVariable String nickname) {
+		NicknameResponseDto response = userService.checkNickname(UriEncoder.decode(nickname));
 		return ResponseEntity.ok(response);
 	}
 
