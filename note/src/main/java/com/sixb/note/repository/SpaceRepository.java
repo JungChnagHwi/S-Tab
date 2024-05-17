@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository
-public interface SpaceRepository extends Neo4jRepository<Space, String>, SpaceRepositoryCustom {
+public interface SpaceRepository extends Neo4jRepository<Space, String> {
 
 	@Query("MATCH (s:Space) WHERE s.spaceId = $spaceId RETURN s")
 	Optional<Space> findSpaceById(@Param("spaceId") String spaceId);
@@ -33,5 +33,14 @@ public interface SpaceRepository extends Neo4jRepository<Space, String>, SpaceRe
 
 	@Query("MATCH (s:Space {spaceId: $spaceId}) RETURN s.isPublic")
 	boolean isPublicSpace(String spaceId);
+
+	@Query("Match (s:Space {spaceId: $spaceId})-[:Hierarchy*]->(f:Folder) " +
+			"OPTIONAL MATCH (f)-[:Hierarchy*]->(n:Note) " +
+			"OPTIONAL MATCH (n)-[:NextPage*]->(p:Page) " +
+			"SET s.isDeleted = true, " +
+			"    f.isDeleted = true, " +
+			"    n.isDeleted = true, " +
+			"    p.isDeleted = true")
+	void deleteSpace(String spaceId);
 
 }
