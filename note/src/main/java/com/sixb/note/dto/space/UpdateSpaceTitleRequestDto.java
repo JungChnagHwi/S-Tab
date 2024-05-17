@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateSpaceTitleRequestDto {
-    private String spaceId;
-    private String newTitle;
+	private String spaceId;
+	private String newTitle;
 }

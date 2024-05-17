@@ -1,15 +1,13 @@
 package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.TrashService;
-import com.sixb.note.dto.Trash.TrashRequestDto;
-import com.sixb.note.dto.Trash.TrashResponseDto;
+import com.sixb.note.dto.trash.TrashRequestDto;
+import com.sixb.note.dto.trash.TrashResponseDto;
 import com.sixb.note.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
 
 @RestController
 @RequestMapping("/api/trash")

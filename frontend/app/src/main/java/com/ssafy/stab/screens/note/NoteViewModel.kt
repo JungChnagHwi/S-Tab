@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.apis.note.createNewPage
 import com.ssafy.stab.apis.note.fetchPageList
 import com.ssafy.stab.apis.note.savePageData
+import com.ssafy.stab.data.note.PageOrderPathInfo
 import com.ssafy.stab.data.note.UserPagePathInfo
 import com.ssafy.stab.data.note.request.PageData
 import com.ssafy.stab.data.note.request.SavingPageData
@@ -53,7 +54,7 @@ class NoteViewModel(noteId: String) : ViewModel() {
         }
     }
 
-    fun savePage(undoPathList: MutableList<UserPagePathInfo>) {
+    fun savePage(undoPathList: MutableList<PageOrderPathInfo>) {
         _pageList.value.forEach { pageDetail ->
             val pathList = pageDetail.paths ?: mutableStateListOf()
             val updatePathList = undoPathList.filter { it.pageId == pageDetail.pageId }

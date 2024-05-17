@@ -10,4 +10,6 @@ public interface NoteRepositoryCustom {
 
 	Optional<CreateNoteResponseDto> createNote(CreateNoteRequestDto request) throws FolderNotFoundException;
 
+	void deleteNote(String noteId);
+
 }

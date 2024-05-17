@@ -1,4 +1,4 @@
-package com.sixb.note.dto.response;
+package com.sixb.note.dto.user;
 
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +9,7 @@ public class UserInfoResponseDto {
 
 	private String nickname;
 	private String profileImg;
+	private String privateSpaceId;
 	private String rootFolderId;
 
 }

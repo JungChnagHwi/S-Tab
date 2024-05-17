@@ -1,7 +1,8 @@
 package com.ssafy.stab.components
 
-import android.util.Log
+
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,59 +54,72 @@ fun parseMarkdownToHtml(markdown: String?, textAlign: String): String {
 
 @Composable
 fun MarkdownViewer(htmlContent: String) {
-    AndroidView(
-        factory = { context ->
-            WebView(context).apply {
-                loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
-            }
-        },
-        update = { webView ->
-            webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
-        }
-    )
+    var webViewLoaded by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        AndroidView(
+            factory = { context ->
+                WebView(context).apply {
+                    settings.javaScriptEnabled = true // 필요한 경우 자바스크립트 활성화
+                    webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView?, url: String?) {
+                            webViewLoaded = true
+                        }
+                    }
+                    loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+                }
+            },
+            update = { webView ->
+                webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+            },
+            modifier = if (webViewLoaded) Modifier.fillMaxSize() else Modifier.size(0.dp)
+        )
+    }
 }
 
 @Composable
 fun MarkdownScreen(spaceId: String) {
     var markdownText by remember { mutableStateOf("") }
     var textAlign by remember { mutableStateOf("left") }
-    var isEditing by remember { mutableStateOf(false) } // 편집 상태 관리
-    val scrollState = rememberScrollState() // 스크롤 상태를 기억
+    var isEditing by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
     val leftImg = painterResource(id = R.drawable.left_align)
     val centerImg = painterResource(id = R.drawable.center_align)
     val rightImg = painterResource(id = R.drawable.right_align)
 
-    LaunchedEffect(key1 = 1) {
+    LaunchedEffect(key1 = spaceId) {
         getMarkdown(spaceId) { res ->
             val markdownData = res.data ?: ""
             markdownText = markdownData
         }
     }
 
-
     Column(modifier = Modifier.fillMaxWidth()) {
         if (isEditing) {
             Column(
                 modifier = Modifier
-                    .height(200.dp) // 높이 고정
-                    .verticalScroll(scrollState) // 세로 스크롤 활성화
+                    .height(200.dp)
+                    .verticalScroll(scrollState)
             ) {
                 MarkdownEditor(
                     onMarkdownChange = { markdownText = it },
                     markdownText = markdownText
                 )
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp),
-                    horizontalArrangement = Arrangement.End) {
-                    Box(modifier = Modifier
-                        .clickable {
-                            patchMarkdown(spaceId, markdownText)
-                            isEditing = false
-                        }
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(color = Color(0xFFDCE3F1))
-                        .padding(5.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clickable {
+                                patchMarkdown(spaceId, markdownText)
+                                isEditing = false
+                            }
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(color = Color(0xFFDCE3F1))
+                            .padding(5.dp)
                     ) {
                         Text("완료")
                     }
@@ -112,7 +127,7 @@ fun MarkdownScreen(spaceId: String) {
                 }
             }
         } else {
-            Column {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -121,31 +136,38 @@ fun MarkdownScreen(spaceId: String) {
                 ) {
                     Spacer(modifier = Modifier.width(20.dp))
                     Row {
-                        Image(painter = leftImg, contentDescription = null,
+                        Image(
+                            painter = leftImg, contentDescription = null,
                             modifier = Modifier
                                 .clickable { textAlign = "left" }
                                 .height(20.dp)
-                                .width(20.dp))
+                                .width(20.dp)
+                        )
                         Spacer(modifier = Modifier.width(20.dp))
-                        Image(painter = centerImg, contentDescription = null,
+                        Image(
+                            painter = centerImg, contentDescription = null,
                             modifier = Modifier
                                 .clickable { textAlign = "center" }
                                 .height(20.dp)
-                                .width(20.dp))
+                                .width(20.dp)
+                        )
                         Spacer(modifier = Modifier.width(20.dp))
-                        Image(painter = rightImg, contentDescription = null,
+                        Image(
+                            painter = rightImg, contentDescription = null,
                             modifier = Modifier
                                 .clickable { textAlign = "right" }
                                 .height(20.dp)
-                                .width(20.dp))
+                                .width(20.dp)
+                        )
                         Spacer(modifier = Modifier.width(50.dp))
                     }
                 }
-                Column(modifier = Modifier
-                    .clickable { isEditing = true }
-                    .height(300.dp) // 높이 고정
-                    .verticalScroll(scrollState)
-                    .padding(20.dp, 0.dp)
+                Column(
+                    modifier = Modifier
+                        .clickable { isEditing = true }
+                        .height(300.dp)
+                        .verticalScroll(scrollState)
+                        .padding(40.dp, 0.dp)
                 ) {
                     MarkdownViewer(htmlContent = parseMarkdownToHtml(markdownText, textAlign))
                 }
@@ -163,8 +185,6 @@ fun MarkdownEditor(onMarkdownChange: (String) -> Unit, markdownText: String) {
         label = { Text("표지 작성") },
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(140.dp)
     )
 }
-
-

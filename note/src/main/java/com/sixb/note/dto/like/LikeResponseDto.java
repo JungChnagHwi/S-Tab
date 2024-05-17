@@ -1,4 +1,4 @@
-package com.sixb.note.dto.folder;
+package com.sixb.note.dto.like;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,9 +12,10 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FolderResponseDto {
+public class LikeResponseDto {
 	private List<FolderInfo> folders;
 	private List<NoteInfo> notes;
+	private List<PageInfo> pages;
 
 	@Data
 	@Builder
@@ -22,11 +23,11 @@ public class FolderResponseDto {
 	@AllArgsConstructor
 	public static class FolderInfo {
 		private String folderId;
+		private String rootFolderId;
+		private String spaceId;
 		private String title;
-		private Boolean isLiked;
-		private LocalDateTime createdAt;
 		private LocalDateTime updatedAt;
-		private Boolean isDeleted;
+		private LocalDateTime createdAt;
 	}
 
 	@Data
@@ -35,12 +36,28 @@ public class FolderResponseDto {
 	@AllArgsConstructor
 	public static class NoteInfo {
 		private String noteId;
+		private String spaceId;
 		private String title;
 		private int totalPageCnt;
-		private Boolean isLiked;
 		private LocalDateTime createdAt;
 		private LocalDateTime updatedAt;
-		private Boolean isDeleted;
 	}
-}
 
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class PageInfo {
+		private String pageId;
+		private String noteId;
+		private String spaceId;
+		private String template;
+		private String color;
+		private int direction;
+		private String pdfUrl;
+		private int pdfPage;
+		private LocalDateTime createdAt;
+		private LocalDateTime updatedAt;
+	}
+
+}

@@ -38,6 +38,7 @@ import com.ssafy.stab.data.note.Direction
 import com.ssafy.stab.data.note.response.PageDetail
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.ui.theme.NoteBackground
+import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.util.note.NoteArea
 import com.ssafy.stab.util.note.NoteControlViewModel
 import com.ssafy.stab.util.note.getTemplate

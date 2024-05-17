@@ -1,28 +1,33 @@
 package com.sixb.note.dto.space;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SpaceResponseDto {
-    private String spaceId;
-    private String rootFolderId;
-    private String title;
-    private Boolean isPublic;
-    private String spaceMd;
-    private List<UserResponse> users;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+	private String spaceId;
+	private String rootFolderId;
+	private String title;
+	private Boolean isPublic;
+	private String spaceMd;
+	private List<UserResponse> users;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 
-    @Getter
-    @Setter
-    public static class UserResponse {
-        private String nickname;
-        private String profileImg;
-    }
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class UserResponse {
+		private String nickname;
+		private String profileImg;
+	}
 }

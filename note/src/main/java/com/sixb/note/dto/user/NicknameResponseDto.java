@@ -1,4 +1,4 @@
-package com.sixb.note.dto.response;
+package com.sixb.note.dto.user;
 
 import lombok.Builder;
 import lombok.Data;

@@ -122,8 +122,5 @@ fun Routers(
                 inviteCode
 
             ) }
-        composable("create-note") { CreateNoteModal({}, NoteListViewModel("f")) }
-        composable("create-folder") { CreateFolderModal({}, NoteListViewModel("f")) }
-        composable("markdown") { MarkdownScreen("") }
     }
 }

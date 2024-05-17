@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CoordinateDto {
 
-    private Float x;
-    private Float y;
+	private Float x;
+	private Float y;
 
 }

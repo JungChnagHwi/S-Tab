@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 @Builder
 public class SaveDataRequestDto {
-    private String pageId;
-    private PageDataDto pageData;
+	private String pageId;
+	private PageDataDto pageData;
 }

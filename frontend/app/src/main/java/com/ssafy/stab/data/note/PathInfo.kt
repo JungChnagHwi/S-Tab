@@ -19,3 +19,10 @@ data class UserPagePathInfo(
     var pageId: String,
     val pathInfo: PathInfo
 )
+
+data class PageOrderPathInfo(
+    var order: Int,
+    val userName: String,
+    var pageId: String,
+    val pathInfo: PathInfo
+)

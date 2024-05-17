@@ -1,12 +1,10 @@
-package com.sixb.note.dto.Like;
+package com.sixb.note.dto.trash;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @Getter
 @Setter
-public class LikeRequestDto {
+public class TrashRequestDto {
     private String id;
 }

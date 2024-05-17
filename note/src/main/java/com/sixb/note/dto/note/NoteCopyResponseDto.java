@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class NoteCopyResponseDto {
-    private String noteId;
-    private String title;
-    private boolean isLiked;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+	private String noteId;
+	private String title;
+	private boolean isLiked;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 }

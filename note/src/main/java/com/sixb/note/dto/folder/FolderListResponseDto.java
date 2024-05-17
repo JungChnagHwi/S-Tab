@@ -3,18 +3,17 @@ package com.sixb.note.dto.folder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @Setter
 public class FolderListResponseDto {
-    private List<FolderInfo> folders;
+	private List<FolderInfo> folders;
 
-    @Getter
-    @Setter
-    public static class FolderInfo {
-        private String folderId;
-        private String title;
-    }
+	@Getter
+	@Setter
+	public static class FolderInfo {
+		private String folderId;
+		private String title;
+	}
 }

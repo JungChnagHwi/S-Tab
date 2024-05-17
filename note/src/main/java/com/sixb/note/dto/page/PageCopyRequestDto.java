@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class PageCopyRequestDto {
-    private String beforePageId;
-    private String targetPageId;
+	private String beforePageId;
+	private String targetPageId;
 }

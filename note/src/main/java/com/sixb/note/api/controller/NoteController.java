@@ -34,8 +34,8 @@ public class NoteController {
 		try {
 			noteService.updateNoteTitle(request.getNoteId(), request.getNewTitle());
 			return ResponseEntity.ok("노트 이름 수정 완료");
-		} catch (NotFoundException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (NoteNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 
@@ -47,17 +47,18 @@ public class NoteController {
 
 	@DeleteMapping("/{noteId}")
 	public ResponseEntity<String> deleteFolder(@PathVariable("noteId") String noteId) {
+		noteService.deleteNote(noteId);
+		return ResponseEntity.ok("노트 삭제 완료");
+	}
+
+	@PostMapping("/copy")
+	public ResponseEntity<?> copyNote(@RequestBody NoteCopyRequestDto requestDto) {
 		try {
-			noteService.deleteNote(noteId);
-			return ResponseEntity.ok("노트 삭제 완료");
-		} catch (NoteNotFoundException e) {
+			NoteCopyResponseDto responseDto = noteService.copyNote(requestDto);
+			return ResponseEntity.ok(responseDto);
+		} catch (NoteNotFoundException | FolderNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 
-	@PostMapping("/copy")
-	public ResponseEntity<NoteCopyResponseDto> copyNote(@RequestBody NoteCopyRequestDto requestDto) {
-		NoteCopyResponseDto responseDto = noteService.copyNote(requestDto);
-		return ResponseEntity.ok(responseDto);
-	}
 }

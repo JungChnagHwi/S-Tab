@@ -1,8 +1,8 @@
 package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.LikeService;
-import com.sixb.note.dto.Like.LikeRequestDto;
-import com.sixb.note.dto.Like.LikeResponseDto;
+import com.sixb.note.dto.like.LikeRequestDto;
+import com.sixb.note.dto.like.LikeResponseDto;
 import com.sixb.note.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
