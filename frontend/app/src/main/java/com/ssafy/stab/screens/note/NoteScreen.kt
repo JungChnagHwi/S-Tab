@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.R
 import com.ssafy.stab.components.ChatBotScreen
 import com.ssafy.stab.components.note.ColorOptions
@@ -61,7 +62,8 @@ fun NoteScreen(
 ){
     val noteViewModel: NoteViewModel = viewModel(factory = NoteViewModelFactory(noteId))
     val userName = PreferencesUtil.getLoginDetails().userName ?: ""
-    val profileImg = PreferencesUtil.getLoginDetails().profileImg ?: "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/08/3454673260/profileImage.png"
+    val profileImg = PreferencesUtil.getLoginDetails().profileImg
+        ?: (BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png")
 
     val noteControlViewModel : NoteControlViewModel = viewModel(factory = NoteControlViewModelFactory(Pair(noteId, socketManager)))
     val chatBotViewModel = remember { ChatBotViewModel.getInstance() }

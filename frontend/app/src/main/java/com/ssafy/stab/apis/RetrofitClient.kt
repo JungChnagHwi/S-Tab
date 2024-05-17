@@ -8,6 +8,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
+import com.ssafy.stab.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
@@ -16,7 +17,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object RetrofitClient {
-    private const val BASE_URL = "https://s-tab.online/"
+    private const val BASE_URL = BuildConfig.BASE_URL
 
     private val gson: Gson = GsonBuilder()
         .registerTypeAdapter(LocalDateTime::class.java, object : JsonDeserializer<LocalDateTime>,
