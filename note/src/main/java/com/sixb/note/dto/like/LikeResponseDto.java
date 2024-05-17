@@ -29,7 +29,6 @@ public class LikeResponseDto {
 		private String folderId;
 		private String rootFolderId;
 		private String spaceId;
-		private String spaceTitle;
 		private String title;
 		private LocalDateTime updatedAt;
 		private LocalDateTime createdAt;
@@ -43,7 +42,6 @@ public class LikeResponseDto {
 		private String noteId;
 		private String spaceId;
 		private String title;
-		private String spaceTitle;
 		private int totalPageCnt;
 		private LocalDateTime createdAt;
 		private LocalDateTime updatedAt;
@@ -57,17 +55,11 @@ public class LikeResponseDto {
 		private String pageId;
 		private String noteId;
 		private String spaceId;
-		private String noteTitle;
-		private String spaceTitle;
 		private String template;
 		private String color;
 		private int direction;
 		private String pdfUrl;
 		private int pdfPage;
-		private List<PathDto> paths;
-		private List<FigureDto> figures;
-		private List<TextBoxDto> textBoxes;
-		private List<ImageDto> images;
 		private LocalDateTime createdAt;
 		private LocalDateTime updatedAt;
 	}
