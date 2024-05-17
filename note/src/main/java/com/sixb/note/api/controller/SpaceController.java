@@ -35,7 +35,7 @@ public class SpaceController {
 		try {
 			SpaceResponseDto spaceDetails = spaceService.findSpaceDetails(userId, spaceId);
 			return ResponseEntity.ok(spaceDetails);
-		} catch (UserNotFoundException e) {
+		} catch (UserNotFoundException | SpaceNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
@@ -55,20 +55,10 @@ public class SpaceController {
 		try {
 			spaceService.updateSpaceTitle(request.getSpaceId(), request.getNewTitle());
 			return ResponseEntity.ok("스페이스 이름 수정 완료");
-		} catch (NotFoundException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (SpaceNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
-
-//    @DeleteMapping("/{spaceId}")
-//    public ResponseEntity<String> deleteSpace(@PathVariable String spaceId) {
-//        boolean isUpdated = spaceService.deleteSpace(spaceId);
-//        if (isUpdated) {
-//            return ResponseEntity.ok("Space 삭제 완료");
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
 
 	@PostMapping("/join")
 	public ResponseEntity<String> joinSpace(@RequestParam long userId, @RequestBody JoinSpaceRequestDto joinSpaceRequestDto) {
@@ -83,12 +73,12 @@ public class SpaceController {
 	}
 
 	@GetMapping("/cover/{spaceId}")
-	public ResponseEntity<SpaceMdResponseDto> getSpaceMarkdown(@PathVariable String spaceId) {
+	public ResponseEntity<?> getSpaceMarkdown(@PathVariable String spaceId) {
 		try {
 			SpaceMdResponseDto responseDto = spaceService.findSpaceMarkdown(spaceId);
 			return ResponseEntity.ok(responseDto);
-		} catch (NotFoundException e) {
-			return ResponseEntity.notFound().build();
+		} catch (SpaceNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 
@@ -97,8 +87,8 @@ public class SpaceController {
 		try {
 			spaceService.updateSpaceMarkdown(requestDto);
 			return ResponseEntity.ok("스페이스 표지 수정 성공");
-		} catch (NotFoundException e) {
-			return ResponseEntity.notFound().build();
+		} catch (SpaceNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 
@@ -107,7 +97,7 @@ public class SpaceController {
 		try {
 			spaceService.leaveSpace(userId, spaceId);
 			return ResponseEntity.ok("스페이스에서 성공적으로 탈퇴하였습니다.");
-		} catch (SpaceNotFoundException e) {
+		} catch (UserNotFoundException | SpaceNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}

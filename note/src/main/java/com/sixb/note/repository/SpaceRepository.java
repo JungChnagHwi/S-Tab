@@ -12,16 +12,16 @@ import java.util.*;
 public interface SpaceRepository extends Neo4jRepository<Space, String>, SpaceRepositoryCustom {
 
 	@Query("MATCH (s:Space) WHERE s.spaceId = $spaceId RETURN s")
-	Space findSpaceById(@Param("spaceId") String spaceId);
+	Optional<Space> findSpaceById(@Param("spaceId") String spaceId);
 
 	@Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space) WHERE s.isPublic = true RETURN s")
 	List<Space> findSpaces(@Param("userId") long userId);
 
 	@Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space) WHERE s.spaceId = $spaceId RETURN s")
-	Space findSpaceByIdAndUserId(@Param("spaceId") String spaceId, @Param("userId") long userId);
+	Optional<Space> findSpaceByIdAndUserId(@Param("spaceId") String spaceId, @Param("userId") long userId);
 
 	@Query("MATCH (s:Space {spaceId: $spaceId}) SET s.title = $newTitle RETURN s")
-	void updateSpaceTitle(String spaceId, String newTitle);
+	Optional<Space> updateSpaceTitle(String spaceId, String newTitle);
 
 	@Query("MATCH (u:User {userId: $userId})-[r:Join]->(s:Space {spaceId: $spaceId}) DELETE r")
 	void removeUserFromSpace(@Param("userId") long userId, @Param("spaceId") String spaceId);
