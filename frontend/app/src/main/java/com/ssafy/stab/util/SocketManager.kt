@@ -251,6 +251,13 @@ class SocketManager private constructor() {
                 Log.d("CheckingInSocket", folder.toString())
                 viewModel.addFolder(folder)
             }
+            "NoteUpdated" -> {
+                val updateData = data as JSONObject
+                val noteId = updateData.getString("noteId")
+                val newTitle = updateData.getString("newTitle")
+                Log.d("CheckingInSocket", "NoteUpdated: $noteId, newTitle: $newTitle")
+                viewModel.renameNote(noteId, newTitle)
+            }
             "NoteDeleted" -> {
                 // 문자열 처리 조건 분기
                 if (data is String) {
