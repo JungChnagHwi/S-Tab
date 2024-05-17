@@ -123,27 +123,4 @@ public class NoteRepositoryCustomImpl implements NoteRepositoryCustom {
 		}
 	}
 
-	@Override
-	public void deleteNote(String noteId) {
-		LocalDateTime now = LocalDateTime.now();
-
-		Node note = node("Note").named("n")
-				.withProperties("noteId", parameter("noteId"));
-		Node page = anyNode("p");
-		Relationship r = note.relationshipBetween(page, "NextPage").unbounded();
-
-		Statement statement = match(note, page)
-				.match(r)
-				.set(note.property("isDeleted"), literalTrue(),
-						note.property("updatedAt"), literalOf(now),
-						page.property("isDeleted"), literalTrue(),
-                        page.property("updatedAt"), literalOf(now))
-				.build();
-
-		try (Session session = driver.session()) {
-			session.run(statement.getCypher(),
-					Values.parameters("noteId", noteId));
-		}
-	}
-
 }

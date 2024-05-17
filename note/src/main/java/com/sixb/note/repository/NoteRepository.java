@@ -50,6 +50,14 @@ public interface NoteRepository extends Neo4jRepository<Note, String>, NoteRepos
 	String findSpaceIdByNoteId(String noteId);
 
 	@Query("MATCH (n:Note {noteId: $noteId})-[:NextPage*]->(p:Page) " +
+			"WHERE p.isDeleted = false " +
+			"SET n.isDeleted = true, " +
+			"    n.updatedAt = $now, " +
+			"    p.isDeleted = true, " +
+			"    p.updatedAt = $now")
+	void deleteNote(String noteId);
+
+	@Query("MATCH (n:Note {noteId: $noteId})-[:NextPage*]->(p:Page) " +
 			"WHERE p.updatedAt = n.updatedAt " +
 			"SET n.isDeleted = false, " +
 			"    n.updatedAt = $now, " +
