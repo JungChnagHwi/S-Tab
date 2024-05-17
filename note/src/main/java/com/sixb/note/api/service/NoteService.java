@@ -5,7 +5,6 @@ import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Page;
 import com.sixb.note.exception.FolderNotFoundException;
-import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.exception.NoteNotFoundException;
 import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
