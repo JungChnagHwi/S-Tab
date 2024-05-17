@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -54,6 +55,19 @@ public interface FolderRepository extends Neo4jRepository<Folder, String>, Folde
 			"WHERE ALL(n IN nodes(path) WHERE n.isDeleted = false) " +
 			"RETURN nodes(path) AS folders")
 	List<Folder> findFoldersBetween(@Param("parentFolderId") String parentFolderId, @Param("endFolderId") String endFolderId);
+
+	@Query("MATCH (f:Folder {folderId: $folderId})-[:Hierarchy*]->(s) " +
+			"WHERE s.isDeleted = false " +
+			"SET f.isDeleted = true, " +
+			"    f.updatedAt = $now, " +
+			"    s.isDeleted = true, " +
+			"    s.updatedAt = $now " +
+			"with s " +
+			"MATCH (s)-[:NextPage*]->(p:Page) " +
+			"WHERE p.isDeleted = false " +
+			"SET p.isDeleted = true, " +
+			"    p.updatedAt = $now")
+	void deleteFolder(String folderId, LocalDateTime now);
 
 }
 
