@@ -57,7 +57,7 @@ public class SpaceService {
 		}).collect(Collectors.toList());
 	}
 
-	public SpaceResponseDto findSpaceDetails(long userId, String spaceId) throws UserNotFoundException, SpaceNotFoundException {
+	public SpaceResponseDto findSpaceDetails(long userId, String spaceId) throws SpaceNotFoundException {
 		Space space = spaceRepository.findSpaceByIdAndUserId(spaceId, userId)
 				.orElseThrow(() -> new SpaceNotFoundException("존재하지 않는 스페이스입니다."));
 
