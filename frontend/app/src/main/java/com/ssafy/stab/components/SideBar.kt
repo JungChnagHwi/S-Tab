@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -265,47 +266,55 @@ fun CallStateBox(
             .clip(RoundedCornerShape(10.dp))
             .background(color = Color(0xFF7591C6))
     ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp)
-                    .align(Alignment.Center),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp)
+                .align(Alignment.Center),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Image(
+                painter = wifiImg,
+                contentDescription = null,
+                modifier = Modifier.size(30.dp)
+            )
+            Column(
+                modifier = Modifier.weight(1f)  // 텍스트와 컬럼의 비중을 조절하여 고정된 공간을 확보
             ) {
-                Image(
-                    painter = wifiImg,
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp)
+                Text(
+                    text = "음성 연결됨",
+                    color = Color(0xff4ADE80),
+                    fontSize = 16.sp
                 )
-                Column {
-                    Text(
-                        text = "음성 연결됨",
-                        color = Color(0xff4ADE80),
-                        fontSize = 16.sp
-                    )
-                    Text(text = currentCallSpaceName)
-                }
-                Image(
-                    painter = soundImg,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            toggleMic()
-                        }
-                )
-                Image(
-                    painter = phoneImg,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            leaveSession()
-                        }
+                Text(
+                    text = currentCallSpaceName,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.widthIn(max = 112.dp) // 텍스트 최대 너비 설정
                 )
             }
+            Spacer(modifier = Modifier.width(16.dp))  // 아이콘과 텍스트 사이의 간격을 고정
+            Image(
+                painter = soundImg,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        toggleMic()
+                    }
+            )
+            Spacer(modifier = Modifier.width(8.dp))  // 두 번째 아이콘과의 간격을 고정
+            Image(
+                painter = phoneImg,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        leaveSession()
+                    }
+            )
         }
+    }
     Spacer(modifier = Modifier.height(30.dp))
 }
-
