@@ -1,22 +1,23 @@
 package com.ssafy.stab.screens.space.bookmark
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -26,6 +27,8 @@ import com.ssafy.stab.apis.space.bookmark.BookmardNote
 import com.ssafy.stab.apis.space.bookmark.BookmardPage
 import com.ssafy.stab.apis.space.bookmark.addBookMark
 import com.ssafy.stab.apis.space.bookmark.deleteBookMark
+import com.ssafy.stab.apis.space.bookmark.getFolderPath
+import com.ssafy.stab.screens.space.NoteListSpace
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -35,87 +38,129 @@ fun BookMarkListGridScreen(
     pages: List<BookmardPage>,
     navController: NavController
 ) {
-
     val sortedFolders = folders.sortedByDescending { it.updatedAt }
     val sortedNotes = notes.sortedByDescending { it.updatedAt }
     val sortedPages = pages.sortedByDescending { it.updatedAt }
+    var selectedFolder by remember { mutableStateOf("") }
+    val selectedPathId = remember { mutableStateListOf<String>() }
+    val selectedPathTitle = remember { mutableStateListOf<String>() }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp, 0.dp)
-    ) {
-        item {
-            Text(text = "폴더(${sortedFolders.size})", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5584FD),modifier = Modifier.padding(20.dp, 0.dp))
-        }
+    fun selectFolder(selectedFolderId: String, pathIdList: List<String>, pathTitleList: List<String>) {
+        selectedFolder = selectedFolderId
+        selectedPathId.clear()
+        selectedPathTitle.clear()
+        selectedPathId.addAll(pathIdList)
+        selectedPathTitle.addAll(pathTitleList)
+    }
 
-        items(sortedFolders.chunked(5)) { rowItems ->
-            Row(
+    fun changeFolder(folderId: String) {
+        selectedFolder = folderId
+        Log.d("Selected Folder Changed", selectedFolder)
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (selectedFolder != "" ) {
+            PathDisplay(selectedPathId, selectedPathTitle, ::changeFolder)
+            NoteListSpace(selectedFolder){}
+        } else {
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .fillMaxSize()
+                    .padding(16.dp, 0.dp)
             ) {
-                rowItems.forEach { folder ->
-                    Box(modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp)) {
-                        FolderItem(folder = folder)
+                item {
+                    Text(
+                        text = "폴더(${sortedFolders.size})",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF5584FD),
+                        modifier = Modifier.padding(20.dp, 0.dp)
+                    )
+                }
+
+                items(sortedFolders.chunked(5)) { rowItems ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        rowItems.forEach { folder ->
+                            Box(modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp)) {
+                                FolderItem(folder = folder, selectFolder = { folderId, pathIdList, pathTitleList ->
+                                    selectFolder(folderId, pathIdList, pathTitleList)
+                                })
+                            }
+                        }
+                        repeat(5 - rowItems.size) {
+                            Spacer(modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp))
+                        }
                     }
                 }
-                repeat(5 - rowItems.size) {
-                    Spacer(modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp))
+
+                item {
+                    Text(
+                        text = "노트(${sortedNotes.size})",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF5584FD),
+                        modifier = Modifier.padding(20.dp, 0.dp)
+                    )
                 }
-            }
-        }
 
-        item {
-            Text(text = "노트(${sortedNotes.size})", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5584FD),modifier = Modifier.padding(20.dp, 0.dp))
-        }
-
-        items(sortedNotes.chunked(5)) { rowItems ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                rowItems.forEach { note ->
-                    Box(modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp)) {
-                        NoteItem(note = note)
+                items(sortedNotes.chunked(5)) { rowItems ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        rowItems.forEach { note ->
+                            Box(modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp)) {
+                                NoteItem(note = note, navController)
+                            }
+                        }
+                        repeat(5 - rowItems.size) {
+                            Spacer(modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp))
+                        }
                     }
                 }
-                repeat(5 - rowItems.size) {
-                    Spacer(modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp))
+
+                item {
+                    Text(
+                        text = "페이지(${sortedPages.size})",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF5584FD),
+                        modifier = Modifier.padding(20.dp, 0.dp)
+                    )
                 }
-            }
-        }
 
-        item {
-            Text(text = "페이지(${sortedPages.size})", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5584FD),modifier = Modifier.padding(20.dp, 0.dp))
-        }
-
-        items(sortedPages.chunked(5)) { rowItems ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                rowItems.forEach { page ->
-                    Box(modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp)) {
-                        PageItem(page = page)
+                items(sortedPages.chunked(5)) { rowItems ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        rowItems.forEach { page ->
+                            Box(modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp)) {
+                                PageItem(page = page)
+                            }
+                        }
+                        repeat(5 - rowItems.size) {
+                            Spacer(modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp))
+                        }
                     }
-                }
-                repeat(5 - rowItems.size) {
-                    Spacer(modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp))
                 }
             }
         }
@@ -124,20 +169,32 @@ fun BookMarkListGridScreen(
 }
 
 @Composable
-fun FolderItem(folder: BookmardFolder) {
+fun FolderItem(
+    folder: BookmardFolder,
+    selectFolder: (String, List<String>, List<String>) -> Unit
+) {
     val staronImg = painterResource(id = R.drawable.eachstaron)
     val staroffImg = painterResource(id = R.drawable.eachstaroff)
     val folderImg = painterResource(id = R.drawable.folder)
-    var isLiked by remember{ mutableStateOf( true ) }
+    var isLiked by remember { mutableStateOf(true) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
     Column(
         modifier = Modifier
-            .clickable { /* 폴더 클릭 핸들러 */ },
+            .clickable {
+                getFolderPath(folder.rootFolderId, folder.folderId) { res ->
+                    val folderIds = res.folders.map { it.folderId }
+                    val titles = res.folders.map { it.title ?: "Untitled" }
+                    Log.d("리스트 줘봐", res.folders.joinToString(","))
+                    Log.d("아이디 리스트", folderIds.joinToString(","))
+                    Log.d("타이틀 리스트", titles.joinToString(","))
+                    selectFolder(folder.folderId, folderIds, titles)
+                }
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box {
-            Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(120.dp, 160.dp))
+            Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(102.dp, 136.dp))
             Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)
@@ -157,20 +214,22 @@ fun FolderItem(folder: BookmardFolder) {
 }
 
 @Composable
-fun NoteItem(note: BookmardNote) {
+fun NoteItem(note: BookmardNote, navController: NavController) {
     val staronImg = painterResource(id = R.drawable.eachstaron)
     val staroffImg = painterResource(id = R.drawable.eachstaroff)
     val notebookImg = painterResource(id = R.drawable.notebook)
-    var isLiked by remember{ mutableStateOf( true ) }
+    var isLiked by remember { mutableStateOf(true) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
     Column(
         modifier = Modifier
-            .clickable { /* 노트 클릭 핸들러 */ },
+            .clickable {
+                       navController.navigate("")
+            },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box{
-            Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier.size(120.dp, 160.dp))
+        Box {
+            Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier.size(102.dp, 136.dp))
             Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)
@@ -194,16 +253,16 @@ fun PageItem(page: BookmardPage) {
     val staronImg = painterResource(id = R.drawable.eachstaron)
     val staroffImg = painterResource(id = R.drawable.eachstaroff)
     val pageImg = painterResource(id = R.drawable.lined_white_portrait)
-    var isLiked by remember{ mutableStateOf( true ) }
+    var isLiked by remember { mutableStateOf(true) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
     Column(
         modifier = Modifier
-            .clickable { /* 페이지 클릭 핸들러 */ },
+            .clickable {},
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box {
-            Image(painter = pageImg, contentDescription = "페이지", modifier = Modifier.size(120.dp, 160.dp))
+            Image(painter = pageImg, contentDescription = "페이지", modifier = Modifier.size(102.dp, 136.dp))
             Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)
@@ -219,5 +278,34 @@ fun PageItem(page: BookmardPage) {
         }
         Text(text = page.pageId ?: "untitled", fontSize = 16.sp, textAlign = TextAlign.Center)
         Text(text = page.updatedAt.format(DateTimeFormatter.ISO_DATE), fontSize = 16.sp, textAlign = TextAlign.Center)
+    }
+}
+
+@Composable
+fun PathDisplay(pathIds: List<String>, pathTitles: List<String>, changeFolder: (String) -> Unit) {
+    val annotatedString = buildAnnotatedString {
+        pathTitles.forEachIndexed { index, title ->
+            if (index > 0) {
+                append("    --    ") // 루트 사이 여백을 ' > ' 문자로 구분
+            }
+            pushStringAnnotation(tag = "ID", annotation = pathIds[index])
+            withStyle(style = SpanStyle(color = Color.Blue, fontSize = 20.sp)) {
+                append(title)
+            }
+            pop()
+        }
+    }
+
+    Row(modifier = Modifier.padding(start = 20.dp)) { // 왼쪽에 20dp의 여백
+        ClickableText(
+            text = annotatedString,
+            onClick = { offset ->
+                annotatedString.getStringAnnotations(tag = "ID", start = offset, end = offset)
+                    .firstOrNull()?.let { annotation ->
+                        Log.d("Selected Path ID", annotation.item)
+                        changeFolder(annotation.item)
+                    }
+            }
+        )
     }
 }
