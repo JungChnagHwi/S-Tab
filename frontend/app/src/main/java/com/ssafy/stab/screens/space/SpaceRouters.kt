@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,9 +31,7 @@ import com.ssafy.stab.R
 import com.ssafy.stab.components.SideBar
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.PatchAuth
-import com.ssafy.stab.screens.note.NoteViewModel
-import com.ssafy.stab.screens.note.PersonalNote
-import com.ssafy.stab.screens.note.ShareNote
+import com.ssafy.stab.screens.note.NoteScreen
 import com.ssafy.stab.screens.space.bookmark.BookMark
 import com.ssafy.stab.screens.space.personal.PersonalSpace
 import com.ssafy.stab.screens.space.share.ShareSpace
@@ -60,19 +57,19 @@ fun SpaceRouters(
     Row(modifier = Modifier.fillMaxSize()) {
         // "personal-note"와 "share-note"가 아닐 때만 SideBar를 렌더링
 
-        if (currentRoute != "personal-note/{noteId}" && currentRoute != "share-note") {
+        if (currentRoute != "note/{noteId}/{spaceId}") {
             SideBar(navController, audioCallViewModel, spaceViewModel, modifier = Modifier.weight(0.25f), inviteCode)
         }
         Column(modifier = Modifier
             .weight(0.75f)
             .background(color = Color(0xFFE9ECF5))
         ) {
-            if (currentRoute != "personal-note/{noteId}" && currentRoute != "share-note") {
+            if (currentRoute != "note/{noteId}/{spaceId}") {
                 Header(onLogin)
             }
             NavHost(navController = navController, startDestination = "personal-space") {
                 composable("personal-space") {
-                    PersonalSpace(navController) { navController.navigate("personal-note/$it") }
+                    PersonalSpace(navController) { navController.navigate("note/$it/spaceId") }
                 }
                 composable("share-space/{spaceId}/{rootFolderId}") { backStackEntry ->
                     val spaceId = backStackEntry.arguments?.getString("spaceId")
@@ -85,16 +82,16 @@ fun SpaceRouters(
                             audioCallViewModel,
                             spaceViewModel,
                             socketManager,
-                        ) { navController.navigate("personal-note/$it") }
+                        ) { navController.navigate("note/$it/$spaceId") }
                     }
                 }
                 composable("book-mark") { BookMark(navController) }
                 composable("deleted") { Deleted(navController) }
-                composable("personal-note/{noteId}") {backStackEntry ->
-                    backStackEntry.arguments?.getString("noteId")
-                        ?.let { PersonalNote(NoteViewModel(it), navController) }
+                composable("note/{noteId}/{spaceId}") {backStackEntry ->
+                    val noteId = backStackEntry.arguments?.getString("noteId") ?: ""
+                    val spaceId = backStackEntry.arguments?.getString("spaceId") ?: ""
+                    NoteScreen(noteId, spaceId, socketManager, navController)
                 }
-                composable("share-note") { ShareNote(navController) }
                 dialog("patch-auth") {
                     PatchAuth(onDismiss = { navController.popBackStack() })
                 }

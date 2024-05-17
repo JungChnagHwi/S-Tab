@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
+import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.data.note.PenType
 import com.ssafy.stab.util.note.NoteControlViewModel
 
@@ -43,7 +44,7 @@ fun ControlsBar(
             if (undoAvailable) R.drawable.undo_abled else R.drawable.undo_disabled,
             "undo"
             ) {
-                if (undoAvailable) viewModel.undo()
+                if (undoAvailable) viewModel.undo(PreferencesUtil.getLoginDetails().userName ?: "")
             }
         EditIcons(
             if (redoAvailable) R.drawable.redo_abled else R.drawable.redo_disabled,
