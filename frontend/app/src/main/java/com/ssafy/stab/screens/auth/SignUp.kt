@@ -33,6 +33,7 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.rememberImagePainter
+import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.apis.auth.checkNickName
 import com.ssafy.stab.apis.auth.signUp
 import okhttp3.MediaType.Companion.toMediaType
@@ -138,7 +139,7 @@ fun uploadFile(context: Context, url: String, imageUri: Uri, nickname: String) {
             Log.e("UploadError", "Failed to create request body from the input stream.")
         }
     } else {
-        val baseImage = "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/08/3454673260/profileImage.png"
+        val baseImage = BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png"
         signUp(nickname, baseImage)
     }
 }

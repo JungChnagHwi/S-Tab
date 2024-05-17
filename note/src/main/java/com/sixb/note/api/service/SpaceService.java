@@ -57,9 +57,11 @@ public class SpaceService {
 		}).collect(Collectors.toList());
 	}
 
-	public SpaceResponseDto findSpaceDetails(long userId, String spaceId) throws UserNotFoundException, SpaceNotFoundException {
+	public SpaceResponseDto findSpaceDetails(long userId, String spaceId) throws SpaceNotFoundException {
 		Space space = spaceRepository.findSpaceByIdAndUserId(spaceId, userId)
 				.orElseThrow(() -> new SpaceNotFoundException("존재하지 않는 스페이스입니다."));
+
+		List<User> users = userRepository.findUsersBySpaceId(spaceId);
 
 		return SpaceResponseDto.builder()
 				.spaceId(space.getSpaceId())
@@ -69,7 +71,7 @@ public class SpaceService {
 				.spaceMd(space.getSpaceMd())
 				.createdAt(space.getCreatedAt())
 				.updatedAt(space.getUpdatedAt())
-				.users(space.getUsers().stream()
+				.users(users.stream()
 						.map(u -> SpaceResponseDto.UserResponse.builder()
 								.nickname(u.getNickname())
 								.profileImg(u.getProfileImg())

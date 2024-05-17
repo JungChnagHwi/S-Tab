@@ -2,7 +2,7 @@ package com.ssafy.stab.data.note
 
 data class User(
     val nickname: String,
-    val color: String
+    val profileImg: String
 )
 
 enum class Action {

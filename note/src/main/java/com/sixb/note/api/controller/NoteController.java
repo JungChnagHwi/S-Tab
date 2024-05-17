@@ -46,7 +46,7 @@ public class NoteController {
 	}
 
 	@DeleteMapping("/{noteId}")
-	public ResponseEntity<String> deleteFolder(@PathVariable("noteId") String noteId) {
+	public ResponseEntity<String> deleteNote(@PathVariable("noteId") String noteId) {
 		noteService.deleteNote(noteId);
 		return ResponseEntity.ok("노트 삭제 완료");
 	}

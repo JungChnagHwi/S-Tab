@@ -14,6 +14,8 @@ val openviduUrl = localProperties.getProperty("openvidu_server") ?: "defalut_ser
 val openviduSecret = localProperties.getProperty("openvidu_secret") ?: "secret"
 val openviduTurn = localProperties.getProperty("openvidu_turn") ?: "turn"
 val socketUrl = localProperties.getProperty("socket_server") ?: "default_server"
+val baseUrl = localProperties.getProperty("base_url") ?: "base_url"
+val baseS3 = localProperties.getProperty("base_s3") ?: "default_image"
 
 android {
     namespace = "com.ssafy.stab"
@@ -36,6 +38,8 @@ android {
         buildConfigField("String", "OPENVIDU_SECRET", "\"$openviduSecret\"")
         buildConfigField("String", "OPENVIDU_TURN", "\"$openviduTurn\"")
         buildConfigField("String", "SOCKET_URL", "\"$socketUrl\"")
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+        buildConfigField("String", "BASE_S3", "\"$baseS3\"")
         resValue("string", "kakao_oauth_host", "kakao\"$kakaoAppKey\"")
     }
 

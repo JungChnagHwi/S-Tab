@@ -34,7 +34,7 @@ public class SpaceController {
 		try {
 			SpaceResponseDto spaceDetails = spaceService.findSpaceDetails(userId, spaceId);
 			return ResponseEntity.ok(spaceDetails);
-		} catch (UserNotFoundException | SpaceNotFoundException e) {
+		} catch (SpaceNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
