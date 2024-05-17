@@ -84,17 +84,6 @@ public class PageController {
 		}
 	}
 
-	// 페이지 링크 - 보류
-//    @PostMapping("/link")
-//    public ResponseEntity<?> linkPage(@RequestBody PageLinkRequestDto request) {
-//        try {
-//            pageService.linkPage(request);
-//            return ResponseEntity.ok("링크 완료");
-//        } catch (PageNotFoundException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
-
 	@PostMapping("/copy")
 	public ResponseEntity<?> copyPage(@RequestBody PageCopyRequestDto request) {
 		try {
