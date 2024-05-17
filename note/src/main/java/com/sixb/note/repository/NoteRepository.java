@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -20,7 +21,11 @@ public interface NoteRepository extends Neo4jRepository<Note, String>, NoteRepos
 	@Query("MATCH (n:Note) WHERE n.noteId = $noteId RETURN n")
 	Optional<Note> findNoteById(@Param("noteId") String noteId);
 
-	@Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space)-[:Hierarchy*]->(f:Folder)-[:Hierarchy*]->(n:Note) WHERE n.isDeleted = true RETURN n")
+	@Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space)-[:Hierarchy*]->(f:Folder)-[:Hierarchy]->(n:Note) " +
+			"WHERE n.isDeleted = true " +
+			"MATCH (f)-[:Hierarchy]->(n) " +
+			"WHERE f.isDeleted = false " +
+			"RETURN n")
 	List<Note> findDeletedNotes(@Param("userId") long userId);
 
 	@Query("MATCH (u:User {userId: $userId})-[:Like]->(n:Note) WHERE n.isDeleted = false RETURN n")
@@ -43,5 +48,21 @@ public interface NoteRepository extends Neo4jRepository<Note, String>, NoteRepos
 
 	@Query("MATCH (n:Note {noteId: $noteId}) RETURN n.spaceId")
 	String findSpaceIdByNoteId(String noteId);
+
+	@Query("MATCH (n:Note {noteId: $noteId})-[:NextPage*]->(p:Page) " +
+			"WHERE p.isDeleted = false " +
+			"SET n.isDeleted = true, " +
+			"    n.updatedAt = $now, " +
+			"    p.isDeleted = true, " +
+			"    p.updatedAt = $now")
+	void deleteNote(String noteId, LocalDateTime now);
+
+	@Query("MATCH (n:Note {noteId: $noteId})-[:NextPage*]->(p:Page) " +
+			"WHERE p.updatedAt = n.updatedAt " +
+			"SET n.isDeleted = false, " +
+			"    n.updatedAt = $now, " +
+			"    p.isDeleted = false, " +
+			"    p.updatedAt = $now")
+	void recover(String noteId, LocalDateTime now);
 
 }

@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -17,7 +18,10 @@ public interface FolderRepository extends Neo4jRepository<Folder, String>, Folde
 	@Query("MATCH (s:Space {spaceId: $spaceId})-[:Hierarchy]->(f:Folder) WHERE f.isDeleted = false RETURN f")
 	List<Folder> findFoldersBySpaceId(@Param("spaceId") String spaceId);
 
-	@Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space)-[:Hierarchy*]->(f:Folder) WHERE f.isDeleted = true RETURN f")
+	@Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space)-[:Hierarchy*]->(f:Folder) " +
+			"WHERE f.isDeleted = true " +
+			"MATCH (f1:Folder {isDeleted: false})-[:Hierarchy]->(f) " +
+			"RETURN f")
 	List<Folder> findDeletedFolders(@Param("userId") long userId);
 
 	@Query("MATCH (f:Folder) WHERE f.folderId = $folderId RETURN f")
@@ -51,6 +55,32 @@ public interface FolderRepository extends Neo4jRepository<Folder, String>, Folde
 			"WHERE ALL(n IN nodes(path) WHERE n.isDeleted = false) " +
 			"RETURN nodes(path) AS folders")
 	List<Folder> findFoldersBetween(@Param("parentFolderId") String parentFolderId, @Param("endFolderId") String endFolderId);
+
+	@Query("MATCH (f:Folder {folderId: $folderId})-[:Hierarchy*]->(s) " +
+			"WHERE s.isDeleted = false " +
+			"SET f.isDeleted = true, " +
+			"    f.updatedAt = $now, " +
+			"    s.isDeleted = true, " +
+			"    s.updatedAt = $now " +
+			"with s " +
+			"MATCH (s)-[:NextPage*]->(p:Page) " +
+			"WHERE p.isDeleted = false " +
+			"SET p.isDeleted = true, " +
+			"    p.updatedAt = $now")
+	void deleteFolder(String folderId, LocalDateTime now);
+
+	@Query("MATCH (f:Folder {folderId: $folderId})-[:Hierarchy*]->(s) " +
+			"WHERE s.updatedAt = $deletedAt " +
+			"SET f.isDeleted = false, " +
+			"    f.updatedAt = $now, " +
+			"    s.isDeleted = false, " +
+			"    s.updatedAt = $now " +
+			"with f, s " +
+			"MATCH (s)-[:NextPage*]->(p:Page) " +
+			"WHERE p.updatedAt = $deletedAt " +
+			"SET p.isDeleted = false, " +
+			"    p.updatedAt = $now")
+	void recover(String folderId, LocalDateTime deletedAt, LocalDateTime now);
 
 }
 

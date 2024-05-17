@@ -113,37 +113,4 @@ public class FolderRepositoryCustomImpl implements FolderRepositoryCustom {
 		}
 	}
 
-	@Override
-	public void deleteFolder(String folderId) {
-		LocalDateTime now = LocalDateTime.now();
-
-		Node folder = node("Folder").named("f")
-				.withProperties("folderId", parameter("folderId"));
-		Node f = anyNode("ff");
-		Node n = anyNode("n");
-		Node p = anyNode("p");
-		Relationship r1 = folder.relationshipTo(f, "Hierarchy").unbounded();
-		Relationship r2 = f.relationshipTo(n, "Hierarchy");
-		Relationship r3 = n.relationshipTo(p, "NextPage").unbounded();
-
-		Statement statement = match(folder, f, n, p)
-				.match(r1)
-				.match(r2)
-				.match(r3)
-				.set(folder.property("isDeleted"), literalTrue(),
-						folder.property("updatedAt"), literalOf(now),
-                        f.property("isDeleted"), literalTrue(),
-                        f.property("updatedAt"), literalOf(now),
-                        n.property("isDeleted"), literalTrue(),
-                        n.property("updatedAt"), literalOf(now),
-                        p.property("isDeleted"), literalTrue(),
-                        p.property("updatedAt"), literalOf(now))
-                .build();
-
-		try (Session session = driver.session()) {
-			session.run(statement.getCypher(),
-					Values.parameters("folderId", folderId));
-		}
-	}
-
 }
