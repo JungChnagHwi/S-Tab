@@ -23,13 +23,22 @@ object PreferencesUtil {
         }
     }
 
-    fun saveLoginDetails(isLoggedIn: Boolean, accessToken: String, userName: String, profileImg: String, rootFolderId: String) {
+    fun saveLoginDetails(
+        isLoggedIn: Boolean,
+        accessToken: String,
+        userName: String,
+        profileImg: String,
+        rootFolderId: String,
+        personalSpaceId: String
+    ) {
+
         val editor = sharedPreferences.edit()
         editor.putBoolean("IsLoggedIn", isLoggedIn)
         editor.putString("AccessToken", accessToken)
         editor.putString("UserName", userName)
         editor.putString("ProfileImg", profileImg)
         editor.putString("RootFolderId", rootFolderId)
+        editor.putString("PersonalSpaceId", personalSpaceId)
         editor.apply()
     }
 
@@ -39,7 +48,8 @@ object PreferencesUtil {
         val userName = sharedPreferences.getString("UserName", null)
         val profileImg = sharedPreferences.getString("ProfileImg", null)
         val rootFolderId = sharedPreferences.getString("RootFolderId", null)
-        return LoginDetails(isLoggedIn, accessToken, userName, profileImg, rootFolderId)
+        val personalSpaceId = sharedPreferences.getString("PersonalSpaceId", null)
+        return LoginDetails(isLoggedIn, accessToken, userName, profileImg, rootFolderId, personalSpaceId)
     }
 
     fun saveLocation(nowLocation: String) {
@@ -90,7 +100,8 @@ data class LoginDetails(
     val accessToken: String?,
     val userName: String?,
     val profileImg: String?,
-    val rootFolderId: String?
+    val rootFolderId: String?,
+    val personalSpaceId: String?
 )
 
 data class NowLocation(

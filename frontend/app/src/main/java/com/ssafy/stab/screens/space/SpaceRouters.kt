@@ -53,6 +53,8 @@ fun SpaceRouters(
     // NavController의 현재 라우트를 추적
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
+    val personalSpaceId = PreferencesUtil.getLoginDetails().personalSpaceId ?: "spaceId"
+
 
     Row(modifier = Modifier.fillMaxSize()) {
         // "personal-note"와 "share-note"가 아닐 때만 SideBar를 렌더링
@@ -69,7 +71,7 @@ fun SpaceRouters(
             }
             NavHost(navController = navController, startDestination = "personal-space") {
                 composable("personal-space") {
-                    PersonalSpace(navController) { navController.navigate("note/$it/spaceId") }
+                    PersonalSpace(navController) { navController.navigate("note/$it/$personalSpaceId") }
                 }
                 composable("share-space/{spaceId}/{rootFolderId}") { backStackEntry ->
                     val spaceId = backStackEntry.arguments?.getString("spaceId")
@@ -136,7 +138,8 @@ fun Header(onLogin: () -> Unit) {
                     accessToken = "",
                     userName = "",
                     profileImg = "",
-                    rootFolderId = ""
+                    rootFolderId = "",
+                    personalSpaceId = ""
                 )
                 onLogin()
             }, painter = profileImg, contentDescription = null)
