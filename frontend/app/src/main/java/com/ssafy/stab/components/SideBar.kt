@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -198,17 +199,43 @@ fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<Shar
     val callingImg = painterResource(id = R.drawable.calling)
     val nowFolderId = LocalNowFolderId.current
 
+    val callState by PreferencesUtil.callState.collectAsState()
+
     LazyColumn(modifier = Modifier.fillMaxHeight(0.6f)) {
         items(shareSpaceList) { shareSpace ->
             Row {
                 Spacer(modifier = Modifier.width(70.dp))
-                Row(modifier = Modifier.clickable {
-                    navController.navigate("share-space/${shareSpace.spaceId}/${shareSpace.rootFolderId}")
-                    nowFolderId.value = shareSpace.spaceId
-                }) {
-                    Image(painter = sharespImg, contentDescription = null)
+                Row(
+                    modifier = Modifier.clickable {
+                        navController.navigate("share-space/${shareSpace.spaceId}/${shareSpace.rootFolderId}")
+                        nowFolderId.value = shareSpace.spaceId
+                    },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(painter = sharespImg, contentDescription = "Share Space Icon")
                     Spacer(modifier = Modifier.width(5.dp))
-                    Text(text = shareSpace.title , modifier = Modifier.padding(7.dp))
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 12.dp),  // 오른쪽에 여백 추가
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = shareSpace.title,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp),  // 텍스트의 오른쪽에 여백 추가
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        if (callState.callSpaceId == shareSpace.spaceId) {
+                            Image(
+                                painter = callingImg,
+                                contentDescription = "Calling Icon",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
