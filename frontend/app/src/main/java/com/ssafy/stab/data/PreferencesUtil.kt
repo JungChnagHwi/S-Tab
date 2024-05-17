@@ -2,6 +2,7 @@ package com.ssafy.stab.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,6 +73,7 @@ object PreferencesUtil {
     }
 
     fun saveShareSpaceState(spaceId: String?) {
+        Log.d("PreferencesUtil", "Saving ShareSpaceState: $spaceId")
         sharedPreferences.edit {
             putString("ShareSpace", spaceId)
             apply()
@@ -80,6 +82,7 @@ object PreferencesUtil {
 
     fun getShareSpaceState(): String? {
         val shareId = sharedPreferences.getString("ShareSpace", null)
+        Log.d("PreferencesUtil", "Getting ShareSpaceState: $shareId")
         return shareId
     }
 

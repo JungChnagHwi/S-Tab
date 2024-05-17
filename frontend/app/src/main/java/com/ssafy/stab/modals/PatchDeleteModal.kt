@@ -88,6 +88,11 @@ fun PatchDeleteModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileI
                 if (fileId[0]== 'f') {
                     renameFolder(fileId, fileTitle)
                     viewModel.renameFolder(fileId, fileTitle)
+                    Log.d("FolderUpdated", fileId)
+                    PreferencesUtil.getShareSpaceState()
+                        ?.let { spaceId ->
+                            val updatedData = mapOf("folderId" to fileId, "newTitle" to fileTitle)
+                            socketManager.updateSpace(spaceId, "FolderUpdated", updatedData) }
                     closeModal()
                 } else if (fileId[0] == 'n') {
                     renameNote(fileId, fileTitle)

@@ -121,11 +121,8 @@ fun ShareSpace(
     }
 
     DisposableEffect(spaceId) {
-        // Composable이 해제될 때, 스페이스 룸을 연결 종료
         onDispose {
-            socketManager.leaveSpace(spaceId)
             audioSessionViewModel.stopFetchingSessionData()
-            PreferencesUtil.saveShareSpaceState(null)
         }
     }
     val nowFolderId = remember { mutableStateOf(rootFolderId) }

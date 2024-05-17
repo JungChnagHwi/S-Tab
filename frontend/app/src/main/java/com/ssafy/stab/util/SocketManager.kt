@@ -15,6 +15,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
+import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.data.note.SocketPathInfo
 import com.ssafy.stab.data.note.User
 import com.ssafy.stab.screens.space.NoteListViewModel
@@ -112,7 +114,10 @@ class SocketManager private constructor() {
 
     // 스페이스 room 참여/떠나기
     fun joinSpace(spaceId: String, nickname: String) {
-        socket?.emit("joinSpace", spaceId, nickname)
+        if (isConnected) {
+            socket?.emit("leaveSpace", spaceId)
+            socket?.emit("joinSpace", spaceId, nickname)
+        }
     }
 
     fun leaveSpace(spaceId: String) {
@@ -189,51 +194,79 @@ class SocketManager private constructor() {
     private fun registerEventHandlers() {
         // space 관련 서버 이벤트 수신
         socket?.on("spaceConnectUser") { data ->
-            Log.d("SpaceConnection", "SpaceRoom[spaceId] : $data")
-        }
-        // space room에 입장한 사용자 닉네임 받기
-        socket?.on("notifySpace") { data ->
-            val remoteNickname = data[0]
-            Log.d("SpaceConnection", "$remoteNickname just joined the Space Room")
-        }
-        // space 이벤트 받기
-        socket?.on("receiveSpace") { message ->
-            val data = message[0]
-            Log.d("ReceiveSpaceData", "$data")
-            handleSpaceMessage(data.toString())
-        }
+            if (data.isNotEmpty()) {
+                val jsonData = data[0].toString()
 
-        // note 관련 서버 이벤트 수신
-        socket?.on("noteConnectUser") { data ->
-            updateUserList(data)
-            Log.d("NoteConnection", userList.toList().toString())
-        }
-        // note room에 입장한 사용자 닉네임 받기
-        socket?.on("notifyNote") { data ->
-            val remoteNickname = data[0]
-            Log.d("SpaceConnection", "$remoteNickname just joined the Note Room")
-        }
-        // note 이벤트 받기
-        // -> 여기서 받은 데이터를 데이터 타입에 맞게 직접 처리하는 함수 구현해 추가해야 합니다
-        socket?.on("receiveDrawing") { message ->
-            val data = message[0]
-            val socketPathInfo = gson.fromJson(data.toString(), SocketPathInfo::class.java)
-            noteControlViewModel?.updatePathsFromSocket(socketPathInfo)
-            // 아래에 데이터 다루는 함수 처리 필요!
-            Log.d("ReceiveNoteData", "ok")
-        }
+                // JSON 데이터를 SpaceRoom 객체로 변환하기 전에 데이터 구조 확인
+                Log.d("SpaceConnection", "Received data: $jsonData")
 
-        // followUser 이벤트 핸들러 - 보류
-        socket?.on("followUser") {data ->
-            Log.d("FollowUser", "$data")
-        }
+                // JSON 데이터를 파싱하여 SpaceRoom 객체로 변환
+                val spaceRoomType = object : TypeToken<Map<String, User>>() {}.type
+                val users: Map<String, User> = gson.fromJson(jsonData, spaceRoomType)
 
-        // 화면 이동 위치 전송 받기 - 보류 (사유: data가 어떻게 오는지, 사용법을 잘 모르겠음)
-        socket?.on("position") { data ->
-            Log.d("Position", "$data")
-        }
+                // spaceId를 별도로 관리하는 경우
+                val currentSpaceId = PreferencesUtil.getShareSpaceState() // 클라이언트가 참여하고 있는 spaceId
+                val spaceRoom = currentSpaceId?.let { SpaceRoom(spaceId = it, users = users) }
 
-    }
+                // spaceRoom 및 users가 null이 아닌지 확인
+                if (spaceRoom != null && spaceRoom.users.isNotEmpty()) {
+                    // spaceId 출력
+                    Log.d("SpaceConnection", "Connected SpaceRoom ID: ${spaceRoom.spaceId}")
+
+                    // 각 사용자 정보 출력
+                    spaceRoom.users.forEach { (socketId, user) ->
+                        Log.d("SpaceConnection", "Socket ID: $socketId, User: $user")
+                    }
+                } else {
+                    Log.e("SpaceConnection", "spaceRoom or users is null or empty")
+                }
+            } else {
+                Log.e("SpaceConnection", "No data received from spaceConnectUser event")
+            }
+        }
+            // space room에 입장한 사용자 닉네임 받기
+            socket?.on("notifySpace") { data ->
+                val remoteNickname = data[0]
+                Log.d("SpaceConnection", "$remoteNickname just joined the Space Room")
+            }
+            // space 이벤트 받기
+            socket?.on("receiveSpace") { message ->
+                val data = message[0]
+                Log.d("ReceiveSpaceData", "$data")
+                handleSpaceMessage(data.toString())
+            }
+
+            // note 관련 서버 이벤트 수신
+            socket?.on("noteConnectUser") { data ->
+                updateUserList(data)
+                Log.d("NoteConnection", userList.toList().toString())
+            }
+            // note room에 입장한 사용자 닉네임 받기
+            socket?.on("notifyNote") { data ->
+                val remoteNickname = data[0]
+                Log.d("SpaceConnection", "$remoteNickname just joined the Note Room")
+            }
+            // note 이벤트 받기
+            // -> 여기서 받은 데이터를 데이터 타입에 맞게 직접 처리하는 함수 구현해 추가해야 합니다
+            socket?.on("receiveDrawing") { message ->
+                val data = message[0]
+                val socketPathInfo = gson.fromJson(data.toString(), SocketPathInfo::class.java)
+                noteControlViewModel?.updatePathsFromSocket(socketPathInfo)
+                // 아래에 데이터 다루는 함수 처리 필요!
+                Log.d("ReceiveNoteData", "ok")
+            }
+
+            // followUser 이벤트 핸들러 - 보류
+            socket?.on("followUser") { data ->
+                Log.d("FollowUser", "$data")
+            }
+
+            // 화면 이동 위치 전송 받기 - 보류 (사유: data가 어떻게 오는지, 사용법을 잘 모르겠음)
+            socket?.on("position") { data ->
+                Log.d("Position", "$data")
+            }
+
+        }
 
     private fun handleSpaceMessage(message: String) {
         val jsonObject = JSONObject(message)
@@ -245,11 +278,6 @@ class SocketManager private constructor() {
                 val  note = gson.fromJson(data.toString(), Note::class.java)
                 Log.d("ChekingInSocket", note.toString())
                 viewModel.addNote(note)
-            }
-            "FolderCreated" -> {
-                val folder = gson.fromJson(data.toString(), Folder::class.java)
-                Log.d("CheckingInSocket", folder.toString())
-                viewModel.addFolder(folder)
             }
             "NoteUpdated" -> {
                 val updateData = data as JSONObject
@@ -267,6 +295,18 @@ class SocketManager private constructor() {
                 } else {
                     Log.e("SocketManager", "Unexpected data type for NoteDeleted: $data")
                 }
+            }
+            "FolderCreated" -> {
+                val folder = gson.fromJson(data.toString(), Folder::class.java)
+                Log.d("CheckingInSocket", folder.toString())
+                viewModel.addFolder(folder)
+            }
+            "FolderUpdated" -> {
+                val updateData = data as JSONObject
+                val folderId = updateData.getString("folderId")
+                val newTitle = updateData.getString("newTitle")
+                Log.d("CheckingInSocket", "FolderUpdated: $folderId, newTitle: $newTitle")
+                viewModel.renameNote(folderId, newTitle)
             }
         }
     }
@@ -286,3 +326,14 @@ class LocalDateTimeAdapter : JsonSerializer<LocalDateTime>, JsonDeserializer<Loc
         return LocalDateTime.parse(json.asString, formatter)
     }
 }
+
+data class User(
+    val nickname: String,
+    val profileImg: String,
+    val color: String
+)
+
+data class SpaceRoom(
+    val spaceId: String,
+    val users: Map<String, User>
+)
