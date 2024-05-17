@@ -122,9 +122,9 @@ public class FolderRepositoryCustomImpl implements FolderRepositoryCustom {
 		Node f = anyNode("ff");
 		Node n = anyNode("n");
 		Node p = anyNode("p");
-		Relationship r1 = folder.relationshipBetween(f, "Hierarchy").unbounded();
+		Relationship r1 = folder.relationshipTo(f, "Hierarchy").unbounded();
 		Relationship r2 = f.relationshipTo(n, "Hierarchy");
-		Relationship r3 = n.relationshipBetween(p, "NextPage").unbounded();
+		Relationship r3 = n.relationshipTo(p, "NextPage").unbounded();
 
 		Statement statement = match(folder, f, n, p)
 				.match(r1)
