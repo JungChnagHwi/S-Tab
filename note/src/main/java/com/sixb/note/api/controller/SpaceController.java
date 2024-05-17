@@ -3,7 +3,6 @@ package com.sixb.note.api.controller;
 import com.sixb.note.api.service.SpaceService;
 import com.sixb.note.dto.space.*;
 import com.sixb.note.exception.ExistUserException;
-import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.exception.SpaceNotFoundException;
 import com.sixb.note.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;

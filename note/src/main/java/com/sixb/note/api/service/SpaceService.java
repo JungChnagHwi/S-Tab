@@ -8,7 +8,6 @@ import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Space;
 import com.sixb.note.entity.User;
 import com.sixb.note.exception.ExistUserException;
-import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.exception.SpaceNotFoundException;
 import com.sixb.note.exception.UserNotFoundException;
 import com.sixb.note.repository.SpaceRepository;
