@@ -78,22 +78,16 @@ fun BookMark(navController: NavController){
 @Composable
 fun BookMarkTitleBar(navController: NavController) {
     val bookMarkImg = painterResource(id = R.drawable.star)
-    val leftImg = painterResource(id = R.drawable.left)
     Row {
         Spacer(modifier = Modifier.width(30.dp))
         Column {
             Spacer(modifier = Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(modifier = Modifier
-                    .clickable { navController.popBackStack() }
-                    .height(40.dp)
-                    .width(40.dp), painter = leftImg, contentDescription = null)
-                Spacer(modifier = Modifier.width(5.dp))
-                Image(modifier = Modifier
                     .width(40.dp)
                     .height(40.dp) ,painter = bookMarkImg, contentDescription = null)
-                Spacer(modifier = Modifier.width(5.dp))
-                Text(fontSize = 32.sp, text="즐겨찾기")
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(fontSize = 32.sp, text="즐겨찾기", modifier = Modifier.clickable { navController.navigate("book-mark") })
             }
         }
 
@@ -107,65 +101,8 @@ fun BookMarkUnder(
     pages: List<BookmardPage>,
     navController: NavController
 ){
-    val isPageSort = remember { mutableStateOf(false) }
-    val isNameSort = remember { mutableStateOf(false) }
-    val listImg = painterResource(id = R.drawable.list)
 
     Column {
-        Spacer(modifier = Modifier.height(5.dp))
-        // 날짜 / 이름 / 아이콘 보기 / 자세히 보기
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-            Row(
-                modifier = Modifier
-                    .background(color = Color.LightGray, shape = RoundedCornerShape(10.dp))
-                    .clickable { isNameSort.value = !isNameSort.value }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (!isNameSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
-                        .align(Alignment.CenterVertically),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "날짜",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (isNameSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
-                        .align(Alignment.CenterVertically),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "이름",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(15.dp))
-            Image(painter = listImg, contentDescription = null,
-                modifier = Modifier
-                    .height(30.dp)
-                    .width(30.dp))
-            Spacer(modifier = Modifier.width(20.dp))
-        }
         Spacer(modifier = Modifier.height(10.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))

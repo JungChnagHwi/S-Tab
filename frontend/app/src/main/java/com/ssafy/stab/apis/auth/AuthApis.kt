@@ -52,7 +52,7 @@ fun tryLogin(authorization: String, navController: NavController) {
                         Log.i("APIResponse", "User info received: $userInfo")
                         PreferencesUtil.saveLoginDetails(
                             isLoggedIn = true,
-                            accessToken = accessToken.toString(),
+                            accessToken = accessToken,
                             userName = userInfo.nickname,
                             profileImg = userInfo.profileImg,
                             rootFolderId = userInfo.rootFolderId
@@ -67,7 +67,7 @@ fun tryLogin(authorization: String, navController: NavController) {
                     Log.i("APIResponse", "No content: User does not exist or no data available")
                     PreferencesUtil.saveLoginDetails(
                         isLoggedIn = false,
-                        accessToken = accessToken.toString(),
+                        accessToken = accessToken,
                         userName = "",
                         profileImg = "",
                         rootFolderId = ""
@@ -100,6 +100,9 @@ fun signUp(nickname: String, profileImg: String) {
             if (response.isSuccessful && response.body() != null) {
                 val authResponse = response.body()
                 Log.i("APIResponse", "Successful response: $authResponse")
+                if (authResponse != null) {
+                    Log.i("rootFolderId", authResponse.rootFolderId)
+                }
                 PreferencesUtil.saveLoginDetails(
                     isLoggedIn = true,
                     accessToken = accessToken!!,
