@@ -56,16 +56,8 @@ class AudioSessionViewModel : ViewModel() {
                         viewModelScope.launch {
                             _participants.value = connections.content
                         }
-                        // 이제 connections 객체를 사용하여 참가자 목록 등을 처리
-                        connections.content.forEach { connection ->
-                            Log.d("Connection Data", "ID: ${connection}")
-                        }
                     }
                 } else {
-                    Log.e(
-                        "HTTP Error",
-                        "현재 세션에서 진행 중인 통화가 없습니다. ${response.code}"
-                    )
                     if (response.code == 404) {
                         viewModelScope.launch {
                             _participants.value = emptyList() // 404 에러일 경우 참가자 목록을 초기화

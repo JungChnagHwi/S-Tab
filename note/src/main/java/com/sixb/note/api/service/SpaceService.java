@@ -8,7 +8,6 @@ import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Space;
 import com.sixb.note.entity.User;
 import com.sixb.note.exception.ExistUserException;
-import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.exception.SpaceNotFoundException;
 import com.sixb.note.exception.UserNotFoundException;
 import com.sixb.note.repository.SpaceRepository;
@@ -58,105 +57,93 @@ public class SpaceService {
 		}).collect(Collectors.toList());
 	}
 
-	public SpaceResponseDto findSpaceDetails(long userId, String spaceId) throws UserNotFoundException {
-		User userInfo = userRepository.findUserById(userId)
-				.orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
-		Space space = spaceRepository.findSpaceByIdAndUserId(spaceId, userInfo.getUserId());
+	public SpaceResponseDto findSpaceDetails(long userId, String spaceId) throws SpaceNotFoundException {
+		Space space = spaceRepository.findSpaceByIdAndUserId(spaceId, userId)
+				.orElseThrow(() -> new SpaceNotFoundException("존재하지 않는 스페이스입니다."));
 
+		List<User> users = userRepository.findUsersBySpaceId(spaceId);
 
-		SpaceResponseDto dto = new SpaceResponseDto();
-		dto.setSpaceId(space.getSpaceId());
-		dto.setTitle(space.getTitle());
-		dto.setIsPublic(space.getIsPublic());
-		dto.setCreatedAt(space.getCreatedAt());
-		dto.setUpdatedAt(space.getUpdatedAt());
-
-		List<User> user = userRepository.findUsersBySpaceId(space.getSpaceId());
-		List<SpaceResponseDto.UserResponse> userResponses = user.stream()
-				.map(spaceUser -> {
-					SpaceResponseDto.UserResponse userResponse = new SpaceResponseDto.UserResponse();
-					userResponse.setNickname(spaceUser.getNickname());
-					userResponse.setProfileImg(spaceUser.getProfileImg());
-					return userResponse;
-				}).collect(Collectors.toList());
-
-		dto.setUsers(userResponses);
-		return dto;
+		return SpaceResponseDto.builder()
+				.spaceId(space.getSpaceId())
+				.rootFolderId(space.getRootFolderId())
+				.title(space.getTitle())
+				.isPublic(space.getIsPublic())
+				.spaceMd(space.getSpaceMd())
+				.createdAt(space.getCreatedAt())
+				.updatedAt(space.getUpdatedAt())
+				.users(users.stream()
+						.map(u -> SpaceResponseDto.UserResponse.builder()
+								.nickname(u.getNickname())
+								.profileImg(u.getProfileImg())
+								.build())
+						.toList())
+				.build();
 	}
 
 
 	public SpaceResponseDto createSpace(SpaceRequestDto requestDto, long userId) throws UserNotFoundException {
 		User user = userRepository.findUserById(userId)
 				.orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
-		Space newSpace = new Space();
-		String folderId = IdCreator.create("f");
-		newSpace.setTitle(requestDto.getTitle());
-		newSpace.setSpaceId(IdCreator.create("s"));
-		newSpace.setRootFolderId(folderId);
-		newSpace.setIsPublic(true);
-		newSpace.setSpaceMd("SSAFY");
-		LocalDateTime now = LocalDateTime.now();
-		newSpace.setCreatedAt(now);
-		newSpace.setUpdatedAt(now);
 
-		Folder newFolder = new Folder();
-		newFolder.setSpaceId(newSpace.getSpaceId());
-		newFolder.setTitle("root");
-		newFolder.setFolderId(folderId);
-		newFolder.setCreatedAt(now);
-		newFolder.setUpdatedAt(now);
+		LocalDateTime now = LocalDateTime.now();
+		String folderId = IdCreator.create("f");
+		String spaceId = IdCreator.create("s");
+
+		Space newSpace = Space.builder()
+				.spaceId(spaceId)
+				.rootFolderId(folderId)
+				.title(requestDto.getTitle())
+				.isPublic(true)
+				.spaceMd("")
+				.createdAt(now)
+				.updatedAt(now)
+				.build();
+
+		Folder newFolder = Folder.builder()
+				.folderId(folderId)
+				.spaceId(spaceId)
+				.title("root")
+				.createdAt(now)
+				.updatedAt(now)
+				.build();
 
 		newSpace.setFolder(newFolder);
-		newSpace.setUsers(Arrays.asList(user));
-		Space savedSpace = spaceRepository.save(newSpace);
-		return convertToSpaceResponseDto(savedSpace, folderId);
-	}
+		newSpace.setUsers(List.of(user));
+		spaceRepository.save(newSpace);
 
-	private SpaceResponseDto convertToSpaceResponseDto(Space space, String folderId) {
-		SpaceResponseDto responseDto = new SpaceResponseDto();
-		responseDto.setSpaceId(space.getSpaceId());
-		responseDto.setRootFolderId(folderId);
-		responseDto.setTitle(space.getTitle());
-		responseDto.setIsPublic(true);
-		responseDto.setSpaceMd("SSAFY");
-		responseDto.setCreatedAt(LocalDateTime.now());
-		responseDto.setUpdatedAt(LocalDateTime.now());
-		responseDto.setUsers(new ArrayList<>());
-
-		return responseDto;
+		return SpaceResponseDto.builder()
+				.spaceId(newSpace.getSpaceId())
+				.rootFolderId(folderId)
+				.title(newSpace.getTitle())
+				.isPublic(newSpace.getIsPublic())
+				.spaceMd(newSpace.getSpaceMd())
+				.createdAt(newSpace.getCreatedAt())
+				.updatedAt(newSpace.getUpdatedAt())
+				.users(newSpace.getUsers().stream()
+						.map(u -> SpaceResponseDto.UserResponse.builder()
+								.nickname(u.getNickname())
+								.profileImg(u.getProfileImg())
+								.build())
+						.toList())
+				.build();
 	}
 
 	//스페이스 이름 변경
-	public void updateSpaceTitle(String spaceId, String newTitle) throws NotFoundException {
-		Space space = spaceRepository.findSpaceById(spaceId);
-		if (space == null) {
-			throw new NotFoundException("스페이스 이름 수정 실패");
-		}
-		spaceRepository.updateSpaceTitle(spaceId, newTitle);
+	public void updateSpaceTitle(String spaceId, String newTitle) throws SpaceNotFoundException {
+		spaceRepository.updateSpaceTitle(spaceId, newTitle)
+				.orElseThrow(() -> new SpaceNotFoundException("존재하지 않는 스페이스입니다."));
 	}
-
-//    //스페이스 삭제
-//    public boolean deleteSpace(String spaceId) {
-//        if (spaceRepository.existsById(spaceId)) {
-//            spaceRepository.deleteById(spaceId);
-//            return true;
-//        }
-//        return false;
-//    }
 
 	//스페이스 참가
 	public void joinSpace(long userId, String spaceId) throws ExistUserException, SpaceNotFoundException, UserNotFoundException {
-		if (spaceRepository.isJoinedUser(userId, spaceId)) {
-			throw new ExistUserException("이미 가입된 유저입니다.");
-		}
-
 		User user = userRepository.findUserById(userId)
 				.orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
 
-		Space space = spaceRepository.findSpaceById(spaceId);
+		Space space = spaceRepository.findSpaceById(spaceId)
+				.orElseThrow(() -> new SpaceNotFoundException("존재하지 않는 스페이스입니다."));
 
-		if (space == null) {
-			throw new SpaceNotFoundException("존재하지 않는 스페이스입니다.");
+		if (spaceRepository.isJoinedUser(userId, spaceId)) {
+			throw new ExistUserException("이미 가입된 유저입니다.");
 		}
 
 		user.getSpaces().add(space);
@@ -164,32 +151,30 @@ public class SpaceService {
 	}
 
 
-	public SpaceMdResponseDto findSpaceMarkdown(String spaceId) throws NotFoundException {
-		Space space = spaceRepository.findSpaceById(spaceId);
-		if (space == null) {
-			throw new NotFoundException("스페이스를 찾을 수 없습니다.");
-		}
-		SpaceMdResponseDto dto = new SpaceMdResponseDto();
-		dto.setData(space.getSpaceMd());
-		return dto;
+	public SpaceMdResponseDto findSpaceMarkdown(String spaceId) throws SpaceNotFoundException {
+		Space space = spaceRepository.findSpaceById(spaceId)
+				.orElseThrow(() -> new SpaceNotFoundException("존재하지 않는 스페이스입니다."));
+
+		return SpaceMdResponseDto.builder()
+				.data(space.getSpaceMd())
+				.build();
 	}
 
-	public void updateSpaceMarkdown(SpaceMdRequestDto requestDto) throws NotFoundException {
-		Space space = spaceRepository.findSpaceById(requestDto.getSpaceId());
-		if (space == null) {
-			throw new NotFoundException("스페이스를 찾을 수 없습니다.");
-		}
+	public void updateSpaceMarkdown(SpaceMdRequestDto requestDto) throws SpaceNotFoundException {
+		Space space = spaceRepository.findSpaceById(requestDto.getSpaceId())
+				.orElseThrow(() -> new SpaceNotFoundException("존재하지 않는 스페이스입니다."));
+
 		space.setSpaceMd(requestDto.getData());
 		spaceRepository.save(space);
 	}
 
 	// 스페이스 탈퇴
-	public void leaveSpace(long userId, String spaceId) throws SpaceNotFoundException {
-		Space space = spaceRepository.findSpaceById(spaceId);
+	public void leaveSpace(long userId, String spaceId) throws SpaceNotFoundException, UserNotFoundException {
+		userRepository.findUserById(userId)
+				.orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
 
-		if (space == null) {
-			throw new SpaceNotFoundException("존재하지 않는 스페이스입니다.");
-		}
+		spaceRepository.findSpaceById(spaceId)
+				.orElseThrow(() -> new SpaceNotFoundException("존재하지 않는 스페이스입니다."));
 
 		if (!spaceRepository.isJoinedUser(userId, spaceId)) {
 			throw new SpaceNotFoundException("스페이스에 가입되지 않았습니다.");

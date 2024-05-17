@@ -6,6 +6,4 @@ public interface FolderRepositoryCustom {
 
 	FolderResponseDto getFolderByName(long userId, String name, String spaceId);
 
-	void deleteFolder(String folderId);
-
 }

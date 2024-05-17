@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -46,7 +47,12 @@ fun CreateShareSpaceModal(closeModal: () -> Unit, onSpaceCreated: (ShareSpaceLis
                 .fillMaxWidth(0.6f)
         )
         Row(Modifier.padding(10.dp)) {
-            Button(onClick = { closeModal() }) {
+            Button(
+                onClick = { closeModal() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red
+                )
+            ) {
                 Text(text = "취소")
             }
             Spacer(modifier = Modifier.width(30.dp))

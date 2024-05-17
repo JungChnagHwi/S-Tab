@@ -2,7 +2,6 @@ package com.ssafy.stab.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -70,7 +69,18 @@ object PreferencesUtil {
             }
             apply()
         }
-        Log.d("PreferencesUtil", "Call state updated: isInCall = $isInCall, callSpaceId = $callSpaceId")
+    }
+
+    fun saveShareSpaceState(spaceId: String?) {
+        sharedPreferences.edit {
+            putString("ShareSpace", spaceId)
+            apply()
+        }
+    }
+
+    fun getShareSpaceState(): String? {
+        val shareId = sharedPreferences.getString("ShareSpace", null)
+        return shareId
     }
 
 }

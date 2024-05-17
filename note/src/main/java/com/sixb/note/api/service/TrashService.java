@@ -12,6 +12,7 @@ import com.sixb.note.repository.PageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -24,9 +25,10 @@ public class TrashService {
 
 	//휴지통 조회
 	public TrashResponseDto findDeletedItems(long userId) {
-		List<Folder> deletedFolders = folderRepository.findDeletedFolders(userId);
-		List<Note> deletedNotes = noteRepository.findDeletedNotes(userId);
-		List<Page> deletedPages = pageRepository.findDeletedPages(userId);
+		LocalDateTime limit = LocalDateTime.now().minusDays(30L);
+		List<Folder> deletedFolders = folderRepository.findDeletedFolders(userId, limit);
+		List<Note> deletedNotes = noteRepository.findDeletedNotes(userId, limit);
+		List<Page> deletedPages = pageRepository.findDeletedPages(userId, limit);
 
 		return new TrashResponseDto(deletedFolders, deletedNotes, deletedPages);
 	}
@@ -34,16 +36,13 @@ public class TrashService {
 	// 휴지통 복원
 	public void recoverItem(TrashRequestDto trashRequestDto) throws NotFoundException {
 		String itemId = trashRequestDto.getId();
-		Object item = findItemById(itemId);
-
-		if (item == null) {
-			throw new NotFoundException("아이템이 존재하지 않습니다.");
-		}
+		Object item = findItemById(itemId)
+				.orElseThrow(() -> new NotFoundException("아이템이 존재하지 않습니다."));
 
 		recoverItem(item);
 	}
 
-	private Object findItemById(String itemId) {
+	private Optional<?> findItemById(String itemId) {
 		return switch (itemId.charAt(0)) {
 			case 'f' -> folderRepository.findFolderById(itemId);
 			case 'n' -> noteRepository.findNoteById(itemId);
@@ -53,19 +52,19 @@ public class TrashService {
 	}
 
 	private void recoverItem(Object item) {
+		LocalDateTime now = LocalDateTime.now();
 		if (item instanceof Folder folder) {
 			if (folder.getIsDeleted()) {
-				folder.setIsDeleted(false);
-				folderRepository.save(folder);
+				folderRepository.recover(folder.getFolderId(), folder.getUpdatedAt(), now);
 			}
 		} else if (item instanceof Note note) {
 			if (note.getIsDeleted()) {
-				note.setIsDeleted(false);
-				noteRepository.save(note);
+				noteRepository.recover(note.getNoteId(), now);
 			}
 		} else if (item instanceof Page page) {
 			if (page.getIsDeleted()) {
 				page.setIsDeleted(false);
+				page.setUpdatedAt(now);
 				pageRepository.save(page);
 			}
 		}

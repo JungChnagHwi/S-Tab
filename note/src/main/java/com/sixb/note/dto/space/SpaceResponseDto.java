@@ -1,13 +1,17 @@
 package com.sixb.note.dto.space;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SpaceResponseDto {
 	private String spaceId;
 	private String rootFolderId;
@@ -18,8 +22,10 @@ public class SpaceResponseDto {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
-	@Getter
-	@Setter
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class UserResponse {
 		private String nickname;
 		private String profileImg;

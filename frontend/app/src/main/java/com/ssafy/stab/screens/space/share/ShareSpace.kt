@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,7 +42,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.R
@@ -117,6 +115,7 @@ fun ShareSpace(
         audioSessionViewModel.getSessionConnection(spaceId)
         audioSessionViewModel.startFetchingSessionData(spaceId)
         socketManager.joinSpace(spaceId, userName ?: "Unknown") // 소켓 통신 연결 - 공유 스페이스가 바뀌면 space room 연결
+        PreferencesUtil.saveShareSpaceState(spaceId)
     }
 
     DisposableEffect(spaceId) {
@@ -124,6 +123,7 @@ fun ShareSpace(
         onDispose {
             socketManager.leaveSpace(spaceId)
             audioSessionViewModel.stopFetchingSessionData()
+            PreferencesUtil.saveShareSpaceState(null)
         }
     }
     val nowFolderId = remember { mutableStateOf(rootFolderId) }

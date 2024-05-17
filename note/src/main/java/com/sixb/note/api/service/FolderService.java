@@ -151,7 +151,8 @@ public class FolderService {
 
 	//폴더 삭제
 	public void deleteFolder(String folderId) {
-		folderRepository.deleteFolder(folderId);
+		LocalDateTime now = LocalDateTime.now();
+		folderRepository.deleteFolder(folderId, now);
 	}
 
 	public FolderListResponseDto getFoldersBetween(FolderListRequestDto requestDto) {
