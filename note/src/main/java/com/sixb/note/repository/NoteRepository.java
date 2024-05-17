@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -47,5 +48,13 @@ public interface NoteRepository extends Neo4jRepository<Note, String>, NoteRepos
 
 	@Query("MATCH (n:Note {noteId: $noteId}) RETURN n.spaceId")
 	String findSpaceIdByNoteId(String noteId);
+
+	@Query("MATCH (n:Note {noteId: $noteId})-[:NextPage*]->(p:Page) " +
+			"WHERE p.updatedAt = n.updatedAt " +
+			"SET n.isDeleted = false, " +
+			"    n.updatedAt = $now, " +
+			"    p.isDeleted = false, " +
+			"    p.updatedAt = $now")
+	void recover(String noteId, LocalDateTime now);
 
 }

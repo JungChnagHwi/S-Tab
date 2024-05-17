@@ -58,12 +58,12 @@ public class TrashService {
 			}
 		} else if (item instanceof Note note) {
 			if (note.getIsDeleted()) {
-				note.setIsDeleted(false);
-				noteRepository.save(note);
+				noteRepository.recover(note.getNoteId(), now);
 			}
 		} else if (item instanceof Page page) {
 			if (page.getIsDeleted()) {
 				page.setIsDeleted(false);
+				page.setUpdatedAt(now);
 				pageRepository.save(page);
 			}
 		}
