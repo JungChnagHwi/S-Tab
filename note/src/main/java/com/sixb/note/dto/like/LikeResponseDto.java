@@ -51,6 +51,7 @@ public class LikeResponseDto {
 		private String pageId;
 		private String noteId;
 		private String spaceId;
+		private String noteTitle;
 		private String template;
 		private String color;
 		private int direction;
