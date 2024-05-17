@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TrashRequestDto {
-    private String id;
+	private String id;
 }

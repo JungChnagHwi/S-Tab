@@ -65,4 +65,7 @@ public interface NoteRepository extends Neo4jRepository<Note, String>, NoteRepos
 			"    p.updatedAt = $now")
 	void recover(String noteId, LocalDateTime now);
 
+	@Query("MATCH (n:Note {noteId: $noteId}) RETURN n.title")
+	String findTitleByNoteId(String noteId);
+
 }
