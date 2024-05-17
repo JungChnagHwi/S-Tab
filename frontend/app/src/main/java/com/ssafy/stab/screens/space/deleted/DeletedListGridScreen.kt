@@ -143,7 +143,7 @@ fun FolderItem(folder: TrashFolder, navController: NavController) {
             .clickable { showDialog.value = true },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(120.dp, 160.dp))
+        Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(102.dp, 136.dp))
         Text(text = folder.title ?: "untitled", fontSize = 16.sp, textAlign = TextAlign.Center)
         Text(text = folder.updatedAt.format(DateTimeFormatter.ISO_DATE), fontSize = 16.sp, textAlign = TextAlign.Center)
     }
@@ -167,7 +167,7 @@ fun NoteItem(note: TrashNote, navController: NavController) {
             .clickable { showDialog.value = true },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier.size(120.dp, 160.dp))
+        Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier.size(102.dp, 136.dp))
         Text(text = note.title, fontSize = 16.sp, textAlign = TextAlign.Center)
         Text(text = note.updatedAt.format(DateTimeFormatter.ISO_DATE), fontSize = 16.sp, textAlign = TextAlign.Center)
     }
@@ -191,7 +191,7 @@ fun PageItem(page: TrashPage, navController: NavController) {
             .clickable { showDialog.value = true },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painter = pageImg, contentDescription = "페이지", modifier = Modifier.size(120.dp, 160.dp))
+        Image(painter = pageImg, contentDescription = "페이지", modifier = Modifier.size(102.dp, 136.dp))
         Text(text = page.pageId ?: "untitled", fontSize = 16.sp, textAlign = TextAlign.Center)
         Text(text = page.updatedAt.format(DateTimeFormatter.ISO_DATE), fontSize = 16.sp, textAlign = TextAlign.Center)
     }

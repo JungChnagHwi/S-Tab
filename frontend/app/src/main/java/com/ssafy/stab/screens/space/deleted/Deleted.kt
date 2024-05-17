@@ -109,61 +109,6 @@ fun DeletedUnder(
     val listImg = painterResource(id = R.drawable.list)
 
     Column {
-        Spacer(modifier = Modifier.height(5.dp))
-        // 날짜 / 이름 / 아이콘 보기 / 자세히 보기
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-            Spacer(modifier = Modifier.width(15.dp))
-            Row(
-                modifier = Modifier
-                    .background(color = Color.LightGray, shape = RoundedCornerShape(10.dp))
-                    .clickable { isNameSort.value = !isNameSort.value }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (!isNameSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
-                        .align(Alignment.CenterVertically),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "날짜",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (isNameSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
-                        .align(Alignment.CenterVertically),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "이름",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(15.dp))
-            Image(painter = listImg, contentDescription = null,
-                modifier = Modifier
-                    .height(30.dp)
-                    .width(30.dp))
-            Spacer(modifier = Modifier.width(20.dp))
-        }
         Spacer(modifier = Modifier.height(10.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))

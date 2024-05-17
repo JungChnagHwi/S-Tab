@@ -20,13 +20,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
 import com.ssafy.stab.R
 import com.ssafy.stab.components.SideBar
 import com.ssafy.stab.data.PreferencesUtil
@@ -102,34 +105,21 @@ fun SpaceRouters(
 
 @Composable
 fun Header(onLogin: () -> Unit) {
-    val glassImg = painterResource(id = R.drawable.glass)
-    val settingsImg = painterResource(id = R.drawable.settings)
-    val profileImg = painterResource(id = R.drawable.profile)
+    val profileImg = rememberAsyncImagePainter(model = PreferencesUtil.getLoginDetails().profileImg)
+    val socketManager = SocketManager.getInstance()
+
     Spacer(modifier = Modifier.height(15.dp))
     Row(modifier= Modifier
         .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End) {
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(50))
-                .background(color = Color(0xFFDCE3F1))
-                .width(200.dp)
-                .padding(horizontal = 10.dp, vertical = 5.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(painter = glassImg, contentDescription = null)
-            Spacer(modifier = Modifier.width(20.dp))
-            Text(text = "검색")
-        }
-        Spacer(modifier = Modifier.width(20.dp))
-        Image(modifier = Modifier
-            .width(30.dp)
-            .height(30.dp), painter = settingsImg, contentDescription = null)
+        Text(text = PreferencesUtil.getLoginDetails().userName.toString(), fontSize = 20.sp, color = Color(0xFF5584FD), fontWeight = FontWeight.Bold)
+        Text(text = "님 반갑습니다!", fontSize = 16.sp)
         Spacer(modifier = Modifier.width(20.dp))
         Image(modifier = Modifier
             .width(30.dp)
             .height(30.dp)
+            .clip(RoundedCornerShape(15.dp))
             .clickable {
                 PreferencesUtil.saveLoginDetails(
                     isLoggedIn = false,
@@ -139,6 +129,7 @@ fun Header(onLogin: () -> Unit) {
                     rootFolderId = ""
                 )
                 onLogin()
+                socketManager.disconnect()
             }, painter = profileImg, contentDescription = null)
         Spacer(modifier = Modifier.width(20.dp))
     }
