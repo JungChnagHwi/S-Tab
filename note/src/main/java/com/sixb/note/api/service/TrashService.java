@@ -12,6 +12,7 @@ import com.sixb.note.repository.PageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -50,10 +51,10 @@ public class TrashService {
 	}
 
 	private void recoverItem(Object item) {
+		LocalDateTime now = LocalDateTime.now();
 		if (item instanceof Folder folder) {
 			if (folder.getIsDeleted()) {
-				folder.setIsDeleted(false);
-				folderRepository.save(folder);
+				folderRepository.recover(folder.getFolderId(), folder.getUpdatedAt(), now);
 			}
 		} else if (item instanceof Note note) {
 			if (note.getIsDeleted()) {
