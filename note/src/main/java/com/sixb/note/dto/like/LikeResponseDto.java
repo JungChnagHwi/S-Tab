@@ -1,9 +1,5 @@
 package com.sixb.note.dto.like;
 
-import com.sixb.note.dto.pageData.FigureDto;
-import com.sixb.note.dto.pageData.ImageDto;
-import com.sixb.note.dto.pageData.PathDto;
-import com.sixb.note.dto.pageData.TextBoxDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
