@@ -123,10 +123,15 @@ class SocketManager private constructor() {
     fun updateSpace(spaceId: String,  eventType: String, message: Any) {
         val jsonObject = JSONObject().apply {
             put("eventType", eventType)
-            put("data", JSONObject(gson.toJson(message)))
+            // 문자열이면 그대로 사용, 문자열이 아니면 직렬화
+            if (message is String) {
+                put("data", message)
+            } else {
+                put("data", JSONObject(gson.toJson(message)))
+            }
         }
         val jsonData = jsonObject.toString()
-        socket?.emit("updateSpace", spaceId, jsonData )
+        socket?.emit("updateSpace", spaceId, jsonData)
     }
 
     // 노트 room 참여/떠나기
@@ -233,7 +238,7 @@ class SocketManager private constructor() {
     private fun handleSpaceMessage(message: String) {
         val jsonObject = JSONObject(message)
         val eventType = jsonObject.getString("eventType")
-        val data = jsonObject.getJSONObject("data")
+        val data = jsonObject.get("data") // data가 json 객체 또는 문자열
 
         when (eventType) {
             "NoteCreated" -> {
@@ -245,6 +250,16 @@ class SocketManager private constructor() {
                 val folder = gson.fromJson(data.toString(), Folder::class.java)
                 Log.d("CheckingInSocket", folder.toString())
                 viewModel.addFolder(folder)
+            }
+            "NoteDeleted" -> {
+                // 문자열 처리 조건 분기
+                if (data is String) {
+                    val noteId = data
+                    Log.d("CheckingInSocket", "NoteDeleted: $noteId")
+                    viewModel?.deleteNote(noteId)
+                } else {
+                    Log.e("SocketManager", "Unexpected data type for NoteDeleted: $data")
+                }
             }
         }
     }
