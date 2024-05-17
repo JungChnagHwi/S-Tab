@@ -34,16 +34,13 @@ public class TrashService {
 	// 휴지통 복원
 	public void recoverItem(TrashRequestDto trashRequestDto) throws NotFoundException {
 		String itemId = trashRequestDto.getId();
-		Object item = findItemById(itemId);
-
-		if (item == null) {
-			throw new NotFoundException("아이템이 존재하지 않습니다.");
-		}
+		Object item = findItemById(itemId)
+				.orElseThrow(() -> new NotFoundException("아이템이 존재하지 않습니다."));
 
 		recoverItem(item);
 	}
 
-	private Object findItemById(String itemId) {
+	private Optional<?> findItemById(String itemId) {
 		return switch (itemId.charAt(0)) {
 			case 'f' -> folderRepository.findFolderById(itemId);
 			case 'n' -> noteRepository.findNoteById(itemId);
