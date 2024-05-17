@@ -53,6 +53,7 @@ import com.ssafy.stab.apis.space.share.User
 import com.ssafy.stab.apis.space.share.getShareSpace
 import com.ssafy.stab.apis.space.share.leaveShareSpace
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.modals.CheckLeaveModal
 import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.screens.space.NoteListViewModel
 import com.ssafy.stab.screens.space.personal.LocalNavigationStackId
@@ -254,6 +255,8 @@ fun SpTitleBar(
     val peopleImg = painterResource(id = R.drawable.people)
 
     val showPopup = remember { mutableStateOf(false) }
+    val showPermissionDialog = remember { mutableStateOf(false) }    // 음성 권한 요청 dialog
+    val showCheckDialog  = remember { mutableStateOf(false) }   // 스페이스 떠나기 확인 dialog
 
     val nowFolderId = LocalNowFolderId.current
     val nowFolderTitle = LocalNowFolderTitle.current
@@ -297,10 +300,9 @@ fun SpTitleBar(
                     Text("취소")
                 }}
         )}
-    // 음성 권한 요청 dialog
-    val showDialog = remember { mutableStateOf(false) }
 
-    if (showDialog.value) {
+
+    if (showPermissionDialog.value) {
         PermissionsDialog(
             onPermissionGranted = {
                 audioCallViewModel.buttonPressed(context)
@@ -310,7 +312,7 @@ fun SpTitleBar(
                 // Handle permission denial, possibly notify user
             },
             onDialogDismiss = {
-                showDialog.value = false
+                showPermissionDialog.value = false
             }
         )
     }
@@ -391,7 +393,7 @@ fun SpTitleBar(
                                     audioCallViewModel.buttonPressed(context)
                                     callActive.value = !callActive.value
                                 } else {
-                                    showDialog.value = true
+                                    showPermissionDialog.value = true
                                 }
                             }
                     )
@@ -414,19 +416,26 @@ fun SpTitleBar(
                             .height(30.dp)
                             .height(30.dp)
                             .clickable {
-                                leaveShareSpace(spaceId) {
-                                    spaceViewModel.removeShareSpace(spaceId)
-                                }
-                                navController.navigate("personal-space")
-                                if (isCurrentSpaceActive) {
-                                    audioCallViewModel.leaveSession()
-                                }
+                                showCheckDialog.value = true
                             }
                     )
                     Spacer(modifier = Modifier.width(20.dp))
                 }
             }
         }
-
     }
+    CheckLeaveModal(
+        showDialog = showCheckDialog.value,
+        onDismiss = { showCheckDialog.value = false },
+        onConfirm = {
+            showCheckDialog.value = false
+            leaveShareSpace(spaceId) {
+                spaceViewModel.removeShareSpace(spaceId)
+            }
+            navController.navigate("personal-space")
+            if (isCurrentSpaceActive) {
+                audioCallViewModel.leaveSession()
+            }
+        }
+    )
 }
