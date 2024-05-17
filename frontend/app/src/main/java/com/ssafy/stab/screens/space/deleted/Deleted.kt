@@ -82,21 +82,15 @@ fun Deleted(navController: NavController){
 @Composable
 fun DeletedTitleBar(navController: NavController){
     val trashImg = painterResource(id = R.drawable.trash)
-    val leftImg = painterResource(id = R.drawable.left)
     Row {
         Spacer(modifier = Modifier.width(30.dp))
         Column {
             Spacer(modifier = Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(modifier = Modifier
-                    .clickable { navController.popBackStack() }
-                    .height(40.dp)
-                    .width(40.dp), painter = leftImg, contentDescription = null)
-                Spacer(modifier = Modifier.width(5.dp))
-                Image(modifier = Modifier
                     .width(40.dp)
                     .height(40.dp) ,painter = trashImg, contentDescription = null)
-                Spacer(modifier = Modifier.width(5.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(fontSize = 32.sp, text="휴지통")
             }
         }

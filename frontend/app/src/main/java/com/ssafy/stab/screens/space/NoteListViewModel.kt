@@ -52,6 +52,7 @@ class NoteListViewModel(initialFolderId: String) : ViewModel() {
     fun updateFolderId(newFolderId: String) {
         if (_folderId.value != newFolderId) {
             _folderId.value = newFolderId
+            Log.d("NoteListViewModel", "Folder ID updated: $newFolderId")
             loadFiles(newFolderId)
         }
     }

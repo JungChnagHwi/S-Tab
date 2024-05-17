@@ -1,6 +1,5 @@
 package com.sixb.note.api.service;
 
-
 import com.sixb.note.dto.folder.*;
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
@@ -8,7 +7,6 @@ import com.sixb.note.entity.Space;
 import com.sixb.note.exception.FolderNotFoundException;
 import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
-import com.sixb.note.repository.SpaceRepository;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,6 @@ import java.util.stream.*;
 @RequiredArgsConstructor
 public class FolderService {
 
-	private final SpaceRepository spaceRepository;
 	private final FolderRepository folderRepository;
 	private final NoteRepository noteRepository;
 

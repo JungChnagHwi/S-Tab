@@ -1,8 +1,8 @@
 package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.UserService;
-import com.sixb.note.dto.user.UserInfoRequestDto;
 import com.sixb.note.dto.user.NicknameResponseDto;
+import com.sixb.note.dto.user.UserInfoRequestDto;
 import com.sixb.note.dto.user.UserInfoResponseDto;
 import com.sixb.note.exception.ExistUserException;
 import com.sixb.note.exception.UserNotFoundException;

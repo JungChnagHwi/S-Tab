@@ -1,5 +1,6 @@
 package com.ssafy.stab.util.note
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -157,9 +158,9 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             _undoPathList.add(othersData)
         } else {
             val index = _undoPathList.withIndex().filter { it.value.order <= othersData.order }
-                .maxByOrNull { it.value.order }?.index ?: 0
+                .maxByOrNull { it.value.order }?.index ?: -1
 
-            _undoPathList.add(index, othersData)
+            _undoPathList.add(index + 1, othersData)
         }
     }
 
@@ -178,9 +179,12 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
 
     fun undo(userName: String) {
         val userPathList = _undoPathList.filter { it.userName == userName }
+        Log.d("undo", userPathList.toString())
         if (userPathList.isNotEmpty()) {
             val last = userPathList.last()
+            Log.d("undo", last.userName + last.order)
             val index = _undoPathList.indexOfLast { it.userName == userName }
+            Log.d("undo", index.toString())
 
             // redo 경로 정보 저장
             if (userName == user) {
@@ -205,7 +209,10 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             val last = _redoPathList.last()
 
             // 경로 복원
-            _undoPathList.add(last)
+            socketManager.second.updatePath(
+                socketManager.first, SocketPathInfo(Action.Add, last)
+            )
+            addOthersPath(last)
             _redoPathList.remove(last)
 
             _historyTracker.tryEmit("redo")

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -98,7 +99,6 @@ fun ShareSpace(
     var shareSpaceList = remember { mutableStateListOf<ShareSpaceList>() }
     // 현재 보고 있는 공유 스페이스 정보 가져오기
     val (shareSpaceDetails, setShareSpaceDetails) = remember { mutableStateOf<ShareSpace?>(null) }
-    val (totalUsers, setTotalUsers) = remember { mutableStateOf(listOf<String>()) }
     var showParticipantListModal by remember { mutableStateOf(false) }
 
     val audioSessionViewModel: AudioSessionViewModel = viewModel()
@@ -109,8 +109,10 @@ fun ShareSpace(
     LaunchedEffect(spaceId) {
         getShareSpace(spaceId) { shareSpaceData ->
             setShareSpaceDetails(shareSpaceData)
-            setTotalUsers(shareSpaceData.users.map { it.nickname })
             spaceTitle.value = shareSpaceData.title
+        }
+        if (shareSpaceDetails != null) {
+            Log.d("SpaceDetails", shareSpaceDetails.users.toString())
         }
         audioSessionViewModel.getSessionConnection(spaceId)
         audioSessionViewModel.startFetchingSessionData(spaceId)

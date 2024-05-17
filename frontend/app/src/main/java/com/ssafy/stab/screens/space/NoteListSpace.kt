@@ -34,10 +34,9 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
-    val folderIdState = remember { mutableStateOf(nowId) }
+    val folderIdState = rememberUpdatedState(nowId)
     val listImg = painterResource(id = R.drawable.list)
     val isNameSort = remember { mutableStateOf(false) }
-
 
     Column {
         Spacer(modifier = Modifier.height(5.dp))
@@ -108,13 +107,15 @@ fun ListGridScreen(
 ) {
     val selectedFileId = LocalSelectedFileId.current
     val selectedFileTitle = LocalSelectedFileTitle.current
-    val folderId by remember { mutableStateOf(initFolderId) }
+    val folderId by remember(initFolderId) { mutableStateOf(initFolderId) }
     val showNoteModal = remember { mutableStateOf(false) }
     val showFolderModal = remember { mutableStateOf(false) }
     val showPatchDeleteModal = remember { mutableStateOf(false) }
     val showCreateOptions = remember { mutableStateOf(false) }
 
-    val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(folderId))
+    val viewModel: NoteListViewModel = viewModel(
+        key = initFolderId,
+        factory = NoteListViewModelFactory(folderId))
     val combinedList by viewModel.combinedList.collectAsState()
 
     // 소켓에 노트 리스트 뷰모델 데이터 설정
