@@ -112,19 +112,22 @@ public class LikeService {
 				.toList();
 
 		List<LikeResponseDto.PageInfo> pageInfos = likedPages.stream()
-				.map(page -> LikeResponseDto.PageInfo.builder()
-						.pageId(page.getPageId())
-						.noteId(page.getNoteId())
-						.spaceId(noteRepository.findSpaceIdByNoteId(page.getNoteId()))
-						.template(page.getTemplate())
-						.color(page.getColor())
-						.direction(page.getDirection())
-						.pdfUrl(page.getPdfUrl())
-						.pdfPage(page.getPdfPage())
-						.createdAt(page.getCreatedAt())
-						.updatedAt(page.getUpdatedAt())
-						.build())
-				.toList();
+				.map(page -> {
+					Note note = noteRepository.findNoteById(page.getNoteId()).get();
+					return LikeResponseDto.PageInfo.builder()
+							.pageId(page.getPageId())
+							.noteId(page.getNoteId())
+							.spaceId(note.getSpaceId())
+							.noteTitle(note.getTitle())
+							.template(page.getTemplate())
+							.color(page.getColor())
+							.direction(page.getDirection())
+							.pdfUrl(page.getPdfUrl())
+							.pdfPage(page.getPdfPage())
+							.createdAt(page.getCreatedAt())
+							.updatedAt(page.getUpdatedAt())
+							.build();
+				}).toList();
 
 		return new LikeResponseDto(folderInfos, noteInfos, pageInfos);
 	}

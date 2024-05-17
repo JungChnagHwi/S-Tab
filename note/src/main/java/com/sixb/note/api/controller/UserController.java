@@ -1,8 +1,8 @@
 package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.UserService;
-import com.sixb.note.dto.user.UserInfoRequestDto;
 import com.sixb.note.dto.user.NicknameResponseDto;
+import com.sixb.note.dto.user.UserInfoRequestDto;
 import com.sixb.note.dto.user.UserInfoResponseDto;
 import com.sixb.note.exception.ExistUserException;
 import com.sixb.note.exception.UserNotFoundException;
@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.yaml.snakeyaml.util.UriEncoder;
 
 @RestController
 @RequestMapping("/api/user")
@@ -52,7 +53,7 @@ public class UserController {
 
 	@GetMapping("/{nickname}")
 	public ResponseEntity<NicknameResponseDto> checkNickname(@PathVariable String nickname) {
-		NicknameResponseDto response = userService.checkNickname(nickname);
+		NicknameResponseDto response = userService.checkNickname(UriEncoder.decode(nickname));
 		return ResponseEntity.ok(response);
 	}
 

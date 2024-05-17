@@ -21,7 +21,7 @@ class SpaceViewModel : ViewModel() {
     }
 
     fun addShareSpace(newSpace: ShareSpaceList) {
-        _shareSpaceList.value = _shareSpaceList.value + newSpace
+        _shareSpaceList.value = emptyList<ShareSpaceList>() + newSpace + _shareSpaceList.value
     }
 
     fun removeShareSpace(spaceId: String) {

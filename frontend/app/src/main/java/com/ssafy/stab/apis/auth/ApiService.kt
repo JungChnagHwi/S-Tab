@@ -5,6 +5,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -26,6 +27,9 @@ interface ApiService {
 
     @GET("api/user/{nickname}")
     fun checkNickname(@Header("Authorization") authorization: String, @Path("nickname") nickname: String): Call<NickNameResponse>
+
+    @PATCH("api/user")
+    fun patchInfo(@Header("Authorization") authorization: String, @Body patchInfoRequest: PatchInfoRequest): Call<AuthResponse>
 }
 
 

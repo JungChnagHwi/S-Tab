@@ -1,5 +1,6 @@
 package com.ssafy.stab.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import com.ssafy.stab.R
 import androidx.compose.foundation.background
@@ -100,6 +101,10 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
         Spacer(modifier = Modifier.height(30.dp))
         Box(
             modifier = Modifier
+                .clickable {
+                    Log.d("액세스 토큰", PreferencesUtil.getLoginDetails().accessToken.toString())
+                    Log.d("루트 폴더", PreferencesUtil.getLoginDetails().rootFolderId.toString())
+                }
                 .fillMaxWidth(0.8f)
                 .height(72.dp)
                 .clip(RoundedCornerShape(10.dp))

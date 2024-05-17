@@ -53,7 +53,7 @@ data class CopyNoteResponse(
 
 data class RenameNoteRequest(
     @SerializedName("noteId") val noteId: String,
-    @SerializedName("title") val title: String
+    @SerializedName("newTitle") val title: String
 )
 
 data class RelocateRequest(

@@ -1,9 +1,9 @@
 package com.sixb.note.api.service;
 
-
 import com.sixb.note.dto.folder.*;
 import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
+import com.sixb.note.entity.Space;
 import com.sixb.note.exception.FolderNotFoundException;
 import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
@@ -20,9 +20,9 @@ import java.util.stream.*;
 @RequiredArgsConstructor
 public class FolderService {
 
-	private final SpaceRepository spaceRepository;
 	private final FolderRepository folderRepository;
 	private final NoteRepository noteRepository;
+	private final SpaceRepository spaceRepository;
 
 	// 폴더 조회
 	public FolderResponseDto getFolderDetail(String folderId, long userId) {
@@ -157,13 +157,22 @@ public class FolderService {
 
 	public FolderListResponseDto getFoldersBetween(FolderListRequestDto requestDto) {
 		List<Folder> folders = folderRepository.findFoldersBetween(requestDto.getParentFolderId(), requestDto.getFolderId());
+		List<FolderListResponseDto.FolderInfo> folderInfos = new ArrayList<>();
 
-		List<FolderListResponseDto.FolderInfo> folderInfos = folders.stream().map(folder -> {
+		for (int i = 0; i < folders.size(); i++) {
+			Folder folder = folders.get(i);
 			FolderListResponseDto.FolderInfo info = new FolderListResponseDto.FolderInfo();
 			info.setFolderId(folder.getFolderId());
-			info.setTitle(folder.getTitle());
-			return info;
-		}).collect(Collectors.toList());
+
+			if (i == 0) {
+				Optional<Space> space = spaceRepository.findSpaceById(folder.getSpaceId());
+				space.ifPresent(s -> info.setTitle(s.getTitle()));
+			} else {
+				info.setTitle(folder.getTitle());
+			}
+
+			folderInfos.add(info);
+		}
 
 		FolderListResponseDto responseDto = new FolderListResponseDto();
 		responseDto.setFolders(folderInfos);

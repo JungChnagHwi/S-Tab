@@ -87,9 +87,9 @@ fun MyTitleBar(navController: NavController, viewModel: NoteListViewModel) {
             }
             Spacer(modifier = Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(modifier = Modifier
-                    .clickable {
-                        if (navigationStackId.isNotEmpty()) {
+                if (navigationStackId.isNotEmpty()) {
+                    Image(modifier = Modifier
+                        .clickable {
                             val previousFolderId =
                                 navigationStackId.removeAt(navigationStackId.size - 1)
                             val previousFolderTitle =
@@ -102,10 +102,10 @@ fun MyTitleBar(navController: NavController, viewModel: NoteListViewModel) {
                                 navController.navigate("personal-space")
                             }
                         }
-                    }
-                    .height(30.dp)
-                    .width(30.dp), painter = leftImg, contentDescription = null)
-                Spacer(modifier = Modifier.width(5.dp))
+                        .height(30.dp)
+                        .width(30.dp), painter = leftImg, contentDescription = null)
+                    Spacer(modifier = Modifier.width(5.dp))
+                }
                 if (navigationStackTitle.size != 0) {
                     Text(fontSize = 24.sp, text= navigationStackTitle[navigationStackTitle.size - 1])
                 } else {

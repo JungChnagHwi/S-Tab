@@ -1,7 +1,7 @@
 package com.sixb.note.repository;
 
-import com.sixb.note.dto.user.UserInfoRequestDto;
 import com.sixb.note.dto.user.NicknameResponseDto;
+import com.sixb.note.dto.user.UserInfoRequestDto;
 import com.sixb.note.dto.user.UserInfoResponseDto;
 
 import java.util.*;
