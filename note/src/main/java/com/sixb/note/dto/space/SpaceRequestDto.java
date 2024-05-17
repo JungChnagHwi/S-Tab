@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SpaceRequestDto {
-    private String title;
+	private String title;
 }

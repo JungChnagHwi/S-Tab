@@ -1,4 +1,4 @@
-package com.sixb.note.dto.request;
+package com.sixb.note.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

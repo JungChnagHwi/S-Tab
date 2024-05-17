@@ -1,8 +1,8 @@
 package com.sixb.note.repository;
 
-import com.sixb.note.dto.request.UserInfoRequestDto;
-import com.sixb.note.dto.response.NicknameResponseDto;
-import com.sixb.note.dto.response.UserInfoResponseDto;
+import com.sixb.note.dto.user.NicknameResponseDto;
+import com.sixb.note.dto.user.UserInfoRequestDto;
+import com.sixb.note.dto.user.UserInfoResponseDto;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
 import org.neo4j.cypherdsl.core.Node;
@@ -31,7 +31,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.withProperties("userId", literalOf(userId));
 
 		Node space = node("Space").named("s")
-				.withProperties("public", literalFalse());
+				.withProperties("isPublic", literalFalse());
 
 		Node folder = node("Folder").named("f");
 
@@ -41,6 +41,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(
 						user.property("nickname").as("nickname"),
 						user.property("profileImg").as("profileImg"),
+						space.property("spaceId").as("privateSpaceId"),
 						folder.property("folderId").as("rootFolderId"))
 				.build();
 
@@ -53,6 +54,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
+						.privateSpaceId(record.get("privateSpaceId").asString())
 						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
@@ -97,7 +99,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.withProperties(
 						"spaceId", literalOf(spaceId),
 						"title", literalOf("나의 스페이스"),
-						"public", literalFalse(),
+						"isPublic", literalFalse(),
 						"createdAt", literalOf(now),
 						"updatedAt", literalOf(now),
 						"isDeleted", literalFalse());
@@ -122,6 +124,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(
 						user.property("nickname").as("nickname"),
 						user.property("profileImg").as("profileImg"),
+						space.property("spaceId").as("privateSpaceId"),
 						folder.property("folderId").as("rootFolderId"))
 				.build();
 
@@ -134,6 +137,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
+						.privateSpaceId(record.get("privateSpaceId").asString())
 						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
@@ -148,7 +152,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.withProperties("userId", literalOf(userId));
 
 		Node space = node("Space").named("s")
-				.withProperties("public", literalOf(false));
+				.withProperties("isPublic", literalFalse());
 
 		Node folder = node("Folder").named("f");
 
@@ -162,6 +166,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(
 						user.property("nickname").as("nickname"),
 						user.property("profileImg").as("profileImg"),
+						space.property("spaceId").as("privateSpaceId"),
 						folder.property("folderId").as("rootFolderId"))
 				.build();
 
@@ -174,6 +179,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
+						.privateSpaceId(record.get("privateSpaceId").asString())
 						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}

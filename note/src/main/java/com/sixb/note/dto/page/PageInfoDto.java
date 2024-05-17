@@ -16,18 +16,18 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageInfoDto {
-    private String pageId;
-    private String noteId;
-    private String color;
-    private String template;
-    private int direction;
-    private Boolean isBookmarked;
-    private String pdfUrl;
-    private Integer pdfPage;
-    private String createdAt;
-    private String updatedAt;
-    private List<PathDto> paths;
-    private List<FigureDto> figures;
-    private List<TextBoxDto> textBoxes;
-    private List<ImageDto> images;
+	private String pageId;
+	private String noteId;
+	private String color;
+	private String template;
+	private int direction;
+	private Boolean isBookmarked;
+	private String pdfUrl;
+	private Integer pdfPage;
+	private String createdAt;
+	private String updatedAt;
+	private List<PathDto> paths;
+	private List<FigureDto> figures;
+	private List<TextBoxDto> textBoxes;
+	private List<ImageDto> images;
 }
