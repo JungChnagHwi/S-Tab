@@ -68,6 +68,9 @@ fun PatchDeleteModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileI
                 if (fileId[0]== 'f') {
                     deleteFolder(fileId)
                     viewModel.deleteFolder(fileId)
+                    Log.d("FolderDeleted", fileId)
+                    PreferencesUtil.getShareSpaceState()
+                        ?.let { socketManager.updateSpace(it, "FolderDeleted", fileId) }
                     closeModal()
                 } else if (fileId[0] == 'n') {
                     deleteNote(fileId)

@@ -291,7 +291,7 @@ class SocketManager private constructor() {
                 if (data is String) {
                     val noteId = data
                     Log.d("CheckingInSocket", "NoteDeleted: $noteId")
-                    viewModel?.deleteNote(noteId)
+                    viewModel.deleteNote(noteId)
                 } else {
                     Log.e("SocketManager", "Unexpected data type for NoteDeleted: $data")
                 }
@@ -307,6 +307,16 @@ class SocketManager private constructor() {
                 val newTitle = updateData.getString("newTitle")
                 Log.d("CheckingInSocket", "FolderUpdated: $folderId, newTitle: $newTitle")
                 viewModel.renameNote(folderId, newTitle)
+            }
+            "FolderDeleted" -> {
+                // 문자열 처리 조건 분기
+                if (data is String) {
+                    val folderId = data
+                    Log.d("CheckingInSocket", "NoteDeleted: $folderId")
+                    viewModel.deleteFolder(folderId)
+                } else {
+                    Log.e("SocketManager", "Unexpected data type for FolderDeleted: $data")
+                }
             }
         }
     }
