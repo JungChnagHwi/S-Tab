@@ -34,7 +34,7 @@ data class CreateFolderRequest(
 
 data class RenameFolderRequest(
     @SerializedName("folderId") val folderId: String,
-    @SerializedName("title") val title: String
+    @SerializedName("newTitle") val newTitle: String
 )
 
 data class RelocateFolderRequest(

@@ -168,3 +168,24 @@ fun checkNickName(nickname: String, onResult: (Boolean) -> Unit) {
         }
     })
 }
+
+fun patchInfo(nickname: String, profileImg: String, onResult: (AuthResponse) -> Unit) {
+    val accessToken = PreferencesUtil.getLoginDetails().accessToken
+    val authorizationHeader = "Bearer $accessToken"
+    val patchInfoRequest = PatchInfoRequest(nickname, profileImg)
+    val call = apiService.patchInfo(authorizationHeader, patchInfoRequest)
+
+    call.enqueue(object : retrofit2.Callback<AuthResponse> {
+        override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+            if (response.isSuccessful) {
+                response.body()?.let { onResult(it) }
+            } else {
+                Log.d("회원정보수정", response.errorBody().toString())
+            }
+        }
+
+        override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
+            Log.d("회원정보수정", "요청 실패")
+        }
+    })
+}

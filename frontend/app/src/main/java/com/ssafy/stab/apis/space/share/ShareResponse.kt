@@ -34,7 +34,7 @@ data class ParticipateShareSpaceRequest(
 
 data class RenameShareSpaceRequest(
     @SerializedName("spaceId") val spaceId: String,
-    @SerializedName("title") val title: String
+    @SerializedName("newTitle") val title: String
 )
 
 data class MarkdownDataResponse(
