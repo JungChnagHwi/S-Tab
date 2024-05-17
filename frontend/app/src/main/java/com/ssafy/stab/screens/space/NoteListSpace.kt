@@ -29,6 +29,7 @@ import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.modals.CreateNoteModal
 import com.ssafy.stab.modals.PatchDeleteModal
 import com.ssafy.stab.screens.space.personal.*
+import com.ssafy.stab.util.SocketManager
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -115,6 +116,12 @@ fun ListGridScreen(
 
     val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(folderId))
     val combinedList by viewModel.combinedList.collectAsState()
+
+    // 소켓에 노트 리스트 뷰모델 데이터 설정
+    val socketManager = SocketManager.getInstance()
+    LaunchedEffect(viewModel) {
+        socketManager.setViewModel(viewModel)
+    }
 
     val createNoteImg = painterResource(id = R.drawable.createnote)
     fun patchDeleteToggle() {

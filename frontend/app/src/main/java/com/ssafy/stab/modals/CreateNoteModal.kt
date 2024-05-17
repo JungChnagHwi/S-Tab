@@ -1,5 +1,6 @@
 package com.ssafy.stab.modals
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,7 +40,9 @@ import com.ssafy.stab.data.note.BackgroundColor
 import com.ssafy.stab.data.note.Direction
 import com.ssafy.stab.data.note.TemplateType
 import com.ssafy.stab.screens.space.NoteListViewModel
+import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.util.note.getTemplate
+import org.json.JSONObject
 import java.time.LocalDateTime
 
 
@@ -51,6 +54,7 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
     val selectLinedImg = painterResource(id = R.drawable.lined_white_portrait)
     val selectGridImg = painterResource(id = R.drawable.grid_white_portrait)
     val folderId by viewModel.folderId.collectAsState()
+    val socketManager = SocketManager.getInstance()
 
     val templateType = remember {
         mutableStateOf(TemplateType.Plain)
@@ -96,6 +100,10 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
             ) { response ->
                 val note = createNoteResponseToNote(response)
                 viewModel.addNote(note)
+                Log.d("CheckingNote", response.toString())
+                Log.d("CheckingNote", note.toString())
+                PreferencesUtil.getShareSpaceState()
+                    ?.let { socketManager.updateSpace(it, "NoteCreated", response) }
             }
                 closeModal()
             })

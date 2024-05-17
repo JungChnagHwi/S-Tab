@@ -1,11 +1,25 @@
 package com.ssafy.stab.util
 
+import NoteListViewModelFactory
 import android.util.Log
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSerializationContext
+import com.google.gson.JsonSerializer
+import com.ssafy.stab.apis.space.folder.Note
+import com.ssafy.stab.screens.space.NoteListViewModel
 import io.socket.client.IO
 import io.socket.client.Socket
 import org.json.JSONObject
+import java.lang.reflect.Type
 import java.net.URISyntaxException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 /*
     on: 이벤트 받기, emit: 이벤트 보내기
@@ -14,8 +28,16 @@ import java.net.URISyntaxException
 */
 class SocketManager private constructor() {
     private var socket: Socket? = null
-    private val gson = Gson()
+    private val gson: Gson = GsonBuilder()
+        .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
+        .create()
     private var isConnected = false
+
+    private lateinit var viewModel: NoteListViewModel
+
+    fun setViewModel(viewModel: NoteListViewModel) {
+        this.viewModel = viewModel
+    }
 
     companion object {
         private var instance: SocketManager? = null
@@ -81,8 +103,12 @@ class SocketManager private constructor() {
     }
 
     // 스페이스 이벤트 업데이트 공유
-    fun updateSpace(spaceId: String, message: Any) {
-        val jsonData = gson.toJson(message)
+    fun updateSpace(spaceId: String,  eventType: String, message: Any) {
+        val jsonObject = JSONObject().apply {
+            put("eventType", eventType)
+            put("data", JSONObject(gson.toJson(message)))
+        }
+        val jsonData = jsonObject.toString()
         socket?.emit("updateSpace", spaceId, jsonData )
     }
 
@@ -133,6 +159,7 @@ class SocketManager private constructor() {
         socket?.on("receiveSpace") { message ->
             val data = message[0]
             Log.d("ReceiveSpaceData", "$data")
+            handleSpaceMessage(data.toString())
         }
 
         // note 관련 서버 이벤트 수신
@@ -162,5 +189,35 @@ class SocketManager private constructor() {
             Log.d("Position", "$data")
         }
 
+    }
+
+    private fun handleSpaceMessage(message: String) {
+        val jsonObject = JSONObject(message)
+        val eventType = jsonObject.getString("eventType")
+        val data = jsonObject.getJSONObject("data")
+
+        when (eventType) {
+            "NoteCreated" -> {
+                val  note = gson.fromJson(data.toString(), Note::class.java)
+                Log.d("ChekingInSocket", note.toString())
+                viewModel.addNote(note)
+            }
+            // 다른 이벤트 타입에 대한 처리 추가 가능
+        }
+    }
+
+
+}
+
+// gson localdatetime 처리를 위한 adapter
+class LocalDateTimeAdapter : JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
+    private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+
+    override fun serialize(src: LocalDateTime, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+        return JsonPrimitive(src.format(formatter))
+    }
+
+    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): LocalDateTime {
+        return LocalDateTime.parse(json.asString, formatter)
     }
 }
