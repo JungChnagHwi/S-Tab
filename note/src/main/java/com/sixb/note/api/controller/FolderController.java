@@ -2,8 +2,10 @@ package com.sixb.note.api.controller;
 
 import com.sixb.note.api.service.FolderService;
 import com.sixb.note.dto.folder.*;
+import com.sixb.note.exception.FolderNotFoundException;
 import com.sixb.note.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,9 +35,13 @@ public class FolderController {
 	}
 
 	@PostMapping
-	public ResponseEntity<CreateFolderResponseDto> createFolder(@RequestBody CreateFolderRequestDto request) {
-		CreateFolderResponseDto createdFolder = folderService.createFolder(request);
-		return ResponseEntity.ok(createdFolder);
+	public ResponseEntity<?> createFolder(@RequestBody CreateFolderRequestDto request) {
+		try {
+			CreateFolderResponseDto createdFolder = folderService.createFolder(request);
+			return ResponseEntity.ok(createdFolder);
+		} catch (FolderNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
 	}
 
 	@PatchMapping("/rename")
@@ -43,8 +49,8 @@ public class FolderController {
 		try {
 			folderService.updateFolderTitle(request.getFolderId(), request.getNewTitle());
 			return ResponseEntity.ok("폴더 이름 수정 완료");
-		} catch (NotFoundException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (FolderNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 
@@ -56,12 +62,8 @@ public class FolderController {
 
 	@DeleteMapping("/{folderId}")
 	public ResponseEntity<String> deleteFolder(@PathVariable("folderId") String folderId) {
-		boolean isUpdated = folderService.deleteFolder(folderId);
-		if (isUpdated) {
-			return ResponseEntity.ok("폴더 삭제 완료");
-		} else {
-			return ResponseEntity.notFound().build();
-		}
+		folderService.deleteFolder(folderId);
+		return ResponseEntity.ok("폴더 삭제 완료");
 	}
 
 	@PostMapping("/list")

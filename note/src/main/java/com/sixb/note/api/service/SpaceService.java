@@ -10,6 +10,7 @@ import com.sixb.note.entity.User;
 import com.sixb.note.exception.ExistUserException;
 import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.exception.SpaceNotFoundException;
+import com.sixb.note.exception.UserNotFoundException;
 import com.sixb.note.repository.SpaceRepository;
 import com.sixb.note.repository.UserRepository;
 import com.sixb.note.util.IdCreator;
@@ -29,8 +30,9 @@ public class SpaceService {
 	private final SpaceRepository spaceRepository;
 	private final UserRepository userRepository;
 
-	public List<SpaceResponseDto> findAllSpaceDetails(long userId) {
-		User users = userRepository.findUserById(userId);
+	public List<SpaceResponseDto> findAllSpaceDetails(long userId) throws UserNotFoundException {
+		User users = userRepository.findUserById(userId)
+				.orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
 		List<Space> spaces = spaceRepository.findSpaces(users.getUserId());
 
 		return spaces.stream().map(space -> {
@@ -56,8 +58,9 @@ public class SpaceService {
 		}).collect(Collectors.toList());
 	}
 
-	public SpaceResponseDto findSpaceDetails(long userId, String spaceId) {
-		User userInfo = userRepository.findUserById(userId);
+	public SpaceResponseDto findSpaceDetails(long userId, String spaceId) throws UserNotFoundException {
+		User userInfo = userRepository.findUserById(userId)
+				.orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
 		Space space = spaceRepository.findSpaceByIdAndUserId(spaceId, userInfo.getUserId());
 
 
@@ -82,8 +85,9 @@ public class SpaceService {
 	}
 
 
-	public SpaceResponseDto createSpace(SpaceRequestDto requestDto, long userId) {
-		User user = userRepository.findUserById(userId);
+	public SpaceResponseDto createSpace(SpaceRequestDto requestDto, long userId) throws UserNotFoundException {
+		User user = userRepository.findUserById(userId)
+				.orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
 		Space newSpace = new Space();
 		String folderId = IdCreator.create("f");
 		newSpace.setTitle(requestDto.getTitle());
@@ -141,12 +145,14 @@ public class SpaceService {
 //    }
 
 	//스페이스 참가
-	public void joinSpace(long userId, String spaceId) throws ExistUserException, SpaceNotFoundException {
+	public void joinSpace(long userId, String spaceId) throws ExistUserException, SpaceNotFoundException, UserNotFoundException {
 		if (spaceRepository.isJoinedUser(userId, spaceId)) {
 			throw new ExistUserException("이미 가입된 유저입니다.");
 		}
 
-		User user = userRepository.findUserById(userId);
+		User user = userRepository.findUserById(userId)
+				.orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
+
 		Space space = spaceRepository.findSpaceById(spaceId);
 
 		if (space == null) {

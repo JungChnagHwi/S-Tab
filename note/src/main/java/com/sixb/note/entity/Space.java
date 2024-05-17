@@ -38,7 +38,7 @@ public class Space extends BaseTimeEntity {
 	private String spaceMd;
 
 	@Relationship(type = "Hierarchy")
-	private List<Folder> folders;
+	private Folder folder;
 
 	@Relationship(type = "Join", direction = Relationship.Direction.INCOMING)
 	private List<User> users;
