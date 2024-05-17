@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -14,9 +15,9 @@ public interface PageRepository extends Neo4jRepository<Page, String> {
 	@Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space)-[:Hierarchy*]->(f:Folder)-[:Hierarchy]->(n:Note) " +
 			"WHERE n.isDeleted = false " +
 			"MATCH (n)-[:NextPage*]->(p:Page) " +
-			"WHERE p.isDeleted = true " +
+			"WHERE p.isDeleted = true AND p.updatedAt >= $limit " +
 			"RETURN p")
-	List<Page> findDeletedPages(@Param("userId") long userId);
+	List<Page> findDeletedPages(@Param("userId") long userId, LocalDateTime limit);
 
 	@Query("MATCH (p:Page) WHERE p.pageId = $pageId RETURN p")
 	Optional<Page> findPageById(@Param("pageId") String pageId);

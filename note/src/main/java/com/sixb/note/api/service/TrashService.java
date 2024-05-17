@@ -25,9 +25,10 @@ public class TrashService {
 
 	//휴지통 조회
 	public TrashResponseDto findDeletedItems(long userId) {
-		List<Folder> deletedFolders = folderRepository.findDeletedFolders(userId);
-		List<Note> deletedNotes = noteRepository.findDeletedNotes(userId);
-		List<Page> deletedPages = pageRepository.findDeletedPages(userId);
+		LocalDateTime limit = LocalDateTime.now().minusDays(30L);
+		List<Folder> deletedFolders = folderRepository.findDeletedFolders(userId, limit);
+		List<Note> deletedNotes = noteRepository.findDeletedNotes(userId, limit);
+		List<Page> deletedPages = pageRepository.findDeletedPages(userId, limit);
 
 		return new TrashResponseDto(deletedFolders, deletedNotes, deletedPages);
 	}
