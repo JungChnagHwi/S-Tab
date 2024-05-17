@@ -106,7 +106,7 @@ public class SpaceService {
 		newFolder.setCreatedAt(now);
 		newFolder.setUpdatedAt(now);
 
-		newSpace.setFolders(Arrays.asList(newFolder));
+		newSpace.setFolder(newFolder);
 		newSpace.setUsers(Arrays.asList(user));
 		Space savedSpace = spaceRepository.save(newSpace);
 		return convertToSpaceResponseDto(savedSpace, folderId);
