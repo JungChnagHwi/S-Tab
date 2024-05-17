@@ -61,6 +61,7 @@ fun NoteScreen(
 ){
     val noteViewModel: NoteViewModel = viewModel(factory = NoteViewModelFactory(noteId))
     val userName = PreferencesUtil.getLoginDetails().userName ?: ""
+    val profileImg = PreferencesUtil.getLoginDetails().profileImg ?: "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/08/3454673260/profileImage.png"
 
     val noteControlViewModel : NoteControlViewModel = viewModel(factory = NoteControlViewModelFactory(Pair(noteId, socketManager)))
     val chatBotViewModel = remember { ChatBotViewModel.getInstance() }
@@ -70,13 +71,15 @@ fun NoteScreen(
 
     val currentPage = remember { mutableIntStateOf(0) }
     val onPageChange = { page: Int -> currentPage.intValue = page }
+
+    var showUserList by remember { mutableStateOf(false) }
     var showChatBot by remember { mutableStateOf(false) }
-    val chatBotImg = painterResource(id = R.drawable.assistance_icon)
+    val chatBotImg = painterResource(id = R.drawable.chatbot)
 
     LaunchedEffect(spaceId) {
         // 개인 스페이스 아이디가 아닐 때로 로직 수정필요
         if (spaceId != "spaceId") {
-            socketManager.joinNote(noteId, userName, "FFFFFF")
+            socketManager.joinNote(noteId, userName, profileImg)
         }
     }
 
@@ -154,16 +157,24 @@ fun NoteScreen(
                 StrokeOptions(noteControlViewModel)
                 Spacer(modifier = Modifier.weight(1f))
                 // 참여 유저 리스트 UI 업데이트 필요
-                socketManager.userList.forEach { user ->
-                    Text(text = "Nickname: ${user.nickname}, Color: ${user.color}")
+//                socketManager.userList.forEach { user ->
+//                    Text(text = "Nickname: ${user.nickname}")
+//                }
+                if (spaceId != "spaceId") {
+                    Image(
+                        painter = painterResource(R.drawable.people),
+                        contentDescription = "users",
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clickable { }
+                    )
                 }
                 Image(
                     painter = chatBotImg,
                     contentDescription = "ChatBot",
                     modifier = Modifier
-                        .size(44.dp)
-                        .clickable { showChatBot = true }
-                        .padding(8.dp)
+                        .size(42.dp)
+                        .clickable { showChatBot = !showChatBot }
                 )
             }
 

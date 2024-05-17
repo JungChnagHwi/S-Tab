@@ -104,8 +104,8 @@ class SocketManager private constructor() {
     }
 
     // 노트 room 참여/떠나기
-    fun joinNote(noteId: String, nickName: String, color: String) {
-        socket?.emit("joinNote", noteId, nickName, color)
+    fun joinNote(noteId: String, nickName: String, profileImg: String) {
+        socket?.emit("joinNote", noteId, nickName, profileImg)
     }
 
     fun leaveNote(noteId: String) {
@@ -123,8 +123,8 @@ class SocketManager private constructor() {
                 val nestedObject = value.asJsonObject
                 val innerNameValuePairs = nestedObject.getAsJsonObject("nameValuePairs")
                 val nickname = innerNameValuePairs.get("nickname").asString
-                val color = innerNameValuePairs.get("color").asString
-                val user = User(nickname, color)
+                val profileImg = innerNameValuePairs.get("profileImg").asString
+                val user = User(nickname, profileImg)
                 userList.add(user)
             }
         }
