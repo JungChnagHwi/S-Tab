@@ -1,6 +1,5 @@
 package com.ssafy.stab.modals
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -34,9 +34,6 @@ fun CreateFolderModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
     var folderName by remember { mutableStateOf("제목 없는 폴더") }
     val folderImg = painterResource(id = R.drawable.folder)
     val folderId by viewModel.folderId.collectAsState()
-//    val nowFolderId = LocalNowFolderId.current
-    Log.d("CreateFolderModal", "Current folderId: $folderId")
-//    Log.d("CreateFolderModal", "Current folderId: ${nowFolderId.value}")
 
     Column(
         modifier = Modifier.padding(10.dp).background(color = Color.White),
@@ -53,7 +50,12 @@ fun CreateFolderModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
                 .fillMaxWidth(0.6f)
         )
         Row(Modifier.padding(10.dp)) {
-            Button(onClick = { closeModal() }) {
+            Button(
+                onClick = { closeModal() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red
+                )
+            ) {
                 Text(text = "취소")
             }
             Spacer(modifier = Modifier.width(30.dp))
