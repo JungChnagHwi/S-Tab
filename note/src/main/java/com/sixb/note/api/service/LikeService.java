@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.*;
 
 @Service
 @RequiredArgsConstructor
@@ -94,19 +93,44 @@ public class LikeService {
 		List<Note> likedNotes = noteRepository.findAllLikedNotesByUserId(userId);
 		List<Page> likedPages = pageRepository.findAllLikedPagesByUserId(userId);
 
-		List<LikeResponseDto.FolderInfo> folderInfos = likedFolders.stream().map(folder -> {
-			String rootFolderId = folderRepository.findRootFolderByFolderId(folder.getFolderId());
-			LikeResponseDto.FolderInfo folderInfo = new LikeResponseDto.FolderInfo();
-			folderInfo.setSpaceTitle(folder.getSpaceId());
-			folderInfo.setFolderId(folder.getFolderId());
-			folderInfo.setRootFolderId(rootFolderId);
-			folderInfo.setTitle(folder.getTitle());
-			folderInfo.setUpdatedAt(folder.getUpdatedAt());
-			folderInfo.setCreatedAt(folder.getCreatedAt());
-			return folderInfo;
-		}).collect(Collectors.toList());
+		List<LikeResponseDto.FolderInfo> folderInfos = likedFolders.stream()
+				.map(folder -> LikeResponseDto.FolderInfo.builder()
+						.folderId(folder.getFolderId())
+						.rootFolderId(folderRepository.findRootFolderByFolderId(folder.getFolderId()))
+						.spaceId(folder.getSpaceId())
+						.title(folder.getTitle())
+						.createdAt(folder.getCreatedAt())
+						.updatedAt(folder.getUpdatedAt())
+						.build())
+				.toList();
 
-		return new LikeResponseDto(folderInfos, likedNotes, likedPages);
+		List<LikeResponseDto.NoteInfo> noteInfos = likedNotes.stream()
+				.map(note -> LikeResponseDto.NoteInfo.builder()
+						.noteId(note.getNoteId())
+						.spaceId(note.getSpaceId())
+						.title(note.getTitle())
+						.totalPageCnt(note.getTotalPageCnt())
+						.createdAt(note.getCreatedAt())
+						.updatedAt(note.getUpdatedAt())
+						.build())
+				.toList();
+
+		List<LikeResponseDto.PageInfo> pageInfos = likedPages.stream()
+				.map(page -> LikeResponseDto.PageInfo.builder()
+						.pageId(page.getPageId())
+						.noteId(page.getNoteId())
+						.spaceId(noteRepository.findSpaceIdByNoteId(page.getNoteId()))
+						.template(page.getTemplate())
+						.color(page.getColor())
+						.direction(page.getDirection())
+						.pdfUrl(page.getPdfUrl())
+						.pdfPage(page.getPdfPage())
+						.createdAt(page.getCreatedAt())
+						.updatedAt(page.getUpdatedAt())
+						.build())
+				.toList();
+
+		return new LikeResponseDto(folderInfos, noteInfos, pageInfos);
 	}
 
 }

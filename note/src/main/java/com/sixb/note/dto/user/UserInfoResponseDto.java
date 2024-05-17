@@ -9,6 +9,7 @@ public class UserInfoResponseDto {
 
 	private String nickname;
 	private String profileImg;
+	private String privateSpaceId;
 	private String rootFolderId;
 
 }

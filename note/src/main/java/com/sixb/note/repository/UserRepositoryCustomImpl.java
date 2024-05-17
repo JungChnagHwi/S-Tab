@@ -1,7 +1,7 @@
 package com.sixb.note.repository;
 
-import com.sixb.note.dto.user.UserInfoRequestDto;
 import com.sixb.note.dto.user.NicknameResponseDto;
+import com.sixb.note.dto.user.UserInfoRequestDto;
 import com.sixb.note.dto.user.UserInfoResponseDto;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +41,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(
 						user.property("nickname").as("nickname"),
 						user.property("profileImg").as("profileImg"),
+						space.property("spaceId").as("privateSpaceId"),
 						folder.property("folderId").as("rootFolderId"))
 				.build();
 
@@ -53,6 +54,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
+						.privateSpaceId(record.get("privateSpaceId").asString())
 						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
@@ -122,6 +124,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(
 						user.property("nickname").as("nickname"),
 						user.property("profileImg").as("profileImg"),
+						space.property("spaceId").as("privateSpaceId"),
 						folder.property("folderId").as("rootFolderId"))
 				.build();
 
@@ -134,6 +137,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
+						.privateSpaceId(record.get("privateSpaceId").asString())
 						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
@@ -162,6 +166,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				.returning(
 						user.property("nickname").as("nickname"),
 						user.property("profileImg").as("profileImg"),
+						space.property("spaceId").as("privateSpaceId"),
 						folder.property("folderId").as("rootFolderId"))
 				.build();
 
@@ -174,6 +179,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 				response = UserInfoResponseDto.builder()
 						.nickname(record.get("nickname").asString())
 						.profileImg(record.get("profileImg").asString())
+						.privateSpaceId(record.get("privateSpaceId").asString())
 						.rootFolderId(record.get("rootFolderId").asString())
 						.build();
 			}
