@@ -5,6 +5,7 @@ import com.sixb.note.dto.space.*;
 import com.sixb.note.exception.ExistUserException;
 import com.sixb.note.exception.NotFoundException;
 import com.sixb.note.exception.SpaceNotFoundException;
+import com.sixb.note.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,25 +21,33 @@ public class SpaceController {
 	private final SpaceService spaceService;
 
 	@GetMapping("/list")
-	public ResponseEntity<List<SpaceResponseDto>> getAllSpaceDetails(@RequestParam long userId) {
-		List<SpaceResponseDto> spaces = spaceService.findAllSpaceDetails(userId);
-		return ResponseEntity.ok(spaces);
+	public ResponseEntity<?> getAllSpaceDetails(@RequestParam long userId) {
+		try {
+			List<SpaceResponseDto> spaces = spaceService.findAllSpaceDetails(userId);
+			return ResponseEntity.ok(spaces);
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
 	}
 
 	@GetMapping("/{spaceId}")
-	public ResponseEntity<SpaceResponseDto> getSpaceDetails(@RequestParam long userId, @PathVariable String spaceId) {
+	public ResponseEntity<?> getSpaceDetails(@RequestParam long userId, @PathVariable String spaceId) {
 		try {
 			SpaceResponseDto spaceDetails = spaceService.findSpaceDetails(userId, spaceId);
 			return ResponseEntity.ok(spaceDetails);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.notFound().build();
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 
 	@PostMapping
-	public ResponseEntity<SpaceResponseDto> createSpace(@RequestBody SpaceRequestDto requestDto, @RequestParam long userId) {
-		SpaceResponseDto createdSpace = spaceService.createSpace(requestDto, userId);
-		return new ResponseEntity<>(createdSpace, HttpStatus.CREATED);
+	public ResponseEntity<?> createSpace(@RequestBody SpaceRequestDto requestDto, @RequestParam long userId) {
+		try {
+			SpaceResponseDto createdSpace = spaceService.createSpace(requestDto, userId);
+			return ResponseEntity.status(HttpStatus.CREATED).body(createdSpace);
+		} catch (UserNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
 	}
 
 	@PatchMapping("/rename")
@@ -68,7 +77,7 @@ public class SpaceController {
 			return ResponseEntity.ok("스페이스 참여 성공");
 		} catch (ExistUserException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
-		} catch (SpaceNotFoundException e) {
+		} catch (UserNotFoundException | SpaceNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}

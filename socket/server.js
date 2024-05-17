@@ -110,12 +110,13 @@ io.on("connection", (socket) => {
   });
 
   // 스페이스 접속
-  socket.on("joinSpace", (spaceId, nickname) => {
+  socket.on("joinSpace", (spaceId, nickname, profileImg) => {
     // 유저 입장
     spaceRoom[spaceId] = {
       ...spaceRoom[spaceId],
       [socket.id]: {
         nickname,
+        profileImg,
         color: randomRGB(),
       },
     };
@@ -135,12 +136,13 @@ io.on("connection", (socket) => {
   });
 
   // 노트 접속
-  socket.on("joinNote", (noteId, nickname, color) => {
+  socket.on("joinNote", (noteId, nickname, profileImg, color) => {
     // 유저 입장
     noteRoom[noteId] = {
       ...noteRoom[noteId],
       [socket.id]: {
         nickname,
+        profileImg,
         color,
       },
     };

@@ -33,11 +33,10 @@ public class NoteService {
 	}
 
 	//노트 이름 변경
-	public void updateNoteTitle(String noteId, String newTitle) throws NotFoundException {
-		Note note = noteRepository.findNoteById(noteId);
-		if (note == null) {
-			throw new NotFoundException("노트 이름 수정 실패");
-		}
+	public void updateNoteTitle(String noteId, String newTitle) throws NoteNotFoundException {
+		Note note = noteRepository.findNoteById(noteId)
+				.orElseThrow(() -> new NoteNotFoundException("존재하지 않는 노트입니다."));
+
 		noteRepository.updateNoteTitle(noteId, newTitle);
 	}
 
@@ -46,20 +45,15 @@ public class NoteService {
 	}
 
 	//노트 삭제
-	public void deleteNote(String noteId) throws NoteNotFoundException {
-		Note note = noteRepository.findNoteById(noteId);
-
-		if (note == null) {
-			throw new NoteNotFoundException("존재하지 않는 노트입니다.");
-		}
-
-		note.setIsDeleted(true);
-		noteRepository.save(note);
+	public void deleteNote(String noteId) {
+		noteRepository.deleteNote(noteId);
 	}
 
-	public NoteCopyResponseDto copyNote(NoteCopyRequestDto requestDto) {
-		Note existingNote = noteRepository.findNoteById(requestDto.getNoteId());
-		Folder parentFolder = folderRepository.findFolderById(requestDto.getParentFolderId());
+	public NoteCopyResponseDto copyNote(NoteCopyRequestDto requestDto) throws FolderNotFoundException, NoteNotFoundException {
+		Note existingNote = noteRepository.findNoteById(requestDto.getNoteId())
+				.orElseThrow(() -> new NoteNotFoundException("존재하지 않는 노트입니다."));
+		Folder parentFolder = folderRepository.findFolderById(requestDto.getParentFolderId())
+				.orElseThrow(() -> new FolderNotFoundException("존재하지 않는 폴더입니다."));
 		String formattedNoteId = IdCreator.create("n");
 
 		List<Page> pages = pageRepository.findAllByNoteId(requestDto.getNoteId());

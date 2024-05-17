@@ -21,7 +21,7 @@ public interface FolderRepository extends Neo4jRepository<Folder, String>, Folde
 	List<Folder> findDeletedFolders(@Param("userId") long userId);
 
 	@Query("MATCH (f:Folder) WHERE f.folderId = $folderId RETURN f")
-	Folder findFolderById(@Param("folderId") String folderId);
+	Optional<Folder> findFolderById(@Param("folderId") String folderId);
 
 	@Query("MATCH (u:User {userId: $userId})-[:Like]->(f:Folder) WHERE f.isDeleted = false RETURN f")
 	List<Folder> findAllLikedFoldersByUserId(@Param("userId") long userId);

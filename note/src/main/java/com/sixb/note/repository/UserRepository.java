@@ -15,6 +15,6 @@ public interface UserRepository extends Neo4jRepository<User, Long>, UserReposit
 	List<User> findUsersBySpaceId(String spaceId);
 
 	@Query("MATCH (u:User) WHERE u.userId = $userId RETURN u")
-	User findUserById(@Param("userId") long userId);
+	Optional<User> findUserById(@Param("userId") long userId);
 
 }

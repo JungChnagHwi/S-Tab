@@ -36,17 +36,11 @@ public class LikeService {
 
 	// 즐겨찾기 추가/삭제
 	private void modifyLike(long userId, String itemId, boolean isAdding) throws NotFoundException {
-		User user = userRepository.findUserById(userId);
+		User user = userRepository.findUserById(userId)
+				.orElseThrow(() -> new NotFoundException("존재하지 않는 유저입니다."));
 
-		if (user == null) {
-			throw new NotFoundException("존재하지 않는 유저입니다.");
-		}
-
-		Object item = findItemById(itemId);
-
-		if (item == null) {
-			throw new NotFoundException("존재하지 않는 아이템입니다.");
-		}
+		Object item = findItemById(itemId)
+				.orElseThrow(() -> new NotFoundException("존재하지 않는 아이템입니다."));
 
 		if (isAdding) {
 			addItemToUser(user, item);
@@ -56,7 +50,7 @@ public class LikeService {
 		}
 	}
 
-	private Object findItemById(String itemId) {
+	private Optional<?> findItemById(String itemId) {
 		return switch (itemId.charAt(0)) {
 			case 'f' -> folderRepository.findFolderById(itemId);
 			case 'n' -> noteRepository.findNoteById(itemId);
@@ -66,12 +60,14 @@ public class LikeService {
 	}
 
 	private void addItemToUser(User user, Object item) {
-		if (item instanceof Folder) {
-			user.getFolders().add((Folder) item);
-		} else if (item instanceof Note) {
-			user.getNotes().add((Note) item);
-		} else if (item instanceof Page) {
-			user.getPages().add((Page) item);
+		if (item instanceof Folder folder) {
+			user.getFolders().add(folder);
+		} else if (item instanceof Note note) {
+			user.getNotes().add(note);
+		} else if (item instanceof Page page) {
+			user.getPages().add(page);
+		} else {
+			throw new IllegalArgumentException("잘못된 요청입니다.");
 		}
 	}
 
