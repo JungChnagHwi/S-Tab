@@ -180,16 +180,17 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
         }
 
         Spacer(modifier = Modifier.weight(1f))
-        CallStateBox(
-            currentCallSpaceName = currentCallSpaceName,
-            isInCall = callState.value.isInCall,
-            isMuted = audioCallViewModel.isMuted.value,
-            isSpeakerMuted = audioCallViewModel.isSpeakerMuted.value,
-            toggleMic = { audioCallViewModel.toggleMic() },
-            toggleSpeaker = { audioCallViewModel.toggleSpeaker() },
-            leaveSession = { audioCallViewModel.leaveSession() },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
+        if (callState.value.isInCall) {
+            CallStateBox(
+                currentCallSpaceName = currentCallSpaceName,
+                isMuted = audioCallViewModel.isMuted.value,
+                isSpeakerMuted = audioCallViewModel.isSpeakerMuted.value,
+                toggleMic = { audioCallViewModel.toggleMic() },
+                toggleSpeaker = { audioCallViewModel.toggleSpeaker() },
+                leaveSession = { audioCallViewModel.leaveSession() },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
     }
 }
 
@@ -219,7 +220,6 @@ fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<Shar
 @Composable
 fun CallStateBox(
     currentCallSpaceName: String,
-    isInCall: Boolean,
     isMuted: Boolean,
     isSpeakerMuted: Boolean,
     toggleMic: () -> Unit,
@@ -246,7 +246,6 @@ fun CallStateBox(
             .clip(RoundedCornerShape(10.dp))
             .background(color = Color(0xFF7591C6))
     ) {
-        if (isInCall) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -296,28 +295,7 @@ fun CallStateBox(
                         }
                 )
             }
-        } else {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp)
-                    .align(Alignment.Center),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Image(
-                    painter = noWifiImg,
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp)
-                )
-                Text(
-                    text = "참여 중인 통화가 없습니다.",
-                    color = Color(0xFFE9ECF5)
-                )
-            }
-
         }
-    }
     Spacer(modifier = Modifier.height(30.dp))
 }
 
