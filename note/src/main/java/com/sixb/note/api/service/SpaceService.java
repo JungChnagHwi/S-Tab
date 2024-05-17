@@ -88,42 +88,47 @@ public class SpaceService {
 	public SpaceResponseDto createSpace(SpaceRequestDto requestDto, long userId) throws UserNotFoundException {
 		User user = userRepository.findUserById(userId)
 				.orElseThrow(() -> new UserNotFoundException("존재하지 않는 유저입니다."));
-		Space newSpace = new Space();
-		String folderId = IdCreator.create("f");
-		newSpace.setTitle(requestDto.getTitle());
-		newSpace.setSpaceId(IdCreator.create("s"));
-		newSpace.setRootFolderId(folderId);
-		newSpace.setIsPublic(true);
-		newSpace.setSpaceMd("SSAFY");
-		LocalDateTime now = LocalDateTime.now();
-		newSpace.setCreatedAt(now);
-		newSpace.setUpdatedAt(now);
 
-		Folder newFolder = new Folder();
-		newFolder.setSpaceId(newSpace.getSpaceId());
-		newFolder.setTitle("root");
-		newFolder.setFolderId(folderId);
-		newFolder.setCreatedAt(now);
-		newFolder.setUpdatedAt(now);
+		LocalDateTime now = LocalDateTime.now();
+		String folderId = IdCreator.create("f");
+		String spaceId = IdCreator.create("s");
+
+		Space newSpace = Space.builder()
+				.spaceId(spaceId)
+				.rootFolderId(folderId)
+				.isPublic(true)
+				.spaceMd("")
+				.createdAt(now)
+				.updatedAt(now)
+				.build();
+
+		Folder newFolder = Folder.builder()
+				.folderId(folderId)
+				.spaceId(spaceId)
+				.title("root")
+				.createdAt(now)
+				.updatedAt(now)
+				.build();
 
 		newSpace.setFolder(newFolder);
-		newSpace.setUsers(Arrays.asList(user));
-		Space savedSpace = spaceRepository.save(newSpace);
-		return convertToSpaceResponseDto(savedSpace, folderId);
-	}
+		newSpace.setUsers(List.of(user));
+		spaceRepository.save(newSpace);
 
-	private SpaceResponseDto convertToSpaceResponseDto(Space space, String folderId) {
-		SpaceResponseDto responseDto = new SpaceResponseDto();
-		responseDto.setSpaceId(space.getSpaceId());
-		responseDto.setRootFolderId(folderId);
-		responseDto.setTitle(space.getTitle());
-		responseDto.setIsPublic(true);
-		responseDto.setSpaceMd("SSAFY");
-		responseDto.setCreatedAt(LocalDateTime.now());
-		responseDto.setUpdatedAt(LocalDateTime.now());
-		responseDto.setUsers(new ArrayList<>());
-
-		return responseDto;
+		return SpaceResponseDto.builder()
+				.spaceId(newSpace.getSpaceId())
+				.rootFolderId(folderId)
+				.title(newSpace.getTitle())
+				.isPublic(newSpace.getIsPublic())
+				.spaceMd(newSpace.getSpaceMd())
+				.createdAt(newSpace.getCreatedAt())
+				.updatedAt(newSpace.getUpdatedAt())
+				.users(newSpace.getUsers().stream()
+						.map(u -> SpaceResponseDto.UserResponse.builder()
+								.nickname(u.getNickname())
+								.profileImg(u.getProfileImg())
+								.build())
+						.toList())
+				.build();
 	}
 
 	//스페이스 이름 변경
@@ -134,15 +139,6 @@ public class SpaceService {
 		}
 		spaceRepository.updateSpaceTitle(spaceId, newTitle);
 	}
-
-//    //스페이스 삭제
-//    public boolean deleteSpace(String spaceId) {
-//        if (spaceRepository.existsById(spaceId)) {
-//            spaceRepository.deleteById(spaceId);
-//            return true;
-//        }
-//        return false;
-//    }
 
 	//스페이스 참가
 	public void joinSpace(long userId, String spaceId) throws ExistUserException, SpaceNotFoundException, UserNotFoundException {
