@@ -39,18 +39,19 @@ import androidx.navigation.NavController
 import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.R
 import com.ssafy.stab.components.ChatBotScreen
+import com.ssafy.stab.components.note.CallStateBox
 import com.ssafy.stab.components.note.ColorOptions
 import com.ssafy.stab.components.note.ControlsBar
 import com.ssafy.stab.components.note.PageInterfaceBar
 import com.ssafy.stab.components.note.PageList
 import com.ssafy.stab.components.note.StrokeOptions
 import com.ssafy.stab.data.PreferencesUtil
-import com.ssafy.stab.screens.space.NoteListViewModel
 import com.ssafy.stab.ui.theme.Background
 import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.util.gpt.ChatBotViewModel
 import com.ssafy.stab.util.note.NoteControlViewModel
 import com.ssafy.stab.util.note.NoteControlViewModelFactory
+import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
@@ -58,7 +59,9 @@ fun NoteScreen(
     noteId: String,
     spaceId: String,
     socketManager: SocketManager,
-    navController: NavController
+    navController: NavController,
+    audioCallViewModel: AudioCallViewModel,
+    currentCallSpaceName: String
 ){
     val noteViewModel: NoteViewModel = viewModel(factory = NoteViewModelFactory(noteId))
     val userName = PreferencesUtil.getLoginDetails().userName ?: ""
@@ -77,6 +80,8 @@ fun NoteScreen(
     var showUserList by remember { mutableStateOf(false) }
     var showChatBot by remember { mutableStateOf(false) }
     val chatBotImg = painterResource(id = R.drawable.chatbot)
+
+    val callState = PreferencesUtil.callState.collectAsState()
 
     LaunchedEffect(spaceId) {
         // 개인 스페이스 아이디가 아닐 때로 로직 수정필요
@@ -131,6 +136,13 @@ fun NoteScreen(
                     currentPage = currentPage.value,
                     viewModel = noteViewModel,
                 )
+                if (callState.value.isInCall) {
+                    CallStateBox(
+                        currentCallSpaceName = currentCallSpaceName,
+                        isMuted = audioCallViewModel.isMuted.value,
+                        toggleMic = { audioCallViewModel.toggleMic() },
+                        leaveSession = {audioCallViewModel.leaveSession() })
+                }
             }
 
             Row(

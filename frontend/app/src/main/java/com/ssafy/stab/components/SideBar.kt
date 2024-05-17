@@ -244,7 +244,7 @@ fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<Shar
 }
 
 @Composable
-fun CallStateBox(
+private fun CallStateBox(
     currentCallSpaceName: String,
     isMuted: Boolean,
     toggleMic: () -> Unit,

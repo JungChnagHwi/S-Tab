@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,6 +55,7 @@ fun SpaceRouters(
     // NavController의 현재 라우트를 추적
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
+    val shareSpaceList by spaceViewModel.shareSpaceList.collectAsState()
 
     Row(modifier = Modifier.fillMaxSize()) {
         // "personal-note"와 "share-note"가 아닐 때만 SideBar를 렌더링
@@ -90,7 +93,9 @@ fun SpaceRouters(
                 composable("note/{noteId}/{spaceId}") {backStackEntry ->
                     val noteId = backStackEntry.arguments?.getString("noteId") ?: ""
                     val spaceId = backStackEntry.arguments?.getString("spaceId") ?: ""
-                    NoteScreen(noteId, spaceId, socketManager, navController)
+
+                    val currentCallSpaceName = shareSpaceList.find { it.spaceId == PreferencesUtil.callState.value.callSpaceId }?.title ?: "Unknown Space"
+                    NoteScreen(noteId, spaceId, socketManager, navController, audioCallViewModel, currentCallSpaceName)
                 }
                 dialog("patch-auth") {
                     PatchAuth(onDismiss = { navController.popBackStack() })
