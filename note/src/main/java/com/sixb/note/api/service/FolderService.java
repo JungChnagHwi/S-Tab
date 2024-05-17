@@ -7,6 +7,7 @@ import com.sixb.note.entity.Space;
 import com.sixb.note.exception.FolderNotFoundException;
 import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
+import com.sixb.note.repository.SpaceRepository;
 import com.sixb.note.util.IdCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class FolderService {
 
 	private final FolderRepository folderRepository;
 	private final NoteRepository noteRepository;
+	private final SpaceRepository spaceRepository;
 
 	// 폴더 조회
 	public FolderResponseDto getFolderDetail(String folderId, long userId) {
