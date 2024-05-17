@@ -1,5 +1,6 @@
 package com.ssafy.stab.modals
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -26,7 +27,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.folder.createFolder
+import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListViewModel
+import com.ssafy.stab.util.SocketManager
 
 
 @Composable
@@ -34,6 +37,7 @@ fun CreateFolderModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
     var folderName by remember { mutableStateOf("제목 없는 폴더") }
     val folderImg = painterResource(id = R.drawable.folder)
     val folderId by viewModel.folderId.collectAsState()
+    val socketManager = SocketManager.getInstance()
 
     Column(
         modifier = Modifier.padding(10.dp).background(color = Color.White),
@@ -61,6 +65,10 @@ fun CreateFolderModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
             Spacer(modifier = Modifier.width(30.dp))
             Button(onClick = { createFolder(folderId, folderName) { response ->
                 viewModel.addFolder(response)
+                Log.d("CheckingFolder", response.toString())
+                Log.d("ShareSpaceState: ", PreferencesUtil.getShareSpaceState().toString())
+                PreferencesUtil.getShareSpaceState()
+                    ?.let { socketManager.updateSpace(it, "FolderCreated", response) }
             }
                 closeModal()
             }) {

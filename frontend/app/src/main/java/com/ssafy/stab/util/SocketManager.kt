@@ -11,6 +11,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
+import com.ssafy.stab.apis.space.folder.Folder
 import com.ssafy.stab.apis.space.folder.Note
 import com.ssafy.stab.screens.space.NoteListViewModel
 import io.socket.client.IO
@@ -202,7 +203,11 @@ class SocketManager private constructor() {
                 Log.d("ChekingInSocket", note.toString())
                 viewModel.addNote(note)
             }
-            // 다른 이벤트 타입에 대한 처리 추가 가능
+            "FolderCreated" -> {
+                val folder = gson.fromJson(data.toString(), Folder::class.java)
+                Log.d("CheckingInSocket", folder.toString())
+                viewModel.addFolder(folder)
+            }
         }
     }
 
