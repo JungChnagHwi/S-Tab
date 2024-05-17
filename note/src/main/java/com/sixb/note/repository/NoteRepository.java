@@ -41,4 +41,7 @@ public interface NoteRepository extends Neo4jRepository<Note, String>, NoteRepos
 			"DELETE or")
 	void relocateNote(String noteId, String parentFolderId);
 
+	@Query("MATCH (n:Note {noteId: $noteId}) RETURN n.spaceId")
+	String findSpaceIdByNoteId(String noteId);
+
 }
