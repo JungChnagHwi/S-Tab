@@ -50,8 +50,8 @@ public class UserController {
 		}
 	}
 
-	@GetMapping("/{nickname}")
-	public ResponseEntity<NicknameResponseDto> checkNickname(@PathVariable String nickname) {
+	@GetMapping("/nickname")
+	public ResponseEntity<NicknameResponseDto> checkNickname(@RequestParam String nickname) {
 		NicknameResponseDto response = userService.checkNickname(nickname);
 		return ResponseEntity.ok(response);
 	}
