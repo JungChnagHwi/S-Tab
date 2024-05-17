@@ -56,27 +56,29 @@ public interface FolderRepository extends Neo4jRepository<Folder, String>, Folde
 			"RETURN nodes(path) AS folders")
 	List<Folder> findFoldersBetween(@Param("parentFolderId") String parentFolderId, @Param("endFolderId") String endFolderId);
 
-	@Query("MATCH (f:Folder {folderId: $folderId})-[:Hierarchy*]->(s) " +
+	@Query("MATCH (f:Folder {folderId: $folderId}) " +
+			"OPTIONAL MATCH (f)-[:Hierarchy*]->(s) " +
 			"WHERE s.isDeleted = false " +
 			"SET f.isDeleted = true, " +
 			"    f.updatedAt = $now, " +
 			"    s.isDeleted = true, " +
 			"    s.updatedAt = $now " +
-			"with s " +
-			"MATCH (s)-[:NextPage*]->(p:Page) " +
+			"WITH s " +
+			"OPTIONAL MATCH (s)-[:NextPage*]->(p:Page) " +
 			"WHERE p.isDeleted = false " +
 			"SET p.isDeleted = true, " +
 			"    p.updatedAt = $now")
 	void deleteFolder(String folderId, LocalDateTime now);
 
-	@Query("MATCH (f:Folder {folderId: $folderId})-[:Hierarchy*]->(s) " +
+	@Query("MATCH (f:Folder {folderId: $folderId}) " +
+			"OPTIONAL MATCH (f)-[:Hierarchy*]->(s) " +
 			"WHERE s.updatedAt = $deletedAt " +
 			"SET f.isDeleted = false, " +
 			"    f.updatedAt = $now, " +
 			"    s.isDeleted = false, " +
 			"    s.updatedAt = $now " +
-			"with f, s " +
-			"MATCH (s)-[:NextPage*]->(p:Page) " +
+			"WITH f, s " +
+			"OPTIONAL MATCH (s)-[:NextPage*]->(p:Page) " +
 			"WHERE p.updatedAt = $deletedAt " +
 			"SET p.isDeleted = false, " +
 			"    p.updatedAt = $now")
