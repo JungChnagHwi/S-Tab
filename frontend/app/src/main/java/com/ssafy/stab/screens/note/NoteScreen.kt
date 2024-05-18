@@ -46,6 +46,7 @@ import com.ssafy.stab.components.note.PageInterfaceBar
 import com.ssafy.stab.components.note.PageList
 import com.ssafy.stab.components.note.StrokeOptions
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.modals.UserListModal
 import com.ssafy.stab.data.note.PenType
 import com.ssafy.stab.ui.theme.Background
 import com.ssafy.stab.util.SocketManager
@@ -172,17 +173,13 @@ fun NoteScreen(
                 }
                 StrokeOptions(noteControlViewModel)
                 Spacer(modifier = Modifier.weight(1f))
-                // 참여 유저 리스트 UI 업데이트 필요
-//                socketManager.userList.forEach { user ->
-//                    Text(text = "Nickname: ${user.nickname}")
-//                }
                 if (spaceId != personalSpaceId) {
                     Image(
                         painter = painterResource(R.drawable.people),
                         contentDescription = "users",
                         modifier = Modifier
                             .size(38.dp)
-                            .clickable { }
+                            .clickable { showUserList = !showUserList }
                     )
                 }
                 Image(
@@ -213,6 +210,17 @@ fun NoteScreen(
                             viewModel = chatBotViewModel,
                             onDismiss = { showChatBot = false }
                         )
+                    }
+                }
+
+                if (showUserList) {
+                    Box(
+                        modifier = Modifier
+                            .width(400.dp)
+                            .height(800.dp)
+                            .padding(top = 112.dp, end = 20.dp)
+                    ) {
+                        UserListModal(socketManager.userList)
                     }
                 }
             }

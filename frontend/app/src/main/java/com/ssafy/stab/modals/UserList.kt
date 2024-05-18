@@ -5,24 +5,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
+import com.ssafy.stab.data.note.User
 
 @Composable
-fun UserListModal() {
-    val onlineUsers = listOf("참가자1", "참가자2")
-    val offlineUsers = listOf("참가자3", "참가자4", "참가자5", "참가자6")
-
+fun UserListModal(userList: SnapshotStateList<User>) {
     val profileImg = painterResource(id = R.drawable.profile)
-    val muteImg = painterResource(id = R.drawable.soundoff)
-    val micImg = painterResource(id = R.drawable.soundon)
 
     Column(
         modifier = Modifier
@@ -30,19 +29,14 @@ fun UserListModal() {
             .width(300.dp)
             .height(400.dp)
             .padding(16.dp)
+            .clip(RoundedCornerShape(20.dp))
     ) {
         LazyColumn {
             item {
-                SectionTitle(title = "통화중")
+                SectionTitle(title = "노트 참여자")
             }
-            items(onlineUsers) { user ->
-                UserRow(user, profileImg, muteImg, micImg)
-            }
-            item {
-                SectionTitle(title = "오프라인")
-            }
-            items(offlineUsers) { user ->
-                UserRow(user, profileImg, muteImg, micImg)
+            items(userList) { user ->
+                UserRow(user.nickname, profileImg)
             }
         }
     }
@@ -58,12 +52,7 @@ fun SectionTitle(title: String) {
 fun UserRow(
     user: String,
     profileImg: Painter,
-    muteImg: Painter,
-    micImg: Painter
-) {
-    var volume by remember { mutableFloatStateOf(0.5f) }
-    var isMuted by remember { mutableStateOf(false) }
-
+    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -75,25 +64,26 @@ fun UserRow(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 16.dp)
+                .padding(end = 8.dp)
         ) {
             Text(text = user)
-            Spacer(modifier = Modifier.height(8.dp))
-            Slider(
-                value = volume,
-                onValueChange = { newVolume ->
-                    if (!isMuted) {
-                        volume = newVolume
-                    }
-                },
-                enabled = !isMuted
-            )
-        }
-        IconButton(onClick = { isMuted = !isMuted }) {
-            Icon(
-                painter = if (isMuted) muteImg else micImg,
-                contentDescription = if (isMuted) "음소거" else "음소거 해제"
-            )
+//            Spacer(modifier = Modifier.height(8.dp))
+//            Slider(
+//                value = volume,
+//                onValueChange = { newVolume ->
+//                    if (!isMuted) {
+//                        volume = newVolume
+//                    }
+//                },
+//                enabled = !isMuted
+//            )
+//        }
+//        IconButton(onClick = { isMuted = !isMuted }) {
+//            Icon(
+//                painter = if (isMuted) muteImg else micImg,
+//                contentDescription = if (isMuted) "음소거" else "음소거 해제"
+//            )
+//        }
         }
     }
 }
