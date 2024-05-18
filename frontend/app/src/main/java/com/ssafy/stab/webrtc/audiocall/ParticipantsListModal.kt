@@ -38,12 +38,15 @@ import androidx.compose.ui.unit.dp
 import com.google.gson.JsonParser
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.User
+import com.ssafy.stab.modals.UserProfileImage
 
 
 @Composable
 fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>, sessionId: String, onDismiss: () -> Unit) {
 
-    val profileImg = painterResource(id = R.drawable.profile)
+//    val profileImg = painterResource(id = R.drawable.profile)
+    var profileImgUrl = "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/18/3470552700/e6610701-3998-467b-8b48-91a66896165f_content%253A%252F%252Fmedia%252Fexternal%252Fimages%252Fmedia%252F1000013707.jpeg"
+
     val muteImg = painterResource(id = R.drawable.soundoff)
     val micImg = painterResource(id = R.drawable.soundon)
 
@@ -61,7 +64,10 @@ fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>,
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clickable(onClick = onDismiss, indication = null, interactionSource = remember { MutableInteractionSource() }) // 모달 외부 클릭시 닫기
+            .clickable(
+                onClick = onDismiss,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }) // 모달 외부 클릭시 닫기
     ) {
         Column(
             modifier = Modifier
@@ -77,13 +83,19 @@ fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>,
                     SectionTitle(title = "통화중")
                 }
                 items(onlineUsers) { user ->
-                    UserRow(user.nickname, profileImg, muteImg, micImg)
+                    if (user.profileImg != "null") {
+                        profileImgUrl = user.profileImg
+                    }
+                    UserRow(user.nickname, profileImgUrl, muteImg, micImg)
                 }
                 item {
                     SectionTitle(title = "오프라인")
                 }
                 items(offlineUsers) { user ->
-                    UserRow(user.nickname, profileImg, muteImg, micImg)
+                    if (user.profileImg != "null") {
+                        profileImgUrl = user.profileImg
+                    }
+                    UserRow(user.nickname, profileImgUrl, muteImg, micImg)
                 }
             }
         }
@@ -100,7 +112,7 @@ fun SectionTitle(title: String) {
 @Composable
 fun UserRow(
     user: String,
-    profileImg: Painter,
+    profileImgUrl: String,
     muteImg: Painter,
     micImg: Painter
 ) {
@@ -113,7 +125,8 @@ fun UserRow(
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(painter = profileImg, contentDescription = "프로필 이미지")
+//        Image(painter = profileImg, contentDescription = "프로필 이미지")
+        UserProfileImage(profileImgUrl)
         Spacer(modifier = Modifier.width(15.dp))
         Column(
             modifier = Modifier

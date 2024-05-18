@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -74,17 +75,7 @@ fun UserRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
 //        Image(painter = profileImg, contentDescription = "프로필 이미지")
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(profileImgUrl)
-                .crossfade(true)
-                .build(),
-            contentDescription = "프로필 이미지",
-            modifier = Modifier
-                .width(30.dp)
-                .height(30.dp)
-                .clip(RoundedCornerShape(15.dp))
-        )
+        UserProfileImage(profileImgUrl)
         Spacer(modifier = Modifier.width(15.dp))
         Column(
             modifier = Modifier
@@ -123,8 +114,11 @@ fun UserProfileImage(profileImageUrl: String) {
 //            .placeholder(R.drawable.placeholder)  // 로딩 중 표시할 이미지
 //            .error(R.drawable.error_image)        // 로드 실패 시 표시할 이미지
             .build(),
-        contentDescription = "User Profile Image",
-        modifier = Modifier.size(128.dp),
+        contentDescription = "프로필 이미지",
+        modifier = Modifier
+            .width(30.dp)
+            .height(30.dp)
+            .clip(CircleShape)
 //        contentScale = ContentScale.Crop // 이미지 크롭 방식 설정
     )
 }
