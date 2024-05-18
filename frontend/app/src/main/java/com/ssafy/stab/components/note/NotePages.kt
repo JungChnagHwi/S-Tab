@@ -1,6 +1,7 @@
 package com.ssafy.stab.components.note
 
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -48,14 +49,22 @@ import com.ssafy.stab.util.note.getTemplate
 fun PageList(
     noteViewModel: NoteViewModel,
     noteControlViewModel: NoteControlViewModel,
+    initialPageId: String,
     onPageChange: (Int) -> Unit,
 ) {
     var isTouching by remember { mutableStateOf(false) }
-
     val pageList by noteViewModel.pageList.collectAsState()
     val pageCount = pageList.size
-    val state = rememberPagerState { pageCount }
+
+    val state = rememberPagerState() { pageCount }
     val pageIndex = state.currentPage + 1
+
+    LaunchedEffect(pageList) {
+        val initialPageIndex = pageList.indexOfFirst { it.pageId == initialPageId }.takeIf { it != -1 } ?: 0
+        if (initialPageIndex != 0) {
+            state.scrollToPage(page = initialPageIndex)
+        }
+    }
 
     LaunchedEffect(state) {
         snapshotFlow { state.settledPage }.collect { page ->

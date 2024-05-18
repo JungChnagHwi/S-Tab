@@ -36,7 +36,8 @@ data class BookmardPage(
     @SerializedName("pdfPage") val pdfPage: Int,
     @SerializedName("updatedAt") val updatedAt: LocalDateTime,
     @SerializedName("spaceId") val spaceId: String,
-    @SerializedName("noteTitle") val noteTitle: String
+    @SerializedName("noteTitle") val noteTitle: String,
+    @SerializedName("noteId") val noteId: String
 )
 
 data class AddBookmarkRequest(
