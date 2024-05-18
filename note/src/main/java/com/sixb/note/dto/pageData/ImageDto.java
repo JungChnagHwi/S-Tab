@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 public class ImageDto {
 
 	private String url;
-	private Float width;
-	private Float height;
-	private Float x;
-	private Float y;
+	private float width;
+	private float height;
+	private float x;
+	private float y;
 
 }

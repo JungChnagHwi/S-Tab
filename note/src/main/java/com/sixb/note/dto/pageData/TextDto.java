@@ -11,10 +11,10 @@ public class TextDto {
 
 	private String content;
 	private String font;
-	private Float size;
+	private float size;
 	private String color;
-	private Boolean bold;
-	private Boolean italic;
-	private Boolean underline;
+	private boolean bold;
+	private boolean italic;
+	private boolean underline;
 
 }

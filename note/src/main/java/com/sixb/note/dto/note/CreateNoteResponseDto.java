@@ -1,5 +1,6 @@
 package com.sixb.note.dto.note;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,11 +16,13 @@ public class CreateNoteResponseDto {
 	private String noteId;
 	private String title;
 	private int totalPageCnt;
+	@JsonProperty(value = "isLiked")
 	private boolean isLiked;
 	private PageDto page;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-	private Boolean isDeleted;
+	@JsonProperty(value = "isDeleted")
+	private boolean isDeleted;
 
 	@Data
 	@Builder
@@ -30,9 +33,11 @@ public class CreateNoteResponseDto {
 		private String color;
 		private String template;
 		private int direction;
+		@JsonProperty(value = "isBookmarked")
 		private boolean isBookmarked;
 		private LocalDateTime createdAt;
 		private LocalDateTime updatedAt;
-		private Boolean isDeleted;
+		@JsonProperty(value = "isDeleted")
+		private boolean isDeleted;
 	}
 }

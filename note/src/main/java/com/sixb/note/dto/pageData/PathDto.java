@@ -12,7 +12,7 @@ import java.util.*;
 public class PathDto {
 
 	private String penType;
-	private Float strokeWidth;
+	private float strokeWidth;
 	private String color;
 	private List<CoordinateDto> coordinates;
 
