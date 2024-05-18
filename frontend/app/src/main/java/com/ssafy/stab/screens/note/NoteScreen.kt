@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -216,9 +218,12 @@ fun NoteScreen(
                 if (showUserList) {
                     Box(
                         modifier = Modifier
-                            .width(400.dp)
-                            .height(800.dp)
-                            .padding(top = 112.dp, end = 20.dp)
+                            .align(Alignment.TopEnd) // 오른쪽 위에 배치
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color(0xFF7591C6))
+                            .width(250.dp)
+                            .height(400.dp)
+                            .padding(10.dp)
                     ) {
                         UserListModal(socketManager.userList)
                     }
