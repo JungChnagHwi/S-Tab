@@ -1,12 +1,14 @@
 package com.sixb.note.dto.page;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@Jacksonized
+@NoArgsConstructor
+@AllArgsConstructor
 public class PageCreateRequestDto {
 	private String beforePageId;
 }
