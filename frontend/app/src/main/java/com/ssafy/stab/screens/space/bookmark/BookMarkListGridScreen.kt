@@ -17,6 +17,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -210,8 +211,18 @@ fun FolderItem(
                 }
                 .align(Alignment.TopEnd))
         }
-        Text(text = folder.title ?: "untitled", fontSize = 16.sp, textAlign = TextAlign.Center)
-        Text(text = folder.updatedAt.format(DateTimeFormatter.ISO_DATE), fontSize = 16.sp, textAlign = TextAlign.Center)
+        Text(
+            text = folder.title ?: "untitled",
+            fontSize = 16.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(100.dp) // 가로 영역 제한
+        )
+        Text(
+            text = folder.updatedAt.format(DateTimeFormatter.ISO_DATE),
+            fontSize = 16.sp,
+            modifier = Modifier.width(100.dp) // 가로 영역 제한
+        )
     }
 }
 
@@ -226,7 +237,7 @@ fun NoteItem(note: BookmardNote, navController: NavController) {
     Column(
         modifier = Modifier
             .clickable {
-                       navController.navigate("")
+                navController.navigate("")
             },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -245,8 +256,18 @@ fun NoteItem(note: BookmardNote, navController: NavController) {
                 }
                 .align(Alignment.TopEnd))
         }
-        Text(text = note.title, fontSize = 16.sp, textAlign = TextAlign.Center)
-        Text(text = note.updatedAt.format(DateTimeFormatter.ISO_DATE), fontSize = 16.sp, textAlign = TextAlign.Center)
+        Text(
+            text = note.title,
+            fontSize = 16.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(100.dp) // 가로 영역 제한
+        )
+        Text(
+            text = note.updatedAt.format(DateTimeFormatter.ISO_DATE),
+            fontSize = 16.sp,
+            modifier = Modifier.width(100.dp) // 가로 영역 제한
+        )
     }
 }
 
@@ -255,10 +276,10 @@ fun PageItem(page: BookmardPage) {
     val staronImg = painterResource(id = R.drawable.bookmark_on)
     val staroffImg = painterResource(id = R.drawable.bookmark_off_white)
     val pageImg = painterResource(id = getTemplate(
-            page.template,
-            page.color,
-            if (page.direction == 0) Direction.Landscape else Direction.Landscape
-        ))
+        page.template,
+        page.color,
+        if (page.direction == 0) Direction.Landscape else Direction.Landscape
+    ))
     var isLiked by remember { mutableStateOf(true) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
@@ -282,8 +303,18 @@ fun PageItem(page: BookmardPage) {
                 }
                 .align(Alignment.TopEnd))
         }
-        Text(text = page.pageId ?: "untitled", fontSize = 16.sp, textAlign = TextAlign.Center)
-        Text(text = page.updatedAt.format(DateTimeFormatter.ISO_DATE), fontSize = 16.sp, textAlign = TextAlign.Center)
+        Text(
+            text = page.pageId ?: "untitled",
+            fontSize = 16.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(100.dp) // 가로 영역 제한
+        )
+        Text(
+            text = page.updatedAt.format(DateTimeFormatter.ISO_DATE),
+            fontSize = 16.sp,
+            modifier = Modifier.width(100.dp) // 가로 영역 제한
+        )
     }
 }
 
