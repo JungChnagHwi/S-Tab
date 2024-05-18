@@ -44,9 +44,6 @@ class MainActivity : ComponentActivity() {
         PreferencesUtil.init(this)
         PreferencesUtil.saveCallState(false, null) // 앱 시작 시 callState 초기화
 
-        socketManager = SocketManager.getInstance()
-        socketManager?.connectToSocket(BuildConfig.SOCKET_URL)
-
         val loginDetails = PreferencesUtil.getLoginDetails()
 
         // 딥링크 처리

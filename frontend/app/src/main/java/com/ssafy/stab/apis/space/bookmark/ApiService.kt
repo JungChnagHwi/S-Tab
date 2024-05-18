@@ -18,4 +18,7 @@ interface ApiService {
 
     @DELETE("api/like/{fileId}")
     fun deleteBookmark(@Header("Authorization") authorization: String, @Path("fileId") fileId: String): Call<Void>
+
+    @POST("api/folder/list")
+    fun getFolderPath(@Header("Authorization") authorization: String, @Body getPathRequest: GetPathRequest): Call<GetPathResponse>
 }

@@ -1,5 +1,6 @@
 package com.ssafy.stab.modals
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,13 +32,16 @@ import com.ssafy.stab.apis.space.folder.deleteFolder
 import com.ssafy.stab.apis.space.folder.renameFolder
 import com.ssafy.stab.apis.space.note.deleteNote
 import com.ssafy.stab.apis.space.note.renameNote
+import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListViewModel
+import com.ssafy.stab.util.SocketManager
 
 @Composable
 fun PatchDeleteModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileId: String, fileTitle: String) {
     var fileTitle by remember{ mutableStateOf(fileTitle) }
     val folderImg = painterResource(id = R.drawable.folder)
     val noteImg = painterResource(id = R.drawable.notebook)
+    val socketManager = SocketManager.getInstance()
 
     Column(
         modifier = Modifier.padding(10.dp).background(color = Color.White).fillMaxSize(),
@@ -64,10 +68,16 @@ fun PatchDeleteModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileI
                 if (fileId[0]== 'f') {
                     deleteFolder(fileId)
                     viewModel.deleteFolder(fileId)
+                    Log.d("FolderDeleted", fileId)
+                    PreferencesUtil.getShareSpaceState()
+                        ?.let { socketManager.updateSpace(it, "FolderDeleted", fileId) }
                     closeModal()
                 } else if (fileId[0] == 'n') {
                     deleteNote(fileId)
                     viewModel.deleteNote(fileId)
+                    Log.d("NoteDeleted", fileId)
+                    PreferencesUtil.getShareSpaceState()
+                        ?.let { socketManager.updateSpace(it, "NoteDeleted", fileId) }
                     closeModal()
                 }
             },
@@ -81,10 +91,20 @@ fun PatchDeleteModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileI
                 if (fileId[0]== 'f') {
                     renameFolder(fileId, fileTitle)
                     viewModel.renameFolder(fileId, fileTitle)
+                    Log.d("FolderUpdated", fileId)
+                    PreferencesUtil.getShareSpaceState()
+                        ?.let { spaceId ->
+                            val updatedData = mapOf("folderId" to fileId, "newTitle" to fileTitle)
+                            socketManager.updateSpace(spaceId, "FolderUpdated", updatedData) }
                     closeModal()
                 } else if (fileId[0] == 'n') {
                     renameNote(fileId, fileTitle)
                     viewModel.renameNote(fileId, fileTitle)
+                    Log.d("NoteUpdated", fileId)
+                    PreferencesUtil.getShareSpaceState()
+                        ?.let { spaceId ->
+                            val updatedData = mapOf("noteId" to fileId, "newTitle" to fileTitle)
+                            socketManager.updateSpace(spaceId, "NoteUpdated", updatedData) }
                     closeModal()
                 }
             }) {

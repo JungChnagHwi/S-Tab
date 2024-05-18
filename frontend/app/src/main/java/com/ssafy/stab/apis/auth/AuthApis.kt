@@ -53,7 +53,7 @@ fun tryLogin(authorization: String, navController: NavController) {
                         Log.i("APIResponse", "User info received: $userInfo")
                         PreferencesUtil.saveLoginDetails(
                             isLoggedIn = true,
-                            accessToken = accessToken.toString(),
+                            accessToken = accessToken,
                             userName = userInfo.nickname,
                             profileImg = userInfo.profileImg,
                             rootFolderId = userInfo.rootFolderId,
@@ -69,7 +69,7 @@ fun tryLogin(authorization: String, navController: NavController) {
                     Log.i("APIResponse", "No content: User does not exist or no data available")
                     PreferencesUtil.saveLoginDetails(
                         isLoggedIn = false,
-                        accessToken = accessToken.toString(),
+                        accessToken = accessToken,
                         userName = "",
                         profileImg = "",
                         rootFolderId = "",
@@ -103,6 +103,9 @@ fun signUp(nickname: String, profileImg: String) {
             if (response.isSuccessful && response.body() != null) {
                 val authResponse = response.body()
                 Log.i("APIResponse", "Successful response: $authResponse")
+                if (authResponse != null) {
+                    Log.i("rootFolderId", authResponse.rootFolderId)
+                }
                 PreferencesUtil.saveLoginDetails(
                     isLoggedIn = true,
                     accessToken = accessToken!!,
@@ -166,6 +169,27 @@ fun checkNickName(nickname: String, onResult: (Boolean) -> Unit) {
         override fun onFailure(call: Call<NickNameResponse>, t: Throwable) {
             Log.e("APIError", "Failed to connect to the server")
             onResult(false)
+        }
+    })
+}
+
+fun patchInfo(nickname: String, profileImg: String, onResult: (AuthResponse) -> Unit) {
+    val accessToken = PreferencesUtil.getLoginDetails().accessToken
+    val authorizationHeader = "Bearer $accessToken"
+    val patchInfoRequest = PatchInfoRequest(nickname, profileImg)
+    val call = apiService.patchInfo(authorizationHeader, patchInfoRequest)
+
+    call.enqueue(object : retrofit2.Callback<AuthResponse> {
+        override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+            if (response.isSuccessful) {
+                response.body()?.let { onResult(it) }
+            } else {
+                Log.d("회원정보수정", response.errorBody().toString())
+            }
+        }
+
+        override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
+            Log.d("회원정보수정", "요청 실패")
         }
     })
 }

@@ -3,7 +3,6 @@ package com.sixb.note.api.controller;
 import com.sixb.note.api.service.FolderService;
 import com.sixb.note.dto.folder.*;
 import com.sixb.note.exception.FolderNotFoundException;
-import com.sixb.note.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -70,3 +70,25 @@ fun deleteBookMark(fileId: String) {
         }
     })
 }
+
+fun getFolderPath(parentFolderId: String, folderId: String, onResult: (GetPathResponse) -> Unit) {
+    val getPathRequest = GetPathRequest(parentFolderId, folderId)
+    val call = apiService.getFolderPath(authorizationHeader, getPathRequest)
+
+    call.enqueue(object: Callback<GetPathResponse> {
+        override fun onResponse(call: Call<GetPathResponse>, response: Response<GetPathResponse>) {
+            if (response.isSuccessful) {
+                val res = response.body()
+                if (res != null) {
+                    onResult(res)
+                }
+            } else {
+                Log.d("폴더 경로", "요청 실패")
+            }
+        }
+
+        override fun onFailure(call: Call<GetPathResponse>, t: Throwable) {
+            Log.d("폴더 경로", "기타 사유로 요청 실패")
+        }
+    })
+}

@@ -42,3 +42,17 @@ data class BookmardPage(
 data class AddBookmarkRequest(
     @SerializedName("id") val id: String
 )
+
+data class GetPathRequest(
+    @SerializedName("parentFolderId") val parentFolderId: String,
+    @SerializedName("folderId") val folderId: String
+)
+
+data class GetPathResponse(
+    @SerializedName("folders") val folders: List<PathResponse>
+)
+
+data class PathResponse(
+    @SerializedName("folderId") val folderId: String,
+    @SerializedName("title") val title: String
+)

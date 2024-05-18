@@ -34,10 +34,8 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
-    val folderIdState = remember { mutableStateOf(nowId) }
-    val listImg = painterResource(id = R.drawable.list)
-    val isNameSort = remember { mutableStateOf(false) }
-
+    val folderIdState = rememberUpdatedState(nowId)
+    val glassImg = painterResource(id = R.drawable.glass)
 
     Column {
         Spacer(modifier = Modifier.height(5.dp))
@@ -48,49 +46,16 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
         ) {
             Row(
                 modifier = Modifier
-                    .background(color = Color.LightGray, shape = RoundedCornerShape(10.dp))
-                    .clickable { isNameSort.value = !isNameSort.value }
+                    .clip(RoundedCornerShape(50))
+                    .background(color = Color(0xFFDCE3F1))
+                    .width(200.dp)
+                    .padding(horizontal = 10.dp, vertical = 5.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (!isNameSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(horizontal = 10.dp, vertical = 3.dp)
-                        .align(Alignment.CenterVertically),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "날짜",
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (isNameSort.value) Color(0xFF7A99D5) else Color(0xFFC3CCDE),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(horizontal = 10.dp, vertical = 3.dp)
-                        .align(Alignment.CenterVertically),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "이름",
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                Image(painter = glassImg, contentDescription = null)
+                Spacer(modifier = Modifier.width(20.dp))
+                Text(text = "검색")
             }
-            Spacer(modifier = Modifier.width(15.dp))
-            Image(painter = listImg, contentDescription = null,
-                modifier = Modifier
-                    .height(30.dp)
-                    .width(30.dp))
             Spacer(modifier = Modifier.width(20.dp))
         }
         Spacer(modifier = Modifier.height(5.dp))
@@ -108,13 +73,15 @@ fun ListGridScreen(
 ) {
     val selectedFileId = LocalSelectedFileId.current
     val selectedFileTitle = LocalSelectedFileTitle.current
-    val folderId by remember { mutableStateOf(initFolderId) }
+    val folderId by remember(initFolderId) { mutableStateOf(initFolderId) }
     val showNoteModal = remember { mutableStateOf(false) }
     val showFolderModal = remember { mutableStateOf(false) }
     val showPatchDeleteModal = remember { mutableStateOf(false) }
     val showCreateOptions = remember { mutableStateOf(false) }
 
-    val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(folderId))
+    val viewModel: NoteListViewModel = viewModel(
+        key = initFolderId,
+        factory = NoteListViewModelFactory(folderId))
     val combinedList by viewModel.combinedList.collectAsState()
 
     // 소켓에 노트 리스트 뷰모델 데이터 설정

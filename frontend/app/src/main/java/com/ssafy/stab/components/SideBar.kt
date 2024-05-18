@@ -1,5 +1,6 @@
 package com.ssafy.stab.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import com.ssafy.stab.R
 import androidx.compose.foundation.background
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -98,6 +101,10 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
         Spacer(modifier = Modifier.height(30.dp))
         Box(
             modifier = Modifier
+                .clickable {
+                    Log.d("액세스 토큰", PreferencesUtil.getLoginDetails().accessToken.toString())
+                    Log.d("루트 폴더", PreferencesUtil.getLoginDetails().rootFolderId.toString())
+                }
                 .fillMaxWidth(0.8f)
                 .height(72.dp)
                 .clip(RoundedCornerShape(10.dp))
@@ -180,16 +187,15 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
         }
 
         Spacer(modifier = Modifier.weight(1f))
-        CallStateBox(
-            currentCallSpaceName = currentCallSpaceName,
-            isInCall = callState.value.isInCall,
-            isMuted = audioCallViewModel.isMuted.value,
-            isSpeakerMuted = audioCallViewModel.isSpeakerMuted.value,
-            toggleMic = { audioCallViewModel.toggleMic() },
-            toggleSpeaker = { audioCallViewModel.toggleSpeaker() },
-            leaveSession = { audioCallViewModel.leaveSession() },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
+        if (callState.value.isInCall) {
+            CallStateBox(
+                currentCallSpaceName = currentCallSpaceName,
+                isMuted = audioCallViewModel.isMuted.value,
+                toggleMic = { audioCallViewModel.toggleMic() },
+                leaveSession = { audioCallViewModel.leaveSession() },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
     }
 }
 
@@ -199,17 +205,43 @@ fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<Shar
     val callingImg = painterResource(id = R.drawable.calling)
     val nowFolderId = LocalNowFolderId.current
 
+    val callState by PreferencesUtil.callState.collectAsState()
+
     LazyColumn(modifier = Modifier.fillMaxHeight(0.6f)) {
         items(shareSpaceList) { shareSpace ->
             Row {
                 Spacer(modifier = Modifier.width(70.dp))
-                Row(modifier = Modifier.clickable {
-                    navController.navigate("share-space/${shareSpace.spaceId}/${shareSpace.rootFolderId}")
-                    nowFolderId.value = shareSpace.spaceId
-                }) {
-                    Image(painter = sharespImg, contentDescription = null)
+                Row(
+                    modifier = Modifier.clickable {
+                        navController.navigate("share-space/${shareSpace.spaceId}/${shareSpace.rootFolderId}")
+                        nowFolderId.value = shareSpace.spaceId
+                    },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(painter = sharespImg, contentDescription = "Share Space Icon")
                     Spacer(modifier = Modifier.width(5.dp))
-                    Text(text = shareSpace.title , modifier = Modifier.padding(7.dp))
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 12.dp),  // 오른쪽에 여백 추가
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = shareSpace.title,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp),  // 텍스트의 오른쪽에 여백 추가
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        if (callState.callSpaceId == shareSpace.spaceId) {
+                            Image(
+                                painter = callingImg,
+                                contentDescription = "Calling Icon",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -217,25 +249,18 @@ fun ShareSpaceListScreen(navController: NavController, shareSpaceList: List<Shar
 }
 
 @Composable
-fun CallStateBox(
+private fun CallStateBox(
     currentCallSpaceName: String,
-    isInCall: Boolean,
     isMuted: Boolean,
-    isSpeakerMuted: Boolean,
     toggleMic: () -> Unit,
-    toggleSpeaker: () -> Unit,
     leaveSession: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val wifiImg = painterResource(id = R.drawable.connection)
-    val noWifiImg = painterResource(id = R.drawable.no_connection)
     val soundOnImg = painterResource(id = R.drawable.soundon)
     val soundOffImg = painterResource(id = R.drawable.soundoff)
-    val speakerOnImg = painterResource(id = R.drawable.speaker)
-    val speakerOffImg = painterResource(id = R.drawable.speaker_off)
     val phoneImg = painterResource(id = R.drawable.phone)
 
-    val speakerImg = if (isSpeakerMuted) speakerOffImg else speakerOnImg
     val soundImg = if (isMuted) soundOffImg else soundOnImg
 
 
@@ -246,78 +271,55 @@ fun CallStateBox(
             .clip(RoundedCornerShape(10.dp))
             .background(color = Color(0xFF7591C6))
     ) {
-        if (isInCall) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp)
-                    .align(Alignment.Center),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp)
+                .align(Alignment.Center),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Image(
+                painter = wifiImg,
+                contentDescription = null,
+                modifier = Modifier.size(30.dp)
+            )
+            Column(
+                modifier = Modifier.weight(1f)  // 텍스트와 컬럼의 비중을 조절하여 고정된 공간을 확보
             ) {
-                Image(
-                    painter = wifiImg,
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp)
-                )
-                Column {
-                    Text(
-                        text = "음성 연결됨",
-                        color = Color(0xff4ADE80),
-                        fontSize = 16.sp
-                    )
-                    Text(text = currentCallSpaceName)
-                }
-                Image(
-                    painter = soundImg,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            toggleMic()
-                        }
-                )
-                Image(
-                    painter = speakerImg,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            toggleSpeaker()
-                        }
-                )
-                Image(
-                    painter = phoneImg,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            leaveSession()
-                        }
-                )
-            }
-        } else {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp)
-                    .align(Alignment.Center),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Image(
-                    painter = noWifiImg,
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp)
+                Text(
+                    text = "음성 연결됨",
+                    color = Color(0xff4ADE80),
+                    fontSize = 16.sp
                 )
                 Text(
-                    text = "참여 중인 통화가 없습니다.",
-                    color = Color(0xFFE9ECF5)
+                    text = currentCallSpaceName,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.widthIn(max = 112.dp) // 텍스트 최대 너비 설정
                 )
             }
-
+            Spacer(modifier = Modifier.width(16.dp))  // 아이콘과 텍스트 사이의 간격을 고정
+            Image(
+                painter = soundImg,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        toggleMic()
+                    }
+            )
+            Spacer(modifier = Modifier.width(8.dp))  // 두 번째 아이콘과의 간격을 고정
+            Image(
+                painter = phoneImg,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        leaveSession()
+                    }
+            )
         }
     }
     Spacer(modifier = Modifier.height(30.dp))
 }
-
