@@ -17,10 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -50,6 +52,7 @@ import com.ssafy.stab.util.note.getTemplate
 import java.time.LocalDateTime
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
     val selectedImg = painterResource(id = R.drawable.selected)
@@ -90,7 +93,6 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
 
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp)) // 전체 모달에 radius 추가
             .fillMaxSize()
             .background(Color(0xFFDCE3F1))
     ) {
@@ -168,7 +170,12 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
                         TextField(
                             value = noteTitle,
                             onValueChange = { noteTitle = it },
-                            modifier = Modifier.padding(10.dp).fillMaxWidth()
+                            modifier = Modifier.padding(10.dp).fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
+                                disabledContainerColor = Color.White,
+                            )
                         )
                     }
                     Text(
