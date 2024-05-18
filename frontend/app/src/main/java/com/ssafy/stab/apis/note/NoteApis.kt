@@ -51,7 +51,7 @@ fun createNewPage(
             if (response.isSuccessful) {
                 val responseBody = response.body()!!
                 onResponseSuccess(responseBody)
-                Log.i("createPage", responseBody.toString())
+                Log.i("createPage", responseBody.pageId)
             } else {
                 Log.e("createPage", "${response.code()}: $response, before: $beforePageId")
             }

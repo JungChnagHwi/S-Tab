@@ -131,8 +131,8 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             val data = _newPathList[0]
             val order = if (_undoPathList.isNotEmpty()) { _undoPathList.last().order + 1 } else 0
             val pageOrderPathInfo = PageOrderPathInfo(order, data.userName, data.pageId, data.pathInfo)
-            if (socketManager.second.isConnected) {
-                socketManager.second.updatePath(socketManager.first, SocketPathInfo(Action.Add, pageOrderPathInfo))
+            if (socketManager.second.isNoteJoined) {
+                socketManager.second.updateNoteData(socketManager.first, SocketPathInfo(Action.Add, pageOrderPathInfo))
             }
             _undoPathList.add(pageOrderPathInfo)
             _newPathList.clear()
@@ -161,22 +161,20 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             Action.Undo -> {
                 undo(pageOrderPathInfo.userName)
             }
+            Action.Create -> TODO()
         }
     }
 
     fun undo(userName: String) {
         val userPathList = _undoPathList.filter { it.userName == userName }
-        Log.d("undo", userPathList.toString())
         if (userPathList.isNotEmpty()) {
             val last = userPathList.last()
-            Log.d("undo", last.userName + last.order)
             val index = _undoPathList.indexOfLast { it.userName == userName }
-            Log.d("undo", index.toString())
 
             // redo 경로 정보 저장
             if (userName == user) {
-                if (socketManager.second.isConnected) {
-                    socketManager.second.updatePath(
+                if (socketManager.second.isNoteJoined) {
+                    socketManager.second.updateNoteData(
                         socketManager.first,
                         SocketPathInfo(Action.Undo, last)
                     )
@@ -196,7 +194,7 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             val last = _redoPathList.last()
 
             // 경로 복원
-            socketManager.second.updatePath(
+            socketManager.second.updateNoteData(
                 socketManager.first, SocketPathInfo(Action.Add, last)
             )
             addOthersPath(last)

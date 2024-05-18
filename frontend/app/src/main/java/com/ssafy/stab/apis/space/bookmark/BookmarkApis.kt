@@ -17,7 +17,6 @@ fun getBookMarkList(onFolderResult: (List<BookmardFolder>?) -> Unit, onNoteResul
     call.enqueue(object: Callback<BookmarkListResponse> {
         override fun onResponse(call: Call<BookmarkListResponse>, response: Response<BookmarkListResponse>) {
             if (response.isSuccessful) {
-                Log.d("getBookMarkList", response.body().toString())
                 val fileListResponse = response.body()
                 onFolderResult(fileListResponse?.folders)
                 onNoteResult(fileListResponse?.notes)

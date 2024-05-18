@@ -9,17 +9,22 @@ import com.ssafy.stab.apis.note.fetchPageList
 import com.ssafy.stab.apis.note.savePageData
 import com.ssafy.stab.apis.space.bookmark.addBookMark
 import com.ssafy.stab.apis.space.bookmark.deleteBookMark
+import com.ssafy.stab.data.note.Action
 import com.ssafy.stab.data.note.PageOrderPathInfo
+import com.ssafy.stab.data.note.SocketPageInfo
 import com.ssafy.stab.data.note.UserPagePathInfo
 import com.ssafy.stab.data.note.request.PageData
 import com.ssafy.stab.data.note.request.SavingPageData
 import com.ssafy.stab.data.note.response.PageDetail
+import com.ssafy.stab.util.SocketManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class NoteViewModel(noteId: String) : ViewModel() {
     private val _noteId = MutableStateFlow(noteId)
+
+    val socketManager = SocketManager.getInstance()
 
     private val _noteTitle = MutableStateFlow("")
     val noteTitle = _noteTitle.asStateFlow()
@@ -32,6 +37,7 @@ class NoteViewModel(noteId: String) : ViewModel() {
 
     init {
         loadPageList()
+        socketManager.setNoteViewModel(this)
     }
 
     private fun loadPageList() {
@@ -57,8 +63,19 @@ class NoteViewModel(noteId: String) : ViewModel() {
             )
             val newPageList = _pageList.value.toMutableList()
             newPageList.add(currentPage + 1, newPageDetail)
+
+            if (socketManager.isNoteJoined) {
+                val socketPageInfo = SocketPageInfo(Action.Create, currentPage + 1, newPageDetail)
+                socketManager.updateNoteData(_noteId.value, socketPageInfo)
+            }
             _pageList.value = newPageList
         }
+    }
+
+    fun socketAddPage(socketPageInfo: SocketPageInfo) {
+        val newPageList = _pageList.value.toMutableList()
+        newPageList.add(socketPageInfo.page, socketPageInfo.newPageDetail)
+        _pageList.value = newPageList
     }
 
     fun savePage(undoPathList: MutableList<PageOrderPathInfo>) {
@@ -84,7 +101,6 @@ class NoteViewModel(noteId: String) : ViewModel() {
     fun updateBookmarkStatus(currentPage: Int) {
         if (_pageList.value.isNotEmpty()) {
             _isBookmarked.value = _pageList.value.getOrNull(currentPage)?.isBookmarked ?: false
-            Log.d("page", "$currentPage ${_pageList.value.getOrNull(currentPage)}")
         }
     }
 

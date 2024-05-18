@@ -17,8 +17,11 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.data.note.Action
+import com.ssafy.stab.data.note.SocketPageInfo
 import com.ssafy.stab.data.note.SocketPathInfo
 import com.ssafy.stab.data.note.User
+import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.screens.space.NoteListViewModel
 import com.ssafy.stab.util.note.NoteControlViewModel
 import io.socket.client.IO
@@ -41,7 +44,11 @@ class SocketManager private constructor() {
         .create()
     var isConnected = false
 
+    var isNoteJoined = false
+
     private var noteControlViewModel: NoteControlViewModel? = null
+
+    private var noteViewModel: NoteViewModel? = null
 
     private val _userList = mutableStateListOf<User>()
     val userList: SnapshotStateList<User> = _userList
@@ -67,6 +74,10 @@ class SocketManager private constructor() {
     // NoteControlViewModel 설정 메서드
     fun setNoteControlViewModel(viewModel: NoteControlViewModel) {
         this.noteControlViewModel = viewModel
+    }
+
+    fun setNoteViewModel(viewModel: NoteViewModel) {
+        this.noteViewModel = viewModel
     }
 
     // 소켓 연결
@@ -141,10 +152,12 @@ class SocketManager private constructor() {
 
     // 노트 room 참여/떠나기
     fun joinNote(noteId: String, nickName: String, profileImg: String) {
+        isNoteJoined = true
         socket?.emit("joinNote", noteId, nickName, profileImg)
     }
 
     fun leaveNote(noteId: String) {
+        isNoteJoined = false
         socket?.emit("leaveNote", noteId)
     }
 
@@ -167,7 +180,7 @@ class SocketManager private constructor() {
     }
 
     // 노트 이벤트 업데이트 공유
-    fun updatePath(noteId: String, message: Any) {
+    fun updateNoteData(noteId: String, message: Any) {
         val jsonData = gson.toJson(message)
         socket?.emit("updateDrawing", noteId, jsonData )
     }
@@ -241,19 +254,31 @@ class SocketManager private constructor() {
                 updateUserList(data)
                 Log.d("NoteConnection", userList.toList().toString())
             }
+
             // note room에 입장한 사용자 닉네임 받기
             socket?.on("notifyNote") { data ->
                 val remoteNickname = data[0]
                 Log.d("SpaceConnection", "$remoteNickname just joined the Note Room")
             }
+
             // note 이벤트 받기
-            // -> 여기서 받은 데이터를 데이터 타입에 맞게 직접 처리하는 함수 구현해 추가해야 합니다
             socket?.on("receiveDrawing") { message ->
                 val data = message[0]
-                val socketPathInfo = gson.fromJson(data.toString(), SocketPathInfo::class.java)
-                noteControlViewModel?.updatePathsFromSocket(socketPathInfo)
-                // 아래에 데이터 다루는 함수 처리 필요!
-                Log.d("ReceiveNoteData", "ok")
+                val jsonData = data.toString()
+                val jsonObject = JSONObject(jsonData)
+                val type = jsonObject.getString("type")
+
+                // 페이지 생성 액션
+                if (type == "Create") {
+                    val socketPageInfo = gson.fromJson(jsonData, SocketPageInfo::class.java)
+                    noteViewModel?.socketAddPage(socketPageInfo)
+                }
+                // 경로 추가 액션
+                else {
+                    val socketPathInfo = gson.fromJson(jsonData, SocketPathInfo::class.java)
+                    noteControlViewModel?.updatePathsFromSocket(socketPathInfo)
+                }
+                Log.d("ReceiveNoteData", type)
             }
 
             // followUser 이벤트 핸들러 - 보류
