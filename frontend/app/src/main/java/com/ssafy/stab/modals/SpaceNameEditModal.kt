@@ -47,7 +47,11 @@ fun SpaceNameEditModal(
         text = {
             TextField(
                 value = newTitle,
-                onValueChange = { newTitle = it },
+                onValueChange = {newValue ->
+                    if (newValue.isEmpty() || newValue.first() != ' ') {
+                        newTitle = newValue
+                    }
+                },
                 label = { Text("새로운 이름", fontFamily = FontFamily.Default) },
                 modifier = Modifier
                     .padding(10.dp)

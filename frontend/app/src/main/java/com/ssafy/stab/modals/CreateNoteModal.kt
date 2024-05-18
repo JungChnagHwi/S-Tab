@@ -171,7 +171,11 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
                             )
                             TextField(
                                 value = noteTitle,
-                                onValueChange = { noteTitle = it },
+                                onValueChange = {newValue ->
+                                    if (newValue.isEmpty() || newValue.first() != ' ') {
+                                        noteTitle = newValue
+                                    }
+                                },
                                 modifier = Modifier
                                     .padding(10.dp)
                                     .fillMaxWidth(),

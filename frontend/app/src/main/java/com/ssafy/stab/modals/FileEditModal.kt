@@ -67,7 +67,11 @@ fun FileEditModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileId: 
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
             value = fileTitle,
-            onValueChange = { fileTitle = it },
+            onValueChange = {newValue ->
+                if (newValue.isEmpty() || newValue.first() != ' ') {
+                    fileTitle = newValue
+                }
+            },
             label = { Text(titleText, fontFamily = FontFamily.Default) },
             modifier = Modifier
                 .padding(10.dp)
