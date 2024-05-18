@@ -226,21 +226,27 @@ fun NoteScreen(
                     }
                 }
 
-                if (showUserList) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd) // 오른쪽 위에 배치
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(Color(0xFF7591C6))
-                            .width(200.dp)
-                            .height(300.dp)
-                            .padding(10.dp)
-                            .zIndex(3f)
-                            .clickable {  }
-                    ) {
-                        UserListModal(socketManager.userList)
+                Box(modifier = Modifier
+                    .padding(10.dp)
+                    .align(Alignment.TopEnd)
+                    .zIndex(3f)
+                ) {
+                    if (showUserList) {
+                        Box(
+                            modifier = Modifier
+//                                .align(Alignment.TopEnd) // 오른쪽 위에 배치
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Color(0xFF7591C6))
+                                .width(250.dp)
+                                .height(350.dp)
+                                .padding(10.dp)
+                                .clickable { }
+                        ) {
+                            UserListModal(socketManager.userList)
+                        }
                     }
                 }
+                
             }
         }
     }
