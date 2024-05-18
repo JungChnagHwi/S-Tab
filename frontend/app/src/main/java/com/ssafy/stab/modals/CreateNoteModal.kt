@@ -119,242 +119,246 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
                         .clickable { closeModal() }
                 )
             }
-
             Spacer(modifier = Modifier.height(35.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(Color(0xFFCCD7EB))
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 15.dp), // 위 패딩 추가
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Column(
-                    Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xFFCCD7EB))
-                        .fillMaxWidth(0.3f)
-                        .height(240.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "미리보기",
-                        fontFamily = FontFamily.Default,
-                        fontSize = 20.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                    Image(
-                        painter = painterResource(id = finalTemplateImg),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .height(if (direction.value == Direction.Portrait) 160.dp else 120.dp)
-                            .width(if (direction.value == Direction.Portrait) 120.dp else 160.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(40.dp))
-                Column(
-                    Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xFFCCD7EB))
-                        .fillMaxWidth(0.8f)
-                        .height(240.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "제목  :",
-                            fontFamily = FontFamily.Default
-                            )
-                        TextField(
-                            value = noteTitle,
-                            onValueChange = { noteTitle = it },
-                            modifier = Modifier.padding(10.dp).fillMaxWidth(),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                disabledContainerColor = Color.White,
-                            )
-                        )
-                    }
-                    Text(
-                        text = "크기  :  A4",
-                        fontFamily = FontFamily.Default,
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(10.dp)
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 10.dp, end = 10.dp) // 좌우 간격 추가
-                    ) {
-                        Text(
-                            text = "색상  :",
-                            fontFamily = FontFamily.Default,
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(end = 10.dp)
-                        )
-                        Image(
-                            painter = if (backgroundColor.value == BackgroundColor.White) selectedImg else notselectedImg,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .clickable { backgroundColor.value = BackgroundColor.White }
-                                .padding(end = 5.dp)
-                        )
-                        Text(
-                            text = "하얀색",
-                            fontFamily = FontFamily.Default,
-                            modifier = Modifier
-                                .clickable { backgroundColor.value = BackgroundColor.White }
-                                .padding(5.dp, 0.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Image(
-                            painter = if (backgroundColor.value == BackgroundColor.Yellow) selectedImg else notselectedImg,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .clickable { backgroundColor.value = BackgroundColor.Yellow }
-                                .padding(end = 5.dp)
-                        )
-                        Text(
-                            text = "노란색",
-                            fontFamily = FontFamily.Default,
-                            modifier = Modifier
-                                .clickable { backgroundColor.value = BackgroundColor.Yellow }
-                                .padding(5.dp, 0.dp)
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 10.dp, end = 10.dp) // 좌우 간격 추가
-                    ) {
-                        Text(
-                            text = "방향  :",
-                            fontFamily = FontFamily.Default,
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(end = 10.dp)
-                        )
-                        Image(
-                            painter = if (direction.value == Direction.Landscape) selectedImg else notselectedImg,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .clickable { direction.value = Direction.Landscape }
-                                .padding(end = 5.dp)
-                        )
-                        Text(
-                            text = "가로",
-                            fontFamily = FontFamily.Default,
-                            modifier = Modifier
-                                .clickable { direction.value = Direction.Landscape }
-                                .padding(5.dp, 0.dp)
-                        )
-                        Spacer(modifier = Modifier.width(25.dp))
-                        Image(
-                            painter = if (direction.value == Direction.Portrait) selectedImg else notselectedImg,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .clickable { direction.value = Direction.Portrait }
-                                .padding(end = 5.dp)
-                        )
-                        Text(
-                            text = "세로",
-                            fontFamily = FontFamily.Default,
-                            modifier = Modifier
-                                .clickable { direction.value = Direction.Portrait }
-                                .padding(5.dp, 0.dp)
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(30.dp)) // 박스 사이 간격
-            Column(
-                Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFFCCD7EB)) // 템플릿 영역 색상 변경
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp) // 좌우 간격 추가
-                    .padding(top = 10.dp)
-                    .fillMaxHeight(0.75f) // 높이 조정
-                    .align(Alignment.CenterHorizontally),
-            ) {
-                Text(
-                    text = "템플릿 디자인",
-                    fontFamily = FontFamily.Default,
-                    fontSize = 20.sp,
+            // 마진을 주기위해
+            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 10.dp) // 간격 없이 전체 가로를 덮도록 설정
-                        .background(Color(0xFFCCD7EB)) // 템플릿 텍스트 배경 색상
-                        .padding(40.dp, 0.dp)
-                )
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(Color(0xFFCCD7EB))
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 15.dp), // 위 패딩 추가
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFCCD7EB))
+                            .fillMaxWidth(0.3f)
+                            .height(240.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "미리보기",
+                            fontFamily = FontFamily.Default,
+                            fontSize = 20.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
                         Image(
-                            painter = selectPlainImg,
+                            painter = painterResource(id = finalTemplateImg),
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(10.dp)
-                                .height(120.dp)
-                                .width(80.dp)
-                                .clickable {
+                                .height(if (direction.value == Direction.Portrait) 160.dp else 120.dp)
+                                .width(if (direction.value == Direction.Portrait) 120.dp else 160.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(40.dp))
+                    Column(
+                        Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFCCD7EB))
+                            .fillMaxWidth(0.8f)
+                            .height(240.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "제목  :",
+                                fontFamily = FontFamily.Default
+                            )
+                            TextField(
+                                value = noteTitle,
+                                onValueChange = { noteTitle = it },
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .fillMaxWidth(),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.White,
+                                    unfocusedContainerColor = Color.White,
+                                    disabledContainerColor = Color.White,
+                                )
+                            )
+                        }
+                        Text(
+                            text = "크기  :  A4",
+                            fontFamily = FontFamily.Default,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(10.dp)
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(start = 10.dp, end = 10.dp) // 좌우 간격 추가
+                        ) {
+                            Text(
+                                text = "색상  :",
+                                fontFamily = FontFamily.Default,
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(end = 10.dp)
+                            )
+                            Image(
+                                painter = if (backgroundColor.value == BackgroundColor.White) selectedImg else notselectedImg,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .clickable { backgroundColor.value = BackgroundColor.White }
+                                    .padding(end = 5.dp)
+                            )
+                            Text(
+                                text = "하얀색",
+                                fontFamily = FontFamily.Default,
+                                modifier = Modifier
+                                    .clickable { backgroundColor.value = BackgroundColor.White }
+                                    .padding(5.dp, 0.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Image(
+                                painter = if (backgroundColor.value == BackgroundColor.Yellow) selectedImg else notselectedImg,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .clickable { backgroundColor.value = BackgroundColor.Yellow }
+                                    .padding(end = 5.dp)
+                            )
+                            Text(
+                                text = "노란색",
+                                fontFamily = FontFamily.Default,
+                                modifier = Modifier
+                                    .clickable { backgroundColor.value = BackgroundColor.Yellow }
+                                    .padding(5.dp, 0.dp)
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(start = 10.dp, end = 10.dp) // 좌우 간격 추가
+                        ) {
+                            Text(
+                                text = "방향  :",
+                                fontFamily = FontFamily.Default,
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(end = 10.dp)
+                            )
+                            Image(
+                                painter = if (direction.value == Direction.Landscape) selectedImg else notselectedImg,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .clickable { direction.value = Direction.Landscape }
+                                    .padding(end = 5.dp)
+                            )
+                            Text(
+                                text = "가로",
+                                fontFamily = FontFamily.Default,
+                                modifier = Modifier
+                                    .clickable { direction.value = Direction.Landscape }
+                                    .padding(5.dp, 0.dp)
+                            )
+                            Spacer(modifier = Modifier.width(25.dp))
+                            Image(
+                                painter = if (direction.value == Direction.Portrait) selectedImg else notselectedImg,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .clickable { direction.value = Direction.Portrait }
+                                    .padding(end = 5.dp)
+                            )
+                            Text(
+                                text = "세로",
+                                fontFamily = FontFamily.Default,
+                                modifier = Modifier
+                                    .clickable { direction.value = Direction.Portrait }
+                                    .padding(5.dp, 0.dp)
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(30.dp)) // 박스 사이 간격
+                Column(
+                    Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFFCCD7EB)) // 템플릿 영역 색상 변경
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp) // 좌우 간격 추가
+                        .padding(top = 10.dp)
+                        .fillMaxHeight(0.75f) // 높이 조정
+                        .align(Alignment.CenterHorizontally),
+                ) {
+                    Text(
+                        text = "템플릿 디자인",
+                        fontFamily = FontFamily.Default,
+                        fontSize = 20.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp) // 간격 없이 전체 가로를 덮도록 설정
+                            .background(Color(0xFFCCD7EB)) // 템플릿 텍스트 배경 색상
+                            .padding(40.dp, 0.dp)
+                    )
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Image(
+                                painter = selectPlainImg,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .height(120.dp)
+                                    .width(80.dp)
+                                    .clickable {
+                                        templateType.value = TemplateType.Plain
+                                    }  // 템플릿 선택 업데이트
+                            )
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(
+                                text = "무지 노트",
+                                fontFamily = FontFamily.Default,
+                                modifier = Modifier.clickable {
                                     templateType.value = TemplateType.Plain
-                                }  // 템플릿 선택 업데이트
-                        )
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(
-                            text = "무지 노트",
-                            fontFamily = FontFamily.Default,
-                            modifier = Modifier.clickable {
-                                templateType.value = TemplateType.Plain
-                            })
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Image(
-                            painter = selectLinedImg,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .height(120.dp)
-                                .width(80.dp)
-                                .clickable {
+                                })
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Image(
+                                painter = selectLinedImg,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .height(120.dp)
+                                    .width(80.dp)
+                                    .clickable {
+                                        templateType.value = TemplateType.Lined
+                                    }  // 템플릿 선택 업데이트
+                            )
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(
+                                text = "줄 노트",
+                                fontFamily = FontFamily.Default,
+                                modifier = Modifier.clickable {
                                     templateType.value = TemplateType.Lined
-                                }  // 템플릿 선택 업데이트
-                        )
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(
-                            text = "줄 노트",
-                            fontFamily = FontFamily.Default,
-                            modifier = Modifier.clickable {
-                                templateType.value = TemplateType.Lined
-                            })
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Image(
-                            painter = selectGridImg,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .height(120.dp)
-                                .width(80.dp)
-                                .clickable {
+                                })
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Image(
+                                painter = selectGridImg,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .height(120.dp)
+                                    .width(80.dp)
+                                    .clickable {
+                                        templateType.value = TemplateType.Grid
+                                    }  // 템플릿 선택 업데이트
+                            )
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(
+                                text = "격자 노트",
+                                fontFamily = FontFamily.Default,
+                                modifier = Modifier.clickable {
                                     templateType.value = TemplateType.Grid
-                                }  // 템플릿 선택 업데이트
-                        )
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(
-                            text = "격자 노트",
-                            fontFamily = FontFamily.Default,
-                            modifier = Modifier.clickable {
-                                templateType.value = TemplateType.Grid
-                            })
-                        Spacer(modifier = Modifier.height(8.dp))
+                                })
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                     }
                 }
             }
