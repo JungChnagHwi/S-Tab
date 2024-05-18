@@ -68,7 +68,6 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
         }
     }
 }
-
 @Composable
 fun ListGridScreen(
     initFolderId: String,
@@ -184,12 +183,14 @@ fun ListGridScreen(
                             .padding(8.dp)) {
                             when (item) {
                                 is Folder -> FolderItem(folder = item, viewModel = viewModel,
-                                    executeDelete = { executeDelete() }
-                                ) { showEditDeleteOptions.value = true }
+                                    executeDelete = { executeDelete() },
+                                    showEditModal = { showEditModal.value = true }
+                                )
 
                                 is Note -> NoteItem(note = item, onNote,
-                                    executeDelete = { executeDelete() }
-                                ) { showEditDeleteOptions.value = true }
+                                    executeDelete = { executeDelete() },
+                                    showEditModal = { showEditModal.value = true }
+                                )
                             }
                         }
                     }
@@ -243,12 +244,14 @@ fun ListGridScreen(
                             .padding(8.dp)) {
                             when (item) {
                                 is Folder -> FolderItem(folder = item, viewModel,
-                                    executeDelete = { executeDelete() }
-                                ) { showEditDeleteOptions.value = true }
+                                    executeDelete = { executeDelete() },
+                                    showEditModal = { showEditModal.value = true }
+                                )
 
                                 is Note -> NoteItem(note = item, onNote,
-                                    executeDelete = { executeDelete() }
-                                ) { showEditDeleteOptions.value = true }
+                                    executeDelete = { executeDelete() },
+                                    showEditModal = { showEditModal.value = true }
+                                )
                             }
                         }
                     }
@@ -269,7 +272,7 @@ fun FolderItem(
     folder: Folder,
     viewModel: NoteListViewModel,
     executeDelete: () -> Unit,
-    showEditDeleteOptions: () -> Unit
+    showEditModal: () -> Unit
 ) {
     val folderImg = painterResource(id = R.drawable.folder)
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -330,7 +333,7 @@ fun FolderItem(
                     .padding(top = 70.dp, start = 120.dp),
                 onEdit = {
                     showOptions = false
-                    showEditDeleteOptions()
+                    showEditModal()
                 },
                 onDelete = {
                     showOptions = false
@@ -346,7 +349,7 @@ fun NoteItem(
     note: Note,
     onNote: (String) -> Unit,
     executeDelete: () -> Unit,
-    showEditDeleteOptions: () -> Unit
+    showEditModal: () -> Unit
 ) {
     val notebookImg = painterResource(id = R.drawable.notebook)
     val modiImg = painterResource(id = R.drawable.modi)
@@ -401,7 +404,7 @@ fun NoteItem(
                     .padding(top = 70.dp, start = 120.dp),
                 onEdit = {
                     showOptions = false
-                    showEditDeleteOptions()
+                    showEditModal()
                 },
                 onDelete = {
                     showOptions = false
