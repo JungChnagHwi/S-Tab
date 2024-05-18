@@ -48,6 +48,8 @@ fun FileEditModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileId: 
     val noteImg = painterResource(id = R.drawable.notebook)
     val socketManager = SocketManager.getInstance()
 
+    var titleText = "폴더 이름 변경"
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -60,12 +62,13 @@ fun FileEditModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileId: 
         } else if (fileId[0] == 'n') {
             Spacer(modifier = Modifier.height(20.dp))
             Image(painter = noteImg, contentDescription = "노트 이미지")
+            titleText = "노트 이름 변경"
         }
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
             value = fileTitle,
             onValueChange = { fileTitle = it },
-            label = { Text("파일 이름 변경", fontFamily = FontFamily.Default) },
+            label = { Text(titleText, fontFamily = FontFamily.Default) },
             modifier = Modifier
                 .padding(10.dp)
                 .fillMaxWidth(0.6f),

@@ -147,6 +147,7 @@ fun ListGridScreen(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .fillMaxHeight(0.6f)
+                    .clip(RoundedCornerShape(15.dp))
             ) {
                 FileEditModal(
                     closeModal = { showEditModal.value = false },
