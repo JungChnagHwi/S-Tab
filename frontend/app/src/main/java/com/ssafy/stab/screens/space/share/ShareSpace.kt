@@ -40,7 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -52,8 +54,10 @@ import com.ssafy.stab.components.MarkdownScreen
 import com.ssafy.stab.apis.space.share.User
 import com.ssafy.stab.apis.space.share.getShareSpace
 import com.ssafy.stab.apis.space.share.leaveShareSpace
+import com.ssafy.stab.apis.space.share.renameShareSpace
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CheckLeaveModal
+import com.ssafy.stab.modals.SpaceNameEditModal
 import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.screens.space.NoteListViewModel
 import com.ssafy.stab.screens.space.personal.LocalNavigationStackId
@@ -68,7 +72,6 @@ import com.ssafy.stab.webrtc.audiocall.ParticipantListModal
 import com.ssafy.stab.webrtc.fragments.PermissionsDialog
 import com.ssafy.stab.webrtc.utils.PermissionManager
 
-@SuppressLint("UnrememberedMutableState")
 @Composable
 fun ShareSpace(
     navController: NavController,
@@ -79,7 +82,6 @@ fun ShareSpace(
     socketManager: SocketManager,
     onNote: (String) -> Unit
 ) {
-
     // 드롭다운 이미지와 드롭업 이미지 리소스를 로드합니다.
     val dropdownImg = painterResource(id = R.drawable.dropdown)
     val dropupImg = painterResource(id = R.drawable.dropup)
@@ -134,7 +136,7 @@ fun ShareSpace(
         LocalNavigationStackId provides navigationStackId,
         LocalNavigationStackTitle provides navigationStackTitle,
         LocalNowFolderId provides mutableStateOf(nowFolderId.value),
-        LocalNowFolderTitle provides  mutableStateOf("")
+        LocalNowFolderTitle provides mutableStateOf("")
     ) {
         Box(
             modifier = Modifier
@@ -156,7 +158,8 @@ fun ShareSpace(
                     participants = participants,
                     spaceViewModel = spaceViewModel,
                     viewModel = viewModel,
-                    onShowParticipants = { showParticipantListModal = true }
+                    onShowParticipants = { showParticipantListModal = true },
+                    onTitleChange = { newTitle -> spaceTitle.value = newTitle }  // Handle title change
                 )
                 Divider(
                     color = Color.Gray,
@@ -223,8 +226,8 @@ fun ShareSpace(
 
         }
     }
-
 }
+
 
 @Composable
 fun SpTitleBar(
@@ -239,11 +242,13 @@ fun SpTitleBar(
     participants: List<Connection>,
     spaceViewModel: SpaceViewModel,
     viewModel: NoteListViewModel,
-    onShowParticipants: () -> Unit
+    onShowParticipants: () -> Unit,
+    onTitleChange: (String) -> Unit
 ) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
-    // 통화 방 참여 상태에 따른 이미지 리소스 결정
+    val settingImg = painterResource(id = R.drawable.settings)
+
     val callActive = remember { mutableStateOf(isCurrentSpaceActive) }
     val callButtonImage = if (callActive.value) {
         painterResource(id = R.drawable.calloff)  // 통화 종료 아이콘
@@ -255,13 +260,17 @@ fun SpTitleBar(
     val peopleImg = painterResource(id = R.drawable.people)
 
     val showPopup = remember { mutableStateOf(false) }
-    val showPermissionDialog = remember { mutableStateOf(false) }    // 음성 권한 요청 dialog
-    val showCheckDialog  = remember { mutableStateOf(false) }   // 스페이스 떠나기 확인 dialog
+    val showPermissionDialog = remember { mutableStateOf(false) }
+    val showCheckDialog = remember { mutableStateOf(false) }
+    val showEditModal = remember { mutableStateOf(false) }
 
     val nowFolderId = LocalNowFolderId.current
     val nowFolderTitle = LocalNowFolderTitle.current
     val navigationStackId = LocalNavigationStackId.current
     val navigationStackTitle = LocalNavigationStackTitle.current
+
+    var isEditingTitle by remember { mutableStateOf(false) }
+    var newTitle by remember { mutableStateOf(title) }
 
     fun copyToClipboard(context: Context, text: String) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -269,7 +278,6 @@ fun SpTitleBar(
         clipboard.setPrimaryClip(clip)
     }
 
-    // 딥링크/앱링크 생성
     fun createDeepLinkUrl(shareCode: String): String {
         return "https://s-tab.online/invite?code=$shareCode"
     }
@@ -277,16 +285,12 @@ fun SpTitleBar(
     val deepLinkUrl = createDeepLinkUrl(spaceId)
     if (showPopup.value) {
         AlertDialog(
-            onDismissRequest = {
-                showPopup.value = false
-            },
+            onDismissRequest = { showPopup.value = false },
             title = {
-                Text(text = "공유 코드")
+                Text(text = "공유 코드", fontFamily = FontFamily.Default)
             },
             text = {
-//                Text(text = deepLinkUrl)
                 Text(text = spaceId)
-
             },
             confirmButton = {
                 Button(
@@ -295,22 +299,23 @@ fun SpTitleBar(
                         showPopup.value = false // 팝업 닫기
                     }
                 ) {
-                    Text("코드복사")
+                    Text("코드복사", fontFamily = FontFamily.Default)
                 }
                 Button(
                     onClick = {
                         copyToClipboard(context, deepLinkUrl)
                         showPopup.value = false // 팝업 닫기
                     }) {
-                    Text("초대링크 복사")
+                    Text("초대링크 복사", fontFamily = FontFamily.Default)
                 }
             },
             dismissButton = {
                 Button(onClick = { showPopup.value = false }) {
-                    Text("취소")
-                }}
-        )}
-
+                    Text("취소", fontFamily = FontFamily.Default)
+                }
+            }
+        )
+    }
 
     if (showPermissionDialog.value) {
         PermissionsDialog(
@@ -327,27 +332,52 @@ fun SpTitleBar(
         )
     }
 
+    if (showEditModal.value) {
+        SpaceNameEditModal(
+            closeModal = { showEditModal.value = false },
+            spaceId = spaceId,
+            currentTitle = title,
+            onRename = { newSpaceTitle ->
+                renameShareSpace(spaceId, newSpaceTitle)
+                // Update the title in the UI
+                newTitle = newSpaceTitle
+                onTitleChange(newSpaceTitle)
+            },
+            spaceViewModel = spaceViewModel
+        )
+    }
 
-    Row {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
         Spacer(modifier = Modifier.width(30.dp))
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(modifier = Modifier
-                    .width(30.dp)
-                    .height(30.dp) ,painter = sharespImg, contentDescription = null)
+                Image(
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp),
+                    painter = sharespImg,
+                    contentDescription = null
+                )
                 Spacer(modifier = Modifier.width(5.dp))
-                Text(text = "공유 스페이스")
+                Text(text = "공유 스페이스", fontFamily = FontFamily.Default)
                 Spacer(modifier = Modifier.width(5.dp))
                 if (navigationStackTitle.size > 1) {
-                    Text(text = "> ··· >")
+                    Text(text = "> ··· >", fontFamily = FontFamily.Default)
                     Spacer(modifier = Modifier.width(5.dp))
-                    Text(text= navigationStackTitle[navigationStackTitle.size - 2])
+                    Text(text = navigationStackTitle[navigationStackTitle.size - 2])
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Row {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(modifier = Modifier
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    modifier = Modifier
                         .clickable {
                             if (navigationStackId.isNotEmpty()) {
                                 val previousFolderId =
@@ -366,17 +396,39 @@ fun SpTitleBar(
                             }
                         }
                         .height(30.dp)
-                        .width(30.dp), painter = leftImg, contentDescription = null)
-                    Spacer(modifier = Modifier.width(5.dp))
-                    if (navigationStackTitle.size != 0) {
-                        Text(fontSize = 24.sp, text= navigationStackTitle[navigationStackTitle.size - 1])
-                    } else {
-                        Text(text = title, fontSize = 24.sp)
-                    }
+                        .width(30.dp),
+                    painter = leftImg,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 10.dp)
+                ) {
+                    Text(
+                        text = if (navigationStackTitle.size != 0) navigationStackTitle[navigationStackTitle.size - 1] else title,
+                        fontFamily = FontFamily.Default,
+                        fontSize = 24.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                Row(horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = settingImg,
+                    contentDescription = "제목 수정",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            showEditModal.value = true
+                        }
+                )
+                Spacer(modifier = Modifier.width(15.dp))
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Row(
                         modifier = Modifier.clickable {
                             onShowParticipants()
@@ -389,15 +441,19 @@ fun SpTitleBar(
                             modifier = Modifier.size(30.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = "(${participants.size} / ${users.size} )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "(${participants.size} / ${users.size})",
+                            fontFamily = FontFamily.Default,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
                         painter = callButtonImage,
                         contentDescription = if (callActive.value) "통화 종료" else "통화 시작",
                         modifier = Modifier
-                            .height(30.dp)
-                            .height(30.dp)
+                            .size(30.dp)
                             .clickable {
                                 if (PermissionManager.arePermissionsGranted(context)) {
                                     audioCallViewModel.buttonPressed(context)
@@ -412,8 +468,7 @@ fun SpTitleBar(
                         painter = envelopeImg,
                         contentDescription = null,
                         modifier = Modifier
-                            .height(30.dp)
-                            .height(30.dp)
+                            .size(30.dp)
                             .clickable {
                                 showPopup.value = true
                             }
@@ -423,8 +478,7 @@ fun SpTitleBar(
                         painter = outImg,
                         contentDescription = null,
                         modifier = Modifier
-                            .height(30.dp)
-                            .height(30.dp)
+                            .size(30.dp)
                             .clickable {
                                 showCheckDialog.value = true
                             }

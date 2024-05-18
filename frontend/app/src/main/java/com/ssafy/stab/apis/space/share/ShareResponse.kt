@@ -9,8 +9,8 @@ data class ShareSpaceList(
     @SerializedName("public") val public: Boolean,
     @SerializedName("rootFolderId") val rootFolderId: String,
     @SerializedName("users") val users: List<User>,
-    @SerializedName("createAt") val createAt: String,
-    @SerializedName("updateAt") val updateAt: String
+    @SerializedName("createdAt") val createAt: String,
+    @SerializedName("updatedAt") val updateAt: String
 )
 
 data class ShareSpace(

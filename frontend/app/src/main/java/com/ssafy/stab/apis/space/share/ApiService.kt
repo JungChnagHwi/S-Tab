@@ -32,7 +32,7 @@ interface ApiService {
     @DELETE("api/space/{spaceId}")
     fun leaveShareSpace(@Header("Authorization") authorization: String, @Path("spaceId") spaceId: String): Call<Void>
 
-    @PATCH("api/space/edit-name")
+    @PATCH("api/space/rename")
     fun renameShareSpace(@Header("Authorization") authorization: String, @Body renameShareSpaceRequest: RenameShareSpaceRequest): Call<Void>
 
     @GET("api/space/cover/{spaceId}")
