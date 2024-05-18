@@ -95,6 +95,7 @@ fun ListGridScreen(
     }
 
     val createNoteImg = painterResource(id = R.drawable.createnote)
+
     fun executeDelete() {
         if (selectedFileId.value[0] == 'f') {
             deleteFolder(selectedFileId.value)
@@ -135,33 +136,6 @@ fun ListGridScreen(
                     closeModal = { showFolderModal.value = false },
                     viewModel = viewModel,
                 )
-            }
-        }
-    }
-
-    if (showEditDeleteOptions.value) {
-        Dialog(onDismissRequest = { showEditDeleteOptions.value = false }) {
-            Column(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .background(color = Color(0xFFC3CCDE), shape = RoundedCornerShape(10.dp))
-                    .padding(8.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("수정", fontFamily = FontFamily.Default, modifier = Modifier.clickable {
-                    showEditDeleteOptions.value = false
-                    showEditModal.value = true
-                })
-                Divider(
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    thickness = 1.dp,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-                Text("삭제", fontFamily = FontFamily.Default, modifier = Modifier.clickable {
-                    showEditDeleteOptions.value = false
-                    executeDelete()
-                })
             }
         }
     }
@@ -209,10 +183,12 @@ fun ListGridScreen(
                             .weight(1f)
                             .padding(8.dp)) {
                             when (item) {
-                                is Folder -> FolderItem(folder = item, viewModel = viewModel
+                                is Folder -> FolderItem(folder = item, viewModel = viewModel,
+                                    executeDelete = { executeDelete() }
                                 ) { showEditDeleteOptions.value = true }
 
-                                is Note -> NoteItem(note = item, onNote
+                                is Note -> NoteItem(note = item, onNote,
+                                    executeDelete = { executeDelete() }
                                 ) { showEditDeleteOptions.value = true }
                             }
                         }
@@ -266,10 +242,12 @@ fun ListGridScreen(
                             .weight(1f)
                             .padding(8.dp)) {
                             when (item) {
-                                is Folder -> FolderItem(folder = item, viewModel
+                                is Folder -> FolderItem(folder = item, viewModel,
+                                    executeDelete = { executeDelete() }
                                 ) { showEditDeleteOptions.value = true }
 
-                                is Note -> NoteItem(note = item, onNote
+                                is Note -> NoteItem(note = item, onNote,
+                                    executeDelete = { executeDelete() }
                                 ) { showEditDeleteOptions.value = true }
                             }
                         }
@@ -287,7 +265,12 @@ fun ListGridScreen(
 }
 
 @Composable
-fun FolderItem(folder: Folder, viewModel: NoteListViewModel, showEditDeleteOptions: () -> Unit) {
+fun FolderItem(
+    folder: Folder,
+    viewModel: NoteListViewModel,
+    executeDelete: () -> Unit,
+    showEditDeleteOptions: () -> Unit
+) {
     val folderImg = painterResource(id = R.drawable.folder)
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val modiImg = painterResource(id = R.drawable.modi)
@@ -298,48 +281,63 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, showEditDeleteOptio
     val navigationStackId = LocalNavigationStackId.current
     val navigationStackTitle = LocalNavigationStackTitle.current
 
-
+    var showOptions by remember { mutableStateOf(false) }
     var isLiked by remember { mutableStateOf(folder.isLiked) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
-    Column(
-        modifier = Modifier.clickable {
-            viewModel.updateFolderId(folder.folderId)
-            navigationStackId.add(folder.folderId)
-            navigationStackTitle.add(folder.title)
-        },
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(contentAlignment = Alignment.TopEnd) {
-            Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(102.dp, 136.dp))
-            Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
-                .size(48.dp)
-                .padding(10.dp)
-                .clickable {
-                    if (isLiked) {
-                        deleteBookMark(folder.folderId)
-                    } else {
-                        addBookMark(folder.folderId)
-                    }
-                    isLiked = !isLiked
-                }
-                .align(Alignment.TopEnd))
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable {
-                selectedFileId.value = folder.folderId
-                selectedFileTitle.value = folder.title
-                showEditDeleteOptions()
-            }
+    Box(modifier = Modifier.clickable {
+        viewModel.updateFolderId(folder.folderId)
+        navigationStackId.add(folder.folderId)
+        navigationStackTitle.add(folder.title)
+    }) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = folder.title)
-            Spacer(modifier = Modifier.width(3.dp))
-            Image(painter = modiImg, contentDescription = null, modifier = Modifier
-                .height(20.dp)
-                .width(20.dp))
+            Box(contentAlignment = Alignment.TopEnd) {
+                Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(102.dp, 136.dp))
+                Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
+                    .size(48.dp)
+                    .padding(10.dp)
+                    .clickable {
+                        if (isLiked) {
+                            deleteBookMark(folder.folderId)
+                        } else {
+                            addBookMark(folder.folderId)
+                        }
+                        isLiked = !isLiked
+                    }
+                    .align(Alignment.TopEnd))
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {
+                    selectedFileId.value = folder.folderId
+                    selectedFileTitle.value = folder.title
+                    showOptions = true
+                }
+            ) {
+                Text(text = folder.title)
+                Spacer(modifier = Modifier.width(3.dp))
+                Image(painter = modiImg, contentDescription = null, modifier = Modifier
+                    .height(20.dp)
+                    .width(20.dp))
+            }
+            Text(text = folder.updatedAt.format(dateFormatter))
         }
-        Text(text = folder.updatedAt.format(dateFormatter))
+        if (showOptions) {
+            EditDeleteOptions(
+                modifier = Modifier
+                    .padding(top = 70.dp, start = 120.dp),
+                onEdit = {
+                    showOptions = false
+                    showEditDeleteOptions()
+                },
+                onDelete = {
+                    showOptions = false
+                    executeDelete()
+                }
+            )
+        }
     }
 }
 
@@ -347,6 +345,7 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, showEditDeleteOptio
 fun NoteItem(
     note: Note,
     onNote: (String) -> Unit,
+    executeDelete: () -> Unit,
     showEditDeleteOptions: () -> Unit
 ) {
     val notebookImg = painterResource(id = R.drawable.notebook)
@@ -356,43 +355,90 @@ fun NoteItem(
 
     val selectedFileId = LocalSelectedFileId.current
     val selectedFileTitle = LocalSelectedFileTitle.current
+    var showOptions by remember { mutableStateOf(false) }
     var isLiked by remember { mutableStateOf(note.isLiked) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    Column(
-        modifier = Modifier.clickable { onNote(note.noteId) },
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(contentAlignment = Alignment.TopEnd) {
-            Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier.size(102.dp, 136.dp))
-            Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
-                .size(48.dp)
-                .padding(10.dp)
-                .clickable {
-                    if (isLiked) {
-                        deleteBookMark(note.noteId)
-                    } else {
-                        addBookMark(note.noteId)
-                    }
-                    isLiked = !isLiked
-                }
-                .align(Alignment.TopEnd))
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable {
-                selectedFileId.value = note.noteId
-                selectedFileTitle.value = note.title
-                showEditDeleteOptions()
-            }
+    Box(modifier = Modifier.clickable { onNote(note.noteId) }) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = note.title)
-            Spacer(modifier = Modifier.width(3.dp))
-            Image(painter = modiImg, contentDescription = null, modifier = Modifier
-                .height(20.dp)
-                .width(20.dp))
+            Box(contentAlignment = Alignment.TopEnd) {
+                Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier.size(102.dp, 136.dp))
+                Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
+                    .size(48.dp)
+                    .padding(10.dp)
+                    .clickable {
+                        if (isLiked) {
+                            deleteBookMark(note.noteId)
+                        } else {
+                            addBookMark(note.noteId)
+                        }
+                        isLiked = !isLiked
+                    }
+                    .align(Alignment.TopEnd))
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {
+                    selectedFileId.value = note.noteId
+                    selectedFileTitle.value = note.title
+                    showOptions = true
+                }
+            ) {
+                Text(text = note.title)
+                Spacer(modifier = Modifier.width(3.dp))
+                Image(painter = modiImg, contentDescription = null, modifier = Modifier
+                    .height(20.dp)
+                    .width(20.dp))
+            }
+            Text(text = note.updatedAt.format(dateFormatter))
         }
-        Text(text = note.updatedAt.format(dateFormatter))
+        if (showOptions) {
+            EditDeleteOptions(
+                modifier = Modifier
+                    .padding(top = 70.dp, start = 120.dp),
+                onEdit = {
+                    showOptions = false
+                    showEditDeleteOptions()
+                },
+                onDelete = {
+                    showOptions = false
+                    executeDelete()
+                }
+            )
+        }
+    }
+}
+@Composable
+fun EditDeleteOptions(
+    modifier: Modifier = Modifier,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .height(80.dp)
+            .width(100.dp)
+            .background(color = Color(0xFFC3CCDE), shape = RoundedCornerShape(10.dp))
+            .padding(8.dp)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("수정", fontFamily = FontFamily.Default, modifier = Modifier.clickable {
+                onEdit()
+            })
+            Divider(
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            Text("삭제", fontFamily = FontFamily.Default, modifier = Modifier.clickable {
+                onDelete()
+            })
+        }
     }
 }
