@@ -2,6 +2,7 @@ package com.ssafy.stab.modals
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,14 +15,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.Coil
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.ssafy.stab.R
 import com.ssafy.stab.data.note.User
 
 @Composable
 fun UserListModal(userList: SnapshotStateList<User>) {
-    val profileImg = painterResource(id = R.drawable.profile)
+//    val profileImg = painterResource(id = R.drawable.profile)
+
+    var profileImgUrl = "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/18/3470552700/e6610701-3998-467b-8b48-91a66896165f_content%253A%252F%252Fmedia%252Fexternal%252Fimages%252Fmedia%252F1000013707.jpeg"
 
     Column(
         modifier = Modifier
@@ -36,7 +45,11 @@ fun UserListModal(userList: SnapshotStateList<User>) {
                 SectionTitle(title = "노트 참여자")
             }
             items(userList) { user ->
-                UserRow(user.nickname, profileImg)
+                if (user.profileImg != "null") {
+                    profileImgUrl = user.profileImg
+                }
+
+                UserRow(user.nickname, profileImgUrl)
             }
         }
     }
@@ -51,15 +64,27 @@ fun SectionTitle(title: String) {
 @Composable
 fun UserRow(
     user: String,
-    profileImg: Painter,
+    profileImgUrl: String,
     ) {
+//    val profileImg = rememberAsyncImagePainter(model = profileImgUrl)
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(painter = profileImg, contentDescription = "프로필 이미지")
+//        Image(painter = profileImg, contentDescription = "프로필 이미지")
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(profileImgUrl)
+                .crossfade(true)
+                .build(),
+            contentDescription = "프로필 이미지",
+            modifier = Modifier
+                .width(30.dp)
+                .height(30.dp)
+                .clip(RoundedCornerShape(15.dp))
+        )
         Spacer(modifier = Modifier.width(15.dp))
         Column(
             modifier = Modifier
@@ -86,4 +111,20 @@ fun UserRow(
 //        }
         }
     }
+}
+
+// url로 이미지 가져오기
+@Composable
+fun UserProfileImage(profileImageUrl: String) {
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(profileImageUrl)
+            .crossfade(true)
+//            .placeholder(R.drawable.placeholder)  // 로딩 중 표시할 이미지
+//            .error(R.drawable.error_image)        // 로드 실패 시 표시할 이미지
+            .build(),
+        contentDescription = "User Profile Image",
+        modifier = Modifier.size(128.dp),
+//        contentScale = ContentScale.Crop // 이미지 크롭 방식 설정
+    )
 }
