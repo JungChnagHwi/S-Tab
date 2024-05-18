@@ -40,7 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -253,6 +255,7 @@ fun SpTitleBar(
     val envelopeImg = painterResource(id = R.drawable.envelope)
     val outImg = painterResource(id = R.drawable.out)
     val peopleImg = painterResource(id = R.drawable.people)
+    val settingImg = painterResource(id = R.drawable.settings)
 
     val showPopup = remember { mutableStateOf(false) }
     val showPermissionDialog = remember { mutableStateOf(false) }    // 음성 권한 요청 dialog
@@ -281,7 +284,7 @@ fun SpTitleBar(
                 showPopup.value = false
             },
             title = {
-                Text(text = "공유 코드")
+                Text(text = "공유 코드", fontFamily = FontFamily.Default,)
             },
             text = {
 //                Text(text = deepLinkUrl)
@@ -295,19 +298,19 @@ fun SpTitleBar(
                         showPopup.value = false // 팝업 닫기
                     }
                 ) {
-                    Text("코드복사")
+                    Text("코드복사", fontFamily = FontFamily.Default,)
                 }
                 Button(
                     onClick = {
                         copyToClipboard(context, deepLinkUrl)
                         showPopup.value = false // 팝업 닫기
                     }) {
-                    Text("초대링크 복사")
+                    Text("초대링크 복사", fontFamily = FontFamily.Default,)
                 }
             },
             dismissButton = {
                 Button(onClick = { showPopup.value = false }) {
-                    Text("취소")
+                    Text("취소", fontFamily = FontFamily.Default,)
                 }}
         )}
 
@@ -328,26 +331,37 @@ fun SpTitleBar(
     }
 
 
-    Row {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
         Spacer(modifier = Modifier.width(30.dp))
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(modifier = Modifier
-                    .width(30.dp)
-                    .height(30.dp) ,painter = sharespImg, contentDescription = null)
+                Image(
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp),
+                    painter = sharespImg,
+                    contentDescription = null
+                )
                 Spacer(modifier = Modifier.width(5.dp))
-                Text(text = "공유 스페이스")
+                Text(text = "공유 스페이스", fontFamily = FontFamily.Default)
                 Spacer(modifier = Modifier.width(5.dp))
                 if (navigationStackTitle.size > 1) {
-                    Text(text = "> ··· >")
+                    Text(text = "> ··· >", fontFamily = FontFamily.Default)
                     Spacer(modifier = Modifier.width(5.dp))
-                    Text(text= navigationStackTitle[navigationStackTitle.size - 2])
+                    Text(text = navigationStackTitle[navigationStackTitle.size - 2])
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Row {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(modifier = Modifier
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    modifier = Modifier
                         .clickable {
                             if (navigationStackId.isNotEmpty()) {
                                 val previousFolderId =
@@ -366,17 +380,39 @@ fun SpTitleBar(
                             }
                         }
                         .height(30.dp)
-                        .width(30.dp), painter = leftImg, contentDescription = null)
-                    Spacer(modifier = Modifier.width(5.dp))
-                    if (navigationStackTitle.size != 0) {
-                        Text(fontSize = 24.sp, text= navigationStackTitle[navigationStackTitle.size - 1])
-                    } else {
-                        Text(text = title, fontSize = 24.sp)
-                    }
+                        .width(30.dp),
+                    painter = leftImg,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 10.dp)
+                ) {
+                    Text(
+                        text = if (navigationStackTitle.size != 0) navigationStackTitle[navigationStackTitle.size - 1] else title,
+                        fontFamily = FontFamily.Default,
+                        fontSize = 24.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                Row(horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = settingImg,
+                    contentDescription = "제목 수정",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            // 수정 버튼 클릭 시 동작
+                        }
+                )
+                Spacer(modifier = Modifier.width(15.dp))
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Row(
                         modifier = Modifier.clickable {
                             onShowParticipants()
@@ -389,15 +425,19 @@ fun SpTitleBar(
                             modifier = Modifier.size(30.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = "(${participants.size} / ${users.size} )", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "(${participants.size} / ${users.size})",
+                            fontFamily = FontFamily.Default,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                     Spacer(modifier = Modifier.width(15.dp))
                     Image(
                         painter = callButtonImage,
                         contentDescription = if (callActive.value) "통화 종료" else "통화 시작",
                         modifier = Modifier
-                            .height(30.dp)
-                            .height(30.dp)
+                            .size(30.dp)
                             .clickable {
                                 if (PermissionManager.arePermissionsGranted(context)) {
                                     audioCallViewModel.buttonPressed(context)
@@ -412,8 +452,7 @@ fun SpTitleBar(
                         painter = envelopeImg,
                         contentDescription = null,
                         modifier = Modifier
-                            .height(30.dp)
-                            .height(30.dp)
+                            .size(30.dp)
                             .clickable {
                                 showPopup.value = true
                             }
@@ -423,8 +462,7 @@ fun SpTitleBar(
                         painter = outImg,
                         contentDescription = null,
                         modifier = Modifier
-                            .height(30.dp)
-                            .height(30.dp)
+                            .size(30.dp)
                             .clickable {
                                 showCheckDialog.value = true
                             }
