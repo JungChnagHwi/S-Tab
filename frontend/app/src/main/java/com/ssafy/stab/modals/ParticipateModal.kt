@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.ShareSpaceList
@@ -35,7 +38,7 @@ fun ParticipateModal(closeModal: () -> Unit, onParticipateSuccess: () -> Unit, i
     val sharespImg = painterResource(id = R.drawable.sharesp)
 
     Column(
-        modifier = Modifier.padding(10.dp).background(color = Color.White),
+        modifier = Modifier.padding(10.dp).background(color = Color(0xFFDCE3F1)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(painter = sharespImg, contentDescription = null, modifier = Modifier.width(100.dp).height(100.dp))
@@ -43,19 +46,25 @@ fun ParticipateModal(closeModal: () -> Unit, onParticipateSuccess: () -> Unit, i
         TextField(
             value = shareSpaceCode,
             onValueChange = { shareSpaceCode = it },
-            label = { Text("초대 코드 입력") },
+            label = { Text("초대 코드 입력", fontFamily = FontFamily.Default) },
             modifier = Modifier
                 .padding(10.dp)
-                .fillMaxWidth(0.6f)
+                .fillMaxWidth(0.6f),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledContainerColor = Color.White,
+            )
         )
         Row(Modifier.padding(10.dp)) {
             Button(
                 onClick = { closeModal() },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red
+                    containerColor = Color.White,
+                    contentColor = MaterialTheme.colorScheme.primary // 생성 버튼의 글자색 사용
                 )
             ) {
-                Text(text = "취소")
+                Text(text = "취소", fontFamily = FontFamily.Default)
             }
             Spacer(modifier = Modifier.width(30.dp))
             Button(onClick = {
@@ -64,7 +73,7 @@ fun ParticipateModal(closeModal: () -> Unit, onParticipateSuccess: () -> Unit, i
                     closeModal()
                 }
             }) {
-                Text(text = "참가")
+                Text(text = "참가", fontFamily = FontFamily.Default)
             }
         }
     }

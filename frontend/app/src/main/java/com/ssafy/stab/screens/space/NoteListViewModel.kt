@@ -1,6 +1,8 @@
 package com.ssafy.stab.screens.space
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.apis.space.folder.FileEntity
@@ -15,7 +17,8 @@ import kotlinx.coroutines.launch
 class NoteListViewModel(initialFolderId: String) : ViewModel() {
     private val _folderId = MutableStateFlow(initialFolderId)
     val folderId: StateFlow<String> = _folderId.asStateFlow()
-
+    // 각 item의 옵션 상태를 관리할 Map
+    private val _showOptionsMap = mutableMapOf<String, MutableState<Boolean>>()
 
     private val _combinedList = MutableStateFlow<List<FileEntity>>(emptyList())
     val combinedList = _combinedList.asStateFlow()
@@ -108,5 +111,13 @@ class NoteListViewModel(initialFolderId: String) : ViewModel() {
             _combinedList.value = _combinedList.value.filterNot { it is Note && it.noteId == noteId }
         }
         println("Deleted note, new list size: ${_combinedList.value.size}") // 로그 추가
+    }
+
+    fun closeAllOptions() {
+        _showOptionsMap.values.forEach { it.value = false }
+    }
+
+    fun getShowOptionsState(id: String): MutableState<Boolean> {
+        return _showOptionsMap.getOrPut(id) { mutableStateOf(false) }
     }
 }

@@ -4,18 +4,23 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,9 +30,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.ssafy.stab.R
-import com.ssafy.stab.apis.space.folder.createFolder
 import com.ssafy.stab.apis.space.folder.deleteFolder
 import com.ssafy.stab.apis.space.folder.renameFolder
 import com.ssafy.stab.apis.space.note.deleteNote
@@ -37,65 +42,60 @@ import com.ssafy.stab.screens.space.NoteListViewModel
 import com.ssafy.stab.util.SocketManager
 
 @Composable
-fun PatchDeleteModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileId: String, fileTitle: String) {
-    var fileTitle by remember{ mutableStateOf(fileTitle) }
+fun FileEditModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileId: String, fileTitle: String) {
+    var fileTitle by remember { mutableStateOf(fileTitle) }
     val folderImg = painterResource(id = R.drawable.folder)
     val noteImg = painterResource(id = R.drawable.notebook)
     val socketManager = SocketManager.getInstance()
 
     Column(
-        modifier = Modifier.padding(10.dp).background(color = Color.White).fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color(0xFFDCE3F1)),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (fileId[0]== 'f') {
-            Image(painter = folderImg, contentDescription = null)
-        } else if (fileId[0] == 'n'){
-            Image(painter = noteImg, contentDescription = null)
+        Spacer(modifier = Modifier.height(20.dp))
+        if (fileId[0] == 'f') {
+            Image(painter = folderImg, contentDescription = "폴더 이미지")
+        } else if (fileId[0] == 'n') {
+            Spacer(modifier = Modifier.height(20.dp))
+            Image(painter = noteImg, contentDescription = "노트 이미지")
         }
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
             value = fileTitle,
             onValueChange = { fileTitle = it },
-            label = { Text("파일 이름 변경") },
+            label = { Text("파일 이름 변경", fontFamily = FontFamily.Default) },
             modifier = Modifier
                 .padding(10.dp)
-                .fillMaxWidth(0.6f)
+                .fillMaxWidth(0.6f),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledContainerColor = Color.White,
+            )
         )
         Row(Modifier.padding(10.dp)) {
             Button(
-                onClick = {
-                if (fileId[0]== 'f') {
-                    deleteFolder(fileId)
-                    viewModel.deleteFolder(fileId)
-                    Log.d("FolderDeleted", fileId)
-                    PreferencesUtil.getShareSpaceState()
-                        ?.let { socketManager.updateSpace(it, "FolderDeleted", fileId) }
-                    closeModal()
-                } else if (fileId[0] == 'n') {
-                    deleteNote(fileId)
-                    viewModel.deleteNote(fileId)
-                    Log.d("NoteDeleted", fileId)
-                    PreferencesUtil.getShareSpaceState()
-                        ?.let { socketManager.updateSpace(it, "NoteDeleted", fileId) }
-                    closeModal()
-                }
-            },
+                onClick = { closeModal() },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red
-                )) {
-                Text(text = "파일 삭제")
+                    containerColor = Color.White,
+                    contentColor = MaterialTheme.colorScheme.primary // 생성 버튼의 글자색 사용
+                )
+            ) {
+                Text(text = "취소", fontFamily = FontFamily.Default)
             }
-            Spacer(modifier = Modifier.width(30.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Button(onClick = {
-                if (fileId[0]== 'f') {
+                if (fileId[0] == 'f') {
                     renameFolder(fileId, fileTitle)
                     viewModel.renameFolder(fileId, fileTitle)
                     Log.d("FolderUpdated", fileId)
                     PreferencesUtil.getShareSpaceState()
                         ?.let { spaceId ->
                             val updatedData = mapOf("folderId" to fileId, "newTitle" to fileTitle)
-                            socketManager.updateSpace(spaceId, "FolderUpdated", updatedData) }
+                            socketManager.updateSpace(spaceId, "FolderUpdated", updatedData)
+                        }
                     closeModal()
                 } else if (fileId[0] == 'n') {
                     renameNote(fileId, fileTitle)
@@ -104,13 +104,13 @@ fun PatchDeleteModal(closeModal: () -> Unit, viewModel: NoteListViewModel, fileI
                     PreferencesUtil.getShareSpaceState()
                         ?.let { spaceId ->
                             val updatedData = mapOf("noteId" to fileId, "newTitle" to fileTitle)
-                            socketManager.updateSpace(spaceId, "NoteUpdated", updatedData) }
+                            socketManager.updateSpace(spaceId, "NoteUpdated", updatedData)
+                        }
                     closeModal()
                 }
             }) {
-                Text(text = "이름 수정")
+                Text(text = "이름 수정", fontFamily = FontFamily.Default)
             }
         }
     }
 }
-
