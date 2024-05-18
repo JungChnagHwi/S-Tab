@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.apis.note.createNewPage
 import com.ssafy.stab.apis.note.fetchPageList
 import com.ssafy.stab.apis.note.savePageData
+import com.ssafy.stab.apis.space.bookmark.addBookMark
+import com.ssafy.stab.apis.space.bookmark.deleteBookMark
 import com.ssafy.stab.data.note.PageOrderPathInfo
 import com.ssafy.stab.data.note.UserPagePathInfo
 import com.ssafy.stab.data.note.request.PageData
@@ -72,5 +74,13 @@ class NoteViewModel(noteId: String) : ViewModel() {
                 ))
             }
         }
+    }
+
+    fun addLikePage(currentPage: Int) {
+        addBookMark(_pageList.value[currentPage].pageId)
+    }
+
+    fun deleteLikePage(currentPage: Int) {
+        deleteBookMark(_pageList.value[currentPage].pageId)
     }
 }

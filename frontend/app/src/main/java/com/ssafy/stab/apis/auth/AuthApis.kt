@@ -48,6 +48,7 @@ fun tryLogin(authorization: String, navController: NavController) {
             when (response.code()) {
                 200 -> {
                     val userInfo = response.body()
+                    Log.d("login", "${response.body()}")
                     if (userInfo != null) {
                         Log.i("APIResponse", "User info received: $userInfo")
                         PreferencesUtil.saveLoginDetails(
@@ -55,7 +56,8 @@ fun tryLogin(authorization: String, navController: NavController) {
                             accessToken = accessToken,
                             userName = userInfo.nickname,
                             profileImg = userInfo.profileImg,
-                            rootFolderId = userInfo.rootFolderId
+                            rootFolderId = userInfo.rootFolderId,
+                            personalSpaceId = userInfo.privateSpaceId
                         )
                         PreferencesUtil.saveLocation(nowLocation = userInfo.rootFolderId)
                         navController.navigate("space")
@@ -70,7 +72,8 @@ fun tryLogin(authorization: String, navController: NavController) {
                         accessToken = accessToken,
                         userName = "",
                         profileImg = "",
-                        rootFolderId = ""
+                        rootFolderId = "",
+                        personalSpaceId = ""
                     )
                     navController.navigate("sign-up")
                 }
@@ -108,7 +111,8 @@ fun signUp(nickname: String, profileImg: String) {
                     accessToken = accessToken!!,
                     userName = authResponse!!.nickname,
                     profileImg = authResponse.profileImg,
-                    rootFolderId = authResponse.rootFolderId
+                    rootFolderId = authResponse.rootFolderId,
+                    personalSpaceId = authResponse.privateSpaceId
                 )
                 PreferencesUtil.saveLocation(nowLocation = authResponse.rootFolderId)
             } else {

@@ -43,7 +43,10 @@ fun PageInterfaceBar(
             R.drawable.bookmark_off,
             "bookmark"
         ) {
-
+            // 북마크
+            viewModel.addLikePage(currentPage)
+            // 북마크 취소
+//            viewModel.deleteLikePage(currentPage)
         }
         OptionIcons(
             R.drawable.ellipsis_horizontal,

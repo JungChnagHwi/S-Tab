@@ -27,6 +27,8 @@ import com.ssafy.stab.apis.space.bookmark.BookmardNote
 import com.ssafy.stab.apis.space.bookmark.BookmardPage
 import com.ssafy.stab.apis.space.bookmark.addBookMark
 import com.ssafy.stab.apis.space.bookmark.deleteBookMark
+import com.ssafy.stab.data.note.Direction
+import com.ssafy.stab.util.note.getTemplate
 import com.ssafy.stab.apis.space.bookmark.getFolderPath
 import com.ssafy.stab.screens.space.NoteListSpace
 import java.time.format.DateTimeFormatter
@@ -250,9 +252,13 @@ fun NoteItem(note: BookmardNote, navController: NavController) {
 
 @Composable
 fun PageItem(page: BookmardPage) {
-    val staronImg = painterResource(id = R.drawable.eachstaron)
-    val staroffImg = painterResource(id = R.drawable.eachstaroff)
-    val pageImg = painterResource(id = R.drawable.lined_white_portrait)
+    val staronImg = painterResource(id = R.drawable.bookmark_on)
+    val staroffImg = painterResource(id = R.drawable.bookmark_off_white)
+    val pageImg = painterResource(id = getTemplate(
+            page.template,
+            page.color,
+            if (page.direction == 0) Direction.Landscape else Direction.Landscape
+        ))
     var isLiked by remember { mutableStateOf(true) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 

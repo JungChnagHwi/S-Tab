@@ -5,7 +5,8 @@ import com.google.gson.annotations.SerializedName
 data class AuthResponse(
     @SerializedName("nickname") val nickname: String,
     @SerializedName("profileImg")  val profileImg: String,
-    @SerializedName("rootFolderId") val rootFolderId: String
+    @SerializedName("rootFolderId") val rootFolderId: String,
+    @SerializedName("privateSpaceId") val privateSpaceId: String
 )
 
 data class TokenResponse(

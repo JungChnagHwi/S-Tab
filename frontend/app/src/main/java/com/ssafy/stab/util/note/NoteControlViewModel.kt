@@ -120,19 +120,6 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
         }
     }
 
-    fun cancelPath() {
-        _newPathList.clear()
-    }
-
-    fun onTapPath() {
-        if (_newPathList.isNotEmpty()) {
-            val coordinates = _newPathList[0].pathInfo.coordinates
-            if (coordinates.size == 1) {
-                _newPathList[0].pathInfo.coordinates.add(coordinates[0])
-            }
-        }
-    }
-
     fun getLastPath(): UserPagePathInfo? {
         return if (_newPathList.isNotEmpty()) {
             _newPathList[0]
