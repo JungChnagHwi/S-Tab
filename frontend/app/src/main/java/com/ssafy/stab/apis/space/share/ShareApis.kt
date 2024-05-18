@@ -124,14 +124,14 @@ fun renameShareSpace(spaceId: String, title: String) {
     call.enqueue(object : Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
             if (response.isSuccessful) {
-                Log.d("APIResponse", "이름 변경")
+                Log.d("RenameResponse", "이름 변경")
             } else {
-                Log.d("APIResponse", "요청 실패")
+                Log.d("RenameResponse", response.toString())
             }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {
-            Log.d("APIResponse", "기타 이유로 요청 실패")
+            Log.d("RenameResponse", "기타 이유로 요청 실패")
         }
     })
 }

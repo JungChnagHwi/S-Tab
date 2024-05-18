@@ -54,8 +54,10 @@ import com.ssafy.stab.components.MarkdownScreen
 import com.ssafy.stab.apis.space.share.User
 import com.ssafy.stab.apis.space.share.getShareSpace
 import com.ssafy.stab.apis.space.share.leaveShareSpace
+import com.ssafy.stab.apis.space.share.renameShareSpace
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CheckLeaveModal
+import com.ssafy.stab.modals.SpaceNameEditModal
 import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.screens.space.NoteListViewModel
 import com.ssafy.stab.screens.space.personal.LocalNavigationStackId
@@ -70,7 +72,6 @@ import com.ssafy.stab.webrtc.audiocall.ParticipantListModal
 import com.ssafy.stab.webrtc.fragments.PermissionsDialog
 import com.ssafy.stab.webrtc.utils.PermissionManager
 
-@SuppressLint("UnrememberedMutableState")
 @Composable
 fun ShareSpace(
     navController: NavController,
@@ -81,7 +82,6 @@ fun ShareSpace(
     socketManager: SocketManager,
     onNote: (String) -> Unit
 ) {
-
     // 드롭다운 이미지와 드롭업 이미지 리소스를 로드합니다.
     val dropdownImg = painterResource(id = R.drawable.dropdown)
     val dropupImg = painterResource(id = R.drawable.dropup)
@@ -136,7 +136,7 @@ fun ShareSpace(
         LocalNavigationStackId provides navigationStackId,
         LocalNavigationStackTitle provides navigationStackTitle,
         LocalNowFolderId provides mutableStateOf(nowFolderId.value),
-        LocalNowFolderTitle provides  mutableStateOf("")
+        LocalNowFolderTitle provides mutableStateOf("")
     ) {
         Box(
             modifier = Modifier
@@ -158,7 +158,8 @@ fun ShareSpace(
                     participants = participants,
                     spaceViewModel = spaceViewModel,
                     viewModel = viewModel,
-                    onShowParticipants = { showParticipantListModal = true }
+                    onShowParticipants = { showParticipantListModal = true },
+                    onTitleChange = { newTitle -> spaceTitle.value = newTitle }  // Handle title change
                 )
                 Divider(
                     color = Color.Gray,
@@ -225,8 +226,8 @@ fun ShareSpace(
 
         }
     }
-
 }
+
 
 @Composable
 fun SpTitleBar(
@@ -241,11 +242,13 @@ fun SpTitleBar(
     participants: List<Connection>,
     spaceViewModel: SpaceViewModel,
     viewModel: NoteListViewModel,
-    onShowParticipants: () -> Unit
+    onShowParticipants: () -> Unit,
+    onTitleChange: (String) -> Unit
 ) {
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val leftImg = painterResource(id = R.drawable.left)
-    // 통화 방 참여 상태에 따른 이미지 리소스 결정
+    val settingImg = painterResource(id = R.drawable.settings)
+
     val callActive = remember { mutableStateOf(isCurrentSpaceActive) }
     val callButtonImage = if (callActive.value) {
         painterResource(id = R.drawable.calloff)  // 통화 종료 아이콘
@@ -255,16 +258,19 @@ fun SpTitleBar(
     val envelopeImg = painterResource(id = R.drawable.envelope)
     val outImg = painterResource(id = R.drawable.out)
     val peopleImg = painterResource(id = R.drawable.people)
-    val settingImg = painterResource(id = R.drawable.settings)
 
     val showPopup = remember { mutableStateOf(false) }
-    val showPermissionDialog = remember { mutableStateOf(false) }    // 음성 권한 요청 dialog
-    val showCheckDialog  = remember { mutableStateOf(false) }   // 스페이스 떠나기 확인 dialog
+    val showPermissionDialog = remember { mutableStateOf(false) }
+    val showCheckDialog = remember { mutableStateOf(false) }
+    val showEditModal = remember { mutableStateOf(false) }
 
     val nowFolderId = LocalNowFolderId.current
     val nowFolderTitle = LocalNowFolderTitle.current
     val navigationStackId = LocalNavigationStackId.current
     val navigationStackTitle = LocalNavigationStackTitle.current
+
+    var isEditingTitle by remember { mutableStateOf(false) }
+    var newTitle by remember { mutableStateOf(title) }
 
     fun copyToClipboard(context: Context, text: String) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -272,7 +278,6 @@ fun SpTitleBar(
         clipboard.setPrimaryClip(clip)
     }
 
-    // 딥링크/앱링크 생성
     fun createDeepLinkUrl(shareCode: String): String {
         return "https://s-tab.online/invite?code=$shareCode"
     }
@@ -280,16 +285,12 @@ fun SpTitleBar(
     val deepLinkUrl = createDeepLinkUrl(spaceId)
     if (showPopup.value) {
         AlertDialog(
-            onDismissRequest = {
-                showPopup.value = false
-            },
+            onDismissRequest = { showPopup.value = false },
             title = {
-                Text(text = "공유 코드", fontFamily = FontFamily.Default,)
+                Text(text = "공유 코드", fontFamily = FontFamily.Default)
             },
             text = {
-//                Text(text = deepLinkUrl)
                 Text(text = spaceId)
-
             },
             confirmButton = {
                 Button(
@@ -298,22 +299,23 @@ fun SpTitleBar(
                         showPopup.value = false // 팝업 닫기
                     }
                 ) {
-                    Text("코드복사", fontFamily = FontFamily.Default,)
+                    Text("코드복사", fontFamily = FontFamily.Default)
                 }
                 Button(
                     onClick = {
                         copyToClipboard(context, deepLinkUrl)
                         showPopup.value = false // 팝업 닫기
                     }) {
-                    Text("초대링크 복사", fontFamily = FontFamily.Default,)
+                    Text("초대링크 복사", fontFamily = FontFamily.Default)
                 }
             },
             dismissButton = {
                 Button(onClick = { showPopup.value = false }) {
-                    Text("취소", fontFamily = FontFamily.Default,)
-                }}
-        )}
-
+                    Text("취소", fontFamily = FontFamily.Default)
+                }
+            }
+        )
+    }
 
     if (showPermissionDialog.value) {
         PermissionsDialog(
@@ -330,6 +332,20 @@ fun SpTitleBar(
         )
     }
 
+    if (showEditModal.value) {
+        SpaceNameEditModal(
+            closeModal = { showEditModal.value = false },
+            spaceId = spaceId,
+            currentTitle = title,
+            onRename = { newSpaceTitle ->
+                renameShareSpace(spaceId, newSpaceTitle)
+                // Update the title in the UI
+                newTitle = newSpaceTitle
+                onTitleChange(newSpaceTitle)
+            },
+            spaceViewModel = spaceViewModel
+        )
+    }
 
     Row(
         modifier = Modifier
@@ -405,7 +421,7 @@ fun SpTitleBar(
                     modifier = Modifier
                         .size(24.dp)
                         .clickable {
-                            // 수정 버튼 클릭 시 동작
+                            showEditModal.value = true
                         }
                 )
                 Spacer(modifier = Modifier.width(15.dp))
