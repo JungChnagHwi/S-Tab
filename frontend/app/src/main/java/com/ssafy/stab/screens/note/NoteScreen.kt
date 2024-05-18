@@ -46,6 +46,7 @@ import com.ssafy.stab.components.note.PageInterfaceBar
 import com.ssafy.stab.components.note.PageList
 import com.ssafy.stab.components.note.StrokeOptions
 import com.ssafy.stab.data.PreferencesUtil
+import com.ssafy.stab.data.note.PenType
 import com.ssafy.stab.ui.theme.Background
 import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.util.gpt.ChatBotViewModel
@@ -160,13 +161,15 @@ fun NoteScreen(
                         .height(28.dp)
                         .width(2.dp)
                 )
-                ColorOptions(noteControlViewModel)
-                Divider(
-                    color = Color(0xFFCCD7ED),
-                    modifier = Modifier
-                        .height(28.dp)
-                        .width(2.dp)
-                )
+                if (noteControlViewModel.penType == PenType.Pen || noteControlViewModel.penType == PenType.Highlighter) {
+                    ColorOptions(noteControlViewModel)
+                    Divider(
+                        color = Color(0xFFCCD7ED),
+                        modifier = Modifier
+                            .height(28.dp)
+                            .width(2.dp)
+                    )
+                }
                 StrokeOptions(noteControlViewModel)
                 Spacer(modifier = Modifier.weight(1f))
                 // 참여 유저 리스트 UI 업데이트 필요
