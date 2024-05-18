@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 public class CreateFolderResponseDto {
 	private String folderId;
 	private String title;
-	private Boolean isLiked;
+	private boolean isLiked;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-	private Boolean isDeleted;
+	private boolean isDeleted;
 }

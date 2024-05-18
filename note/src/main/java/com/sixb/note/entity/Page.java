@@ -33,13 +33,13 @@ public class Page extends BaseTimeEntity {
 	private String color;
 
 	@Property("direction")
-	private Integer direction;
+	private int direction;
 
 	@Property("pdfUrl")
 	private String pdfUrl;
 
 	@Property("pdfPage")
-	private Integer pdfPage;
+	private int pdfPage;
 
 	@Property("pageData")
 	private String pageData;

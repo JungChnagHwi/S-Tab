@@ -19,7 +19,7 @@ public class CreateNoteResponseDto {
 	private PageDto page;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-	private Boolean isDeleted;
+	private boolean isDeleted;
 
 	@Data
 	@Builder
@@ -33,6 +33,6 @@ public class CreateNoteResponseDto {
 		private boolean isBookmarked;
 		private LocalDateTime createdAt;
 		private LocalDateTime updatedAt;
-		private Boolean isDeleted;
+		private boolean isDeleted;
 	}
 }

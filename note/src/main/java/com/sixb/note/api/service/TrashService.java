@@ -54,16 +54,16 @@ public class TrashService {
 	private void recoverItem(Object item) {
 		LocalDateTime now = LocalDateTime.now();
 		if (item instanceof Folder folder) {
-			if (folder.getIsDeleted()) {
+			if (folder.isDeleted()) {
 				folderRepository.recover(folder.getFolderId(), folder.getUpdatedAt(), now);
 			}
 		} else if (item instanceof Note note) {
-			if (note.getIsDeleted()) {
+			if (note.isDeleted()) {
 				noteRepository.recover(note.getNoteId(), now);
 			}
 		} else if (item instanceof Page page) {
-			if (page.getIsDeleted()) {
-				page.setIsDeleted(false);
+			if (page.isDeleted()) {
+				page.setDeleted(false);
 				page.setUpdatedAt(now);
 				pageRepository.save(page);
 			}

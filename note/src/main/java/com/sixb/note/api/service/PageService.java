@@ -34,7 +34,7 @@ public class PageService {
 		Page beforePage = pageRepository.findPageById(beforePageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (beforePage.getIsDeleted()) {
+		if (beforePage.isDeleted()) {
 			throw new PageNotFoundException("삭제된 페이지 입니다.");
 		}
 
@@ -74,11 +74,11 @@ public class PageService {
 		Page page = pageRepository.findPageById(pageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (page.getIsDeleted()) {
+		if (page.isDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
-		page.setIsDeleted(true);
+		page.setDeleted(true);
 		page.setUpdatedAt(LocalDateTime.now());
 		pageRepository.save(page);
 	}
@@ -92,7 +92,7 @@ public class PageService {
 		Note note = noteRepository.findNoteById(page.getNoteId())
 				.orElseThrow(() -> new NoteNotFoundException("노트를 찾을 수 없습니다."));
 
-		if (page.getIsDeleted()) {
+		if (page.isDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
@@ -119,7 +119,7 @@ public class PageService {
 		Page page = pageRepository.findPageById(pageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (page.getIsDeleted()) {
+		if (page.isDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
@@ -221,7 +221,7 @@ public class PageService {
 		Page beforePage = pageRepository.findPageById(beforePageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (beforePage.getIsDeleted()) {
+		if (beforePage.isDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 

@@ -22,6 +22,6 @@ public abstract class BaseTimeEntity {
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
 
-	@Builder.Default
-	private Boolean isDeleted = false;
+	private boolean isDeleted;
+
 }

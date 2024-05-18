@@ -21,9 +21,9 @@ public class PageInfoDto {
 	private String color;
 	private String template;
 	private int direction;
-	private Boolean isBookmarked;
+	private boolean isBookmarked;
 	private String pdfUrl;
-	private Integer pdfPage;
+	private int pdfPage;
 	private String createdAt;
 	private String updatedAt;
 	private List<PathDto> paths;

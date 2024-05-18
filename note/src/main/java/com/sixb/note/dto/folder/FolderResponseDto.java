@@ -23,10 +23,10 @@ public class FolderResponseDto {
 	public static class FolderInfo {
 		private String folderId;
 		private String title;
-		private Boolean isLiked;
+		private boolean isLiked;
 		private LocalDateTime createdAt;
 		private LocalDateTime updatedAt;
-		private Boolean isDeleted;
+		private boolean isDeleted;
 	}
 
 	@Data
@@ -37,10 +37,10 @@ public class FolderResponseDto {
 		private String noteId;
 		private String title;
 		private int totalPageCnt;
-		private Boolean isLiked;
+		private boolean isLiked;
 		private LocalDateTime createdAt;
 		private LocalDateTime updatedAt;
-		private Boolean isDeleted;
+		private boolean isDeleted;
 	}
 }
 

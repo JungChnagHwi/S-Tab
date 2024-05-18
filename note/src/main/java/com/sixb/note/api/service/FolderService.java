@@ -43,7 +43,7 @@ public class FolderService {
 			info.setTitle(folder.getTitle());
 			info.setCreatedAt(folder.getCreatedAt());
 			info.setUpdatedAt(folder.getUpdatedAt());
-			info.setIsDeleted(folder.getIsDeleted());
+			info.setIsDeleted(folder.isDeleted());
 			info.setIsLiked(likedFolderIds.contains(folder.getFolderId()));
 			return info;
 		}).collect(Collectors.toList());
@@ -55,7 +55,7 @@ public class FolderService {
 			info.setTotalPageCnt(note.getTotalPageCnt());
 			info.setCreatedAt(note.getCreatedAt());
 			info.setUpdatedAt(note.getUpdatedAt());
-			info.setIsDeleted(note.getIsDeleted());
+			info.setIsDeleted(note.isDeleted());
 			info.setIsLiked(likedNoteIds.contains(note.getNoteId()));
 			return info;
 		}).collect(Collectors.toList());
@@ -76,7 +76,7 @@ public class FolderService {
 			info.setTitle(folder.getTitle());
 			info.setCreatedAt(folder.getCreatedAt());
 			info.setUpdatedAt(folder.getUpdatedAt());
-			info.setIsDeleted(folder.getIsDeleted());
+			info.setIsDeleted(folder.isDeleted());
 			info.setIsLiked(false);
 			return info;
 		}).collect(Collectors.toList());
@@ -88,7 +88,7 @@ public class FolderService {
 			info.setTotalPageCnt(note.getTotalPageCnt());
 			info.setCreatedAt(note.getCreatedAt());
 			info.setUpdatedAt(note.getUpdatedAt());
-			info.setIsDeleted(note.getIsDeleted());
+			info.setIsDeleted(note.isDeleted());
 			info.setIsLiked(false);
 			return info;
 		}).collect(Collectors.toList());

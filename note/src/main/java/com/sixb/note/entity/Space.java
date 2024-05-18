@@ -32,7 +32,7 @@ public class Space extends BaseTimeEntity {
 	private String title;
 
 	@Property("isPublic")
-	private Boolean isPublic;
+	private boolean isPublic;
 
 	@Property("spaceMd")
 	private String spaceMd;
