@@ -1,20 +1,23 @@
 package com.sixb.note.dto.folder;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateFolderResponseDto {
 	private String folderId;
 	private String title;
-	@JsonProperty(value = "isLiked")
-	private boolean isLiked;
+	@Builder.Default
+	private Boolean isLiked = false;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-	@JsonProperty(value = "isDeleted")
-	private boolean isDeleted;
+	@Builder.Default
+	private Boolean isDeleted = false;
 }

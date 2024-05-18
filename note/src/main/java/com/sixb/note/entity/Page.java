@@ -13,10 +13,10 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Node("Page")
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Node("Page")
 public class Page extends BaseTimeEntity {
 
 	@Id
