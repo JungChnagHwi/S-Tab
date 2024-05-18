@@ -37,33 +37,33 @@ public class FolderService {
 		List<String> likedFolderIds = folderRepository.findLikedFolderIdsByUserId(userId, folderIds);
 		List<String> likedNoteIds = noteRepository.findLikedNoteIdsByUserId(userId, noteIds);
 
-		List<FolderResponseDto.FolderInfo> folderInfos = folders.stream().map(folder -> {
-			FolderResponseDto.FolderInfo info = new FolderResponseDto.FolderInfo();
-			info.setFolderId(folder.getFolderId());
-			info.setTitle(folder.getTitle());
-			info.setCreatedAt(folder.getCreatedAt());
-			info.setUpdatedAt(folder.getUpdatedAt());
-			info.setIsDeleted(folder.getIsDeleted());
-			info.setIsLiked(likedFolderIds.contains(folder.getFolderId()));
-			return info;
-		}).collect(Collectors.toList());
+		List<FolderResponseDto.FolderInfo> folderInfos = folders.stream()
+				.map(folder -> FolderResponseDto.FolderInfo.builder()
+						.folderId(folder.getFolderId())
+						.title(folder.getTitle())
+						.createdAt(folder.getCreatedAt())
+						.updatedAt(folder.getUpdatedAt())
+						.isDeleted(folder.isDeleted())
+						.isLiked(likedFolderIds.contains(folder.getFolderId()))
+						.build())
+				.toList();
 
-		List<FolderResponseDto.NoteInfo> noteInfos = notes.stream().map(note -> {
-			FolderResponseDto.NoteInfo info = new FolderResponseDto.NoteInfo();
-			info.setNoteId(note.getNoteId());
-			info.setTitle(note.getTitle());
-			info.setTotalPageCnt(note.getTotalPageCnt());
-			info.setCreatedAt(note.getCreatedAt());
-			info.setUpdatedAt(note.getUpdatedAt());
-			info.setIsDeleted(note.getIsDeleted());
-			info.setIsLiked(likedNoteIds.contains(note.getNoteId()));
-			return info;
-		}).collect(Collectors.toList());
+		List<FolderResponseDto.NoteInfo> noteInfos = notes.stream()
+				.map(note -> FolderResponseDto.NoteInfo.builder()
+						.noteId(note.getNoteId())
+						.title(note.getTitle())
+						.totalPageCnt(note.getTotalPageCnt())
+						.createdAt(note.getCreatedAt())
+						.updatedAt(note.getUpdatedAt())
+						.isDeleted(note.isDeleted())
+						.isLiked(likedNoteIds.contains(note.getNoteId()))
+						.build())
+				.toList();
 
-		FolderResponseDto responseDto = new FolderResponseDto();
-		responseDto.setFolders(folderInfos);
-		responseDto.setNotes(noteInfos);
-		return responseDto;
+		return FolderResponseDto.builder()
+				.folders(folderInfos)
+				.notes(noteInfos)
+				.build();
 	}
 
 	public FolderResponseDto getSpaceDetail(String spaceId) {
@@ -76,8 +76,8 @@ public class FolderService {
 			info.setTitle(folder.getTitle());
 			info.setCreatedAt(folder.getCreatedAt());
 			info.setUpdatedAt(folder.getUpdatedAt());
-			info.setIsDeleted(folder.getIsDeleted());
-			info.setIsLiked(false);
+			info.setDeleted(folder.isDeleted());
+			info.setLiked(false);
 			return info;
 		}).collect(Collectors.toList());
 
@@ -88,8 +88,8 @@ public class FolderService {
 			info.setTotalPageCnt(note.getTotalPageCnt());
 			info.setCreatedAt(note.getCreatedAt());
 			info.setUpdatedAt(note.getUpdatedAt());
-			info.setIsDeleted(note.getIsDeleted());
-			info.setIsLiked(false);
+			info.setDeleted(note.isDeleted());
+			info.setLiked(false);
 			return info;
 		}).collect(Collectors.toList());
 
@@ -132,8 +132,8 @@ public class FolderService {
 		response.setTitle(newFolder.getTitle());
 		response.setCreatedAt(LocalDateTime.now());
 		response.setUpdatedAt(LocalDateTime.now());
-		response.setIsDeleted(false);
-		response.setIsLiked(false);
+		response.setDeleted(false);
+		response.setLiked(false);
 		return response;
 	}
 

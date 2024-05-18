@@ -28,13 +28,11 @@ public class PageService {
 
 	private final RedisTemplate<String, PageInfoDto> redisTemplate;
 
-	public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException, JsonProcessingException {
-		String beforePageId = request.getBeforePageId();
-
+	public PageCreateResponseDto createPage(String beforePageId) throws PageNotFoundException, JsonProcessingException {
 		Page beforePage = pageRepository.findPageById(beforePageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (beforePage.getIsDeleted()) {
+		if (beforePage.isDeleted()) {
 			throw new PageNotFoundException("삭제된 페이지 입니다.");
 		}
 
@@ -70,15 +68,20 @@ public class PageService {
 		return responseDto;
 	}
 
-	public void deletePage(String pageId) throws PageNotFoundException {
+	public void deletePage(String pageId) throws PageNotFoundException, JsonProcessingException {
 		Page page = pageRepository.findPageById(pageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (page.getIsDeleted()) {
+		if (page.isDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
-		page.setIsDeleted(true);
+		int cnt = pageRepository.findAllPagesByNoteId(page.getNoteId()).size();
+		if (cnt == 1) {
+			createPage(page.getPageId());
+		}
+
+		page.setDeleted(true);
 		page.setUpdatedAt(LocalDateTime.now());
 		pageRepository.save(page);
 	}
@@ -92,7 +95,7 @@ public class PageService {
 		Note note = noteRepository.findNoteById(page.getNoteId())
 				.orElseThrow(() -> new NoteNotFoundException("노트를 찾을 수 없습니다."));
 
-		if (page.getIsDeleted()) {
+		if (page.isDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
@@ -119,7 +122,7 @@ public class PageService {
 		Page page = pageRepository.findPageById(pageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (page.getIsDeleted()) {
+		if (page.isDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
@@ -145,7 +148,7 @@ public class PageService {
 
 		for (Page page : pageList) {
 			PageInfoDto pageInfoDto = getPageInfoDto(page);
-			pageInfoDto.setIsBookmarked(pageRepository.isLikedByPageId(userId, page.getPageId()));
+			pageInfoDto.setBookmarked(pageRepository.isLikedByPageId(userId, page.getPageId()));
 			// pageInfoList에 넣기
 			pageInfoList.add(pageInfoDto);
 		}
@@ -155,12 +158,6 @@ public class PageService {
 				.title(note.getTitle())
 				.build();
 	}
-
-	// 페이지 링크 - 보류
-//    public void linkPage(PageLinkRequestDto request) throws PageNotFoundException {
-//        Page linkPage = pageRepository.findPageById(request.getLinkPageId());
-//        Page targetPage = pageRepository.findPageById(request.getTargetPageId());
-//    }
 
 	public PageInfoDto copyPage(PageCopyRequestDto request) throws JsonProcessingException, PageNotFoundException, NoteNotFoundException {
 		String beforePageId = request.getBeforePageId();
@@ -206,7 +203,7 @@ public class PageService {
 
 		// responsedto에 넣기
 		PageInfoDto response = getPageInfoDto(newPage);
-		response.setIsBookmarked(false);
+		response.setBookmarked(false);
 
 		// db에 저장하고 반환
 		pageRepository.save(newPage);
@@ -221,7 +218,7 @@ public class PageService {
 		Page beforePage = pageRepository.findPageById(beforePageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (beforePage.getIsDeleted()) {
+		if (beforePage.isDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
@@ -256,7 +253,7 @@ public class PageService {
 			pageRepository.save(page);
 
 			PageInfoDto pageInfoDto = getPageInfoDto(page);
-			pageInfoDto.setIsBookmarked(false);
+			pageInfoDto.setBookmarked(false);
 
 			response.add(0, pageInfoDto);
 

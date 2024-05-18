@@ -38,7 +38,6 @@ import com.ssafy.stab.data.note.Direction
 import com.ssafy.stab.data.note.response.PageDetail
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.ui.theme.NoteBackground
-import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.util.note.NoteArea
 import com.ssafy.stab.util.note.NoteControlViewModel
 import com.ssafy.stab.util.note.getTemplate
@@ -48,18 +47,27 @@ import com.ssafy.stab.util.note.getTemplate
 fun PageList(
     noteViewModel: NoteViewModel,
     noteControlViewModel: NoteControlViewModel,
+    initialPageId: String,
     onPageChange: (Int) -> Unit,
 ) {
     var isTouching by remember { mutableStateOf(false) }
-
     val pageList by noteViewModel.pageList.collectAsState()
     val pageCount = pageList.size
-    val state = rememberPagerState { pageCount }
+
+    val state = rememberPagerState() { pageCount }
     val pageIndex = state.currentPage + 1
+
+    LaunchedEffect(pageList) {
+        val initialPageIndex = pageList.indexOfFirst { it.pageId == initialPageId }.takeIf { it != -1 } ?: 0
+        if (initialPageIndex != 0) {
+            state.scrollToPage(page = initialPageIndex)
+        }
+    }
 
     LaunchedEffect(state) {
         snapshotFlow { state.settledPage }.collect { page ->
             onPageChange(page)
+            noteViewModel.updateBookmarkStatus(page)
         }
     }
 
@@ -76,21 +84,20 @@ fun PageList(
         }
 
     if (pageCount > 0) {
-        HorizontalPager(
-            state = state,
-            modifier = touchAwareModifier,
-            userScrollEnabled = isTouching
-        ) {
-            page ->
-            Box {
+        Box {
+            HorizontalPager(
+                state = state,
+                modifier = touchAwareModifier,
+                userScrollEnabled = isTouching
+            ) { page ->
                 Page(pageList[page], noteControlViewModel)
-                Text(
-                    text = "$pageIndex / $pageCount",
-                    Modifier
-                        .padding(16.dp)
-                        .align(Alignment.BottomEnd)
-                )
             }
+            Text(
+                text = "$pageIndex / $pageCount",
+                Modifier
+                    .padding(16.dp)
+                    .align(Alignment.BottomEnd)
+            )
         }
     }
 }

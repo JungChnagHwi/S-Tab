@@ -17,13 +17,13 @@ fun getBookMarkList(onFolderResult: (List<BookmardFolder>?) -> Unit, onNoteResul
     call.enqueue(object: Callback<BookmarkListResponse> {
         override fun onResponse(call: Call<BookmarkListResponse>, response: Response<BookmarkListResponse>) {
             if (response.isSuccessful) {
-                Log.d("APIResponse", response.body().toString())
+                Log.d("getBookMarkList", response.body().toString())
                 val fileListResponse = response.body()
                 onFolderResult(fileListResponse?.folders)
                 onNoteResult(fileListResponse?.notes)
                 onPageResult(fileListResponse?.pages)
             } else {
-                println("Response not successful: ${response.errorBody()?.string()}")
+                println("getBookMarkList, Response not successful: ${response.errorBody()?.string()}")
             }
         }
 
@@ -40,14 +40,14 @@ fun addBookMark(id: String) {
     call.enqueue(object: Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
             if (response.isSuccessful) {
-                Log.d("APIResponse", "요청 성공")
+                Log.d("addBookMark", "$id: $response")
             } else {
                 println("Response not successful: ${response.errorBody()?.string()}")
             }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {
-            Log.d("APIResponse", "요청 실패")
+            Log.d("addBookMark", "요청 실패")
         }
     })
 
@@ -59,14 +59,14 @@ fun deleteBookMark(fileId: String) {
     call.enqueue(object: Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
             if (response.isSuccessful) {
-                Log.d("APIResponse", "요청 성공")
+                Log.d("deleteBookMark", "$fileId: $response")
             } else {
                 println("Response not successful: ${response.errorBody()?.string()}")
             }
         }
 
         override fun onFailure(call: Call<Void>, t: Throwable) {
-            Log.d("APIResponse", "요청 실패")
+            Log.d("deleteBookMark", "요청 실패")
         }
     })
 }

@@ -12,9 +12,9 @@ import java.util.*;
 public class TextBoxDto {
 
 	private List<TextDto> texts;
-	private Float width;
-	private Float height;
-	private Float x;
-	private Float y;
+	private float width;
+	private float height;
+	private float x;
+	private float y;
 
 }

@@ -58,21 +58,20 @@ import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
 fun NoteScreen(
     noteId: String,
     spaceId: String,
+    initialPageId: String,
     socketManager: SocketManager,
     navController: NavController,
     audioCallViewModel: AudioCallViewModel,
     currentCallSpaceName: String
 ){
     val noteViewModel: NoteViewModel = viewModel(factory = NoteViewModelFactory(noteId))
+    val personalSpaceId = PreferencesUtil.getLoginDetails().personalSpaceId ?: ""
     val userName = PreferencesUtil.getLoginDetails().userName ?: ""
     val profileImg = PreferencesUtil.getLoginDetails().profileImg
         ?: (BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png")
 
     val noteControlViewModel : NoteControlViewModel = viewModel(factory = NoteControlViewModelFactory(Pair(noteId, socketManager)))
     val chatBotViewModel = remember { ChatBotViewModel.getInstance() }
-
-    val undoAvailable by noteControlViewModel.undoAvailable.collectAsState()
-    val redoAvailable by noteControlViewModel.redoAvailable.collectAsState()
 
     val currentPage = remember { mutableIntStateOf(0) }
     val onPageChange = { page: Int -> currentPage.intValue = page }
@@ -84,15 +83,14 @@ fun NoteScreen(
     val callState = PreferencesUtil.callState.collectAsState()
 
     LaunchedEffect(spaceId) {
-        // 개인 스페이스 아이디가 아닐 때로 로직 수정필요
-        if (spaceId != "spaceId") {
+        if (spaceId != personalSpaceId) {
             socketManager.joinNote(noteId, userName, profileImg)
         }
     }
 
     DisposableEffect(spaceId) {
         onDispose {
-            if (spaceId != "spaceId") {
+            if (spaceId != personalSpaceId) {
                 socketManager.leaveNote(noteId)
             }
         }
@@ -133,7 +131,7 @@ fun NoteScreen(
                     )
                 }
                 PageInterfaceBar(
-                    currentPage = currentPage.value,
+                    currentPage = currentPage.intValue,
                     viewModel = noteViewModel,
                 )
                 if (callState.value.isInCall) {
@@ -154,7 +152,7 @@ fun NoteScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ControlsBar(noteControlViewModel, undoAvailable, redoAvailable)
+                ControlsBar(noteControlViewModel)
                 Divider(
                     color = Color(0xFFCCD7ED),
                     modifier = Modifier
@@ -174,7 +172,7 @@ fun NoteScreen(
 //                socketManager.userList.forEach { user ->
 //                    Text(text = "Nickname: ${user.nickname}")
 //                }
-                if (spaceId != "spaceId") {
+                if (spaceId != personalSpaceId) {
                     Image(
                         painter = painterResource(R.drawable.people),
                         contentDescription = "users",
@@ -197,7 +195,7 @@ fun NoteScreen(
                     .fillMaxSize()
                     .weight(1f)
             ) {
-                PageList(noteViewModel, noteControlViewModel, onPageChange)
+                PageList(noteViewModel, noteControlViewModel, initialPageId, onPageChange)
 
                 if (showChatBot) {
                     Box(

@@ -155,7 +155,7 @@ fun BookMarkListGridScreen(
                             Box(modifier = Modifier
                                 .weight(1f)
                                 .padding(8.dp)) {
-                                PageItem(page = page)
+                                PageItem(page = page, navController)
                             }
                         }
                         repeat(5 - rowItems.size) {
@@ -242,7 +242,11 @@ fun NoteItem(note: BookmardNote, navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box {
-            Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier.size(102.dp, 136.dp))
+            Image(painter = notebookImg, contentDescription = "노트", modifier = Modifier
+                .size(102.dp, 136.dp)
+                .clickable {
+                    navController.navigate("note/${note.noteId}/${note.spaceId}/p")
+                })
             Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)
@@ -272,14 +276,14 @@ fun NoteItem(note: BookmardNote, navController: NavController) {
 }
 
 @Composable
-fun PageItem(page: BookmardPage) {
+fun PageItem(page: BookmardPage, navController: NavController) {
     val staronImg = painterResource(id = R.drawable.bookmark_on)
     val staroffImg = painterResource(id = R.drawable.bookmark_off_white)
     val pageImg = painterResource(id = getTemplate(
-        page.template,
-        page.color,
-        if (page.direction == 0) Direction.Landscape else Direction.Landscape
-    ))
+            page.template,
+            page.color,
+            if (page.direction == 0) Direction.Landscape else Direction.Portrait
+        ))
     var isLiked by remember { mutableStateOf(true) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
@@ -289,7 +293,7 @@ fun PageItem(page: BookmardPage) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box {
-            Image(painter = pageImg, contentDescription = "페이지", modifier = Modifier.size(102.dp, 136.dp))
+            Image(painter = pageImg, contentDescription = "페이지", modifier = Modifier.size(102.dp, 136.dp).clickable { navController.navigate("note/${page.noteId}/${page.spaceId}/${page.pageId}") })
             Image(painter = bookmarkIcon, contentDescription = "즐겨찾기", modifier = Modifier
                 .size(48.dp)
                 .padding(10.dp)

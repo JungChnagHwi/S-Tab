@@ -116,7 +116,8 @@ fun ListGridScreen(
             Box(
                 modifier = Modifier
                     .width(1000.dp)
-                    .height(800.dp)
+                    .height(700.dp) // 690으로 하고 나머지 비율을 고칠지 고민중
+                    .clip(RoundedCornerShape(15.dp))
                     .background(Color.White, shape = RoundedCornerShape(10.dp))
             ) {
                 CreateNoteModal(closeModal, viewModel = viewModel)
