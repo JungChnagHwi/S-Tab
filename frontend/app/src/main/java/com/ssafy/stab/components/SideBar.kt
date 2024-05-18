@@ -104,6 +104,7 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
                 .clickable {
                     Log.d("액세스 토큰", PreferencesUtil.getLoginDetails().accessToken.toString())
                     Log.d("루트 폴더", PreferencesUtil.getLoginDetails().rootFolderId.toString())
+                    Log.d("이미지루트", PreferencesUtil.getLoginDetails().profileImg.toString())
                 }
                 .fillMaxWidth(0.8f)
                 .height(72.dp)
