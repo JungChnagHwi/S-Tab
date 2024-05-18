@@ -4,6 +4,8 @@ import NoteListViewModelFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -78,7 +81,6 @@ fun ListGridScreen(
     val folderId by remember(initFolderId) { mutableStateOf(initFolderId) }
     val showNoteModal = remember { mutableStateOf(false) }
     val showFolderModal = remember { mutableStateOf(false) }
-    val showEditDeleteOptions = remember { mutableStateOf(false) }
     val showCreateOptions = remember { mutableStateOf(false) }
     val showEditModal = remember { mutableStateOf(false) }
 
@@ -107,7 +109,6 @@ fun ListGridScreen(
             PreferencesUtil.getShareSpaceState()
                 ?.let { socketManager.updateSpace(it, "NoteDeleted", selectedFileId.value) }
         }
-        showEditDeleteOptions.value = false
     }
 
     if (showNoteModal.value) {
@@ -156,110 +157,120 @@ fun ListGridScreen(
         }
     }
 
-    LazyColumn {
-        item {
-            Box(contentAlignment = Alignment.CenterStart) {
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)) {
-                    Column(modifier = Modifier
-                        .weight(1f)
-                        .padding(0.dp, 5.dp, 25.dp, 0.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Image(
-                            painter = createNoteImg,
-                            contentDescription = "새 노트 만들기",
-                            modifier = Modifier
-                                .width(102.dp)
-                                .height(136.dp)
-                                .clip(RoundedCornerShape(20))
-                                .clickable { showCreateOptions.value = !showCreateOptions.value }
-                        )
-                        Text(text = "새로 만들기", fontFamily = FontFamily.Default)
-                    }
-
-                    combinedList.take(4).forEach { item ->
-                        Box(modifier = Modifier
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                onClick = { viewModel.closeAllOptions() },
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            )
+    ) {
+        LazyColumn {
+            item {
+                Box(contentAlignment = Alignment.CenterStart) {
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)) {
+                        Column(modifier = Modifier
                             .weight(1f)
-                            .padding(8.dp)) {
-                            when (item) {
-                                is Folder -> FolderItem(folder = item, viewModel = viewModel,
-                                    executeDelete = { executeDelete() },
-                                    showEditModal = { showEditModal.value = true }
-                                )
+                            .padding(0.dp, 5.dp, 25.dp, 0.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Image(
+                                painter = createNoteImg,
+                                contentDescription = "새 노트 만들기",
+                                modifier = Modifier
+                                    .width(102.dp)
+                                    .height(136.dp)
+                                    .clip(RoundedCornerShape(20))
+                                    .clickable { showCreateOptions.value = !showCreateOptions.value }
+                            )
+                            Text(text = "새로 만들기", fontFamily = FontFamily.Default)
+                        }
 
-                                is Note -> NoteItem(note = item, onNote,
-                                    executeDelete = { executeDelete() },
-                                    showEditModal = { showEditModal.value = true }
-                                )
+                        combinedList.take(4).forEach { item ->
+                            Box(modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp)) {
+                                when (item) {
+                                    is Folder -> FolderItem(folder = item, viewModel = viewModel,
+                                        executeDelete = { executeDelete() },
+                                        showEditModal = { showEditModal.value = true }
+                                    )
+
+                                    is Note -> NoteItem(note = item, viewModel, onNote,
+                                        executeDelete = { executeDelete() },
+                                        showEditModal = { showEditModal.value = true }
+                                    )
+                                }
                             }
+                        }
+
+                        repeat(4 - combinedList.take(4).size) {
+                            Spacer(modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp))
                         }
                     }
 
-                    repeat(4 - combinedList.take(4).size) {
-                        Spacer(modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp))
-                    }
-                }
-
-                if (showCreateOptions.value) {
-                    Column(
-                        modifier = Modifier
-                            .padding(top = 70.dp, start = 120.dp)
-                            .height(100.dp)
-                            .width(100.dp)
-                            .background(
-                                color = Color(0XFFC3CCDE),
-                                shape = RoundedCornerShape(10.dp)
+                    if (showCreateOptions.value) {
+                        Column(
+                            modifier = Modifier
+                                .padding(top = 70.dp, start = 120.dp)
+                                .height(100.dp)
+                                .width(100.dp)
+                                .background(
+                                    color = Color(0XFFC3CCDE),
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("폴더 생성",  fontFamily = FontFamily.Default, modifier = Modifier.clickable {
+                                showCreateOptions.value = false
+                                showFolderModal.value = true
+                            })
+                            Divider(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                thickness = 1.dp,
+                                modifier = Modifier.padding(vertical = 8.dp)
                             )
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("폴더 생성",  fontFamily = FontFamily.Default, modifier = Modifier.clickable {
-                            showCreateOptions.value = false
-                            showFolderModal.value = true
-                        })
-                        Divider(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                        Text("노트 생성", fontFamily = FontFamily.Default, modifier = Modifier.clickable {
-                            showCreateOptions.value = false
-                            showNoteModal.value = true
-                        })
+                            Text("노트 생성", fontFamily = FontFamily.Default, modifier = Modifier.clickable {
+                                showCreateOptions.value = false
+                                showNoteModal.value = true
+                            })
+                        }
                     }
                 }
             }
-        }
-        combinedList.drop(4).chunked(5).forEach { rowItems ->
-            item {
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)) {
-                    rowItems.forEach { item ->
-                        Box(modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp)) {
-                            when (item) {
-                                is Folder -> FolderItem(folder = item, viewModel,
-                                    executeDelete = { executeDelete() },
-                                    showEditModal = { showEditModal.value = true }
-                                )
+            combinedList.drop(4).chunked(5).forEach { rowItems ->
+                item {
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)) {
+                        rowItems.forEach { item ->
+                            Box(modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp)) {
+                                when (item) {
+                                    is Folder -> FolderItem(folder = item, viewModel,
+                                        executeDelete = { executeDelete() },
+                                        showEditModal = { showEditModal.value = true }
+                                    )
 
-                                is Note -> NoteItem(note = item, onNote,
-                                    executeDelete = { executeDelete() },
-                                    showEditModal = { showEditModal.value = true }
-                                )
+                                    is Note -> NoteItem(note = item, viewModel, onNote,
+                                        executeDelete = { executeDelete() },
+                                        showEditModal = { showEditModal.value = true }
+                                    )
+                                }
                             }
                         }
-                    }
-                    // Fill remaining space
-                    repeat(5 - rowItems.size) {
-                        Spacer(modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp))
+                        // Fill remaining space
+                        repeat(5 - rowItems.size) {
+                            Spacer(modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp))
+                        }
                     }
                 }
             }
@@ -284,7 +295,7 @@ fun FolderItem(
     val navigationStackId = LocalNavigationStackId.current
     val navigationStackTitle = LocalNavigationStackTitle.current
 
-    var showOptions by remember { mutableStateOf(false) }
+    val showOptions by viewModel.getShowOptionsState(folder.folderId)
     var isLiked by remember { mutableStateOf(folder.isLiked) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
@@ -316,7 +327,8 @@ fun FolderItem(
                 modifier = Modifier.clickable {
                     selectedFileId.value = folder.folderId
                     selectedFileTitle.value = folder.title
-                    showOptions = true
+                    viewModel.closeAllOptions()
+                    viewModel.getShowOptionsState(folder.folderId).value = true
                 }
             ) {
                 Text(text = folder.title)
@@ -332,11 +344,11 @@ fun FolderItem(
                 modifier = Modifier
                     .padding(top = 70.dp, start = 120.dp),
                 onEdit = {
-                    showOptions = false
+                    viewModel.getShowOptionsState(folder.folderId).value = false
                     showEditModal()
                 },
                 onDelete = {
-                    showOptions = false
+                    viewModel.getShowOptionsState(folder.folderId).value = false
                     executeDelete()
                 }
             )
@@ -347,6 +359,7 @@ fun FolderItem(
 @Composable
 fun NoteItem(
     note: Note,
+    viewModel: NoteListViewModel,
     onNote: (String) -> Unit,
     executeDelete: () -> Unit,
     showEditModal: () -> Unit
@@ -356,14 +369,17 @@ fun NoteItem(
     val staronImg = painterResource(id = R.drawable.eachstaron)
     val staroffImg = painterResource(id = R.drawable.eachstaroff)
 
-    val selectedFileId = LocalSelectedFileId.current
-    val selectedFileTitle = LocalSelectedFileTitle.current
-    var showOptions by remember { mutableStateOf(false) }
+    val showOptions by viewModel.getShowOptionsState(note.noteId)
     var isLiked by remember { mutableStateOf(note.isLiked) }
     val bookmarkIcon = if (isLiked) staronImg else staroffImg
 
+    val selectedFileId = LocalSelectedFileId.current
+    val selectedFileTitle = LocalSelectedFileTitle.current
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    Box(modifier = Modifier.clickable { onNote(note.noteId) }) {
+
+    Box(modifier = Modifier
+        .clickable { onNote(note.noteId) }
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -387,7 +403,8 @@ fun NoteItem(
                 modifier = Modifier.clickable {
                     selectedFileId.value = note.noteId
                     selectedFileTitle.value = note.title
-                    showOptions = true
+                    viewModel.closeAllOptions()
+                    viewModel.getShowOptionsState(note.noteId).value = true
                 }
             ) {
                 Text(text = note.title)
@@ -403,17 +420,18 @@ fun NoteItem(
                 modifier = Modifier
                     .padding(top = 70.dp, start = 120.dp),
                 onEdit = {
-                    showOptions = false
+                    viewModel.getShowOptionsState(note.noteId).value = false
                     showEditModal()
                 },
                 onDelete = {
-                    showOptions = false
+                    viewModel.getShowOptionsState(note.noteId).value = false
                     executeDelete()
                 }
             )
         }
     }
 }
+
 @Composable
 fun EditDeleteOptions(
     modifier: Modifier = Modifier,
