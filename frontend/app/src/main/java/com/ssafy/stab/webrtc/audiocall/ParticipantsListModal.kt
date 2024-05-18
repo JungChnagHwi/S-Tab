@@ -45,7 +45,7 @@ import com.ssafy.stab.modals.UserProfileImage
 fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>, sessionId: String, onDismiss: () -> Unit) {
 
 //    val profileImg = painterResource(id = R.drawable.profile)
-    var profileImgUrl = "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/18/3470552700/e6610701-3998-467b-8b48-91a66896165f_content%253A%252F%252Fmedia%252Fexternal%252Fimages%252Fmedia%252F1000013707.jpeg"
+    var profileImgUrl = "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/08/3454673260/profileImage.png"
 
     val muteImg = painterResource(id = R.drawable.soundoff)
     val micImg = painterResource(id = R.drawable.soundon)
@@ -83,7 +83,7 @@ fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>,
                     SectionTitle(title = "통화중")
                 }
                 items(onlineUsers) { user ->
-                    if (user.profileImg != "null") {
+                    if (user.profileImg != null) {
                         profileImgUrl = user.profileImg
                     }
                     UserRow(user.nickname, profileImgUrl, muteImg, micImg)
@@ -92,7 +92,7 @@ fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>,
                     SectionTitle(title = "오프라인")
                 }
                 items(offlineUsers) { user ->
-                    if (user.profileImg != "null") {
+                    if (user.profileImg != null) {
                         profileImgUrl = user.profileImg
                     }
                     UserRow(user.nickname, profileImgUrl, muteImg, micImg)
