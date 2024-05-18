@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -34,12 +36,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.google.gson.JsonParser
 import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.User
-import com.ssafy.stab.modals.UserProfileImage
 
 
 @Composable
@@ -73,8 +78,7 @@ fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>,
         Column(
             modifier = Modifier
                 .align(Alignment.TopEnd) // 오른쪽 위에 배치
-                .clip(RoundedCornerShape(20.dp))
-                .background(Color(0xFF7591C6))
+                .background(Color(0xFF87A9FF), shape = RoundedCornerShape(16.dp))
                 .width(250.dp)
                 .height(400.dp)
                 .padding(16.dp)
@@ -106,8 +110,15 @@ fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>,
 
 @Composable
 fun SectionTitle(title: String) {
-    Text(text = title, color = Color.White, modifier = Modifier.padding(8.dp))
-    Divider(color = Color.White, thickness = 1.dp)
+    Text(
+        text = title,
+        color = Color.White,
+        modifier = Modifier.padding(8.dp),
+        fontSize = 20.sp,
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.SemiBold
+    )
+    Divider(color = Color.White, thickness = 1.dp, modifier = Modifier.padding(bottom = 8.dp))
 }
 
 @Composable
@@ -119,15 +130,21 @@ fun UserRow(
 ) {
     var volume by remember { mutableFloatStateOf(0.5f) }
     var isMuted by remember { mutableStateOf(false) }
+    val profileImg = rememberAsyncImagePainter(model = profileImgUrl)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-//        Image(painter = profileImg, contentDescription = "프로필 이미지")
-        UserProfileImage(profileImgUrl)
+        Image(
+            painter = profileImg,
+            contentDescription = "프로필 이미지",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+        )
         Spacer(modifier = Modifier.width(15.dp))
         Column(
             modifier = Modifier
