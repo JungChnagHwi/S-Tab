@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -136,6 +137,7 @@ fun NoteScreen(
                     Text(
                         text = noteTitle,
                         modifier = Modifier.align(Alignment.CenterVertically),
+                        fontFamily = FontFamily.Default,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.W500
                     )
