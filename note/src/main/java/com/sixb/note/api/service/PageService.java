@@ -145,7 +145,7 @@ public class PageService {
 
 		for (Page page : pageList) {
 			PageInfoDto pageInfoDto = getPageInfoDto(page);
-			pageInfoDto.setIsBookmarked(pageRepository.isLikedByPageId(userId, page.getPageId()));
+			pageInfoDto.setBookmarked(pageRepository.isLikedByPageId(userId, page.getPageId()));
 			// pageInfoList에 넣기
 			pageInfoList.add(pageInfoDto);
 		}
@@ -206,7 +206,7 @@ public class PageService {
 
 		// responsedto에 넣기
 		PageInfoDto response = getPageInfoDto(newPage);
-		response.setIsBookmarked(false);
+		response.setBookmarked(false);
 
 		// db에 저장하고 반환
 		pageRepository.save(newPage);
@@ -256,7 +256,7 @@ public class PageService {
 			pageRepository.save(page);
 
 			PageInfoDto pageInfoDto = getPageInfoDto(page);
-			pageInfoDto.setIsBookmarked(false);
+			pageInfoDto.setBookmarked(false);
 
 			response.add(0, pageInfoDto);
 

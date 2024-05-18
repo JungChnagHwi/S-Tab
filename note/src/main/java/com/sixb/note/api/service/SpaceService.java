@@ -39,7 +39,7 @@ public class SpaceService {
 			dto.setSpaceId(space.getSpaceId());
 			dto.setRootFolderId(space.getRootFolderId());
 			dto.setTitle(space.getTitle());
-			dto.setIsPublic(space.isPublic());
+			dto.setPublic(space.isPublic());
 			dto.setCreatedAt(space.getCreatedAt());
 			dto.setUpdatedAt(space.getUpdatedAt());
 
