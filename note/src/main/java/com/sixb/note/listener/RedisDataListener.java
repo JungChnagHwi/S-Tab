@@ -30,6 +30,11 @@ public class RedisDataListener {
 		String key = expiredKey.replace(":expired", "");
 		PageInfoDto pageInfo = redisTemplate.opsForValue().get(key);
 
+		if (pageInfo == null) {
+			log.error("RedisDataListener: {} is missing.", key);
+			return;
+		}
+
 		ObjectMapper mapper = new ObjectMapper();
 		PageDataDto pageData = PageDataDto.builder()
 				.paths(pageInfo.getPaths())
@@ -55,7 +60,7 @@ public class RedisDataListener {
 		pageRepository.save(page);
 		redisTemplate.delete(key);
 
-		log.info("RedisDataListener: {}", pageInfo.getPageId());
+		log.info("RedisDataListener: {} is saved.", pageInfo.getPageId());
 	}
 
 }

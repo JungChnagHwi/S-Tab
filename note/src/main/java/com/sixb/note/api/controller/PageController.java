@@ -23,7 +23,7 @@ public class PageController {
 	@PostMapping
 	public ResponseEntity<?> createPage(@RequestBody PageCreateRequestDto request) {
 		try {
-			PageCreateResponseDto response = pageService.createPage(request);
+			PageCreateResponseDto response = pageService.createPage(request.getBeforePageId());
 			return ResponseEntity.ok(response);
 		} catch (PageNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -40,6 +40,9 @@ public class PageController {
 			return ResponseEntity.ok("페이지 삭제 완료");
 		} catch (PageNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (Exception e) {
+			log.error("Error: ", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("페이지 생성에 실패했습니다.");
 		}
 	}
 
