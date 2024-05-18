@@ -28,9 +28,7 @@ public class PageService {
 
 	private final RedisTemplate<String, PageInfoDto> redisTemplate;
 
-	public PageCreateResponseDto createPage(PageCreateRequestDto request) throws PageNotFoundException, JsonProcessingException {
-		String beforePageId = request.getBeforePageId();
-
+	public PageCreateResponseDto createPage(String beforePageId) throws PageNotFoundException, JsonProcessingException {
 		Page beforePage = pageRepository.findPageById(beforePageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
@@ -70,12 +68,17 @@ public class PageService {
 		return responseDto;
 	}
 
-	public void deletePage(String pageId) throws PageNotFoundException {
+	public void deletePage(String pageId) throws PageNotFoundException, JsonProcessingException {
 		Page page = pageRepository.findPageById(pageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
 		if (page.isDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
+		}
+
+		int cnt = pageRepository.findAllPagesByNoteId(page.getNoteId()).size();
+		if (cnt == 1) {
+			createPage(page.getPageId());
 		}
 
 		page.setDeleted(true);
@@ -155,12 +158,6 @@ public class PageService {
 				.title(note.getTitle())
 				.build();
 	}
-
-	// 페이지 링크 - 보류
-//    public void linkPage(PageLinkRequestDto request) throws PageNotFoundException {
-//        Page linkPage = pageRepository.findPageById(request.getLinkPageId());
-//        Page targetPage = pageRepository.findPageById(request.getTargetPageId());
-//    }
 
 	public PageInfoDto copyPage(PageCopyRequestDto request) throws JsonProcessingException, PageNotFoundException, NoteNotFoundException {
 		String beforePageId = request.getBeforePageId();
