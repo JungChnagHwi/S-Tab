@@ -92,6 +92,7 @@ fun NoteScreen(
         onDispose {
             if (spaceId != personalSpaceId) {
                 socketManager.leaveNote(noteId)
+                noteViewModel.savePage(noteControlViewModel.pathList)
             }
         }
     }
