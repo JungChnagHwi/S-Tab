@@ -33,7 +33,7 @@ fun PageInterfaceBar(
     val isBookmarked = viewModel.isBookmarked.collectAsState()
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         OptionIcons(

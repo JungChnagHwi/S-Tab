@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -113,14 +114,17 @@ fun NoteScreen(
         ) {
             Row(
                 modifier = Modifier
-                    .background(Color(0xFFB9CDFF))
+                    .background(Color(0xFFA7C0FF))
                     .height(52.dp)
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(0.6f)
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.left),
                         contentDescription = "back",
@@ -136,20 +140,27 @@ fun NoteScreen(
                     Text(
                         text = noteTitle,
                         modifier = Modifier.align(Alignment.CenterVertically),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.W500
                     )
                 }
-                PageInterfaceBar(
-                    currentPage = currentPage.intValue,
-                    viewModel = noteViewModel,
-                )
-                if (callState.value.isInCall) {
-                    CallStateBox(
-                        currentCallSpaceName = currentCallSpaceName,
-                        isMuted = audioCallViewModel.isMuted.value,
-                        toggleMic = { audioCallViewModel.toggleMic() },
-                        leaveSession = {audioCallViewModel.leaveSession() })
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (callState.value.isInCall) {
+                        CallStateBox(
+                            currentCallSpaceName = currentCallSpaceName,
+                            isMuted = audioCallViewModel.isMuted.value,
+                            toggleMic = { audioCallViewModel.toggleMic() },
+                            leaveSession = {audioCallViewModel.leaveSession() })
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    PageInterfaceBar(
+                        currentPage = currentPage.intValue,
+                        viewModel = noteViewModel,
+                    )
                 }
             }
 
@@ -236,10 +247,10 @@ fun NoteScreen(
                             modifier = Modifier
 //                                .align(Alignment.TopEnd) // 오른쪽 위에 배치
                                 .clip(RoundedCornerShape(20.dp))
-                                .background(Color(0xFF7591C6))
+                                .background(Color(0xFFA7C0FF))
                                 .width(250.dp)
                                 .height(350.dp)
-                                .padding(10.dp)
+                                .padding(4.dp)
                                 .clickable { }
                         ) {
                             UserListModal(socketManager.userList)

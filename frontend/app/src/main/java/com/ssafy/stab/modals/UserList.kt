@@ -19,11 +19,15 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.Coil
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.R
 import com.ssafy.stab.data.note.User
 
@@ -31,15 +35,14 @@ import com.ssafy.stab.data.note.User
 fun UserListModal(userList: SnapshotStateList<User>) {
 //    val profileImg = painterResource(id = R.drawable.profile)
 
-    var profileImgUrl = "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/08/3454673260/profileImage.png"
+    var profileImgUrl = BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png"
 
     Column(
         modifier = Modifier
-            .background(Color(0xFF7591C6))
+            .background(Color(0xFF87A9FF), shape = RoundedCornerShape(16.dp))
             .width(300.dp)
             .height(400.dp)
             .padding(16.dp)
-            .clip(RoundedCornerShape(20.dp))
     ) {
         LazyColumn {
             item {
@@ -58,8 +61,15 @@ fun UserListModal(userList: SnapshotStateList<User>) {
 
 @Composable
 fun SectionTitle(title: String) {
-    Text(text = title, color = Color.White, modifier = Modifier.padding(8.dp))
-    Divider(color = Color.White, thickness = 1.dp)
+    Text(
+        text = title,
+        color = Color.White,
+        modifier = Modifier.padding(8.dp),
+        fontSize = 24.sp,
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.SemiBold
+    )
+    Divider(color = Color.White, thickness = 1.dp, modifier = Modifier.padding(bottom = 8.dp))
 }
 
 @Composable
@@ -67,22 +77,27 @@ fun UserRow(
     user: String,
     profileImgUrl: String,
     ) {
-//    val profileImg = rememberAsyncImagePainter(model = profileImgUrl)
+    val profileImg = rememberAsyncImagePainter(model = profileImgUrl)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-//        Image(painter = profileImg, contentDescription = "프로필 이미지")
-        UserProfileImage(profileImgUrl)
+        Image(
+            painter = profileImg,
+            contentDescription = "프로필 이미지",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+        )
         Spacer(modifier = Modifier.width(15.dp))
         Column(
             modifier = Modifier
                 .weight(1f)
                 .padding(end = 8.dp)
         ) {
-            Text(text = user)
+            Text(text = user, fontSize = 20.sp, color = Color.White)
 //            Spacer(modifier = Modifier.height(8.dp))
 //            Slider(
 //                value = volume,
@@ -102,23 +117,4 @@ fun UserRow(
 //        }
         }
     }
-}
-
-// url로 이미지 가져오기
-@Composable
-fun UserProfileImage(profileImageUrl: String) {
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(profileImageUrl)
-            .crossfade(true)
-//            .placeholder(R.drawable.placeholder)  // 로딩 중 표시할 이미지
-//            .error(R.drawable.error_image)        // 로드 실패 시 표시할 이미지
-            .build(),
-        contentDescription = "프로필 이미지",
-        modifier = Modifier
-            .width(30.dp)
-            .height(30.dp)
-            .clip(CircleShape)
-//        contentScale = ContentScale.Crop // 이미지 크롭 방식 설정
-    )
 }
