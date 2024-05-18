@@ -1,6 +1,7 @@
 package com.ssafy.stab.screens.note
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -87,9 +89,14 @@ fun NoteScreen(
 
     val callState = PreferencesUtil.callState.collectAsState()
 
+    val context = LocalContext.current
+
     LaunchedEffect(spaceId) {
         if (spaceId != personalSpaceId) {
             socketManager.joinNote(noteId, userName, profileImg)
+            socketManager.onUserJoined = { nickname ->
+                Toast.makeText(context, "$nickname 님이 노트에 참여했습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

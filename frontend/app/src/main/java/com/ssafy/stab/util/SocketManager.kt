@@ -1,5 +1,7 @@
 package com.ssafy.stab.util
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -55,6 +57,12 @@ class SocketManager private constructor() {
 
 
     private lateinit var viewModel: NoteListViewModel
+
+
+    private val handler = Handler(Looper.getMainLooper())
+    // 콜백 정의
+    var onUserJoined: ((String) -> Unit)? = null
+//    var onUserLeft: ((String) -> Unit)? = null // 사용자 떠날때
 
     fun setViewModel(viewModel: NoteListViewModel) {
         this.viewModel = viewModel
@@ -258,7 +266,11 @@ class SocketManager private constructor() {
             // note room에 입장한 사용자 닉네임 받기
             socket?.on("notifyNote") { data ->
                 val remoteNickname = data[0]
-                Log.d("SpaceConnection", "$remoteNickname just joined the Note Room")
+                Log.d("NoteConnection", "$remoteNickname just joined the Note Room")
+                handler.post {
+                    onUserJoined?.invoke(remoteNickname.toString())
+                }
+
             }
 
             // note 이벤트 받기
