@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.stab.R
@@ -24,9 +25,12 @@ import com.ssafy.stab.apis.space.bookmark.addBookMark
 import com.ssafy.stab.apis.space.bookmark.deleteBookMark
 import com.ssafy.stab.apis.space.folder.Folder
 import com.ssafy.stab.apis.space.folder.Note
+import com.ssafy.stab.apis.space.folder.deleteFolder
+import com.ssafy.stab.apis.space.note.deleteNote
+import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.modals.CreateNoteModal
-import com.ssafy.stab.modals.PatchDeleteModal
+import com.ssafy.stab.modals.FileEditModal
 import com.ssafy.stab.screens.space.personal.*
 import com.ssafy.stab.util.SocketManager
 import java.time.format.DateTimeFormatter
@@ -53,7 +57,7 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
             ) {
                 Image(painter = glassImg, contentDescription = null)
                 Spacer(modifier = Modifier.width(20.dp))
-                Text(text = "검색")
+                Text(text = "검색", fontFamily = FontFamily.Default)
             }
             Spacer(modifier = Modifier.width(20.dp))
         }
@@ -75,8 +79,9 @@ fun ListGridScreen(
     val folderId by remember(initFolderId) { mutableStateOf(initFolderId) }
     val showNoteModal = remember { mutableStateOf(false) }
     val showFolderModal = remember { mutableStateOf(false) }
-    val showPatchDeleteModal = remember { mutableStateOf(false) }
+    val showEditDeleteOptions = remember { mutableStateOf(false) }
     val showCreateOptions = remember { mutableStateOf(false) }
+    val showEditModal = remember { mutableStateOf(false) }
 
     val viewModel: NoteListViewModel = viewModel(
         key = initFolderId,
@@ -90,8 +95,19 @@ fun ListGridScreen(
     }
 
     val createNoteImg = painterResource(id = R.drawable.createnote)
-    fun patchDeleteToggle() {
-        showPatchDeleteModal.value = !showPatchDeleteModal.value
+    fun executeDelete() {
+        if (selectedFileId.value[0] == 'f') {
+            deleteFolder(selectedFileId.value)
+            viewModel.deleteFolder(selectedFileId.value)
+            PreferencesUtil.getShareSpaceState()
+                ?.let { socketManager.updateSpace(it, "FolderDeleted", selectedFileId.value) }
+        } else if (selectedFileId.value[0] == 'n') {
+            deleteNote(selectedFileId.value)
+            viewModel.deleteNote(selectedFileId.value)
+            PreferencesUtil.getShareSpaceState()
+                ?.let { socketManager.updateSpace(it, "NoteDeleted", selectedFileId.value) }
+        }
+        showEditDeleteOptions.value = false
     }
 
     if (showNoteModal.value) {
@@ -110,23 +126,59 @@ fun ListGridScreen(
 
     if (showFolderModal.value) {
         Dialog(onDismissRequest = { showFolderModal.value = false }) {
-            CreateFolderModal(
-                closeModal = { showFolderModal.value = false },
-                viewModel = viewModel,
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .fillMaxHeight(0.6f)
+            ) {
+                CreateFolderModal(
+                    closeModal = { showFolderModal.value = false },
+                    viewModel = viewModel,
+                )
+            }
         }
     }
 
-    if (showPatchDeleteModal.value) {
-        Dialog(onDismissRequest = { showPatchDeleteModal.value = false }) {
-            val closeModal = { showPatchDeleteModal.value = false }
+    if (showEditDeleteOptions.value) {
+        Dialog(onDismissRequest = { showEditDeleteOptions.value = false }) {
+            Column(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .background(color = Color(0xFFC3CCDE), shape = RoundedCornerShape(10.dp))
+                    .padding(8.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("수정", fontFamily = FontFamily.Default, modifier = Modifier.clickable {
+                    showEditDeleteOptions.value = false
+                    showEditModal.value = true
+                })
+                Divider(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+                Text("삭제", fontFamily = FontFamily.Default, modifier = Modifier.clickable {
+                    showEditDeleteOptions.value = false
+                    executeDelete()
+                })
+            }
+        }
+    }
+
+    if (showEditModal.value) {
+        Dialog(onDismissRequest = { showEditModal.value = false }) {
             Box(
                 modifier = Modifier
-                    .width(1000.dp)
-                    .height(800.dp)
-                    .background(Color.White, shape = RoundedCornerShape(10.dp))
+                    .fillMaxWidth(0.8f)
+                    .fillMaxHeight(0.6f)
             ) {
-                PatchDeleteModal(closeModal, viewModel, selectedFileId.value, selectedFileTitle.value)
+                FileEditModal(
+                    closeModal = { showEditModal.value = false },
+                    viewModel = viewModel,
+                    fileId = selectedFileId.value,
+                    fileTitle = selectedFileTitle.value
+                )
             }
         }
     }
@@ -149,7 +201,7 @@ fun ListGridScreen(
                                 .clip(RoundedCornerShape(20))
                                 .clickable { showCreateOptions.value = !showCreateOptions.value }
                         )
-                        Text(text = "새로 만들기")
+                        Text(text = "새로 만들기", fontFamily = FontFamily.Default)
                     }
 
                     combinedList.take(4).forEach { item ->
@@ -158,10 +210,10 @@ fun ListGridScreen(
                             .padding(8.dp)) {
                             when (item) {
                                 is Folder -> FolderItem(folder = item, viewModel = viewModel
-                                ) { patchDeleteToggle() }
+                                ) { showEditDeleteOptions.value = true }
 
                                 is Note -> NoteItem(note = item, onNote
-                                ) { patchDeleteToggle() }
+                                ) { showEditDeleteOptions.value = true }
                             }
                         }
                     }
@@ -187,7 +239,7 @@ fun ListGridScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("폴더 생성", modifier = Modifier.clickable {
+                        Text("폴더 생성",  fontFamily = FontFamily.Default, modifier = Modifier.clickable {
                             showCreateOptions.value = false
                             showFolderModal.value = true
                         })
@@ -196,7 +248,7 @@ fun ListGridScreen(
                             thickness = 1.dp,
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
-                        Text("노트 생성", modifier = Modifier.clickable {
+                        Text("노트 생성", fontFamily = FontFamily.Default, modifier = Modifier.clickable {
                             showCreateOptions.value = false
                             showNoteModal.value = true
                         })
@@ -215,10 +267,10 @@ fun ListGridScreen(
                             .padding(8.dp)) {
                             when (item) {
                                 is Folder -> FolderItem(folder = item, viewModel
-                                ) { patchDeleteToggle() }
+                                ) { showEditDeleteOptions.value = true }
 
                                 is Note -> NoteItem(note = item, onNote
-                                ) { patchDeleteToggle() }
+                                ) { showEditDeleteOptions.value = true }
                             }
                         }
                     }
@@ -235,7 +287,7 @@ fun ListGridScreen(
 }
 
 @Composable
-fun FolderItem(folder: Folder, viewModel: NoteListViewModel, patchDeleteToggle: () -> Unit) {
+fun FolderItem(folder: Folder, viewModel: NoteListViewModel, showEditDeleteOptions: () -> Unit) {
     val folderImg = painterResource(id = R.drawable.folder)
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val modiImg = painterResource(id = R.drawable.modi)
@@ -278,7 +330,7 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, patchDeleteToggle: 
             modifier = Modifier.clickable {
                 selectedFileId.value = folder.folderId
                 selectedFileTitle.value = folder.title
-                patchDeleteToggle()
+                showEditDeleteOptions()
             }
         ) {
             Text(text = folder.title)
@@ -295,7 +347,7 @@ fun FolderItem(folder: Folder, viewModel: NoteListViewModel, patchDeleteToggle: 
 fun NoteItem(
     note: Note,
     onNote: (String) -> Unit,
-    patchDeleteToggle: () -> Unit
+    showEditDeleteOptions: () -> Unit
 ) {
     val notebookImg = painterResource(id = R.drawable.notebook)
     val modiImg = painterResource(id = R.drawable.modi)
@@ -332,7 +384,7 @@ fun NoteItem(
             modifier = Modifier.clickable {
                 selectedFileId.value = note.noteId
                 selectedFileTitle.value = note.title
-                patchDeleteToggle()
+                showEditDeleteOptions()
             }
         ) {
             Text(text = note.title)

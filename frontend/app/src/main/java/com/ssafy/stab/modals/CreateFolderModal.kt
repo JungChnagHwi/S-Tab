@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -44,11 +45,12 @@ fun CreateFolderModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
 
     Column(
         modifier = Modifier
-            .padding(10.dp)
+            .fillMaxSize()
             .background(color = Color(0xFFDCE3F1)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painter = folderImg, contentDescription = null)
+        Spacer(modifier = Modifier.height(20.dp))
+        Image(painter = folderImg, contentDescription = "폴더 이미지")
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
             value = folderName,
@@ -73,7 +75,7 @@ fun CreateFolderModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
             ) {
                 Text(text = "취소", fontFamily = FontFamily.Default)
             }
-            Spacer(modifier = Modifier.width(30.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Button(onClick = { createFolder(folderId, folderName) { response ->
                 viewModel.addFolder(response)
                 Log.d("CheckingFolder", response.toString())
