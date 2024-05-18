@@ -52,7 +52,8 @@ fun CreateShareSpaceModal(closeModal: () -> Unit, onSpaceCreated: (ShareSpaceLis
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 disabledContainerColor = Color.White,
-            )
+            ),
+            singleLine = true
         )
         Row(Modifier.padding(10.dp)) {
             Button(

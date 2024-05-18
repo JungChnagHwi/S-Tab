@@ -56,7 +56,8 @@ fun SpaceNameEditModal(
                     focusedContainerColor = Color.White,
                     unfocusedContainerColor = Color.White,
                     disabledContainerColor = Color.White,
-                )
+                ),
+                singleLine = true
             )
         },
         confirmButton = {
