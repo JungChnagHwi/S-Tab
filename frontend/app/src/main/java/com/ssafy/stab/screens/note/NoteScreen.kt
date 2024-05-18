@@ -105,6 +105,11 @@ fun NoteScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .clickable { // 다른 영역을 누르면 사용자목록 꺼지도록
+                    if (showUserList) {
+                        showUserList = false
+                    }
+                }
         ) {
             Row(
                 modifier = Modifier
@@ -189,7 +194,13 @@ fun NoteScreen(
                     contentDescription = "ChatBot",
                     modifier = Modifier
                         .size(42.dp)
-                        .clickable { showChatBot = !showChatBot }
+                        .clickable {
+                            // 사용자목록이 열려있는 경우 chatBot을 열려고 할때 사용자목록 닫힘
+                            if (showUserList && !showChatBot) {
+                                showUserList = false
+                            }
+                            showChatBot = !showChatBot
+                        }
                 )
             }
 
@@ -221,9 +232,11 @@ fun NoteScreen(
                             .align(Alignment.TopEnd) // 오른쪽 위에 배치
                             .clip(RoundedCornerShape(20.dp))
                             .background(Color(0xFF7591C6))
-                            .width(250.dp)
-                            .height(400.dp)
+                            .width(200.dp)
+                            .height(300.dp)
                             .padding(10.dp)
+                            .zIndex(3f)
+                            .clickable {  }
                     ) {
                         UserListModal(socketManager.userList)
                     }
