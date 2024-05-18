@@ -39,7 +39,7 @@ public class SpaceService {
 			dto.setSpaceId(space.getSpaceId());
 			dto.setRootFolderId(space.getRootFolderId());
 			dto.setTitle(space.getTitle());
-			dto.setPublic(space.isPublic());
+			dto.setIsPublic(space.getIsPublic());
 			dto.setCreatedAt(space.getCreatedAt());
 			dto.setUpdatedAt(space.getUpdatedAt());
 
@@ -67,7 +67,7 @@ public class SpaceService {
 				.spaceId(space.getSpaceId())
 				.rootFolderId(space.getRootFolderId())
 				.title(space.getTitle())
-				.isPublic(space.isPublic())
+				.isPublic(space.getIsPublic())
 				.spaceMd(space.getSpaceMd())
 				.createdAt(space.getCreatedAt())
 				.updatedAt(space.getUpdatedAt())
@@ -115,7 +115,7 @@ public class SpaceService {
 				.spaceId(newSpace.getSpaceId())
 				.rootFolderId(folderId)
 				.title(newSpace.getTitle())
-				.isPublic(newSpace.isPublic())
+				.isPublic(newSpace.getIsPublic())
 				.spaceMd(newSpace.getSpaceMd())
 				.createdAt(newSpace.getCreatedAt())
 				.updatedAt(newSpace.getUpdatedAt())

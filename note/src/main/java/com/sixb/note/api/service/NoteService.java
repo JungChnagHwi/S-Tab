@@ -76,7 +76,7 @@ public class NoteService {
 		NoteCopyResponseDto responseDto = new NoteCopyResponseDto();
 		responseDto.setNoteId(newNote.getNoteId());
 		responseDto.setTitle(newNote.getTitle());
-		responseDto.setLiked(false);
+		responseDto.setIsLiked(false);
 		responseDto.setCreatedAt(newNote.getCreatedAt());
 		responseDto.setUpdatedAt(newNote.getUpdatedAt());
 

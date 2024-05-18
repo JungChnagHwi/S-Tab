@@ -1,17 +1,23 @@
 package com.sixb.note.dto.folder;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FolderListResponseDto {
 	private List<FolderInfo> folders;
 
-	@Getter
-	@Setter
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class FolderInfo {
 		private String folderId;
 		private String title;

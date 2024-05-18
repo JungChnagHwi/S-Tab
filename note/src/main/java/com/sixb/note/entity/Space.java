@@ -1,11 +1,7 @@
 package com.sixb.note.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sixb.note.entity.common.BaseTimeEntity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -33,8 +29,8 @@ public class Space extends BaseTimeEntity {
 	private String title;
 
 	@Property("isPublic")
-	@JsonProperty(value = "isPublic")
-	private boolean isPublic;
+	@Builder.Default
+	private Boolean isPublic = false;
 
 	@Property("spaceMd")
 	private String spaceMd;
