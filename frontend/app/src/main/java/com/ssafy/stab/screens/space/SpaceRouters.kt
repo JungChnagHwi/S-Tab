@@ -1,6 +1,7 @@
 package com.ssafy.stab.screens.space
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -31,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +52,8 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.ssafy.stab.apis.auth.checkNickName
 import com.ssafy.stab.apis.auth.patchInfo
+import com.ssafy.stab.apis.auth.s3uri
+import com.ssafy.stab.apis.auth.s3uriForPatch
 import com.ssafy.stab.components.SideBar
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.PatchAuth
@@ -62,6 +66,9 @@ import com.ssafy.stab.screens.space.share.SpaceViewModel
 import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.screens.space.deleted.Deleted
 import com.ssafy.stab.webrtc.audiocall.AudioCallViewModel
+import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 @Composable
 fun SpaceRouters(
@@ -131,99 +138,109 @@ fun SpaceRouters(
 
 @Composable
 fun Header(onLogin: () -> Unit) {
-    val profileImg = rememberAsyncImagePainter(model = PreferencesUtil.getLoginDetails().profileImg)
-    val socketManager = SocketManager.getInstance()
-    var showMenu by remember { mutableStateOf(false)}
-    var showEditProfileDialog by remember { mutableStateOf(false) }
+    val loginDetails by PreferencesUtil.loginDetails.collectAsState()
 
-    Spacer(modifier = Modifier.height(15.dp))
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End
-    ) {
-        Text(
-            text = PreferencesUtil.getLoginDetails().userName.toString(),
-            fontSize = 20.sp,
-            color = Color(0xFF5584FD),
-            fontWeight = FontWeight.Bold
-        )
-        Text(text = "님 반갑습니다!", fontSize = 16.sp)
-        Spacer(modifier = Modifier.width(20.dp))
-        Box {
-            Image(
-                painter = profileImg,
-                contentDescription = null,
-                modifier = Modifier
-                    .width(30.dp)
-                    .height(30.dp)
-                    .clip(RoundedCornerShape(15.dp))
-                    .clickable { showMenu = true }
+    loginDetails?.let { details ->
+        val profileImg = rememberAsyncImagePainter(model = details.profileImg)
+        val socketManager = SocketManager.getInstance()
+        var showMenu by remember { mutableStateOf(false) }
+        var showEditProfileDialog by remember { mutableStateOf(false) }
+
+        Spacer(modifier = Modifier.height(15.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(
+                text = details.userName.toString(),
+                fontSize = 20.sp,
+                color = Color(0xFF5584FD),
+                fontWeight = FontWeight.Bold
             )
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false },
-                modifier = Modifier.background(Color.White)
-            ) {
-                DropdownMenuItem(
-                    text = { Text("회원 정보 수정", color = Color.Gray) },
-                    onClick = {
-                        showMenu = false
-                        showEditProfileDialog = true
-                    }
+            Text(text = "님 반갑습니다!", fontSize = 16.sp)
+            Spacer(modifier = Modifier.width(20.dp))
+            Box {
+                Image(
+                    painter = profileImg,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                        .clickable { showMenu = true }
                 )
-                DropdownMenuItem(
-                    text = { Text("로그아웃", color = Color.Red) },
-                    onClick = {
-                        PreferencesUtil.saveLoginDetails(
-                            isLoggedIn = false,
-                            accessToken = "",
-                            userName = "",
-                            profileImg = "",
-                            rootFolderId = "",
-                            personalSpaceId = ""
-                        )
-                        onLogin()
-                        socketManager.disconnect()
-                        showMenu = false
-                    }
-                )
-            }
-        }
-        Spacer(modifier = Modifier.width(20.dp))
-    }
-
-    if (showEditProfileDialog) {
-        EditProfileDialog(
-            onDismiss = { showEditProfileDialog = false },
-            onSave = { newNickname, newImageUri ->
-                // 로직 추가: 서버에 프로필 업데이트 요청
-                patchInfo(newNickname, newImageUri.toString()){res ->
-                    PreferencesUtil.saveLoginDetails(
-                        isLoggedIn = true,
-                        accessToken = PreferencesUtil.getLoginDetails().accessToken.toString(),
-                        userName = res.nickname,
-                        profileImg = res.profileImg,
-                        rootFolderId = res.rootFolderId,
-                        personalSpaceId = res.privateSpaceId
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false },
+                    modifier = Modifier.background(Color.White)
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("회원 정보 수정", color = Color.Gray) },
+                        onClick = {
+                            showMenu = false
+                            showEditProfileDialog = true
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("로그아웃", color = Color.Red) },
+                        onClick = {
+                            PreferencesUtil.saveLoginDetails(
+                                isLoggedIn = false,
+                                accessToken = "",
+                                userName = "",
+                                profileImg = "",
+                                rootFolderId = "",
+                                personalSpaceId = ""
+                            )
+                            onLogin()
+                            socketManager.disconnect()
+                            showMenu = false
+                        }
                     )
                 }
             }
-        )
+            Spacer(modifier = Modifier.width(20.dp))
+        }
+
+        if (showEditProfileDialog) {
+            EditProfileDialog(
+                onDismiss = { showEditProfileDialog = false },
+                onSave = { newNickname, newImageUri ->
+                    // 로직 추가: 서버에 프로필 업데이트 요청
+                    Log.d("뭐가 문제야 최최종", "$newNickname + $newImageUri")
+                    patchInfo(newNickname, newImageUri) { res ->
+                        Log.d("뭐가 문제야 최종", res.toString())
+                        PreferencesUtil.saveLoginDetails(
+                            isLoggedIn = true,
+                            accessToken = PreferencesUtil.getLoginDetails().accessToken.toString(),
+                            userName = res.nickname,
+                            profileImg = res.profileImg,
+                            rootFolderId = res.rootFolderId,
+                            personalSpaceId = res.privateSpaceId
+                        )
+                    }
+                }
+            )
+        }
     }
 }
 
+
+
 @Composable
-fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, Uri?) -> Unit) {
+fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
+    val coroutineScope = rememberCoroutineScope()
     var nickname by remember { mutableStateOf("") }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var isValid by remember { mutableStateOf(false) }
+    var beforeImageUri by remember { mutableStateOf<Uri?>(null) }
+    var afterImageUri by remember { mutableStateOf("") }
+    var isValid by remember { mutableStateOf(true) }
     val context = LocalContext.current
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            imageUri = result.data?.data
+            beforeImageUri = result.data?.data
         }
     }
 
@@ -237,7 +254,10 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, Uri?) -> Unit) {
                 OutlinedTextField(
                     placeholder = { Text(text = PreferencesUtil.getLoginDetails().userName.toString())},
                     value = nickname,
-                    onValueChange = { nickname = it },
+                    onValueChange = {
+                        nickname = it
+                        isValid = false
+                                    },
                     label = { Text("새 닉네임") },
                     modifier = Modifier.fillMaxWidth(0.8f)
                 )
@@ -259,20 +279,41 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, Uri?) -> Unit) {
             }) {
                 Text("프로필 사진 선택")
             }
-            ImagePreview(imageUri = imageUri)
+            ImagePreview(imageUri = beforeImageUri)
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Button(onClick = { onDismiss() }) {
                     Text("취소")
                 }
                 Button(onClick = {
-                    onSave(nickname, imageUri)
-                    onDismiss()
-                },
-                    enabled = isValid) {
+                    coroutineScope.launch {
+                        if (nickname.isBlank()) {
+                            nickname = PreferencesUtil.getLoginDetails().userName.toString()
+                        }
+
+                        val afterImageUri = if (beforeImageUri == null) {
+                            PreferencesUtil.getLoginDetails().profileImg.toString()
+                        } else {
+                            suspendCoroutine<String> { continuation ->
+                                s3uriForPatch(context, Uri.parse(beforeImageUri.toString()), nickname) { res ->
+                                    continuation.resume(res)
+                                }
+                            }
+                        }
+
+                        Log.d("뭐가 문제임?", nickname)
+                        Log.d("뭐가 문제임?", beforeImageUri.toString())
+                        Log.d("뭐가 문제임?", afterImageUri)
+
+                        onSave(nickname, afterImageUri)
+                        onDismiss()
+                    }
+                }, enabled = isValid) {
                     Text("저장")
                 }
             }
         }
     }
 }
+
+

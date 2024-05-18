@@ -9,15 +9,21 @@ import kotlinx.coroutines.flow.asStateFlow
 
 object PreferencesUtil {
     private lateinit var sharedPreferences: SharedPreferences
-    private val _callState = MutableStateFlow(CallState(false, null))
-    val callState = _callState.asStateFlow()
+
+    private val _loginDetails = MutableStateFlow<LoginDetails?>(null)
+    val loginDetails = _loginDetails.asStateFlow()
 
     fun init(context: Context) {
         sharedPreferences = context.getSharedPreferences("AppNamePrefs", Context.MODE_PRIVATE)
         loadInitialCallState()
 
-        // 변화 감지를 위한 리스너 설정
+        // 초기화 후 초기 값 설정
+        _loginDetails.value = getInitialLoginDetails()
+
         sharedPreferences.registerOnSharedPreferenceChangeListener { _, key ->
+            if (key == "ProfileImg" || key == "UserName") {
+                _loginDetails.value = getLoginDetails()
+            }
             if (key == "IsInCall" || key == "CallSpaceId") {
                 loadInitialCallState()
             }
@@ -32,15 +38,26 @@ object PreferencesUtil {
         rootFolderId: String,
         personalSpaceId: String
     ) {
+        sharedPreferences.edit {
+            putBoolean("IsLoggedIn", isLoggedIn)
+            putString("AccessToken", accessToken)
+            putString("UserName", userName)
+            putString("ProfileImg", profileImg)
+            putString("RootFolderId", rootFolderId)
+            putString("PersonalSpaceId", personalSpaceId)
+            apply()
+        }
+        _loginDetails.value = getLoginDetails()
+    }
 
-        val editor = sharedPreferences.edit()
-        editor.putBoolean("IsLoggedIn", isLoggedIn)
-        editor.putString("AccessToken", accessToken)
-        editor.putString("UserName", userName)
-        editor.putString("ProfileImg", profileImg)
-        editor.putString("RootFolderId", rootFolderId)
-        editor.putString("PersonalSpaceId", personalSpaceId)
-        editor.apply()
+    private fun getInitialLoginDetails(): LoginDetails {
+        val isLoggedIn = sharedPreferences.getBoolean("IsLoggedIn", false)
+        val accessToken = sharedPreferences.getString("AccessToken", null)
+        val userName = sharedPreferences.getString("UserName", null)
+        val profileImg = sharedPreferences.getString("ProfileImg", null)
+        val rootFolderId = sharedPreferences.getString("RootFolderId", null)
+        val personalSpaceId = sharedPreferences.getString("PersonalSpaceId", null)
+        return LoginDetails(isLoggedIn, accessToken, userName, profileImg, rootFolderId, personalSpaceId)
     }
 
     fun getLoginDetails(): LoginDetails {
@@ -96,6 +113,8 @@ object PreferencesUtil {
         return shareId
     }
 
+    private val _callState = MutableStateFlow(CallState(false, null))
+    val callState = _callState.asStateFlow()
 }
 
 data class LoginDetails(
