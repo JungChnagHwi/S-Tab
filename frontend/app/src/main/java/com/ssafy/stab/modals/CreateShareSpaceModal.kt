@@ -43,7 +43,11 @@ fun CreateShareSpaceModal(closeModal: () -> Unit, onSpaceCreated: (ShareSpaceLis
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
             value = shareSpaceName,
-            onValueChange = { shareSpaceName = it },
+            onValueChange = {newValue ->
+                if (newValue.isEmpty() || newValue.first() != ' ') {
+                    shareSpaceName = newValue
+                }
+            },
             label = { Text("공유 스페이스 이름", fontFamily = FontFamily.Default) },
             modifier = Modifier
                 .padding(10.dp)
@@ -52,7 +56,8 @@ fun CreateShareSpaceModal(closeModal: () -> Unit, onSpaceCreated: (ShareSpaceLis
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 disabledContainerColor = Color.White,
-            )
+            ),
+            singleLine = true
         )
         Row(Modifier.padding(10.dp)) {
             Button(

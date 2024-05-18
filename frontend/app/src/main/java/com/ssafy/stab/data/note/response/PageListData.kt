@@ -20,8 +20,8 @@ data class PageDetail(
     val template: TemplateType,
     @SerializedName("direction")
     val direction: Int,
-    @SerializedName("isBoolean")
-    val isBookmarked: Boolean,
+    @SerializedName("isBookmarked")
+    var isBookmarked: Boolean,
     @SerializedName("pdfUrl")
     val pdfUrl: String?,
     @SerializedName("pdfPage")

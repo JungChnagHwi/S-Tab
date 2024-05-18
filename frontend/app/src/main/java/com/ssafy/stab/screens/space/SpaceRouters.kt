@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -245,46 +246,97 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
     }
 
     Dialog(onDismissRequest = { onDismiss() }) {
-        Column(modifier = Modifier
-            .padding(16.dp)
-            .background(color = MaterialTheme.colorScheme.background)) {
-            Text("프로필 수정", style = MaterialTheme.typography.titleLarge)
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+                .background(color = MaterialTheme.colorScheme.background, shape = RoundedCornerShape(16.dp))  // 배경색과 둥근 모서리
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                "프로필 수정",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_PICK)
+                        intent.type = "image/*"
+                        pickImageLauncher.launch(intent)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(200.dp)
+                ) {
+                    Text(
+                        "프로필 사진 선택",
+                        color = Color.Black,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(50.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 OutlinedTextField(
-                    placeholder = { Text(text = PreferencesUtil.getLoginDetails().userName.toString())},
                     value = nickname,
                     onValueChange = {
                         nickname = it
                         isValid = false
                                     },
                     label = { Text("새 닉네임") },
-                    modifier = Modifier.fillMaxWidth(0.8f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .width(200.dp)
                 )
-                Button(onClick = {
-                    checkNickName(nickname){ res ->
-                        if (res) {
-                            isValid = true
-                        }
-                    }
-                }) {
-                    Text(text = "중복 확인")
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(
+                    onClick = { checkNickName(nickname) { isValid = it } },
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .width(120.dp)
+                ) {
+                    Text("중복 확인")
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = {
-                val intent = Intent(Intent.ACTION_PICK)
-                intent.type = "image/*"
-                pickImageLauncher.launch(intent)
-            }) {
-                Text("프로필 사진 선택")
-            }
-            ImagePreview(imageUri = beforeImageUri)
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Button(onClick = { onDismiss() }) {
+
+//            Button(onClick = {
+//                val intent = Intent(Intent.ACTION_PICK)
+//                intent.type = "image/*"
+//                pickImageLauncher.launch(intent)
+//            }) {
+//                Text("프로필 사진 선택")
+//            }
+//            ImagePreview(imageUri = beforeImageUri, modifier = Modifier.height(150.dp).fillMaxWidth())
+//
+//            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(
+                    onClick = { onDismiss() },
+                    shape = RoundedCornerShape(8.dp),) {
                     Text("취소")
                 }
+
                 Button(onClick = {
                     coroutineScope.launch {
                         if (nickname.isBlank()) {
@@ -308,10 +360,14 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
                         onSave(nickname, afterImageUri)
                         onDismiss()
                     }
-                }, enabled = isValid) {
+                },
+                    shape = RoundedCornerShape(8.dp),
+                    enabled = isValid) {
+
                     Text("저장")
                 }
             }
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

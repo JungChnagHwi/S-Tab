@@ -1,18 +1,21 @@
 package com.sixb.note.dto.note;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class NoteCopyResponseDto {
 	private String noteId;
 	private String title;
-	@JsonProperty(value = "isLiked")
-	private boolean isLiked;
+	@Builder.Default
+	private Boolean isLiked = false;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 }

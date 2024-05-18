@@ -4,15 +4,14 @@ enum class PenType {
     Pen,
     Highlighter,
     Eraser,
-    Lasso
+    Lasso,
+    Image
 }
 
-enum class MotionEvent {
-    Idle,
-    Down,
-    Move,
-    Up
-}
+data class PenSettings(
+    var color: String,
+    var strokeWidth: Float
+)
 
 enum class TemplateType {
     Plain,

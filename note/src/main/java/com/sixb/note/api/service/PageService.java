@@ -32,7 +32,7 @@ public class PageService {
 		Page beforePage = pageRepository.findPageById(beforePageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (beforePage.isDeleted()) {
+		if (beforePage.getIsDeleted()) {
 			throw new PageNotFoundException("삭제된 페이지 입니다.");
 		}
 
@@ -72,7 +72,7 @@ public class PageService {
 		Page page = pageRepository.findPageById(pageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (page.isDeleted()) {
+		if (page.getIsDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
@@ -81,7 +81,7 @@ public class PageService {
 			createPage(page.getPageId());
 		}
 
-		page.setDeleted(true);
+		page.setIsDeleted(true);
 		page.setUpdatedAt(LocalDateTime.now());
 		pageRepository.save(page);
 	}
@@ -95,7 +95,7 @@ public class PageService {
 		Note note = noteRepository.findNoteById(page.getNoteId())
 				.orElseThrow(() -> new NoteNotFoundException("노트를 찾을 수 없습니다."));
 
-		if (page.isDeleted()) {
+		if (page.getIsDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
@@ -122,7 +122,7 @@ public class PageService {
 		Page page = pageRepository.findPageById(pageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (page.isDeleted()) {
+		if (page.getIsDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
@@ -148,7 +148,7 @@ public class PageService {
 
 		for (Page page : pageList) {
 			PageInfoDto pageInfoDto = getPageInfoDto(page);
-			pageInfoDto.setBookmarked(pageRepository.isLikedByPageId(userId, page.getPageId()));
+			pageInfoDto.setIsBookmarked(pageRepository.isLikedByPageId(userId, page.getPageId()));
 			// pageInfoList에 넣기
 			pageInfoList.add(pageInfoDto);
 		}
@@ -203,7 +203,7 @@ public class PageService {
 
 		// responsedto에 넣기
 		PageInfoDto response = getPageInfoDto(newPage);
-		response.setBookmarked(false);
+		response.setIsBookmarked(false);
 
 		// db에 저장하고 반환
 		pageRepository.save(newPage);
@@ -218,7 +218,7 @@ public class PageService {
 		Page beforePage = pageRepository.findPageById(beforePageId)
 				.orElseThrow(() -> new PageNotFoundException("존재하지 않는 페이지입니다."));
 
-		if (beforePage.isDeleted()) {
+		if (beforePage.getIsDeleted()) {
 			throw new PageNotFoundException("이미 삭제된 페이지입니다.");
 		}
 
@@ -253,7 +253,7 @@ public class PageService {
 			pageRepository.save(page);
 
 			PageInfoDto pageInfoDto = getPageInfoDto(page);
-			pageInfoDto.setBookmarked(false);
+			pageInfoDto.setIsBookmarked(false);
 
 			response.add(0, pageInfoDto);
 

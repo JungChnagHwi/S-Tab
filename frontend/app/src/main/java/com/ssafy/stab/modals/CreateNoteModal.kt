@@ -80,7 +80,6 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
 
     var noteTitle by remember { mutableStateOf("제목 없는 노트") }
 
-
     fun createNoteResponseToNote(response: CreateNoteResponse): Note {
         return Note(
             noteId = response.noteId,
@@ -172,7 +171,11 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
                             )
                             TextField(
                                 value = noteTitle,
-                                onValueChange = { noteTitle = it },
+                                onValueChange = {newValue ->
+                                    if (newValue.isEmpty() || newValue.first() != ' ') {
+                                        noteTitle = newValue
+                                    }
+                                },
                                 modifier = Modifier
                                     .padding(10.dp)
                                     .fillMaxWidth(),
@@ -180,7 +183,8 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
                                     focusedContainerColor = Color.White,
                                     unfocusedContainerColor = Color.White,
                                     disabledContainerColor = Color.White,
-                                )
+                                ),
+                                singleLine = true
                             )
                         }
                         Text(

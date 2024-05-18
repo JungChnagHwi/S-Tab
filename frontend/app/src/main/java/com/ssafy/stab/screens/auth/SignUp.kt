@@ -1,103 +1,169 @@
 package com.ssafy.stab.screens.auth
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.rememberImagePainter
+import com.ssafy.stab.R
+import com.ssafy.stab.apis.auth.checkNickName
 import com.ssafy.stab.apis.auth.s3uri
+import com.ssafy.stab.apis.auth.signUp
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
-import android.content.Context
-import android.net.Uri
-import androidx.compose.foundation.Image
-import androidx.compose.ui.layout.ContentScale
-import coil.compose.rememberImagePainter
 import com.ssafy.stab.BuildConfig
-import com.ssafy.stab.apis.auth.checkNickName
-import com.ssafy.stab.apis.auth.signUp
-import okhttp3.MediaType.Companion.toMediaType
 import java.io.IOException
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.text.font.FontWeight
+
 @Composable
 fun SignUp(onNavigate: (String) -> Unit) {
     var nickname by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var nickNameAvailable by remember { mutableStateOf(false) }  // 닉네임 사용 가능 여부를 저장하는 상태
+    var nickNameAvailable by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            imageUri = result.data?.data  // Uri 객체로 저장
+            imageUri = result.data?.data
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "회원가입 페이지", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
-            value = nickname,
-            onValueChange = { nickname = it },
-            label = { Text("닉네임") },
-            modifier = Modifier.fillMaxWidth()
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.signup_bg),
+            contentDescription = null,
+            modifier = Modifier.matchParentSize(),
+            contentScale = ContentScale.Crop
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Row {
-            Button(onClick = {
-                val intent = Intent(Intent.ACTION_PICK)
-                intent.type = "image/*"
-                pickImageLauncher.launch(intent)
-            }) {
-                Text("프로필 사진 선택")
+
+        Column(
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.height(80.dp))
+
+            Button(
+                onClick = {
+                    val intent = Intent(Intent.ACTION_PICK)
+                    intent.type = "image/*"
+                    pickImageLauncher.launch(intent)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                modifier = Modifier
+                    .width(200.dp)  // 버튼 너비 조절
+                    .height(200.dp)
+                    .offset(x = (-200).dp, y = (100).dp)
+            ) {
+                Text(
+                    "프로필 사진 선택",
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                    )
             }
-            Spacer(modifier = Modifier.width(16.dp))
-            Button(onClick = {
-                // 닉네임 중복 검사를 위한 API 호출
-                checkNickName(nickname) { available ->
-                    nickNameAvailable = available
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .offset(x = (-155).dp, y = (150).dp)
+            ) {
+
+                OutlinedTextField(
+                    value = nickname,
+                    onValueChange = { nickname = it },
+                    placeholder = { Text("닉네임", fontSize = 16.sp, textAlign = TextAlign.Center) },
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .background(Color.White)
+                        .border(0.dp, SolidColor(Color.White), RoundedCornerShape(8.dp))
+                        .width(200.dp)
+                        .height(56.dp)
+                        .offset(x = (0).dp, y = (0).dp),
+                )
+
+                Spacer(modifier = Modifier.padding(5.dp))
+
+                Button(
+                    onClick = {
+                        checkNickName(nickname) { available ->
+                            nickNameAvailable = available
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF86E2FF)
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .width(86.dp)
+                        .height(56.dp)
+                        .offset(x = (0).dp, y = (0).dp)
+                        .padding(horizontal = 0.dp, vertical = 0.dp)
+                ) {
+                    Text(
+                        "중복 확인",
+                        color = Color.Black,
+                        fontSize = 8.sp,
+                        maxLines = 1,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-            }) {
-                Text("닉네임 중복 확인")
             }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        ImagePreview(imageUri = imageUri)
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-                s3uri(context, Uri.parse(imageUri.toString()), nickname)
-                onNavigate("space")
-        }, enabled = nickNameAvailable) {
-            Text(text = "회원가입 완료")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Row {
-            Button(onClick = { onNavigate("login") }) {
-                Text(text = "로그인 페이지로 가기")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF86E2FF),
+//                    disabledContainerColor = Color(0xFF86E2FF)
+                ),
+                onClick = {
+                    s3uri(context, Uri.parse(imageUri.toString()), nickname)
+                    onNavigate("space")
+                },
+                enabled = nickNameAvailable,
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .width(300.dp)  // 너비 조절
+                    .height(56.dp)
+                    .offset(x = (-150).dp, y = (150).dp)
+            ) {
+                Text("회원가입 완료", color = Color.Black, fontWeight = FontWeight.Bold)
             }
         }
     }
 }
+
+
 
 fun uploadFile(context: Context, url: String, imageUri: Uri, nickname: String) {
     val client = OkHttpClient()
@@ -145,7 +211,7 @@ fun uploadFile(context: Context, url: String, imageUri: Uri, nickname: String) {
 }
 
 @Composable
-fun ImagePreview(imageUri: Uri?) {
+fun ImagePreview(imageUri: Uri?, modifier: Modifier = Modifier) {
     imageUri?.let {
         val painter = rememberImagePainter(
             data = it,
@@ -156,9 +222,9 @@ fun ImagePreview(imageUri: Uri?) {
         Image(
             painter = painter,
             contentDescription = null,  // 이미지에 대한 설명이 필요 없으므로 null을 할당
-            modifier = Modifier
-                .width(200.dp)
-                .height(300.dp),  // 이미지 높이 설정
+            modifier = modifier
+                .size(200.dp)
+                .clip(CircleShape),  // 이미지 원형으로 설정
             contentScale = ContentScale.Crop
         )
     }

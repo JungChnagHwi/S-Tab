@@ -4,7 +4,6 @@ import NoteListViewModelFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,8 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.stab.R
@@ -147,6 +146,7 @@ fun ListGridScreen(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .fillMaxHeight(0.6f)
+                    .clip(RoundedCornerShape(15.dp))
             ) {
                 FileEditModal(
                     closeModal = { showEditModal.value = false },
@@ -278,7 +278,6 @@ fun ListGridScreen(
         }
     }
 }
-
 @Composable
 fun FolderItem(
     folder: Folder,
@@ -332,7 +331,12 @@ fun FolderItem(
                     viewModel.getShowOptionsState(folder.folderId).value = true
                 }
             ) {
-                Text(text = folder.title)
+                Text(
+                    text = folder.title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.width(100.dp)
+                )
                 Spacer(modifier = Modifier.width(3.dp))
                 Image(painter = modiImg, contentDescription = null, modifier = Modifier
                     .height(20.dp)
@@ -408,7 +412,12 @@ fun NoteItem(
                     viewModel.getShowOptionsState(note.noteId).value = true
                 }
             ) {
-                Text(text = note.title)
+                Text(
+                    text = note.title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.width(100.dp)
+                )
                 Spacer(modifier = Modifier.width(3.dp))
                 Image(painter = modiImg, contentDescription = null, modifier = Modifier
                     .height(20.dp)

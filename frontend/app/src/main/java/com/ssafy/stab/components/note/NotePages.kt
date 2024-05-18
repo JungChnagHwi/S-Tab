@@ -1,7 +1,6 @@
 package com.ssafy.stab.components.note
 
 import android.graphics.BitmapFactory
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -39,7 +38,6 @@ import com.ssafy.stab.data.note.Direction
 import com.ssafy.stab.data.note.response.PageDetail
 import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.ui.theme.NoteBackground
-import com.ssafy.stab.util.SocketManager
 import com.ssafy.stab.util.note.NoteArea
 import com.ssafy.stab.util.note.NoteControlViewModel
 import com.ssafy.stab.util.note.getTemplate
@@ -69,6 +67,7 @@ fun PageList(
     LaunchedEffect(state) {
         snapshotFlow { state.settledPage }.collect { page ->
             onPageChange(page)
+            noteViewModel.updateBookmarkStatus(page)
         }
     }
 
@@ -85,21 +84,20 @@ fun PageList(
         }
 
     if (pageCount > 0) {
-        HorizontalPager(
-            state = state,
-            modifier = touchAwareModifier,
-            userScrollEnabled = isTouching
-        ) {
-            page ->
-            Box {
+        Box {
+            HorizontalPager(
+                state = state,
+                modifier = touchAwareModifier,
+                userScrollEnabled = isTouching
+            ) { page ->
                 Page(pageList[page], noteControlViewModel)
-                Text(
-                    text = "$pageIndex / $pageCount",
-                    Modifier
-                        .padding(16.dp)
-                        .align(Alignment.BottomEnd)
-                )
             }
+            Text(
+                text = "$pageIndex / $pageCount",
+                Modifier
+                    .padding(16.dp)
+                    .align(Alignment.BottomEnd)
+            )
         }
     }
 }

@@ -31,7 +31,6 @@ data class BookmardPage(
     @SerializedName("color") val color: BackgroundColor,
     @SerializedName("template") val template: TemplateType,
     @SerializedName("direction") val direction: Int,
-    @SerializedName("isBookmarked") val isBookmarked: Boolean,
     @SerializedName("pdfUrl") val pdfUrl: String,
     @SerializedName("pdfPage") val pdfPage: Int,
     @SerializedName("updatedAt") val updatedAt: LocalDateTime,

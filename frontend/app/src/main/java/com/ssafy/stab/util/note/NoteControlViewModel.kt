@@ -15,6 +15,7 @@ import com.ssafy.stab.data.note.Action
 import com.ssafy.stab.data.note.Coordinate
 import com.ssafy.stab.data.note.PageOrderPathInfo
 import com.ssafy.stab.data.note.PathInfo
+import com.ssafy.stab.data.note.PenSettings
 import com.ssafy.stab.data.note.PenType
 import com.ssafy.stab.data.note.SocketPathInfo
 import com.ssafy.stab.data.note.UserPagePathInfo
@@ -22,6 +23,7 @@ import com.ssafy.stab.util.SocketManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -49,10 +51,18 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
 
     var penType by mutableStateOf(PenType.Pen)
         private set
-    var strokeWidth by mutableFloatStateOf(4f)
-        private set
-    var color by mutableStateOf("000000")
-        private set
+
+    private val penSettings = mutableMapOf(
+        PenType.Pen to PenSettings("000000", 4f),
+        PenType.Highlighter to PenSettings("FFB800", 16f),
+        PenType.Eraser to PenSettings("000000", 16f),
+    )
+
+    private val _strokeWidth = MutableStateFlow(penSettings[penType]?.strokeWidth ?: 4f)
+    val strokeWidth: StateFlow<Float> = _strokeWidth
+
+    private val _color = MutableStateFlow(penSettings[penType]?.color ?: "000000")
+    val color: StateFlow<String> = _color
 
     private val _undoAvailable = MutableStateFlow(false)
     val undoAvailable = _undoAvailable.asStateFlow()
@@ -88,22 +98,30 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
 
     fun changePenType(value: PenType) {
         penType = value
+        updatePenSetting()
     }
 
     fun changeStrokeWidth(value: Float) {
-        strokeWidth = value
+        penSettings[penType]?.strokeWidth = value
+        updatePenSetting()
     }
 
     fun changeColor(value: String) {
-        color = value
+        penSettings[penType]?.color = value
+        updatePenSetting()
+    }
+
+    private fun updatePenSetting() {
+        _color.value = penSettings[penType]?.color ?: "000000"
+        _strokeWidth.value = penSettings[penType]?.strokeWidth ?: 4f
     }
 
     fun insertNewPathInfo(currentPageId: String, newCoordinate: Coordinate) {
         val pathInfo = PathInfo(
             penType = penType,
             coordinates = mutableStateListOf(newCoordinate),
-            strokeWidth = strokeWidth,
-            color = color
+            strokeWidth = strokeWidth.value,
+            color = color.value
         )
 
         val userPagePathInfo = UserPagePathInfo(
@@ -131,8 +149,8 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             val data = _newPathList[0]
             val order = if (_undoPathList.isNotEmpty()) { _undoPathList.last().order + 1 } else 0
             val pageOrderPathInfo = PageOrderPathInfo(order, data.userName, data.pageId, data.pathInfo)
-            if (socketManager.second.isConnected) {
-                socketManager.second.updatePath(socketManager.first, SocketPathInfo(Action.Add, pageOrderPathInfo))
+            if (socketManager.second.isNoteJoined) {
+                socketManager.second.updateNoteData(socketManager.first, SocketPathInfo(Action.Add, pageOrderPathInfo))
             }
             _undoPathList.add(pageOrderPathInfo)
             _newPathList.clear()
@@ -161,22 +179,20 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             Action.Undo -> {
                 undo(pageOrderPathInfo.userName)
             }
+            Action.Create -> TODO()
         }
     }
 
     fun undo(userName: String) {
         val userPathList = _undoPathList.filter { it.userName == userName }
-        Log.d("undo", userPathList.toString())
         if (userPathList.isNotEmpty()) {
             val last = userPathList.last()
-            Log.d("undo", last.userName + last.order)
             val index = _undoPathList.indexOfLast { it.userName == userName }
-            Log.d("undo", index.toString())
 
             // redo 경로 정보 저장
             if (userName == user) {
-                if (socketManager.second.isConnected) {
-                    socketManager.second.updatePath(
+                if (socketManager.second.isNoteJoined) {
+                    socketManager.second.updateNoteData(
                         socketManager.first,
                         SocketPathInfo(Action.Undo, last)
                     )
@@ -196,7 +212,7 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             val last = _redoPathList.last()
 
             // 경로 복원
-            socketManager.second.updatePath(
+            socketManager.second.updateNoteData(
                 socketManager.first, SocketPathInfo(Action.Add, last)
             )
             addOthersPath(last)

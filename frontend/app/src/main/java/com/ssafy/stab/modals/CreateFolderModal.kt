@@ -54,7 +54,11 @@ fun CreateFolderModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
             value = folderName,
-            onValueChange = { folderName = it },
+            onValueChange = {newValue ->
+                if (newValue.isEmpty() || newValue.first() != ' ') {
+                    folderName = newValue
+                }
+            },
             label = { Text("폴더 이름", fontFamily = FontFamily.Default) },
             modifier = Modifier
                 .padding(10.dp)
@@ -63,7 +67,8 @@ fun CreateFolderModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 disabledContainerColor = Color.White,
-            )
+            ),
+            singleLine = true
         )
         Row(Modifier.padding(10.dp)) {
             Button(

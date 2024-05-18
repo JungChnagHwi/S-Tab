@@ -1,5 +1,7 @@
 package com.ssafy.stab.components.note
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -58,7 +61,9 @@ fun ControlsBar(
         Spacer(modifier = Modifier.width(4.dp))
         Divider(
             color = Color(0xFFCCD7ED),
-            modifier = Modifier.height(28.dp).width(2.dp)
+            modifier = Modifier
+                .height(28.dp)
+                .width(2.dp)
         )
         Spacer(modifier = Modifier.width(4.dp))
         PenIcons(
@@ -79,17 +84,17 @@ fun ControlsBar(
         ) {
             viewModel.changePenType(PenType.Eraser)
         }
-        PenIcons(
-            if (viewModel.penType == PenType.Lasso) R.drawable.lasso_abled else R.drawable.lasso_disabled,
-            "lasso", PenType.Lasso, viewModel
-        ) {
-            viewModel.changePenType(PenType.Lasso)
-        }
+//        PenIcons(
+//            if (viewModel.penType == PenType.Lasso) R.drawable.lasso_abled else R.drawable.lasso_disabled,
+//            "lasso", PenType.Lasso, viewModel
+//        ) {
+//            viewModel.changePenType(PenType.Lasso)
+//        }
         EditIcons(
             R.drawable.image_abled,
             "insert image"
         ) {
-
+            viewModel.changePenType(PenType.Image)
         }
     }
 }
@@ -123,8 +128,7 @@ fun PenIcons(
     Box(
         modifier = if (penType == viewModel.penType) {
             Modifier
-                .clip(CircleShape)
-                .background(Color(0xFFBADAFF))
+                .background(Color(0xFFBADAFF), shape = RoundedCornerShape(12.dp))
         } else {
             Modifier
         }
@@ -146,36 +150,53 @@ fun PenIcons(
 fun ColorOptions(
     viewModel: NoteControlViewModel
 ) {
+    val color by viewModel.color.collectAsState()
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ColorIcons("000000", viewModel) {
-            viewModel.changeColor("000000")
-        }
-        ColorIcons("FF0000", viewModel) {
-            viewModel.changeColor("FF0000")
-        }
-        ColorIcons("0000FF", viewModel) {
-            viewModel.changeColor("0000FF")
-        }
-        ColorIcons("31BC47", viewModel) {
-            viewModel.changeColor("31BC47")
+        if (viewModel.penType == PenType.Pen) {
+            ColorIcons("000000", color) {
+                viewModel.changeColor("000000")
+            }
+            ColorIcons("FF0000", color) {
+                viewModel.changeColor("FF0000")
+            }
+            ColorIcons("0000FF", color) {
+                viewModel.changeColor("0000FF")
+            }
+            ColorIcons("31BC47", color) {
+                viewModel.changeColor("31BC47")
+            }
+        } else if (viewModel.penType == PenType.Highlighter) {
+            ColorIcons("FFB800", color) {
+                viewModel.changeColor("FFB800")
+            }
+            ColorIcons("FF0000", color) {
+                viewModel.changeColor("FF0000")
+            }
+            ColorIcons("0000FF", color) {
+                viewModel.changeColor("0000FF")
+            }
+            ColorIcons("31BC47", color) {
+                viewModel.changeColor("31BC47")
+            }
         }
     }
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun ColorIcons(
     colorTint: String,
-    viewModel: NoteControlViewModel,
+    currentColor: String,
     onClick: () -> Unit
 ) {
     Box(
-        modifier = if (colorTint == viewModel.color) {
+        modifier = if (colorTint == currentColor) {
             Modifier
-                .clip(CircleShape)
-                .background(Color(0xFFBADAFF))
+                .clip(CircleShape).background(Color(0xFFBADAFF))
         } else {
             Modifier
         }
@@ -196,33 +217,46 @@ fun ColorIcons(
 fun StrokeOptions(
     viewModel: NoteControlViewModel
 ) {
+    val strokeWidth by viewModel.strokeWidth.collectAsState()
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        StrokeWidthIcons(strokeWidth  = 4f, viewModel) {
-            viewModel.changeStrokeWidth(4f)
-        }
-        StrokeWidthIcons(strokeWidth  = 8f, viewModel) {
-            viewModel.changeStrokeWidth(8f)
-        }
-        StrokeWidthIcons(strokeWidth  = 12f, viewModel) {
-            viewModel.changeStrokeWidth(12f)
+        if (viewModel.penType == PenType.Pen) {
+            StrokeWidthIcons(strokeWidth  = 4f, strokeWidth) {
+                viewModel.changeStrokeWidth(4f)
+            }
+            StrokeWidthIcons(strokeWidth  = 10f, strokeWidth) {
+                viewModel.changeStrokeWidth(10f)
+            }
+            StrokeWidthIcons(strokeWidth  = 16f, strokeWidth) {
+                viewModel.changeStrokeWidth(16f)
+            }
+        } else if (viewModel.penType == PenType.Highlighter || viewModel.penType == PenType.Eraser) {
+            StrokeWidthIcons(strokeWidth  = 16f, strokeWidth) {
+                viewModel.changeStrokeWidth(16f)
+            }
+            StrokeWidthIcons(strokeWidth  = 20f, strokeWidth) {
+                viewModel.changeStrokeWidth(20f)
+            }
+            StrokeWidthIcons(strokeWidth  = 28f, strokeWidth) {
+                viewModel.changeStrokeWidth(28f)
+            }
         }
     }
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun StrokeWidthIcons(
     strokeWidth : Float,
-    viewModel: NoteControlViewModel,
+    currentWidth: Float,
     onClick: () -> Unit
 ) {
     Box(
-        modifier = if (strokeWidth == viewModel.strokeWidth) {
-            Modifier
-                .clip(CircleShape)
-                .background(Color(0xFFBADAFF))
+        modifier = if (strokeWidth == currentWidth) {
+            Modifier.background(Color(0xFFBADAFF), shape = RoundedCornerShape(12.dp))
         } else {
             Modifier
         }
@@ -239,7 +273,7 @@ fun StrokeWidthIcons(
                 color = Color.DarkGray,
                 start = Offset(0f, size.height / 2),
                 end = Offset(size.width, size.height / 2),
-                strokeWidth = strokeWidth * 0.9f,
+                strokeWidth = strokeWidth * 0.8f,
                 cap = StrokeCap.Round,
                 )
         }
