@@ -24,6 +24,7 @@ import coil.Coil
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.R
 import com.ssafy.stab.data.note.User
 
@@ -31,7 +32,7 @@ import com.ssafy.stab.data.note.User
 fun UserListModal(userList: SnapshotStateList<User>) {
 //    val profileImg = painterResource(id = R.drawable.profile)
 
-    var profileImgUrl = "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/08/3454673260/profileImage.png"
+    var profileImgUrl = BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png"
 
     Column(
         modifier = Modifier

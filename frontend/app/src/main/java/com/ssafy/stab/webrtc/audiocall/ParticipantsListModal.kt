@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.google.gson.JsonParser
+import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.share.User
 import com.ssafy.stab.modals.UserProfileImage
@@ -45,7 +46,7 @@ import com.ssafy.stab.modals.UserProfileImage
 fun ParticipantListModal(totalusers: List<User>, participants: List<Connection>, sessionId: String, onDismiss: () -> Unit) {
 
 //    val profileImg = painterResource(id = R.drawable.profile)
-    var profileImgUrl = "https://sixb-s-tab.s3.ap-northeast-2.amazonaws.com/image/2024/05/08/3454673260/profileImage.png"
+    var profileImgUrl = BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png"
 
     val muteImg = painterResource(id = R.drawable.soundoff)
     val micImg = painterResource(id = R.drawable.soundon)
