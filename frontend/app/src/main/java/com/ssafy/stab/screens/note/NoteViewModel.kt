@@ -1,5 +1,6 @@
 package com.ssafy.stab.screens.note
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +27,9 @@ class NoteViewModel(noteId: String) : ViewModel() {
     private val _pageList = MutableStateFlow<MutableList<PageDetail>>(mutableListOf())
     val pageList = _pageList.asStateFlow()
 
+    private val _isBookmarked = MutableStateFlow(false)
+    val isBookmarked = _isBookmarked.asStateFlow()
+
     init {
         loadPageList()
     }
@@ -35,6 +39,7 @@ class NoteViewModel(noteId: String) : ViewModel() {
             fetchPageList(_noteId.value) {
                 _noteTitle.value = it.title
                 _pageList.value = it.data.toMutableList()
+                updateBookmarkStatus(0)
             }
         }
     }
@@ -76,11 +81,22 @@ class NoteViewModel(noteId: String) : ViewModel() {
         }
     }
 
+    fun updateBookmarkStatus(currentPage: Int) {
+        if (_pageList.value.isNotEmpty()) {
+            _isBookmarked.value = _pageList.value.getOrNull(currentPage)?.isBookmarked ?: false
+            Log.d("page", "$currentPage ${_pageList.value.getOrNull(currentPage)}")
+        }
+    }
+
     fun addLikePage(currentPage: Int) {
+        _pageList.value[currentPage].isBookmarked = true
+        _isBookmarked.value = true
         addBookMark(_pageList.value[currentPage].pageId)
     }
 
     fun deleteLikePage(currentPage: Int) {
+        _pageList.value[currentPage].isBookmarked = false
+        _isBookmarked.value = false
         deleteBookMark(_pageList.value[currentPage].pageId)
     }
 }

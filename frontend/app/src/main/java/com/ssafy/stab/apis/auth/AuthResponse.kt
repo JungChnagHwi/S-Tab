@@ -30,5 +30,5 @@ data class UserSignupRequest(
 
 data class PatchInfoRequest(
     @SerializedName("nickname") val nickname: String,
-    @SerializedName("profileImage") val profileImage: String,
+    @SerializedName("profileImg") val profileImage: String,
 )

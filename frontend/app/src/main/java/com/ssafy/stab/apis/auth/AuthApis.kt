@@ -4,11 +4,17 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.navigation.NavController
+import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.apis.RetrofitClient
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.auth.uploadFile
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Response
+import java.io.IOException
 
 private val apiService: ApiService = RetrofitClient.instance.create(ApiService::class.java)
 
@@ -192,4 +198,77 @@ fun patchInfo(nickname: String, profileImg: String, onResult: (AuthResponse) -> 
             Log.d("회원정보수정", "요청 실패")
         }
     })
+}
+
+fun s3uriForPatch(context: Context, imageUri: Uri, nickname: String, onResult: (String) -> Unit) {
+    val accessToken = PreferencesUtil.getLoginDetails().accessToken
+    val authorizationHeader = "Bearer $accessToken"
+    val imgUri = "$imageUri.jpeg"
+    val call = apiService.getS3URI(authorizationHeader, imgUri)
+
+    call.enqueue(object : retrofit2.Callback<String> {
+        override fun onResponse(call: Call<String>, response: Response<String>) {
+            if (response.isSuccessful) {
+                val presignedUrl = response.body().toString()
+                Log.i("s3", "Presigned URL: $presignedUrl")
+                // Presigned URL을 받았으니, 이제 이미지를 업로드합니다.
+                uploadFileForPatch(context, presignedUrl, imageUri, nickname) {res ->
+                    Log.d("잘 왔나?", res)
+                    onResult(res)
+                }
+            } else {
+                Log.e("s3", "Failed to fetch URI: ${response.errorBody()?.string()}")
+            }
+        }
+
+        override fun onFailure(call: Call<String>, t: Throwable) {
+            Log.e("s3", "Failed to connect to the server: ${t.localizedMessage}")
+            t.printStackTrace()
+        }
+    })
+}
+
+fun uploadFileForPatch(context: Context, url: String, imageUri: Uri, nickname: String, onResult: (String) -> Unit) {
+    val client = OkHttpClient()
+    Log.d("a", imageUri.toString())
+    if (imageUri.toString() != "null") {
+        val inputStream = context.contentResolver.openInputStream(imageUri)
+        val mediaType = "image/jpeg".toMediaType()
+
+        val body = inputStream?.use { stream ->
+            // inputStream에서 바이트 배열을 읽고 RequestBody를 생성
+            RequestBody.create(mediaType, stream.readBytes())
+        }
+
+        if (body != null) {  // Body가 null이 아니면 요청 실행
+            val request = Request.Builder()
+                .url(url)
+                .put(body)  // HTTP PUT 요청을 사용
+                .build()
+
+            client.newCall(request).enqueue(object : okhttp3.Callback {
+                override fun onFailure(call: okhttp3.Call, e: IOException) {
+                    Log.e("Upload", "Upload failed", e)
+                }
+
+                override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                    if (response.isSuccessful) {
+                        val fullUrl = response.request.url.toString()
+                        val baseUrl = fullUrl.split("?").first()
+                        Log.d("Upload", "Base URL: $baseUrl")
+                        Log.d("Upload", "Upload was successful")
+                        onResult(baseUrl)
+                    } else {
+                        Log.e("Upload", "Upload failed: ${response.message}")
+                    }
+                    response.close()  // 응답 리소스 해제
+                }
+            })
+        } else {
+            Log.e("UploadError", "Failed to create request body from the input stream.")
+        }
+    } else {
+        val baseImage = BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png"
+        signUp(nickname, baseImage)
+    }
 }

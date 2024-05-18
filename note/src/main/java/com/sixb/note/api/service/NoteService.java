@@ -33,7 +33,7 @@ public class NoteService {
 
 	//노트 이름 변경
 	public void updateNoteTitle(String noteId, String newTitle) throws NoteNotFoundException {
-		Note note = noteRepository.findNoteById(noteId)
+		noteRepository.findNoteById(noteId)
 				.orElseThrow(() -> new NoteNotFoundException("존재하지 않는 노트입니다."));
 
 		noteRepository.updateNoteTitle(noteId, newTitle);

@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,9 +35,10 @@ import com.ssafy.stab.util.note.NoteControlViewModel
 @Composable
 fun ControlsBar(
     viewModel: NoteControlViewModel,
-    undoAvailable: Boolean,
-    redoAvailable: Boolean,
 ) {
+    val undoAvailable by viewModel.undoAvailable.collectAsState()
+    val redoAvailable by viewModel.redoAvailable.collectAsState()
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
