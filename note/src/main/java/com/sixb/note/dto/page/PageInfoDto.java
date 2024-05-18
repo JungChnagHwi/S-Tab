@@ -1,5 +1,6 @@
 package com.sixb.note.dto.page;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sixb.note.dto.pageData.FigureDto;
 import com.sixb.note.dto.pageData.ImageDto;
 import com.sixb.note.dto.pageData.PathDto;
@@ -21,6 +22,7 @@ public class PageInfoDto {
 	private String color;
 	private String template;
 	private int direction;
+	@JsonProperty(value = "isBookmarked")
 	private boolean isBookmarked;
 	private String pdfUrl;
 	private int pdfPage;

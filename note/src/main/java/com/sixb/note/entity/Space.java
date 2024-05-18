@@ -1,5 +1,6 @@
 package com.sixb.note.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sixb.note.entity.common.BaseTimeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,7 @@ public class Space extends BaseTimeEntity {
 	private String title;
 
 	@Property("isPublic")
+	@JsonProperty(value = "isPublic")
 	private boolean isPublic;
 
 	@Property("spaceMd")

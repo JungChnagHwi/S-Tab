@@ -1,5 +1,6 @@
 package com.sixb.note.entity.common;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,7 @@ public abstract class BaseTimeEntity {
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
 
+	@JsonProperty(value = "isDeleted")
 	private boolean isDeleted;
 
 }

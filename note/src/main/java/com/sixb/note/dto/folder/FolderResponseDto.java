@@ -1,5 +1,6 @@
 package com.sixb.note.dto.folder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,9 +24,11 @@ public class FolderResponseDto {
 	public static class FolderInfo {
 		private String folderId;
 		private String title;
+		@JsonProperty(value = "isLiked")
 		private boolean isLiked;
 		private LocalDateTime createdAt;
 		private LocalDateTime updatedAt;
+		@JsonProperty(value = "isDeleted")
 		private boolean isDeleted;
 	}
 
@@ -37,9 +40,11 @@ public class FolderResponseDto {
 		private String noteId;
 		private String title;
 		private int totalPageCnt;
+		@JsonProperty(value = "isLiked")
 		private boolean isLiked;
 		private LocalDateTime createdAt;
 		private LocalDateTime updatedAt;
+		@JsonProperty(value = "isDeleted")
 		private boolean isDeleted;
 	}
 }
