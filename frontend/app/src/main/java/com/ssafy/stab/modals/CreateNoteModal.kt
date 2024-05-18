@@ -119,13 +119,15 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
                         .clickable { closeModal() }
                 )
             }
-            Spacer(modifier = Modifier.height(40.dp))
+
+            Spacer(modifier = Modifier.height(35.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(15.dp))
                     .background(Color(0xFFCCD7EB))
-                    .padding(horizontal = 24.dp, vertical = 24.dp), // 좌우 패딩 추가
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 15.dp), // 위 패딩 추가
                 horizontalArrangement = Arrangement.Center
             ) {
                 Column(
@@ -151,7 +153,7 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
                             .width(if (direction.value == Direction.Portrait) 120.dp else 160.dp)
                     )
                 }
-                Spacer(modifier = Modifier.width(20.dp))
+                Spacer(modifier = Modifier.width(40.dp))
                 Column(
                     Modifier
                         .clip(RoundedCornerShape(10.dp))
@@ -266,13 +268,14 @@ fun CreateNoteModal(closeModal: () -> Unit, viewModel: NoteListViewModel) {
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp)) // 박스 사이 간격
             Column(
                 Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .background(Color(0xFFCCD7EB)) // 템플릿 영역 색상 변경
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp) // 좌우 간격 추가
+                    .padding(top = 10.dp)
                     .fillMaxHeight(0.75f) // 높이 조정
                     .align(Alignment.CenterHorizontally),
             ) {
