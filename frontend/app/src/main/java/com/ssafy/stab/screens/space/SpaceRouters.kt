@@ -83,19 +83,19 @@ fun SpaceRouters(
     Row(modifier = Modifier.fillMaxSize()) {
         // "personal-note"와 "share-note"가 아닐 때만 SideBar를 렌더링
 
-        if (currentRoute != "note/{noteId}/{spaceId}") {
+        if (currentRoute != "note/{noteId}/{spaceId}/{pageId}") {
             SideBar(navController, audioCallViewModel, spaceViewModel, modifier = Modifier.weight(0.25f), inviteCode)
         }
         Column(modifier = Modifier
             .weight(0.75f)
             .background(color = Color(0xFFE9ECF5))
         ) {
-            if (currentRoute != "note/{noteId}/{spaceId}") {
+            if (currentRoute != "note/{noteId}/{spaceId}/{pageId}") {
                 Header(onLogin)
             }
             NavHost(navController = navController, startDestination = "personal-space") {
                 composable("personal-space") {
-                    PersonalSpace(navController) { navController.navigate("note/$it/$personalSpaceId") }
+                    PersonalSpace(navController) { navController.navigate("note/$it/$personalSpaceId/p") }
                 }
                 composable("share-space/{spaceId}/{rootFolderId}") { backStackEntry ->
                     val spaceId = backStackEntry.arguments?.getString("spaceId")
@@ -108,17 +108,18 @@ fun SpaceRouters(
                             audioCallViewModel,
                             spaceViewModel,
                             socketManager,
-                        ) { navController.navigate("note/$it/$spaceId") }
+                        ) { navController.navigate("note/$it/$spaceId/p") }
                     }
                 }
                 composable("book-mark") { BookMark(navController) }
                 composable("deleted") { Deleted(navController) }
-                composable("note/{noteId}/{spaceId}") {backStackEntry ->
+                composable("note/{noteId}/{spaceId}/{pageId}") {backStackEntry ->
                     val noteId = backStackEntry.arguments?.getString("noteId") ?: ""
                     val spaceId = backStackEntry.arguments?.getString("spaceId") ?: ""
+                    val pageId = backStackEntry.arguments?.getString("pageId") ?: ""
 
                     val currentCallSpaceName = shareSpaceList.find { it.spaceId == PreferencesUtil.callState.value.callSpaceId }?.title ?: "Unknown Space"
-                    NoteScreen(noteId, spaceId, socketManager, navController, audioCallViewModel, currentCallSpaceName)
+                    NoteScreen(noteId, spaceId, pageId, socketManager, navController, audioCallViewModel, currentCallSpaceName)
                 }
                 dialog("patch-auth") {
                     PatchAuth(onDismiss = { navController.popBackStack() })
