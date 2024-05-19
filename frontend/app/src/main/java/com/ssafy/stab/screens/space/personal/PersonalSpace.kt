@@ -2,6 +2,7 @@ package com.ssafy.stab.screens.space.personal
 
 import NoteListViewModelFactory
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +34,7 @@ import com.ssafy.stab.R
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.screens.space.NoteListViewModel
+import com.ssafy.stab.util.SocketManager
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -42,6 +45,7 @@ fun PersonalSpace(navController: NavController, onNote: (String) -> Unit) {
     val navigationStackTitle = remember { mutableStateListOf<String>() }
 
     val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(folderId.toString()))
+
     CompositionLocalProvider(
         LocalNavigationStackId provides navigationStackId,
         LocalNavigationStackTitle provides navigationStackTitle,
@@ -55,7 +59,7 @@ fun PersonalSpace(navController: NavController, onNote: (String) -> Unit) {
         ) {
             MyTitleBar(navController, viewModel)
             Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp, horizontal = 20.dp))
-            nowFolderId.value?.let { NoteListSpace(it, onNote) }
+            nowFolderId.value?.let { NoteListSpace(it, viewModel, onNote) }
         }
     }
 }

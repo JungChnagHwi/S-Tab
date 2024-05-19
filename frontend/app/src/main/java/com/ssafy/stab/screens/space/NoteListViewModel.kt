@@ -29,27 +29,34 @@ class NoteListViewModel(initialFolderId: String) : ViewModel() {
     private fun loadFiles(folderId: String) {
         viewModelScope.launch {
             _combinedList.value = emptyList()
-            if (folderId!="") {
+            if (folderId != "") {
                 getFileList(
                     folderId,
                     { folders ->
                         val updatedFolders = folders ?: emptyList<Folder>()
-                        updateCombinedList(updatedFolders)
+                        viewModelScope.launch {
+                            updateCombinedList(updatedFolders)
+                        }
                     },
                     { notes ->
                         val updatedNotes = notes ?: emptyList<Note>()
-                        updateCombinedList(updatedNotes)
+                        viewModelScope.launch {
+                            updateCombinedList(updatedNotes)
+                        }
                     }
                 )
+            } else {
             }
         }
     }
 
 
     private fun updateCombinedList(newItems: List<FileEntity>) {
-        val currentList = _combinedList.value.toMutableList()
-        currentList.addAll(newItems)
-        _combinedList.value = currentList.sortedByDescending { it.updatedAt }
+        val newList = _combinedList.value.toMutableList().apply {
+            addAll(newItems)
+        }.sortedByDescending { it.updatedAt }
+
+        _combinedList.value = newList
     }
 
     fun updateFolderId(newFolderId: String) {
