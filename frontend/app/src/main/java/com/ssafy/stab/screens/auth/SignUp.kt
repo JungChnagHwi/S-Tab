@@ -125,7 +125,11 @@ fun SignUp(onNavigate: (String) -> Unit) {
 
                 OutlinedTextField(
                     value = nickname,
-                    onValueChange = { nickname = it },
+                    onValueChange = {newValue ->
+                        if (newValue.isEmpty() || newValue.first() != ' ') {
+                            nickname = newValue
+                        }
+                    },
                     placeholder = { Text("닉네임", fontSize = 16.sp, textAlign = TextAlign.Center) },
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
@@ -134,6 +138,7 @@ fun SignUp(onNavigate: (String) -> Unit) {
                         .width(200.dp)
                         .height(56.dp)
                         .offset(x = (0).dp, y = (0).dp),
+                    singleLine = true
                 )
 
                 Spacer(modifier = Modifier.padding(5.dp))
