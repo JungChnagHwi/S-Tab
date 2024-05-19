@@ -208,7 +208,7 @@
   - `Create new...` 버튼 클릭하여 `Key store` 생성<br/>
     ![build3](./assets/build3.png)<br/>
 
-  - `Key sotre path`, `Password`, `Confirm`, `First and Last Name` 입력 후 `OK` 버튼 클릭, `Next` 버튼 클릭<br/>
+  - `Key store path`, `Password`, `Confirm`, `First and Last Name` 입력 후 `OK` 버튼 클릭, `Next` 버튼 클릭<br/>
     ![build4](./assets/build4.png)<br/>
 
   - `release` 선택 후 `Finish` 버튼 클릭<br/>
