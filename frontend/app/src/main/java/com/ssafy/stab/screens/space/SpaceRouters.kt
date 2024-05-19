@@ -18,8 +18,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,6 +55,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
+import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.apis.auth.checkNickName
 import com.ssafy.stab.apis.auth.patchInfo
 import com.ssafy.stab.apis.auth.s3uri
@@ -265,25 +270,42 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Button(
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_PICK)
-                        intent.type = "image/*"
-                        pickImageLauncher.launch(intent)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(200.dp)
-                ) {
+                // 프로필 이미지와 사진선택 칸 분리
+                Column (){
+                    val basicProfileUrl = BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png"
+                    val basicProfileImg = rememberAsyncImagePainter(model = basicProfileUrl)
+
                     if (beforeImageUri != null) {
-                        ImagePreview(imageUri = beforeImageUri, modifier = Modifier.fillMaxSize())
+                        ImagePreview(imageUri = beforeImageUri, modifier = Modifier.size(200.dp))
                     } else {
+                        Image(
+                            painter = basicProfileImg,
+                            contentDescription = "기본 프로필 이미지",
+                            modifier = Modifier
+                                .size(200.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_PICK)
+                            intent.type = "image/*"
+                            pickImageLauncher.launch(intent)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                        modifier = Modifier
+                            .width(200.dp)  // 버튼 너비 조절
+                            .height(50.dp)
+
+                    ) {
                         Text(
                             "프로필 사진 선택",
                             color = Color.Black,
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
