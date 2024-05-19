@@ -1,7 +1,11 @@
 package com.ssafy.stab.screens.note
 
 import android.annotation.SuppressLint
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,6 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.BuildConfig
 import com.ssafy.stab.R
+import com.ssafy.stab.apis.note.uploadImageToServer
 import com.ssafy.stab.components.ChatBotScreen
 import com.ssafy.stab.components.note.CallStateBox
 import com.ssafy.stab.components.note.ColorOptions
@@ -92,6 +97,13 @@ fun NoteScreen(
     val callState = PreferencesUtil.callState.collectAsState()
 
     val context = LocalContext.current
+    val imageUri = remember { mutableStateOf<Uri?>(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {uri: Uri? ->
+        imageUri.value = uri
+        uri?.let {
+            uploadImageToServer(context, it) { imageUrl -> noteControlViewModel.setImageUrl(imageUrl) }
+        }
+    }
 
     LaunchedEffect(noteId) {
         noteViewModel.setNoteControlViewModel(noteControlViewModel)
@@ -189,7 +201,7 @@ fun NoteScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ControlsBar(noteControlViewModel)
+                ControlsBar(noteControlViewModel, launcher::launch)
                 Divider(
                     color = Color(0xFFCCD7ED),
                     modifier = Modifier
@@ -268,7 +280,7 @@ fun NoteScreen(
                                 .width(250.dp)
                                 .height(350.dp)
                                 .padding(4.dp)
-                                .clickable {  }
+                                .clickable { }
                         ) {
                             UserListModal(socketManager.userList)
                         }

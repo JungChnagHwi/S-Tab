@@ -3,11 +3,9 @@ package com.ssafy.stab.data.note.request
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.gson.annotations.SerializedName
-import com.ssafy.stab.data.note.Coordinate
 import com.ssafy.stab.data.note.Figure
-import com.ssafy.stab.data.note.Image
+import com.ssafy.stab.data.note.ImageInfo
 import com.ssafy.stab.data.note.PathInfo
-import com.ssafy.stab.data.note.PenType
 import com.ssafy.stab.data.note.TextBox
 
 data class PageId(
@@ -23,7 +21,7 @@ data class PageData(
     @SerializedName("textBoxes")
     val textBoxes: SnapshotStateList<TextBox> = mutableStateListOf(),
     @SerializedName("images")
-    val images: SnapshotStateList<Image> = mutableStateListOf(),
+    val images: SnapshotStateList<ImageInfo> = mutableStateListOf(),
 )
 
 data class SavingPageData(

@@ -12,6 +12,8 @@ import androidx.lifecycle.viewModelScope
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.data.note.Action
 import com.ssafy.stab.data.note.Coordinate
+import com.ssafy.stab.data.note.ImageInfo
+import com.ssafy.stab.data.note.PageImageInfo
 import com.ssafy.stab.data.note.PageOrderPathInfo
 import com.ssafy.stab.data.note.PathInfo
 import com.ssafy.stab.data.note.PenSettings
@@ -42,6 +44,9 @@ class NoteControlViewModel(private val noteId: String, private val socketManager
 
     private val _redoPathList = mutableStateListOf<PageOrderPathInfo>()
 
+    private val _imageList = mutableStateListOf<PageImageInfo>()
+    val imageList: SnapshotStateList<PageImageInfo> = _imageList
+
     private val _historyTracker = MutableSharedFlow<String>(extraBufferCapacity = 1)
     private val historyTracker = _historyTracker.asSharedFlow()
 
@@ -71,6 +76,9 @@ class NoteControlViewModel(private val noteId: String, private val socketManager
 
     private val _redoAvailable = MutableStateFlow(false)
     val redoAvailable = _redoAvailable.asStateFlow()
+
+    var currentImageUrl by mutableStateOf("")
+        private set
 
     init {
         trackHistory(viewModelScope) { undoCount, redoCount ->
@@ -115,6 +123,10 @@ class NoteControlViewModel(private val noteId: String, private val socketManager
     fun changeColor(value: String) {
         penSettings[penType]?.color = value
         updatePenSetting()
+    }
+
+    fun setImageUrl(value: String) {
+        currentImageUrl = value
     }
 
     private fun updatePenSetting() {
@@ -249,6 +261,14 @@ class NoteControlViewModel(private val noteId: String, private val socketManager
             autoSaveItems.add(_undoPathList.removeAt(0))
         }
         return autoSaveItems
+    }
+
+    fun addImageToPage(currentPageId: String, x: Float, y: Float) {
+        val imageInfo = ImageInfo(currentImageUrl, x = x, y = y)
+        val pageImageInfo = PageImageInfo(user, currentPageId, imageInfo)
+
+        _imageList.add(pageImageInfo)
+        noteViewModel.onUserInteraction()
     }
 
 }
