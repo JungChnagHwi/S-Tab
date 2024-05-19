@@ -108,16 +108,15 @@ fun NoteScreen(
             }
         }
     }
+    val userListModifier = if (showUserList) {
+        Modifier.clickable {
+            if (showUserList) { showUserList = false } }
+    } else Modifier
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().then(userListModifier)
+        ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable { // 다른 영역을 누르면 사용자목록 꺼지도록
-                    if (showUserList) {
-                        showUserList = false
-                    }
-                }
+            modifier = Modifier.fillMaxSize()
         ) {
             Row(
                 modifier = Modifier
@@ -248,6 +247,7 @@ fun NoteScreen(
                     .padding(10.dp)
                     .align(Alignment.TopEnd)
                     .zIndex(3f)
+                    .clickable { showUserList = false }
                 ) {
                     if (showUserList) {
                         Box(
@@ -258,13 +258,13 @@ fun NoteScreen(
                                 .width(250.dp)
                                 .height(350.dp)
                                 .padding(4.dp)
-                                .clickable { }
+                                .clickable {  }
                         ) {
                             UserListModal(socketManager.userList)
                         }
                     }
                 }
-                
+
             }
         }
     }
