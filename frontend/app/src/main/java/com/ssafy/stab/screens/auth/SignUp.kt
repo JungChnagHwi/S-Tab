@@ -83,7 +83,8 @@ fun SignUp(onNavigate: (String) -> Unit) {
                 val basicProfileImg = rememberAsyncImagePainter(model = basicProfileUrl)
                 
                 if (imageUri != null) {
-                    ImagePreview(imageUri = imageUri, modifier = Modifier.size(200.dp))                } else {
+                    ImagePreview(imageUri = imageUri, modifier = Modifier.size(200.dp))
+                } else {
                     Image(
                         painter = basicProfileImg,
                         contentDescription = "기본 프로필 이미지",

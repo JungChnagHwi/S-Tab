@@ -320,14 +320,17 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
             ) {
                 OutlinedTextField(
                     value = nickname,
-                    onValueChange = {
-                        nickname = it
+                    onValueChange = {newValue ->
+                        if (newValue.isEmpty() || newValue.first() != ' ') {
+                            nickname = newValue
+                        }
                         isValid = false
-                                    },
+                    },
                     label = { Text("새 닉네임") },
                     modifier = Modifier
                         .weight(1f)
-                        .width(200.dp)
+                        .width(200.dp),
+                    singleLine = true
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
