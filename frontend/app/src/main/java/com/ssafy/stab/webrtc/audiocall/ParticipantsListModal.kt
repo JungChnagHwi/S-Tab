@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -143,7 +144,8 @@ fun UserRow(
             contentDescription = "프로필 이미지",
             modifier = Modifier
                 .size(40.dp)
-                .clip(CircleShape)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.width(15.dp))
         Column(
