@@ -84,12 +84,16 @@ fun SignUp(onNavigate: (String) -> Unit) {
                     .height(200.dp)
                     .offset(x = (-200).dp, y = (100).dp)
             ) {
-                Text(
-                    "프로필 사진 선택",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                if (imageUri != null) {
+                    ImagePreview(imageUri = imageUri, modifier = Modifier.fillMaxSize())
+                } else {
+                    Text(
+                        "프로필 사진 선택",
+                        color = Color.Black,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
