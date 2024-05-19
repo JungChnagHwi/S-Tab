@@ -5,6 +5,7 @@ import com.sixb.note.entity.Folder;
 import com.sixb.note.entity.Note;
 import com.sixb.note.entity.Space;
 import com.sixb.note.exception.FolderNotFoundException;
+import com.sixb.note.exception.SpaceNotFoundException;
 import com.sixb.note.repository.FolderRepository;
 import com.sixb.note.repository.NoteRepository;
 import com.sixb.note.repository.SpaceRepository;
@@ -25,7 +26,10 @@ public class FolderService {
 	private final SpaceRepository spaceRepository;
 
 	// 폴더 조회
-	public FolderResponseDto getFolderDetail(String folderId, long userId) {
+	public FolderResponseDto getFolderDetail(String folderId, long userId) throws FolderNotFoundException {
+		folderRepository.findFolderById(folderId)
+				.orElseThrow(() -> new FolderNotFoundException("존재하지 않는 폴더입니다."));
+
 		List<Folder> folders = folderRepository.findSubFoldersByFolderId(folderId);
 		List<Note> notes = noteRepository.findNotesByFolderId(folderId);
 
@@ -155,18 +159,36 @@ public class FolderService {
 		folderRepository.deleteFolder(folderId, now);
 	}
 
-	public FolderListResponseDto getFoldersBetween(FolderListRequestDto requestDto) {
+	public FolderListResponseDto getFoldersBetween(FolderListRequestDto requestDto) throws FolderNotFoundException, SpaceNotFoundException {
+		Folder f = folderRepository.findFolderById(requestDto.getFolderId())
+				.orElseThrow(() -> new FolderNotFoundException("존재하지 않는 폴더입니다. folderId: " + requestDto.getFolderId()));
+
+		Folder f1 = folderRepository.findFolderById(requestDto.getParentFolderId())
+				.orElseThrow(() -> new FolderNotFoundException("존재하지 않는 폴더입니다. folderId: " + requestDto.getParentFolderId()));
+
+		if (!f.getSpaceId().equals(f1.getSpaceId())) {
+			throw new SpaceNotFoundException("서로 다른 스페이스에 존재하는 폴더입니다.");
+		}
+		
+		String spaceTitle = spaceRepository.findSpaceById(f.getSpaceId())
+				.orElseThrow(() -> new SpaceNotFoundException("존재하지 않는 스페이스입니다."))
+				.getTitle();
+		
 		List<Folder> folders = folderRepository.findFoldersBetween(requestDto.getParentFolderId(), requestDto.getFolderId());
+		return getFolderListResponseDto(folders, spaceTitle);
+	}
+
+	private static FolderListResponseDto getFolderListResponseDto(List<Folder> folders, String spaceTitle) {
 		List<FolderListResponseDto.FolderInfo> folderInfos = new ArrayList<>();
 
 		for (int i = 0; i < folders.size(); i++) {
 			Folder folder = folders.get(i);
-			FolderListResponseDto.FolderInfo info = new FolderListResponseDto.FolderInfo();
-			info.setFolderId(folder.getFolderId());
+			FolderListResponseDto.FolderInfo info = FolderListResponseDto.FolderInfo.builder()
+					.folderId(folder.getFolderId())
+					.build();
 
 			if (i == 0) {
-				Optional<Space> space = spaceRepository.findSpaceById(folder.getSpaceId());
-				space.ifPresent(s -> info.setTitle(s.getTitle()));
+				info.setTitle(spaceTitle);
 			} else {
 				info.setTitle(folder.getTitle());
 			}
@@ -174,9 +196,9 @@ public class FolderService {
 			folderInfos.add(info);
 		}
 
-		FolderListResponseDto responseDto = new FolderListResponseDto();
-		responseDto.setFolders(folderInfos);
-		return responseDto;
+		return FolderListResponseDto.builder()
+				.folders(folderInfos)
+				.build();
 	}
 
 	public FolderResponseDto getFolderByName(long userId, String name, String spaceId) {
