@@ -39,7 +39,9 @@ import com.ssafy.stab.BuildConfig
 import java.io.IOException
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
+import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun SignUp(onNavigate: (String) -> Unit) {
@@ -72,26 +74,44 @@ fun SignUp(onNavigate: (String) -> Unit) {
         ) {
             Spacer(modifier = Modifier.height(80.dp))
 
-            Button(
-                onClick = {
-                    val intent = Intent(Intent.ACTION_PICK)
-                    intent.type = "image/*"
-                    pickImageLauncher.launch(intent)
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+            // 프로필 이미지와 사진선택 칸 분리
+            Column (
                 modifier = Modifier
-                    .width(200.dp)  // 버튼 너비 조절
-                    .height(200.dp)
                     .offset(x = (-200).dp, y = (100).dp)
-            ) {
+            ){
+                val basicProfileUrl = BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png"
+                val basicProfileImg = rememberAsyncImagePainter(model = basicProfileUrl)
+                
                 if (imageUri != null) {
-                    ImagePreview(imageUri = imageUri, modifier = Modifier.fillMaxSize())
-                } else {
+                    ImagePreview(imageUri = imageUri, modifier = Modifier.size(200.dp))                } else {
+                    Image(
+                        painter = basicProfileImg,
+                        contentDescription = "기본 프로필 이미지",
+                        modifier = Modifier
+                            .size(200.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_PICK)
+                        intent.type = "image/*"
+                        pickImageLauncher.launch(intent)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                    modifier = Modifier
+                        .width(200.dp)  // 버튼 너비 조절
+                        .height(50.dp)
+
+                ) {
                     Text(
                         "프로필 사진 선택",
                         color = Color.Black,
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
                     )
                 }
             }
