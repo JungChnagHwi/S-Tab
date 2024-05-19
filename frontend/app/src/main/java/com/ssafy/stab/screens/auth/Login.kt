@@ -60,12 +60,12 @@ fun Login(navController: NavController, onLoginSuccess: () -> Unit){
 
                 Spacer(modifier = Modifier.height(200.dp))
             }
-//            Row {
-//                Button(onClick = { navController.navigate("sign-up") }) {
-//                    Text(text = "회원가입 페이지로 가기")
-//                }
-//
-//            }
+            Row {
+                Button(onClick = { navController.navigate("sign-up") }) {
+                    Text(text = "회원가입 페이지로 가기")
+                }
+
+            }
             Box(
                 modifier = Modifier
                     .fillMaxSize()

@@ -53,7 +53,7 @@ fun NoteListSpace(nowId: String, viewModel:NoteListViewModel, onNote: (String) -
     var searchText by remember { mutableStateOf("") }
     val searchFolders = remember { mutableStateListOf<Folder>() }
     val searchNotes = remember { mutableStateListOf<Note>() }
-    val isSearching by remember { derivedStateOf { searchText.isNotBlank() && (searchFolders.isNotEmpty() || searchNotes.isNotEmpty()) } }
+    val isSearching by remember { derivedStateOf { searchText.isNotBlank() } }
 
     Column {
         Spacer(modifier = Modifier.height(5.dp))
@@ -76,19 +76,18 @@ fun NoteListSpace(nowId: String, viewModel:NoteListViewModel, onNote: (String) -
                     value = searchText,
                     onValueChange = { newText ->
                         searchText = newText
+                        searchFolders.clear()
+                        searchNotes.clear()
                         searchFile(
                             PreferencesUtil.getShareSpaceState().toString(),
                             searchText,
                             {res ->
                                 if (res != null) {
-                                    Log.d("검색", searchText)
-                                    Log.d("폴더", res.joinToString(","))
                                     searchFolders.addAll(res)
                                 }
                             },
                             {res ->
                                 if (res != null) {
-                                    Log.d("노트", res.joinToString(","))
                                     searchNotes.addAll(res)
                                 }
                             }
