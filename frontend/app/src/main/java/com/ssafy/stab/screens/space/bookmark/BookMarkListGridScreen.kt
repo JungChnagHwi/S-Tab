@@ -77,7 +77,8 @@ fun BookMarkListGridScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp, 0.dp)
+                    .padding(16.dp, 0.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 item {
                     Text(
@@ -93,7 +94,7 @@ fun BookMarkListGridScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .padding(vertical = 4.dp)
                     ) {
                         rowItems.forEach { folder ->
                             Box(modifier = Modifier
@@ -126,7 +127,7 @@ fun BookMarkListGridScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .padding(vertical = 4.dp)
                     ) {
                         rowItems.forEach { note ->
                             Box(modifier = Modifier
@@ -157,7 +158,7 @@ fun BookMarkListGridScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .padding(vertical = 4.dp)
                     ) {
                         rowItems.forEach { page ->
                             Box(modifier = Modifier
@@ -200,6 +201,7 @@ fun FolderItem(
                 }
             },
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Box {
             Image(painter = folderImg, contentDescription = "폴더", modifier = Modifier.size(102.dp, 136.dp))
@@ -221,12 +223,12 @@ fun FolderItem(
             fontSize = 16.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(100.dp) // 가로 영역 제한
+            modifier = Modifier.widthIn(max = 100.dp)
         )
         Text(
             text = folder.updatedAt.format(DateTimeFormatter.ISO_DATE),
             fontSize = 16.sp,
-            modifier = Modifier.width(100.dp) // 가로 영역 제한
+            modifier = Modifier.widthIn(max = 100.dp)
         )
     }
 }
@@ -270,12 +272,12 @@ fun NoteItem(note: BookmardNote, navController: NavController) {
             fontSize = 16.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(100.dp) // 가로 영역 제한
+            modifier = Modifier.widthIn(max = 100.dp)
         )
         Text(
             text = note.updatedAt.format(DateTimeFormatter.ISO_DATE),
             fontSize = 16.sp,
-            modifier = Modifier.width(100.dp) // 가로 영역 제한
+            modifier = Modifier.widthIn(max = 100.dp)
         )
     }
 }
@@ -313,16 +315,23 @@ fun PageItem(page: BookmardPage, navController: NavController) {
                 .align(Alignment.TopEnd))
         }
         Text(
+            text = page.noteTitle ?: "untitled",
+            fontSize = 16.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.widthIn(max = 100.dp) // 가로 영역 제한
+        )
+        Text(
             text = page.pageId ?: "untitled",
             fontSize = 16.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(100.dp) // 가로 영역 제한
+            modifier = Modifier.widthIn(max = 100.dp) // 가로 영역 제한
         )
         Text(
             text = page.updatedAt.format(DateTimeFormatter.ISO_DATE),
             fontSize = 16.sp,
-            modifier = Modifier.width(100.dp) // 가로 영역 제한
+            modifier = Modifier.widthIn(max = 100.dp) // 가로 영역 제한
         )
     }
 }
