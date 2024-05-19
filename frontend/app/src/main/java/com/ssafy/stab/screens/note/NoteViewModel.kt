@@ -17,11 +17,17 @@ import com.ssafy.stab.data.note.request.PageData
 import com.ssafy.stab.data.note.request.SavingPageData
 import com.ssafy.stab.data.note.response.PageDetail
 import com.ssafy.stab.util.SocketManager
+import com.ssafy.stab.util.note.NoteControlViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class NoteViewModel(noteId: String) : ViewModel() {
+    private lateinit var noteControlViewModel: NoteControlViewModel
+
     private val _noteId = MutableStateFlow(noteId)
 
     val socketManager = SocketManager.getInstance()
@@ -35,9 +41,16 @@ class NoteViewModel(noteId: String) : ViewModel() {
     private val _isBookmarked = MutableStateFlow(false)
     val isBookmarked = _isBookmarked.asStateFlow()
 
+    private var autoSaveJob: Job? = null
+    private var userInactivityJob: Job? = null
+
     init {
         loadPageList()
         socketManager.setNoteViewModel(this)
+    }
+
+    fun setNoteControlViewModel(viewModel: NoteControlViewModel) {
+        this.noteControlViewModel = viewModel
     }
 
     private fun loadPageList() {
@@ -70,12 +83,44 @@ class NoteViewModel(noteId: String) : ViewModel() {
             }
             _pageList.value = newPageList
         }
+        onUserInteraction()
     }
 
     fun socketAddPage(socketPageInfo: SocketPageInfo) {
         val newPageList = _pageList.value.toMutableList()
         newPageList.add(socketPageInfo.page, socketPageInfo.newPageDetail)
         _pageList.value = newPageList
+    }
+
+    fun onUserInteraction() {
+        userInactivityJob?.cancel()
+        Log.d("userInactivityJob", "autoSave cancel")
+        userInactivityJob = viewModelScope.launch {
+            delay(300000)   // 5분간 작업이 없으면 전체 자동 저장
+            stopAutoSave()
+        }
+
+        if (autoSaveJob == null || !autoSaveJob!!.isActive) {
+            startAutoSave()
+        }
+    }
+
+    private fun startAutoSave() {
+        autoSaveJob?.cancel()
+        Log.d("autoSave", "autoSave cancel")
+        autoSaveJob = viewModelScope.launch {
+            while (isActive) {
+                delay(60000)    // 1분마다 오래된 데이터 자동 저장
+                savePage(noteControlViewModel.trimUndoPathList())
+            }
+        }
+    }
+
+    private fun stopAutoSave() {
+        autoSaveJob?.cancel()
+        savePage(noteControlViewModel.pathList)
+        noteControlViewModel.reset()
+        autoSaveJob = null
     }
 
     fun savePage(undoPathList: MutableList<PageOrderPathInfo>) {
@@ -115,4 +160,5 @@ class NoteViewModel(noteId: String) : ViewModel() {
         _isBookmarked.value = false
         deleteBookMark(_pageList.value[currentPage].pageId)
     }
+
 }

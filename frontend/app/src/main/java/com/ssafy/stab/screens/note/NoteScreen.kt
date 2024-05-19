@@ -72,12 +72,13 @@ fun NoteScreen(
     currentCallSpaceName: String
 ){
     val noteViewModel: NoteViewModel = viewModel(factory = NoteViewModelFactory(noteId))
+    val noteControlViewModel : NoteControlViewModel = viewModel(factory = NoteControlViewModelFactory(noteId, socketManager))
+
     val personalSpaceId = PreferencesUtil.getLoginDetails().personalSpaceId ?: ""
     val userName = PreferencesUtil.getLoginDetails().userName ?: ""
     val profileImg = PreferencesUtil.getLoginDetails().profileImg
         ?: (BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png")
 
-    val noteControlViewModel : NoteControlViewModel = viewModel(factory = NoteControlViewModelFactory(Pair(noteId, socketManager)))
     val chatBotViewModel = remember { ChatBotViewModel.getInstance() }
 
     val currentPage = remember { mutableIntStateOf(0) }
@@ -90,6 +91,11 @@ fun NoteScreen(
     val callState = PreferencesUtil.callState.collectAsState()
 
     val context = LocalContext.current
+
+    LaunchedEffect(noteId) {
+        noteViewModel.setNoteControlViewModel(noteControlViewModel)
+        noteControlViewModel.setNotViewModel(noteViewModel)
+    }
 
     LaunchedEffect(spaceId) {
         if (spaceId != personalSpaceId) {
@@ -113,7 +119,9 @@ fun NoteScreen(
             if (showUserList) { showUserList = false } }
     } else Modifier
 
-    Box(modifier = Modifier.fillMaxSize().then(userListModifier)
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .then(userListModifier)
         ) {
         Column(
             modifier = Modifier.fillMaxSize()
