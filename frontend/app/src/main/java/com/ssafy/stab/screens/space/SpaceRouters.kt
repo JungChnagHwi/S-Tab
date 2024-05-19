@@ -175,7 +175,8 @@ fun Header(onLogin: () -> Unit) {
                         .width(30.dp)
                         .height(30.dp)
                         .clip(RoundedCornerShape(15.dp))
-                        .clickable { showMenu = true }
+                        .clickable { showMenu = true },
+                    contentScale = ContentScale.Crop
                 )
                 DropdownMenu(
                     expanded = showMenu,

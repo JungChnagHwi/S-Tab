@@ -89,7 +89,8 @@ fun UserRow(
             contentDescription = "프로필 이미지",
             modifier = Modifier
                 .size(40.dp)
-                .clip(CircleShape)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.width(15.dp))
         Column(
