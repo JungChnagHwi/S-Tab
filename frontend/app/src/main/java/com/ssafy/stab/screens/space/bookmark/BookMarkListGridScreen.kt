@@ -1,5 +1,6 @@
 package com.ssafy.stab.screens.space.bookmark
 
+import NoteListViewModelFactory
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ssafy.stab.R
 import com.ssafy.stab.apis.space.bookmark.BookmardFolder
@@ -32,6 +34,7 @@ import com.ssafy.stab.data.note.Direction
 import com.ssafy.stab.util.note.getTemplate
 import com.ssafy.stab.apis.space.bookmark.getFolderPath
 import com.ssafy.stab.screens.space.NoteListSpace
+import com.ssafy.stab.screens.space.NoteListViewModel
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -47,6 +50,8 @@ fun BookMarkListGridScreen(
     var selectedFolder by remember { mutableStateOf("") }
     val selectedPathId = remember { mutableStateListOf<String>() }
     val selectedPathTitle = remember { mutableStateListOf<String>() }
+    val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(selectedFolder))
+
 
     fun selectFolder(selectedFolderId: String, pathIdList: List<String>, pathTitleList: List<String>) {
         selectedFolder = selectedFolderId
@@ -54,17 +59,20 @@ fun BookMarkListGridScreen(
         selectedPathTitle.clear()
         selectedPathId.addAll(pathIdList)
         selectedPathTitle.addAll(pathTitleList)
+
+        viewModel.updateFolderId(selectedFolderId)
     }
 
     fun changeFolder(folderId: String) {
         selectedFolder = folderId
         Log.d("Selected Folder Changed", selectedFolder)
+        viewModel.updateFolderId(selectedFolder)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         if (selectedFolder != "" ) {
             PathDisplay(selectedPathId, selectedPathTitle, ::changeFolder)
-            NoteListSpace(selectedFolder){}
+            NoteListSpace(selectedFolder, viewModel, {})
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -188,9 +196,6 @@ fun FolderItem(
                 getFolderPath(folder.rootFolderId, folder.folderId) { res ->
                     val folderIds = res.folders.map { it.folderId }
                     val titles = res.folders.map { it.title ?: "Untitled" }
-                    Log.d("리스트 줘봐", res.folders.joinToString(","))
-                    Log.d("아이디 리스트", folderIds.joinToString(","))
-                    Log.d("타이틀 리스트", titles.joinToString(","))
                     selectFolder(folder.folderId, folderIds, titles)
                 }
             },

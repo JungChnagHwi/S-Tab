@@ -43,7 +43,7 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
+fun NoteListSpace(nowId: String, viewModel:NoteListViewModel, onNote: (String) -> Unit) {
     val folderIdState = rememberUpdatedState(nowId)
     val glassImg = painterResource(id = R.drawable.glass)
     var searchText by remember { mutableStateOf("") }
@@ -115,7 +115,7 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
         Spacer(modifier = Modifier.height(5.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))
-            ListGridScreen(folderIdState.value, onNote)
+            ListGridScreen(folderIdState.value, viewModel, onNote)
         }
     }
 }
@@ -124,6 +124,7 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
 @Composable
 fun ListGridScreen(
     initFolderId: String,
+    viewModel: NoteListViewModel,
     onNote: (String) -> Unit
 ) {
     val selectedFileId = LocalSelectedFileId.current
@@ -134,16 +135,10 @@ fun ListGridScreen(
     val showCreateOptions = remember { mutableStateOf(false) }
     val showEditModal = remember { mutableStateOf(false) }
 
-    val viewModel: NoteListViewModel = viewModel(
-        key = initFolderId,
-        factory = NoteListViewModelFactory(folderId))
-    val combinedList by viewModel.combinedList.collectAsState()
 
+    val combinedList by viewModel.combinedList.collectAsState()
     // 소켓에 노트 리스트 뷰모델 데이터 설정
     val socketManager = SocketManager.getInstance()
-    LaunchedEffect(viewModel) {
-        socketManager.setViewModel(viewModel)
-    }
 
     val createNoteImg = painterResource(id = R.drawable.createnote)
 
@@ -234,7 +229,9 @@ fun ListGridScreen(
                                     .width(102.dp)
                                     .height(136.dp)
                                     .clip(RoundedCornerShape(20))
-                                    .clickable { showCreateOptions.value = !showCreateOptions.value }
+                                    .clickable {
+                                        showCreateOptions.value = !showCreateOptions.value
+                                    }
                             )
                             Text(text = "새로 만들기", fontFamily = FontFamily.Default)
                         }

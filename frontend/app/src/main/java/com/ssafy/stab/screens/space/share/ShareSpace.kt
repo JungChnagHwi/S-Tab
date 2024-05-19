@@ -107,7 +107,10 @@ fun ShareSpace(
     val audioSessionViewModel: AudioSessionViewModel = viewModel()
     val participants by audioSessionViewModel.participants.collectAsState()
     val viewModel: NoteListViewModel = viewModel(factory = NoteListViewModelFactory(rootFolderId))
-
+    val socketManager = SocketManager.getInstance()
+    LaunchedEffect(viewModel) {
+        socketManager.setViewModel(viewModel)
+    }
     val spaceTitle = remember { mutableStateOf("") }
     LaunchedEffect(spaceId) {
         getShareSpace(spaceId) { shareSpaceData ->
@@ -135,8 +138,8 @@ fun ShareSpace(
     CompositionLocalProvider(
         LocalNavigationStackId provides navigationStackId,
         LocalNavigationStackTitle provides navigationStackTitle,
-        LocalNowFolderId provides mutableStateOf(nowFolderId.value),
-        LocalNowFolderTitle provides mutableStateOf("")
+        LocalNowFolderId provides remember { mutableStateOf(nowFolderId.value) },
+        LocalNowFolderTitle provides remember { mutableStateOf("") }
     ) {
         Box(
             modifier = Modifier
@@ -196,7 +199,7 @@ fun ShareSpace(
                         )
                     }
                 }
-                NoteListSpace(rootFolderId, onNote)
+                NoteListSpace(rootFolderId, viewModel, onNote)
             }
 
             if (showParticipantListModal) {
