@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -72,12 +73,13 @@ fun NoteScreen(
     currentCallSpaceName: String
 ){
     val noteViewModel: NoteViewModel = viewModel(factory = NoteViewModelFactory(noteId))
+    val noteControlViewModel : NoteControlViewModel = viewModel(factory = NoteControlViewModelFactory(noteId, socketManager))
+
     val personalSpaceId = PreferencesUtil.getLoginDetails().personalSpaceId ?: ""
     val userName = PreferencesUtil.getLoginDetails().userName ?: ""
     val profileImg = PreferencesUtil.getLoginDetails().profileImg
         ?: (BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png")
 
-    val noteControlViewModel : NoteControlViewModel = viewModel(factory = NoteControlViewModelFactory(Pair(noteId, socketManager)))
     val chatBotViewModel = remember { ChatBotViewModel.getInstance() }
 
     val currentPage = remember { mutableIntStateOf(0) }
@@ -90,6 +92,11 @@ fun NoteScreen(
     val callState = PreferencesUtil.callState.collectAsState()
 
     val context = LocalContext.current
+
+    LaunchedEffect(noteId) {
+        noteViewModel.setNoteControlViewModel(noteControlViewModel)
+        noteControlViewModel.setNotViewModel(noteViewModel)
+    }
 
     LaunchedEffect(spaceId) {
         if (spaceId != personalSpaceId) {
@@ -108,16 +115,17 @@ fun NoteScreen(
             }
         }
     }
+    val userListModifier = if (showUserList) {
+        Modifier.clickable {
+            if (showUserList) { showUserList = false } }
+    } else Modifier
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .then(userListModifier)
+        ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable { // 다른 영역을 누르면 사용자목록 꺼지도록
-                    if (showUserList) {
-                        showUserList = false
-                    }
-                }
+            modifier = Modifier.fillMaxSize()
         ) {
             Row(
                 modifier = Modifier
@@ -147,6 +155,7 @@ fun NoteScreen(
                     Text(
                         text = noteTitle,
                         modifier = Modifier.align(Alignment.CenterVertically),
+                        fontFamily = FontFamily.Default,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 28.sp,
@@ -248,6 +257,7 @@ fun NoteScreen(
                     .padding(10.dp)
                     .align(Alignment.TopEnd)
                     .zIndex(3f)
+                    .clickable { showUserList = false }
                 ) {
                     if (showUserList) {
                         Box(
@@ -258,13 +268,13 @@ fun NoteScreen(
                                 .width(250.dp)
                                 .height(350.dp)
                                 .padding(4.dp)
-                                .clickable { }
+                                .clickable {  }
                         ) {
                             UserListModal(socketManager.userList)
                         }
                     }
                 }
-                
+
             }
         }
     }

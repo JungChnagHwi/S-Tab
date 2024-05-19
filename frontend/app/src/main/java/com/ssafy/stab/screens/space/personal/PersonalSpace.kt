@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -77,12 +78,12 @@ fun MyTitleBar(navController: NavController, viewModel: NoteListViewModel) {
                     .width(30.dp)
                     .height(30.dp) ,painter = myspImg, contentDescription = null)
                 Spacer(modifier = Modifier.width(5.dp))
-                Text(text = "내 스페이스", modifier = Modifier.clickable { navController.navigate("personal-space") })
+                Text(text = "내 스페이스", fontFamily = FontFamily.Default, modifier = Modifier.clickable { navController.navigate("personal-space") })
                 Spacer(modifier = Modifier.width(5.dp))
                 if (navigationStackTitle.size > 1) {
                     Text(text = "> ··· >")
                     Spacer(modifier = Modifier.width(5.dp))
-                    Text(text= navigationStackTitle[navigationStackTitle.size - 2])
+                    Text(text= navigationStackTitle[navigationStackTitle.size - 2], fontFamily = FontFamily.Default)
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -107,9 +108,9 @@ fun MyTitleBar(navController: NavController, viewModel: NoteListViewModel) {
                     Spacer(modifier = Modifier.width(5.dp))
                 }
                 if (navigationStackTitle.size != 0) {
-                    Text(fontSize = 24.sp, text= navigationStackTitle[navigationStackTitle.size - 1])
+                    Text(fontSize = 24.sp, fontFamily = FontFamily.Default, text= navigationStackTitle[navigationStackTitle.size - 1])
                 } else {
-                    Text(text = "내 스페이스", fontSize = 24.sp)
+                    Text(text = "내 스페이스", fontFamily = FontFamily.Default, fontSize = 24.sp)
                 }
             }
         }

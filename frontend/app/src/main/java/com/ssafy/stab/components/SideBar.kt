@@ -8,8 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-//import androidx.compose.foundation.layout.FlowRowScopeInstance.align
-//import androidx.compose.foundation.layout.ColumnScopeInstance.align
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -34,7 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,6 +58,7 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
     val sharespImg = painterResource(id = R.drawable.sharesp)
     val plusImg = painterResource(id = R.drawable.plus)
     val participateImg = painterResource(id = R.drawable.participate)
+    val logoImg = painterResource(id = R.drawable.logoimg)
 
     val showCreateModal = remember { mutableStateOf(false) }
     val showParticipateModal = remember { mutableStateOf(false) }
@@ -111,14 +113,32 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
                 .height(72.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(color = Color(0xFF5584FD))
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "S-Tab",
-                fontSize = 28.sp,
-                color = Color(0xFFFFFFFF),
-                modifier = Modifier.align(Alignment.Center)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Image(
+                    painter = logoImg, // 이미지 리소스 사용
+                    contentDescription = "Logo",
+                    contentScale = ContentScale.Fit, // 이미지 스케일 조정
+                    modifier = Modifier
+                        .size(48.dp) // 이미지 크기 설정
+                        .align(Alignment.CenterVertically)
+                )
+                Spacer(modifier = Modifier.width(8.dp)) // 이미지와 텍스트 사이의 간격 설정
+                Text(
+                    text = "S - Tab",
+                    fontFamily = FontFamily.Default,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 32.sp, // 텍스트 크기 조정
+                    color = Color.White,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
         }
         Spacer(modifier = Modifier.height(30.dp))
         Row {

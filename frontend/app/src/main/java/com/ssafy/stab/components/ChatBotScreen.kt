@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -70,6 +71,7 @@ fun ChatBotScreen (viewModel: ChatBotViewModel, onDismiss: () -> Unit) {
             ) {
                 Text(
                     text = "AI Assistant",
+                    fontFamily = FontFamily.Default,
                     fontSize = 20.sp,
                     color = Color.White,
                     modifier = Modifier.align(Alignment.Center)
@@ -162,6 +164,7 @@ fun MessageBubble(message: Message) {
                 Spacer(modifier = Modifier.width(8.dp)) // 아이콘과 텍스트 사이 간격
                 Text(
                     text = "AI Assistant",
+                    fontFamily = FontFamily.Default,
                     fontSize = 12.sp,
                     color = Color.White
                 )
@@ -192,6 +195,7 @@ fun MessageBubble(message: Message) {
                         Text(
                             targetText,
                             color = textColor,
+                            fontFamily = FontFamily.Default,
                             textAlign = TextAlign.Start // 왼쪽 정렬
                         )
                     }

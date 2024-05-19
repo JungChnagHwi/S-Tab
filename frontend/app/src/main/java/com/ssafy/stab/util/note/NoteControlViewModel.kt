@@ -1,6 +1,5 @@
 package com.ssafy.stab.util.note
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -19,6 +18,7 @@ import com.ssafy.stab.data.note.PenSettings
 import com.ssafy.stab.data.note.PenType
 import com.ssafy.stab.data.note.SocketPathInfo
 import com.ssafy.stab.data.note.UserPagePathInfo
+import com.ssafy.stab.screens.note.NoteViewModel
 import com.ssafy.stab.util.SocketManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,7 +29,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class NoteControlViewModel(private val socketManager: Pair<String, SocketManager>) : ViewModel() {
+class NoteControlViewModel(private val noteId: String, private val socketManager: SocketManager) : ViewModel() {
+    private lateinit var noteViewModel: NoteViewModel
+
     private val user = PreferencesUtil.getLoginDetails().userName ?: "unknown"
 
     private val _undoPathList = mutableStateListOf<PageOrderPathInfo>()
@@ -76,7 +78,11 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             _redoAvailable.value = redoCount != 0
         }
 
-        socketManager.second.setNoteControlViewModel(this)
+        socketManager.setNoteControlViewModel(this)
+    }
+
+    fun setNotViewModel(viewModel: NoteViewModel) {
+        this.noteViewModel = viewModel
     }
 
     fun trackHistory(
@@ -149,13 +155,15 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             val data = _newPathList[0]
             val order = if (_undoPathList.isNotEmpty()) { _undoPathList.last().order + 1 } else 0
             val pageOrderPathInfo = PageOrderPathInfo(order, data.userName, data.pageId, data.pathInfo)
-            if (socketManager.second.isNoteJoined) {
-                socketManager.second.updateNoteData(socketManager.first, SocketPathInfo(Action.Add, pageOrderPathInfo))
+            if (socketManager.isNoteJoined) {
+                socketManager.updateNoteData(noteId, SocketPathInfo(Action.Add, pageOrderPathInfo))
             }
             _undoPathList.add(pageOrderPathInfo)
             _newPathList.clear()
             _historyTracker.tryEmit("insert path")
         }
+
+        noteViewModel.onUserInteraction()
     }
 
     private fun addOthersPath(othersData: PageOrderPathInfo) {
@@ -181,6 +189,7 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             }
             Action.Create -> TODO()
         }
+        noteViewModel.onUserInteraction()
     }
 
     fun undo(userName: String) {
@@ -191,9 +200,9 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
 
             // redo 경로 정보 저장
             if (userName == user) {
-                if (socketManager.second.isNoteJoined) {
-                    socketManager.second.updateNoteData(
-                        socketManager.first,
+                if (socketManager.isNoteJoined) {
+                    socketManager.updateNoteData(
+                        noteId,
                         SocketPathInfo(Action.Undo, last)
                     )
                 }
@@ -205,6 +214,7 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
 
             _historyTracker.tryEmit("undo")
         }
+        noteViewModel.onUserInteraction()
     }
 
     fun redo() {
@@ -212,14 +222,15 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
             val last = _redoPathList.last()
 
             // 경로 복원
-            socketManager.second.updateNoteData(
-                socketManager.first, SocketPathInfo(Action.Add, last)
+            socketManager.updateNoteData(
+                noteId, SocketPathInfo(Action.Add, last)
             )
             addOthersPath(last)
             _redoPathList.remove(last)
 
             _historyTracker.tryEmit("redo")
         }
+        noteViewModel.onUserInteraction()
     }
 
     fun reset() {
@@ -230,6 +241,14 @@ class NoteControlViewModel(private val socketManager: Pair<String, SocketManager
 
     fun getCurrentPathList(currentPageId: String): List<PageOrderPathInfo> {
         return pathList.filter { it.pageId == currentPageId }
+    }
+
+    fun trimUndoPathList(): MutableList<PageOrderPathInfo> {
+        val autoSaveItems = mutableListOf<PageOrderPathInfo>()
+        while (_undoPathList.size > 10) {
+            autoSaveItems.add(_undoPathList.removeAt(0))
+        }
+        return autoSaveItems
     }
 
 }
