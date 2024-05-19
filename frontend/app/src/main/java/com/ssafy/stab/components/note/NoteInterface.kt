@@ -49,12 +49,12 @@ fun PageInterfaceBar(
             if (isBookmarked.value) viewModel.deleteLikePage(currentPage) else viewModel.addLikePage(currentPage)
         }
         var expanded by remember { mutableStateOf(false) }
-        OptionIcons(
-            R.drawable.export,
-            "export"
-        ) {
-            expanded = true
-        }
+//        OptionIcons(
+//            R.drawable.export,
+//            "export"
+//        ) {
+//            expanded = true
+//        }
         DropdownMenu(expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
@@ -69,12 +69,12 @@ fun PageInterfaceBar(
                 })
 
         }
-        OptionIcons(
-            R.drawable.ellipsis_horizontal,
-            "setting"
-        ) {
-
-        }
+//        OptionIcons(
+//            R.drawable.ellipsis_horizontal,
+//            "setting"
+//        ) {
+//
+//        }
     }
 }
 

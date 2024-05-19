@@ -2,6 +2,7 @@ package com.ssafy.stab.screens.space.deleted
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
@@ -48,7 +50,8 @@ fun DeletedListGridScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp, 0.dp)
+            .padding(16.dp, 0.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         item {
             Text(
@@ -64,7 +67,7 @@ fun DeletedListGridScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 4.dp)
             ) {
                 rowItems.forEach { folder ->
                     Box(
@@ -100,7 +103,7 @@ fun DeletedListGridScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 4.dp)
             ) {
                 rowItems.forEach { note ->
                     Box(
@@ -121,41 +124,41 @@ fun DeletedListGridScreen(
             }
         }
 
-        item {
-            Text(
-                text = "페이지(${pages.size})",
-                fontFamily = FontFamily.Default,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF5584FD),
-                modifier = Modifier.padding(20.dp, 0.dp)
-            )
-        }
-
-        items(pages.chunked(5)) { rowItems ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                rowItems.forEach { page ->
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp)
-                    ) {
-                        PageItem(page, navController)
-                    }
-                }
-                repeat(5 - rowItems.size) {
-                    Spacer(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp)
-                    )
-                }
-            }
-        }
+//        item {
+//            Text(
+//                text = "페이지(${pages.size})",
+//                fontFamily = FontFamily.Default,
+//                fontSize = 24.sp,
+//                fontWeight = FontWeight.Bold,
+//                color = Color(0xFF5584FD),
+//                modifier = Modifier.padding(20.dp, 0.dp)
+//            )
+//        }
+//
+//        items(pages.chunked(5)) { rowItems ->
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(vertical = 4.dp)
+//            ) {
+//                rowItems.forEach { page ->
+//                    Box(
+//                        modifier = Modifier
+//                            .weight(1f)
+//                            .padding(8.dp)
+//                    ) {
+//                        PageItem(page, navController)
+//                    }
+//                }
+//                repeat(5 - rowItems.size) {
+//                    Spacer(
+//                        modifier = Modifier
+//                            .weight(1f)
+//                            .padding(8.dp)
+//                    )
+//                }
+//            }
+//        }
     }
     Spacer(modifier = Modifier.height(20.dp))
 }
@@ -189,13 +192,13 @@ fun FolderItem(folder: TrashFolder, navController: NavController) {
             fontSize = 16.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(100.dp) // 가로 영역 제한
+            modifier = Modifier.widthIn(max = 100.dp)
         )
         Text(
             text = folder.updatedAt.format(DateTimeFormatter.ISO_DATE),
             fontFamily = FontFamily.Default,
             fontSize = 16.sp,
-            modifier = Modifier.width(100.dp) // 가로 영역 제한
+            modifier = Modifier.widthIn(max = 100.dp)
         )
     }
 }
@@ -229,12 +232,12 @@ fun NoteItem(note: TrashNote, navController: NavController) {
             fontSize = 16.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.width(100.dp) // 가로 영역 제한
+            modifier = Modifier.widthIn(max = 100.dp)
         )
         Text(
             text = note.updatedAt.format(DateTimeFormatter.ISO_DATE),
             fontSize = 16.sp,
-            modifier = Modifier.width(100.dp) // 가로 영역 제한
+            modifier = Modifier.widthIn(max = 100.dp)
         )
     }
 }
