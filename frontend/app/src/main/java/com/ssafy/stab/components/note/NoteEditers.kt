@@ -38,6 +38,7 @@ import com.ssafy.stab.util.note.NoteControlViewModel
 @Composable
 fun ControlsBar(
     viewModel: NoteControlViewModel,
+    onImageSelect: (String) -> Unit
 ) {
     val undoAvailable by viewModel.undoAvailable.collectAsState()
     val redoAvailable by viewModel.redoAvailable.collectAsState()
@@ -90,11 +91,12 @@ fun ControlsBar(
 //        ) {
 //            viewModel.changePenType(PenType.Lasso)
 //        }
-        EditIcons(
-            R.drawable.image_abled,
-            "insert image"
+        PenIcons(
+            if (viewModel.penType == PenType.Image) R.drawable.image_abled else R.drawable.image_disabled,
+            "insert image", PenType.Image, viewModel
         ) {
             viewModel.changePenType(PenType.Image)
+            onImageSelect("image/*")
         }
     }
 }

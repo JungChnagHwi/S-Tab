@@ -296,7 +296,7 @@ fun ListGridScreen(
                 onClick = { viewModel.closeAllOptions() },
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
-            )
+            ),
     ) {
         LazyColumn {
             item {
@@ -304,16 +304,20 @@ fun ListGridScreen(
                     Row(modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)) {
-                        Column(modifier = Modifier
-                            .weight(1f)
-                            .padding(0.dp, 5.dp, 25.dp, 0.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(0.dp, 5.dp, 25.dp, 0.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
                             Image(
                                 painter = createNoteImg,
                                 contentDescription = "새 노트 만들기",
                                 modifier = Modifier
                                     .width(102.dp)
-                                    .height(136.dp)
-                                    .clip(RoundedCornerShape(20))
+                                    .height(146.dp)
+//                                    .clip(RoundedCornerShape(18))
                                     .clickable {
                                         showCreateOptions.value = !showCreateOptions.value
                                     }
@@ -324,7 +328,8 @@ fun ListGridScreen(
                         combinedList.take(4).forEach { item ->
                             Box(modifier = Modifier
                                 .weight(1f)
-                                .padding(8.dp)) {
+                                .padding(8.dp),
+                                contentAlignment = Alignment.Center) {
                                 when (item) {
                                     is Folder -> FolderItem(folder = item, viewModel = viewModel,
                                         executeDelete = { executeDelete() },
@@ -342,7 +347,7 @@ fun ListGridScreen(
                         repeat(4 - combinedList.take(4).size) {
                             Spacer(modifier = Modifier
                                 .weight(1f)
-                                .padding(8.dp))
+                                .padding(8.dp),)
                         }
                     }
 
@@ -385,7 +390,7 @@ fun ListGridScreen(
                         rowItems.forEach { item ->
                             Box(modifier = Modifier
                                 .weight(1f)
-                                .padding(8.dp)) {
+                                .padding(8.dp), contentAlignment = Alignment.Center) {
                                 when (item) {
                                     is Folder -> FolderItem(folder = item, viewModel,
                                         executeDelete = { executeDelete() },
@@ -468,7 +473,7 @@ fun FolderItem(
                     text = folder.title,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.width(100.dp)
+                    modifier = Modifier.widthIn(max = 100.dp)
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 Image(painter = modiImg, contentDescription = null, modifier = Modifier
@@ -549,7 +554,7 @@ fun NoteItem(
                     text = note.title,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.width(100.dp)
+                    modifier = Modifier.widthIn(max = 100.dp)
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 Image(painter = modiImg, contentDescription = null, modifier = Modifier

@@ -5,7 +5,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.gson.annotations.SerializedName
 import com.ssafy.stab.data.note.BackgroundColor
 import com.ssafy.stab.data.note.Figure
-import com.ssafy.stab.data.note.Image
+import com.ssafy.stab.data.note.ImageInfo
 import com.ssafy.stab.data.note.PathInfo
 import com.ssafy.stab.data.note.TemplateType
 import com.ssafy.stab.data.note.TextBox
@@ -35,7 +35,7 @@ data class PageDetail(
     @SerializedName("textBoxes")
     val textBoxes: SnapshotStateList<TextBox>? = mutableStateListOf(),
     @SerializedName("images")
-    val images: SnapshotStateList<Image>? = mutableStateListOf(),
+    val images: SnapshotStateList<ImageInfo>? = mutableStateListOf(),
 )
 
 data class PageListResponse(

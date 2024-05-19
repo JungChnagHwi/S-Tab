@@ -40,6 +40,7 @@ import java.io.IOException
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import coil.compose.rememberAsyncImagePainter
 
@@ -66,128 +67,156 @@ fun SignUp(onNavigate: (String) -> Unit) {
             contentScale = ContentScale.Crop
         )
 
-        Column(
-            horizontalAlignment = Alignment.End,
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+        Row(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.height(80.dp))
-
-            // 프로필 이미지와 사진선택 칸 분리
-            Column (
+            Box(
                 modifier = Modifier
-                    .offset(x = (-200).dp, y = (100).dp)
-            ){
-                val basicProfileUrl = BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png"
-                val basicProfileImg = rememberAsyncImagePainter(model = basicProfileUrl)
-                
-                if (imageUri != null) {
-                    ImagePreview(imageUri = imageUri, modifier = Modifier.size(200.dp))
-                } else {
-                    Image(
-                        painter = basicProfileImg,
-                        contentDescription = "기본 프로필 이미지",
-                        modifier = Modifier
-                            .size(200.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_PICK)
-                        intent.type = "image/*"
-                        pickImageLauncher.launch(intent)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                    modifier = Modifier
-                        .width(200.dp)  // 버튼 너비 조절
-                        .height(50.dp)
-
-                ) {
-                    Text(
-                        "프로필 사진 선택",
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier
-                    .offset(x = (-155).dp, y = (150).dp)
+                    .fillMaxHeight()
+                    .weight(0.6f)
+                    .padding(top = 40.dp),
+                contentAlignment = Alignment.BottomCenter
             ) {
-
-                OutlinedTextField(
-                    value = nickname,
-                    onValueChange = {newValue ->
-                        if (newValue.isEmpty() || newValue.first() != ' ') {
-                            nickname = newValue
-                        }
-                    },
-                    placeholder = { Text("닉네임", fontSize = 16.sp, textAlign = TextAlign.Center) },
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .background(Color.White)
-                        .border(0.dp, SolidColor(Color.White), RoundedCornerShape(8.dp))
-                        .width(200.dp)
-                        .height(56.dp)
-                        .offset(x = (0).dp, y = (0).dp),
-                    singleLine = true
+                Image(
+                    painter = painterResource(id = R.drawable.landing),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxHeight(),
+                    alignment = Alignment.BottomStart,
+                    contentScale = ContentScale.Crop
                 )
-
-                Spacer(modifier = Modifier.padding(5.dp))
-
-                Button(
-                    onClick = {
-                        checkNickName(nickname) { available ->
-                            nickNameAvailable = available
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF86E2FF)
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .width(86.dp)
-                        .height(56.dp)
-                        .offset(x = (0).dp, y = (0).dp)
-                        .padding(horizontal = 0.dp, vertical = 0.dp)
-                ) {
-                    Text(
-                        "중복 확인",
-                        color = Color.Black,
-                        fontSize = 8.sp,
-                        maxLines = 1,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF86E2FF),
-//                    disabledContainerColor = Color(0xFF86E2FF)
-                ),
-                onClick = {
-                    s3uri(context, Uri.parse(imageUri.toString()), nickname)
-                    onNavigate("space")
-                },
-                enabled = nickNameAvailable,
-                shape = RoundedCornerShape(8.dp),
+            Column(
                 modifier = Modifier
-                    .width(300.dp)  // 너비 조절
-                    .height(56.dp)
-                    .offset(x = (-150).dp, y = (150).dp)
+                    .fillMaxSize()
+                    .weight(0.4f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Text("회원가입 완료", color = Color.Black, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "S - Tab",
+                    fontFamily = FontFamily.Default,
+                    fontSize = 120.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(60.dp))
+
+                Column(
+                    modifier = Modifier
+                        .background(Color(0xAAE9ECF5), RoundedCornerShape(20.dp))
+                        .fillMaxHeight(0.7f)
+                        .fillMaxWidth(0.65f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    // 프로필 이미지와 사진선택 칸 분리
+                    Column (
+                        modifier = Modifier
+                    ){
+                        val basicProfileUrl = BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png"
+                        val basicProfileImg = rememberAsyncImagePainter(model = basicProfileUrl)
+
+                        if (imageUri != null) {
+                            ImagePreview(imageUri = imageUri, modifier = Modifier.size(200.dp))
+                        } else {
+                            Image(
+                                painter = basicProfileImg,
+                                contentDescription = "기본 프로필 이미지",
+                                modifier = Modifier
+                                    .size(180.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = {
+                                val intent = Intent(Intent.ACTION_PICK)
+                                intent.type = "image/*"
+                                pickImageLauncher.launch(intent)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                            modifier = Modifier
+                                .width(200.dp)  // 버튼 너비 조절
+                                .height(50.dp)
+
+                        ) {
+                            Text(
+                                "프로필 사진 선택",
+                                color = Color.Black,
+                                fontSize = 20.sp,
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Row(
+                        modifier = Modifier
+                    ) {
+
+                        OutlinedTextField(
+                            value = nickname,
+                            onValueChange = {newValue ->
+                                if (newValue.isEmpty() || newValue.first() != ' ') {
+                                    nickname = newValue
+                                }
+                            },
+                            placeholder = { Text("닉네임", fontSize = 16.sp, textAlign = TextAlign.Center) },
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .background(Color.White, RoundedCornerShape(8.dp))
+                                .border(0.dp, SolidColor(Color.White), RoundedCornerShape(8.dp))
+                                .width(200.dp)
+                                .height(56.dp),
+                            singleLine = true
+                        )
+
+                        Spacer(modifier = Modifier.padding(5.dp))
+
+                        Button(
+                            onClick = {
+                                checkNickName(nickname) { available ->
+                                    nickNameAvailable = available
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF3957A4)
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .height(56.dp)
+                        ) {
+                            Text(
+                                "중복 확인",
+                                color = Color.White,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 20.sp
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF86E2FF),
+        //                    disabledContainerColor = Color(0xFF86E2FF)
+                        ),
+                        onClick = {
+                            s3uri(context, Uri.parse(imageUri.toString()), nickname)
+                            onNavigate("space")
+                        },
+                        enabled = nickNameAvailable,
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .width(300.dp)  // 너비 조절
+                            .height(56.dp)
+                    ) {
+                        Text("회원가입 완료", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    }
+                }
             }
         }
     }

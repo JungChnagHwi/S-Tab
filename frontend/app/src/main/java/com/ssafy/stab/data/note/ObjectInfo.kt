@@ -17,10 +17,17 @@ data class TextBox(
     val y: Float
 )
 
-data class Image(
+data class ImageInfo(
     val url: String,
-    val width: Float,
-    val height: Float,
+    val width: Float = 0f,
+    val height: Float = 0f,
     val x: Float,
     val y: Float
+)
+
+data class PageImageInfo(
+//    var order: Int,
+    val userName: String,
+    var pageId: String,
+    val imageInfo: ImageInfo
 )
