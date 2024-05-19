@@ -281,13 +281,13 @@ fun EditProfileDialog(
                     val basicProfileImg = rememberAsyncImagePainter(model = beforeImage)
 
                     if (beforeImageUri != null) {
-                        ImagePreview(imageUri = beforeImageUri, modifier = Modifier.size(200.dp))
+                        ImagePreview(imageUri = beforeImageUri, modifier = Modifier.size(180.dp))
                     } else {
                         Image(
                             painter = basicProfileImg,
                             contentDescription = "기본 프로필 이미지",
                             modifier = Modifier
-                                .size(200.dp)
+                                .size(180.dp)
                                 .clip(CircleShape),
                             contentScale = ContentScale.Crop
                         )
