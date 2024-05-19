@@ -70,51 +70,18 @@ public class FolderService {
 				.build();
 	}
 
-	public FolderResponseDto getSpaceDetail(String spaceId) {
-		List<Folder> folders = folderRepository.findFoldersBySpaceId(spaceId);
-		List<Note> notes = noteRepository.findNotesBySpaceId(spaceId);
-
-		List<FolderResponseDto.FolderInfo> folderInfos = folders.stream().map(folder -> {
-			FolderResponseDto.FolderInfo info = new FolderResponseDto.FolderInfo();
-			info.setFolderId(folder.getFolderId());
-			info.setTitle(folder.getTitle());
-			info.setCreatedAt(folder.getCreatedAt());
-			info.setUpdatedAt(folder.getUpdatedAt());
-			info.setIsDeleted(folder.getIsDeleted());
-			info.setIsLiked(false);
-			return info;
-		}).collect(Collectors.toList());
-
-		List<FolderResponseDto.NoteInfo> noteInfos = notes.stream().map(note -> {
-			FolderResponseDto.NoteInfo info = new FolderResponseDto.NoteInfo();
-			info.setNoteId(note.getNoteId());
-			info.setTitle(note.getTitle());
-			info.setTotalPageCnt(note.getTotalPageCnt());
-			info.setCreatedAt(note.getCreatedAt());
-			info.setUpdatedAt(note.getUpdatedAt());
-			info.setIsDeleted(note.getIsDeleted());
-			info.setIsLiked(false);
-			return info;
-		}).collect(Collectors.toList());
-
-		FolderResponseDto responseDto = new FolderResponseDto();
-		responseDto.setFolders(folderInfos);
-		responseDto.setNotes(noteInfos);
-		return responseDto;
-	}
-
 	//폴더 생성
 	public CreateFolderResponseDto createFolder(CreateFolderRequestDto request) throws FolderNotFoundException {
+		// 부모 폴더 ID로 조회
+		Folder parentFolder = folderRepository.findFolderById(request.getParentFolderId())
+				.orElseThrow(() -> new FolderNotFoundException("존재하지 않는 폴더입니다."));
+
 		// 부모 폴더 찾기
 		Folder newFolder = new Folder();
 		newFolder.setTitle(request.getTitle());
 
 		String formattedFolderId = IdCreator.create("f");
 		newFolder.setFolderId(formattedFolderId);
-
-		// 부모 폴더 또는 스페이스 ID로 조회
-		Folder parentFolder = folderRepository.findFolderById(request.getParentFolderId())
-				.orElseThrow(() -> new FolderNotFoundException("존재하지 않는 폴더입니다."));
 
 		newFolder.setSpaceId(parentFolder.getSpaceId());
 		List<Folder> subFolders = parentFolder.getSubFolders();

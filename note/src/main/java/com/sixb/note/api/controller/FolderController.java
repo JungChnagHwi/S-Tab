@@ -33,12 +33,6 @@ public class FolderController {
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("/space/{spaceId}")
-	public ResponseEntity<FolderResponseDto> getSpaceById(@PathVariable("spaceId") String spaceId) {
-		FolderResponseDto spaceInfo = folderService.getSpaceDetail(spaceId);
-		return ResponseEntity.ok(spaceInfo);
-	}
-
 	@PostMapping
 	public ResponseEntity<?> createFolder(@RequestBody CreateFolderRequestDto request) {
 		try {
