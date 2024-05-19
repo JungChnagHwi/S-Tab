@@ -208,7 +208,7 @@
   - `Create new...` 버튼 클릭하여 `Key store` 생성<br/>
     ![build3](./assets/build3.png)<br/>
 
-  - `Key sotre path`, `Password`, `Confirm`, `First and Last Name` 입력 후 `OK` 버튼 클릭, `Next` 버튼 클릭<br/>
+  - `Key store path`, `Password`, `Confirm`, `First and Last Name` 입력 후 `OK` 버튼 클릭, `Next` 버튼 클릭<br/>
     ![build4](./assets/build4.png)<br/>
 
   - `release` 선택 후 `Finish` 버튼 클릭<br/>
@@ -285,7 +285,8 @@
       }
       ```
 
-    - `./ssl` 폴더에 SSL 인증서 저장, `./index` 폴더 내 서버 static 파일 저장
+    - `./ssl` 폴더에 SSL 인증서 저장, `./index` 폴더에 서버 static 파일 저장
+
     - 이후
       ```bash
       sudo docker compose up -d
