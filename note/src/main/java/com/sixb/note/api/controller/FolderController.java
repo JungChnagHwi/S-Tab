@@ -3,6 +3,7 @@ package com.sixb.note.api.controller;
 import com.sixb.note.api.service.FolderService;
 import com.sixb.note.dto.folder.*;
 import com.sixb.note.exception.FolderNotFoundException;
+import com.sixb.note.exception.SpaceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,21 +18,19 @@ public class FolderController {
 	private final FolderService folderService;
 
 	@GetMapping("/{folderId}")
-	public ResponseEntity<FolderResponseDto> getFolderById(@PathVariable("folderId") String folderId, @RequestParam long userId) {
-		FolderResponseDto folderInfo = folderService.getFolderDetail(folderId, userId);
-		return ResponseEntity.ok(folderInfo);
+	public ResponseEntity<?> getFolderById(@PathVariable("folderId") String folderId, @RequestParam long userId) {
+		try {
+			FolderResponseDto folderInfo = folderService.getFolderDetail(folderId, userId);
+			return ResponseEntity.ok(folderInfo);
+		} catch (FolderNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
 	}
 
 	@GetMapping("/name")
 	public ResponseEntity<FolderResponseDto> getFolderByName(@RequestParam long userId, @RequestParam String name, @RequestParam String spaceId) {
 		FolderResponseDto response = folderService.getFolderByName(userId, UriEncoder.decode(name), spaceId);
 		return ResponseEntity.ok(response);
-	}
-
-	@GetMapping("/space/{spaceId}")
-	public ResponseEntity<FolderResponseDto> getSpaceById(@PathVariable("spaceId") String spaceId) {
-		FolderResponseDto spaceInfo = folderService.getSpaceDetail(spaceId);
-		return ResponseEntity.ok(spaceInfo);
 	}
 
 	@PostMapping
@@ -67,8 +66,12 @@ public class FolderController {
 	}
 
 	@PostMapping("/list")
-	public ResponseEntity<FolderListResponseDto> getFoldersBetween(@RequestBody FolderListRequestDto requestDto) {
-		FolderListResponseDto responseDto = folderService.getFoldersBetween(requestDto);
-		return ResponseEntity.ok(responseDto);
+	public ResponseEntity<?> getFoldersBetween(@RequestBody FolderListRequestDto requestDto) {
+		try {
+			FolderListResponseDto responseDto = folderService.getFoldersBetween(requestDto);
+			return ResponseEntity.ok(responseDto);
+		} catch (FolderNotFoundException | SpaceNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
 	}
 }

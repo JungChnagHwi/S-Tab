@@ -15,9 +15,6 @@ public interface FolderRepository extends Neo4jRepository<Folder, String>, Folde
 	@Query("MATCH (p:Folder)-[:Hierarchy]->(c:Folder) WHERE p.folderId = $folderId AND c.isDeleted = false RETURN c")
 	List<Folder> findSubFoldersByFolderId(String folderId);
 
-	@Query("MATCH (s:Space {spaceId: $spaceId})-[:Hierarchy]->(f:Folder) WHERE f.isDeleted = false RETURN f")
-	List<Folder> findFoldersBySpaceId(@Param("spaceId") String spaceId);
-
 	@Query("MATCH (u:User {userId: $userId})-[:Join]->(s:Space)-[:Hierarchy*]->(f:Folder) " +
 			"WHERE f.isDeleted = true AND f.updatedAt >= $limit " +
 			"MATCH (f1:Folder {isDeleted: false})-[:Hierarchy]->(f) " +
