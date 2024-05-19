@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Divider
@@ -22,7 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.stab.R
@@ -37,6 +40,7 @@ import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
 import com.ssafy.stab.modals.CreateNoteModal
 import com.ssafy.stab.modals.FileEditModal
+import com.ssafy.stab.screens.space.bookmark.PageItem
 import com.ssafy.stab.screens.space.personal.*
 import com.ssafy.stab.util.SocketManager
 import java.time.format.DateTimeFormatter
@@ -47,6 +51,9 @@ fun NoteListSpace(nowId: String, viewModel:NoteListViewModel, onNote: (String) -
     val folderIdState = rememberUpdatedState(nowId)
     val glassImg = painterResource(id = R.drawable.glass)
     var searchText by remember { mutableStateOf("") }
+    val searchFolders = remember { mutableStateListOf<Folder>() }
+    val searchNotes = remember { mutableStateListOf<Note>() }
+    val isSearching by remember { derivedStateOf { searchText.isNotBlank() && (searchFolders.isNotEmpty() || searchNotes.isNotEmpty()) } }
 
     Column {
         Spacer(modifier = Modifier.height(5.dp))
@@ -76,11 +83,13 @@ fun NoteListSpace(nowId: String, viewModel:NoteListViewModel, onNote: (String) -
                                 if (res != null) {
                                     Log.d("검색", searchText)
                                     Log.d("폴더", res.joinToString(","))
+                                    searchFolders.addAll(res)
                                 }
                             },
                             {res ->
                                 if (res != null) {
                                     Log.d("노트", res.joinToString(","))
+                                    searchNotes.addAll(res)
                                 }
                             }
                         )
@@ -115,11 +124,87 @@ fun NoteListSpace(nowId: String, viewModel:NoteListViewModel, onNote: (String) -
         Spacer(modifier = Modifier.height(5.dp))
         Row {
             Spacer(modifier = Modifier.width(15.dp))
-            ListGridScreen(folderIdState.value, viewModel, onNote)
+            if (isSearching) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    SearchResultDisplay(searchFolders, searchNotes, viewModel, onNote)
+                }
+            } else {
+                ListGridScreen(folderIdState.value, viewModel, onNote)
+            }
         }
     }
 }
 
+@Composable
+fun SearchResultDisplay(folders: List<Folder>, notes: List<Note>, viewModel: NoteListViewModel, onNote: (String) -> Unit) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp, 0.dp)
+    ) {
+        item {
+            Text(
+                text = "폴더(${folders.size})",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF5584FD),
+                modifier = Modifier.padding(20.dp, 0.dp)
+            )
+        }
+
+        items(folders.chunked(5)) { rowItems ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                rowItems.forEach { folder ->
+                    Box(modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp)) {
+                        FolderItem(folder = folder, viewModel, {}, {})
+                    }
+                }
+                repeat(5 - rowItems.size) {
+                    Spacer(modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp))
+                }
+            }
+        }
+
+        item {
+            Text(
+                text = "노트(${notes.size})",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF5584FD),
+                modifier = Modifier.padding(20.dp, 0.dp)
+            )
+        }
+
+        items(notes.chunked(5)) { rowItems ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                rowItems.forEach { note ->
+                    Box(modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp)) {
+                        NoteItem(note = note, viewModel, onNote, {}, {})
+                    }
+                }
+                repeat(5 - rowItems.size) {
+                    Spacer(modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp))
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun ListGridScreen(

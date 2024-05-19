@@ -34,7 +34,6 @@ import com.ssafy.stab.R
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.screens.space.NoteListSpace
 import com.ssafy.stab.screens.space.NoteListViewModel
-import com.ssafy.stab.util.SocketManager
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
