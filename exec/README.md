@@ -42,7 +42,7 @@
     - Websocket Client 2.9
   - Back-End
     - Java 17 (Azul Zulu version 17.0.9)
-    - Spring boot 3.2.5
+    - Spring Boot 3.2.5
     - Spring Cloud 2023.0.1
     - Neo4j 5.19.0
     - Redis 6.2.3 (6 Nodes Cluster)
@@ -65,7 +65,17 @@
 
 ### 환경 변수 설정
 
-- `./frontend`
+- `./frontend/local.properties`
+
+  ```properties
+  sdk.dir={SDK_DIRECTORY}
+  kakao_native_app_key={KAKAO_NATIVE_APP_KEY}
+  openvidu_server={OPENVIDU_SERVER_URL}
+  openvidu_secret=OPENVIDUAPP:{OPENVIDU_SECRET}
+  socket_server={SOCKET_SERVER_URL}
+  base_url={SPRING_CLOUD_API_GATEWAY_URL}
+  base_s3={AWS_S3_BUCKET_BASE_URL}
+  ```
 
 - `./eureka`, `./config`, `./gateway`, `./note`, `./auth`, `./s3`, `./ocr`
 
@@ -79,7 +89,7 @@
       redis:
         cluster:
           max-redirects: 3
-          password: ${REDIS_PASSWORD}
+          password: {REDIS_PASSWORD}
           nodes:
             - redis-1:6379
             - redis-2:6380
@@ -90,7 +100,7 @@
 
   jwt:
     token:
-      secret-key: ${JWT_SECRET_KEY}
+      secret-key: {JWT_SECRET_KEY}
   ```
 
 - Config Server Git: `note-prod.yml`
@@ -100,12 +110,12 @@
     data:
       neo4j:
         uri: neo4j://neo4j:7687
-        username: ${NEO4J_USERNAME}
-        password: ${NEO4J_PASSWORD}
+        username: {NEO4J_USERNAME}
+        password: {NEO4J_PASSWORD}
       redis:
         cluster:
           max-redirects: 3
-          password: ${REDIS_PASSWORD}
+          password: {REDIS_PASSWORD}
           nodes:
             - redis-1:6379
             - redis-2:6380
@@ -123,7 +133,7 @@
         redis:
           cluster:
             max-redirects: 3
-            password: ${REDIS_PASSWORD}
+            password: {REDIS_PASSWORD}
             nodes:
               - redis-1:6379
               - redis-2:6380
@@ -134,7 +144,7 @@
 
     jwt:
       token:
-        secret-key: ${JWT_SECRET_KEY}
+        secret-key: {JWT_SECRET_KEY}
       access-token:
         expire-length: 1800000
       refresh-token:
@@ -147,14 +157,14 @@
   cloud:
     aws:
       s3:
-        bucket: ${BUCKET_NAME}
+        bucket: {BUCKET_NAME}
       stack:
         auto: false
       region:
-        static: ${BUCKET_REGION}
+        static: {BUCKET_REGION}
       credentials:
-        access-key: ${IAM_ACCESS_KEY}
-        secret-key: ${IAM_SECRET_KEY}
+        access-key: {IAM_ACCESS_KEY}
+        secret-key: {IAM_SECRET_KEY}
   ```
 
 - Config Server Git: `ocr-prod.yml`
@@ -163,31 +173,56 @@
   feign:
     naver-cloud:
       clova-ocr-api:
-        secret-key: ${NAVER_CLOVA_OCR_API_KEY}
-        url: ${NAVER_CLOUD_API_GATEWAY_OCR_URL}
-        path: ${NAVER_CLOUD_API_GATEWAY_OCR_PATH}
+        secret-key: {NAVER_CLOVA_OCR_API_KEY}
+        url: {NAVER_CLOUD_API_GATEWAY_OCR_URL}
+        path: {NAVER_CLOUD_API_GATEWAY_OCR_PATH}
   ```
 
 - `./gpt/.env`
 
   ```properties
-  OPENAI_API_KEY=${OPENAI_API_KEY}
-  EUREKA_SERVER_URL=${EUREKA_SERVER_URL}
+  OPENAI_API_KEY={OPENAI_API_KEY}
+  EUREKA_SERVER_URL={EUREKA_SERVER_URL}
   ```
 
 - `./socket/.env`
 
   ```properties
-  EUREKA_SERVICE_URL=${EUREKA_SERVER_URL}
-  IP_ADDR=${EC2_PUBLIC_IP}
-  HOST_NAME=${EC2_HOST_NAME}
-  VIP_ADDR=${SERVER_VIRTUAL_IP}
-  port=${SERVER_PORT}
+  EUREKA_SERVICE_URL={EUREKA_SERVER_URL}
+  IP_ADDR={EC2_PUBLIC_IP}
+  HOST_NAME={EC2_HOST_NAME}
+  VIP_ADDR={SERVER_VIRTUAL_IP}
+  port={SERVER_PORT}
   ```
 
 ### 빌드 및 배포
 
 - `./frontend`
+
+  - Android Studio의 `Build > Generate Signed App Bundle / APK...` 메뉴 선택<br/>
+    ![build1](./assets/build1.png)<br/>
+
+  - `APK` 선택 후 `Next` 버튼 클릭<br/>
+    ![build2](./assets/build2.png)<br/>
+
+  - `Create new...` 버튼 클릭하여 `Key store` 생성<br/>
+    ![build3](./assets/build3.png)<br/>
+
+  - `Key sotre path`, `Password`, `Confirm`, `First and Last Name` 입력 후 `OK` 버튼 클릭, `Next` 버튼 클릭<br/>
+    ![build4](./assets/build4.png)<br/>
+
+  - `release` 선택 후 `Finish` 버튼 클릭<br/>
+    ![build5](./assets/build5.png)<br/>
+
+  - Key store path에 생성된 key의 hash 값 생성
+
+    ```bash
+    keytool -exportcert -alias <RELEASE_KEY_ALIAS> -keystore <RELEASE_KEY_PATH> | openssl sha1 -binary | openssl base64
+    ```
+
+  - 생성된 Key hash 값 Kakao developers에 등록
+
+  - `./app/release` 폴더 내 생성된 APK 파일 실행
 
 - EC2-1
 
@@ -222,13 +257,13 @@
       ```nginx
       server {
           listen 80;
-          server_name {SERVER_NAME};
+          server_name <SERVER_NAME>;
           return 301 https://$host$request_uri;
       }
 
       server {
           listen 443 ssl;
-          server_name {SERVER_NAME};
+          server_name <SERVER_NAME>;
 
           ssl_certificate /etc/ssl/certificate.crt;
           ssl_certificate_key /etc/ssl/private.key;
@@ -251,7 +286,10 @@
       ```
 
     - `./ssl` 폴더에 SSL 인증서 저장, `./index` 폴더 내 서버 static 파일 저장
-    - 이후 `sudo docker compose up -d`
+    - 이후
+      ```bash
+      sudo docker compose up -d
+      ```
 
   - Redis cluster
 
@@ -371,7 +409,7 @@
 
       sudo docker exec -it redis-1 bash
 
-      redis-cli -a {PASSWORD} --cluster create {SERVER_IP}:6379 {SERVER_IP}:6380 {SERVER_IP}:6381 {SERVER_IP}:6382 {SERVER_IP}:6383 {SERVER_IP}:6384 --cluster-replicas 1
+      redis-cli -a <PASSWORD> --cluster create <SERVER_IP>:6379 <SERVER_IP>:6380 <SERVER_IP>:6381 <SERVER_IP>:6382 <SERVER_IP>:6383 <SERVER_IP>:6384 --cluster-replicas 1
 
       exit
       ```
@@ -379,7 +417,7 @@
   - Neo4j
 
     ```bash
-    sudo docker run --name neo4j -d -p 7474:7474 -p 7473:7473 -p 7687:7687 --net db-network -v ./neo4j/data:/data -v ./neo4j/logs:/logs --env NEO4J_AUTH=neo4j/{PASSWORD} neo4j:latest
+    sudo docker run --name neo4j -d -p 7474:7474 -p 7473:7473 -p 7687:7687 --net db-network -v ./neo4j/data:/data -v ./neo4j/logs:/logs --env NEO4J_AUTH=neo4j/<PASSWORD> neo4j:latest
     ```
 
   - `./eureka`
