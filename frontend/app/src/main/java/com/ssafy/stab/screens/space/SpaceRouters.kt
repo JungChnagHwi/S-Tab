@@ -276,20 +276,25 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
                         .width(200.dp)
                         .height(200.dp)
                 ) {
-                    Text(
-                        "프로필 사진 선택",
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (beforeImageUri != null) {
+                        ImagePreview(imageUri = beforeImageUri, modifier = Modifier.fillMaxSize())
+                    } else {
+                        Text(
+                            "프로필 사진 선택",
+                            color = Color.Black,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
-            Spacer(modifier = Modifier.width(50.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             Row(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
                 OutlinedTextField(
                     value = nickname,

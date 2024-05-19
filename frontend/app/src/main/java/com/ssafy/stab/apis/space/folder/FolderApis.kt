@@ -109,3 +109,22 @@ fun deleteFolder(folderId: String) {
         }
     })
 }
+
+fun searchFile(spaceId: String, name: String, onFolderResult: (List<Folder>?) -> Unit, onNoteResult: (List<Note>?) -> Unit){
+    val call = apiService.searchFile(authorizationHeader, spaceId, name)
+
+    call.enqueue(object : Callback<FileListResponse> {
+        override fun onResponse(call: Call<FileListResponse>, response: Response<FileListResponse>) {
+            if (response.isSuccessful) {
+                onFolderResult(response.body()?.folders)
+                onNoteResult(response.body()?.notes)
+            } else {
+                Log.d("검색", "실패")
+            }
+        }
+
+        override fun onFailure(call: Call<FileListResponse>, t: Throwable) {
+            Log.d("검색", "실패")
+        }
+    })
+}

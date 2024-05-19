@@ -1,6 +1,7 @@
 package com.ssafy.stab.screens.space
 
 import NoteListViewModelFactory
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,6 +9,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.Dialog
@@ -28,6 +31,7 @@ import com.ssafy.stab.apis.space.bookmark.deleteBookMark
 import com.ssafy.stab.apis.space.folder.Folder
 import com.ssafy.stab.apis.space.folder.Note
 import com.ssafy.stab.apis.space.folder.deleteFolder
+import com.ssafy.stab.apis.space.folder.searchFile
 import com.ssafy.stab.apis.space.note.deleteNote
 import com.ssafy.stab.data.PreferencesUtil
 import com.ssafy.stab.modals.CreateFolderModal
@@ -37,10 +41,12 @@ import com.ssafy.stab.screens.space.personal.*
 import com.ssafy.stab.util.SocketManager
 import java.time.format.DateTimeFormatter
 
+
 @Composable
 fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
     val folderIdState = rememberUpdatedState(nowId)
     val glassImg = painterResource(id = R.drawable.glass)
+    var searchText by remember { mutableStateOf("") }
 
     Column {
         Spacer(modifier = Modifier.height(5.dp))
@@ -53,13 +59,56 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
                     .background(color = Color(0xFFDCE3F1))
-                    .width(200.dp)
+                    .width(300.dp)
                     .padding(horizontal = 10.dp, vertical = 5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(painter = glassImg, contentDescription = null)
-                Spacer(modifier = Modifier.width(20.dp))
-                Text(text = "검색", fontFamily = FontFamily.Default)
+                Spacer(modifier = Modifier.width(10.dp))
+                BasicTextField(
+                    value = searchText,
+                    onValueChange = { newText ->
+                        searchText = newText
+                        searchFile(
+                            PreferencesUtil.getShareSpaceState().toString(),
+                            searchText,
+                            {res ->
+                                if (res != null) {
+                                    Log.d("검색", searchText)
+                                    Log.d("폴더", res.joinToString(","))
+                                }
+                            },
+                            {res ->
+                                if (res != null) {
+                                    Log.d("노트", res.joinToString(","))
+                                }
+                            }
+                        )
+                    },
+                    decorationBox = { innerTextField ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(40.dp) // 높이를 조절하여 더 얇게 만듦
+                                .padding(horizontal = 10.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (searchText.isEmpty()) {
+                                Text(
+                                    text = "검색",
+                                    style = TextStyle(color = Color.Gray, fontFamily = FontFamily.Default)
+                                )
+                            }
+                            innerTextField()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(
+                        fontFamily = FontFamily.Default,
+                        color = Color.Black
+                    ),
+                    singleLine = true,
+                )
             }
             Spacer(modifier = Modifier.width(20.dp))
         }
@@ -70,6 +119,8 @@ fun NoteListSpace(nowId: String, onNote: (String) -> Unit) {
         }
     }
 }
+
+
 @Composable
 fun ListGridScreen(
     initFolderId: String,

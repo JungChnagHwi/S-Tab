@@ -105,6 +105,7 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
                     Log.d("액세스 토큰", PreferencesUtil.getLoginDetails().accessToken.toString())
                     Log.d("루트 폴더", PreferencesUtil.getLoginDetails().rootFolderId.toString())
                     Log.d("이미지루트", PreferencesUtil.getLoginDetails().profileImg.toString())
+                    Log.d("스페이스 현재 아이디", PreferencesUtil.getShareSpaceState().toString())
                 }
                 .fillMaxWidth(0.8f)
                 .height(72.dp)
@@ -143,7 +144,10 @@ fun SideBar(navController: NavController, audioCallViewModel: AudioCallViewModel
         Row {
             Spacer(modifier = Modifier.width(50.dp))
             Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { navController.navigate("personal-space") }) {
+                modifier = Modifier.clickable {
+                    navController.navigate("personal-space")
+                    PreferencesUtil.saveShareSpaceState(PreferencesUtil.getLoginDetails().personalSpaceId)
+                }) {
                 Image(painter = myspImg, contentDescription = null)
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(text = "내 스페이스")

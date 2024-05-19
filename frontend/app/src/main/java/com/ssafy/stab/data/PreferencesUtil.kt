@@ -108,7 +108,7 @@ object PreferencesUtil {
     }
 
     fun getShareSpaceState(): String? {
-        val shareId = sharedPreferences.getString("ShareSpace", null)
+        val shareId = sharedPreferences.getString("ShareSpace", getLoginDetails().personalSpaceId)
         Log.d("PreferencesUtil", "Getting ShareSpaceState: $shareId")
         return shareId
     }
