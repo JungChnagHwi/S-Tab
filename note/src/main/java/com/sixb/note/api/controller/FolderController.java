@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.yaml.snakeyaml.util.UriEncoder;
 
 @RestController
 @RequestMapping("/api/folder")
@@ -23,7 +24,7 @@ public class FolderController {
 
 	@GetMapping("/name")
 	public ResponseEntity<FolderResponseDto> getFolderByName(@RequestParam long userId, @RequestParam String name, @RequestParam String spaceId) {
-		FolderResponseDto response = folderService.getFolderByName(userId, name, spaceId);
+		FolderResponseDto response = folderService.getFolderByName(userId, UriEncoder.decode(name), spaceId);
 		return ResponseEntity.ok(response);
 	}
 
