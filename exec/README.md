@@ -285,7 +285,8 @@
       }
       ```
 
-    - `./ssl` 폴더에 SSL 인증서 저장, `./index` 폴더 내 서버 static 파일 저장
+    - `./ssl` 폴더에 SSL 인증서 저장, `./index` 폴더에 서버 static 파일 저장
+
     - 이후
       ```bash
       sudo docker compose up -d
