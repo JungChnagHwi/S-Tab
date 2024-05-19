@@ -151,6 +151,7 @@ fun Header(onLogin: () -> Unit) {
         val socketManager = SocketManager.getInstance()
         var showMenu by remember { mutableStateOf(false) }
         var showEditProfileDialog by remember { mutableStateOf(false) }
+        val userNickname = details.userName.toString()
 
         Spacer(modifier = Modifier.height(15.dp))
         Row(
@@ -159,7 +160,7 @@ fun Header(onLogin: () -> Unit) {
             horizontalArrangement = Arrangement.End
         ) {
             Text(
-                text = details.userName.toString(),
+                text = userNickname,
                 fontSize = 20.sp,
                 color = Color(0xFF5584FD),
                 fontWeight = FontWeight.Bold
@@ -211,6 +212,8 @@ fun Header(onLogin: () -> Unit) {
 
         if (showEditProfileDialog) {
             EditProfileDialog(
+                beforeNickname = userNickname,
+                beforeImage = details.profileImg,
                 onDismiss = { showEditProfileDialog = false },
                 onSave = { newNickname, newImageUri ->
                     // 로직 추가: 서버에 프로필 업데이트 요청
@@ -235,11 +238,14 @@ fun Header(onLogin: () -> Unit) {
 
 
 @Composable
-fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
+fun EditProfileDialog(
+    beforeNickname: String,
+    beforeImage: String?,
+    onDismiss: () -> Unit,
+    onSave: (String, String) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
-    var nickname by remember { mutableStateOf("") }
+    var nickname by remember { mutableStateOf(beforeNickname) }
     var beforeImageUri by remember { mutableStateOf<Uri?>(null) }
-    var afterImageUri by remember { mutableStateOf("") }
     var isValid by remember { mutableStateOf(true) }
     val context = LocalContext.current
     val pickImageLauncher = rememberLauncherForActivityResult(
@@ -272,8 +278,7 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
             ) {
                 // 프로필 이미지와 사진선택 칸 분리
                 Column (){
-                    val basicProfileUrl = BuildConfig.BASE_S3 + "/image/2024/05/08/3454673260/profileImage.png"
-                    val basicProfileImg = rememberAsyncImagePainter(model = basicProfileUrl)
+                    val basicProfileImg = rememberAsyncImagePainter(model = beforeImage)
 
                     if (beforeImageUri != null) {
                         ImagePreview(imageUri = beforeImageUri, modifier = Modifier.size(200.dp))
