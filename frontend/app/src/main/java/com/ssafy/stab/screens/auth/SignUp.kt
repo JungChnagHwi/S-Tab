@@ -105,7 +105,8 @@ fun SignUp(onNavigate: (String) -> Unit) {
                     modifier = Modifier
                         .background(Color(0xAAE9ECF5), RoundedCornerShape(20.dp))
                         .fillMaxHeight(0.8f)
-                        .fillMaxWidth(0.7f),
+                        .fillMaxWidth(0.7f)
+                        .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
