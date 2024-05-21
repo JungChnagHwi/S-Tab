@@ -134,5 +134,5 @@
 | 프로필   | ![img](./docs/assets/profile1.png)     |![img](./docs/assets/profile2.png)       | ![img](./docs/assets/profile4.png)      | ![img](./docs/assets/profile3.png)       | ![img](./docs/assets/profile5.png)       | ![img](./docs/assets/profile6.png)       |
 | 역할     | 팀장<br> Frontend    | Backend | Backend     | Frontend   | Frontend           | Backend    |
 | 세부 역할 | UI/UX<br>WebRTC<br>Socket<br>Jira 관리        | MSA 설계<br>노트 페이지 <br>UI/UX 보조     |MSA 설계<br>인프라<br>Auth<br>GPT<br>S3<br>WebRTC<br>Socket  |UI/UX <br>노트 에디터<br>Socket     | UI/UX <br>회원 관리 <br>스페이스/폴더/노트        |  스페이스/폴더/노트           |
-| 깃헙 주소 | [Github](https://github.com/TakYunhui) | [Github](https://github.com/kyb99) |[Github](https://github.com/jm0nn) |[Github](https://github.com/pengisblue) | [Github](https://github.com/pengisblue) | [Github](https://github.com/JungChnagHwi) |
+| 깃헙 주소 | [Github](https://github.com/TakYunhui) | [Github](https://github.com/kyb99) |[Github](https://github.com/jm0nn) |[Github](https://github.com/pengisblue) | [Github](https://github.com/SeungjipLee) | [Github](https://github.com/JungChnagHwi) |
 
