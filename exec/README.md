@@ -49,6 +49,7 @@
     - Node.js 20.12.2
     - Socket.io 4.7.5
     - Python 3.9.19
+    - FastAPI 0.111.0
     - Langchain 0.1.17
     - OpenVidu Server 2.29.0
     - Kurento Media Server 7.0.1
