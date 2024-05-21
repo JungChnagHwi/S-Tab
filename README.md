@@ -7,18 +7,18 @@
 
 # 📚 목차
 
-1. [개요](#📘-개요)
-2. [기술 스택](#🔧-기술-스택)
-3. [설계](#✏-설계)
-4. [서비스 및 기능 소개](#📖-서비스-및-기능-소개)
-5. [팀원 소개](#👨‍👨‍👧👨‍👧‍👦-팀원-소개)
+1. [개요](#-개요)
+2. [기술 스택](#-기술-스택)
+3. [설계](#-설계)
+4. [서비스 및 기능 소개](#-서비스-및-기능-소개)
+5. [팀원 소개](#-팀원-소개)
 
 
 <br><br>
 
 # 📘 개요
 
-> **💻프로젝트 기간** : 2024.04.08 (월) ~ 2024.05.20 (월) <br> **서비스 URI** : [S-Tab APK 다운로드](https://s-tab.online/) <br> **참고 영상** : [UCC]()
+> **💻프로젝트 기간** : 2024.04.08 (월) ~ 2024.05.20 (월) <br> **서비스 사용** : exec의 README.md(포팅매뉴얼) 참고   <br> **참고 영상** : [UCC]()
 
 
 <br>
@@ -45,8 +45,7 @@
 <img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white">
 <img src="https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101">
 <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54">
-
-
+<img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi">
 
 
 <br>
@@ -71,17 +70,17 @@
 
 <br><br>
 ### - ERD
-![ERD]](./docs/assets/architecture.png)
+![ERD](./docs/assets/erd.PNG)
 
 ### - 와이어프레임
-![ERD]](./docs/assets/architecture.png)
+![와이어프레임](./docs/assets/figma.PNG)
 
 
 
 
 
 
-# 서비스 및 기능 소개 
+# 📖 서비스 및 기능 소개 
 | ![Alt text](assets/랜딩.gif) | 
 | :---------------------: | 
 | **Landing Page** |
@@ -129,5 +128,11 @@
 <br><br>
 
 
-# 👨‍👨‍👧👨‍👧‍👦 팀원 소개
+# 👨‍👨‍👧 팀원 소개
+|          | 탁윤희            | 김연빈            | 김정민            | 김해인            | 이승집            | 정창휘            |
+|----------|-------------------|-------------------|-------------------|-------------------|-------------------|-------------------|
+| 프로필   | ![img](./docs/assets/profile1.png)     |![img](./docs/assets/profile2.png)       | ![img](./docs/assets/profile4.png)      | ![img](./docs/assets/profile3.png)       | ![img](./docs/assets/profile5.png)       | ![img](./docs/assets/profile6.png)       |
+| 역할     | 팀장<br> Frontend    | Backend | Backend     | Frontend   | Frontend           | Backend    |
+| 세부 역할 | UI/UX<br>WebRTC<br>Socket<br>Jira 관리        | MSA 설계<br>노트 페이지 <br>UI/UX 보조     |MSA 설계<br>인프라<br>Auth<br>GPT<br>S3<br>WebRTC<br>Socket  |UI/UX <br>노트 에디터<br>Socket     | UI/UX <br>회원 관리 <br>스페이스/폴더/노트        |  스페이스/폴더/노트           |
+| 깃헙 주소 | [Github](https://github.com/TakYunhui) | [Github]() |[Github]() |[Github]() | [Github]() | [Github]() |
 
